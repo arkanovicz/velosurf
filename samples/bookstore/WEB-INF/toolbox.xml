@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<toolbox>
+
+  <tool>
+    <key>db</key>
+    <scope>request</scope>
+    <class>velosurf.tools.VelosurfTool</class>
+  </tool>
+
+  <tool>
+    <key>query</key>
+    <scope>request</scope>
+    <class>velosurf.tools.HttpQueryTool</class>
+  </tool>
+
+  <tool>
+    <key>logger</key>
+    <scope>application</scope>
+    <class>velosurf.util.Logger</class>
+  </tool>
+
+  <tool>
+	  <key>random</key>
+	  <scope>application</scope>
+	  <class>java.util.Random</class>
+  </tool>
+
+</toolbox>

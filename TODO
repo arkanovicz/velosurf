@@ -1,0 +1,34 @@
+TODO
+----
+ - update class diagram
+ - automatic loading of needed libraries in build.xml
+ - way of specifying a pair (entity/key parameter name) that will mark the corresponding cached entry as dirty
+ - in case of an autoincrement unique id, could Instance.insert() set the new id value in itself ? Yes, if metadata knows about autoincrements.
+ - generics for java interface (in a new package)
+ - the 'full' caching method is not really usable (unless it is possible to unload exactly one instance) - neither pratical nor clever... remove it! => caching=yes|no
+ - descending order option for entities and multivalued attributes
+ - Spring integration
+ - inheritance of entities in velosurf.xml?
+ - shared catalog: what to use as magic number?
+ - correct the behaviour of the RowIterator : hasNext() has to be called only once by loop iteration...
+ - issue a warning if the query of an attribute does not have any reference to the entity row
+ - make HttpQueryTool inherit from ParameterParser
+ - reinforce some syntax constraints on the config file (ex : attribute without 'result' argument)
+ - ability to query current schema (ex : under Oracle :  select sys_context('userenv','current_schema') from dual)
+ - add EntityReference.insert(List(columns in natural order))?
+ - SQL enums?
+ - doc : a page on relationships
+ - automatic doc generation
+ - id broker?
+ - automatic reload when the configuration file is changed (=> 1.5 - but depends upon container!)
+ - 'size' attribute on multivalued attributes?
+ - positionned updates and deletes
+ - paging via AbstractSearchTool
+ - database metadata informations and operations
+ - an easy way to associate columns to html form field types ? => VTL macros library
+ - forms validation
+ - reverse engeenering of foreign keys, if used dbms allows it (but they must be named explicitely in the SQL declaration, which is rarely the case!)
+ - allow setters by foreign-key (eg. $book.author = $author instead of $book.author_id = $author.id) ?
+ - XML databases access via IBM XML Data Mediator?
+ - inclusion mechanism for the config file
+ - autofetching via cookies => 1.5

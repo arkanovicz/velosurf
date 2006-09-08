@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Linux)">
+	<META NAME="CREATED" CONTENT="20060713;17290800">
+	<META NAME="CHANGED" CONTENT="20060830;14471500">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { size: 21cm 29.7cm }
+		H2.western { font-family: "Albany", sans-serif; font-size: 14pt; font-style: italic }
+		H2.cjk { font-family: "HG Mincho Light J"; font-size: 14pt; font-style: italic }
+		H2.ctl { font-family: "Arial Unicode MS"; font-size: 14pt; font-style: italic }
+		PRE.code { margin-left: 1.51cm }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1>Velostuff - Velocity+Velosurf Goodies</H1>
+<H1>Template files naming</H1>
+<H2 CLASS="western">Description</H2>
+<P>The convention we choosed is to have <FONT FACE="Courier New, monospace">.vtl</FONT>
+postfixed to the name of template files, after their regular
+extension. Hence, we have filenames like <FONT FACE="Courier New, monospace">foo.html.vtl</FONT>,
+<FONT FACE="Courier New, monospace">bar.txt.vtl</FONT>,...</P>
+<P>In incoming HTTP requests, we only expect the regular extension
+(i.e. the URLs won't contain any <FONT FACE="Courier New, monospace">.vtl</FONT>),
+and forbid direct access to <FONT FACE="Courier New, monospace">.vtl</FONT>
+files. For each of these requests, the engine first checks for the
+presence of a template file and then for the presence of a regular
+file.</P>
+<P>This naming convention allows us to:</P>
+<UL>
+	<LI><P>store templates and regular files in the same tree directory,
+	while forbidding direct HTTP access to template source files.</P>
+	<LI><P>replace &ldquo;on-the-fly&rdquo; a regular file with a
+	template file without changing its URL.</P>
+</UL>
+<H2 CLASS="western">Implementation</H2>
+<P>To achieve this task, we need several components.</P>
+<P>First, a TwoStepResourceLoader that will make a first try while
+adding <FONT FACE="Courier New, monospace">.vtl</FONT> to incoming
+requests before searching for the exact filename.</P>
+<PRE STYLE="margin-left: 1.51cm"><B>TwoStepResourceLoader.java</B>
+
+import java.io.InputStream;
+import org.apache.velocity.exception.ResourceNotFoundException;
+import org.apache.velocity.tools.view.servlet.WebappLoader;
+
+public class TwoStepResourceLoader extends WebappLoader
+{
+  public synchronized InputStream getResourceStream( String name )
+        throws ResourceNotFoundException {
+    // first try with a &quot;.vtl&quot; extension
+    if ( ! name.endsWith(&quot;.vtl&quot;) ) {
+      try {
+                return super.getResourceStream(name + &quot;.vtl&quot;);
+      } catch (ResourceNotFoundException rnfe) {}
+    }
+    // then wih the original filename
+    return super.getResourceStream(name);
+  }
+}</PRE><P>
+<BR><BR>
+</P>
+<P>We must then declare this resource loader in
+<FONT FACE="Courier New, monospace">velocity.properties</FONT>...</P>
+<PRE STYLE="margin-left: 1.51cm"><B>velocity.properties</B>
+../..
+# use the two step resource loader
+resource.loader = twostep
+twostep.resource.loader.class = TwoStepResourceLoader
+twostep.resource.loader.path = /
+../..</PRE><P>
+<BR><BR>
+</P>
+<P>Ok, now we need to forbid direct access to <FONT FACE="Courier New, monospace">.vtl</FONT>
+files. This is achieved by way of a NullServlet towards which we will
+redirect unwanted traffic.</P>
+<PRE STYLE="margin-left: 1.51cm"><B>NullServlet.java</B>
+
+[...]
+
+  protected void doRequest(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/forbidden.html&quot;);
+    dispatcher.forward(request,response);
+  }
+}</PRE><P>
+Now, we can map .html and .js files to our view servlet and .vtl
+files to the NullServlet, and everything should be ok! Well...
+almost. If our welcome page is a template (<FONT FACE="Courier New, monospace">index.html.vtl</FONT>),
+we must also declare it as a welcome file and map it towards the view
+servlet, otherwise the servlet container won't be able to find it
+when the incoming url contains just the name of the site.</P>
+<P>The final web.xml that we provide works under Resin, there may be
+some change to do to adapt it for Tomcat, Jboss or other servlet
+containers (please contribute!).</P>
+<H1>Localization</H1>
+<P>Several aspects of localization are covered here:</P>
+<UL>
+	<LI><P>Localization of web pages static part.</P>
+	<LI><P>Localization of dynamic textual data stored in the database.</P>
+</UL>
+<P>[TODO: characters encoding, numbers, currencies, dates, times,
+time zones]</P>
+<P>The browser sends its preferred languages to the server by mean of
+the Accepted-Language HTTP header, which contains a list of languages
+(based upon the RFC 1766) and an optional  preference coefficient
+(called &ldquo;quality&rdquo; - for instance: &ldquo;Accepted-Language:
+en-us,en;q=0.7&rdquo;, where the unspecified quality coefficient is
+equal to 1.0). The localization tool (<FONT FACE="Courier New, monospace">Localizer.java</FONT>)
+that we put in the session scope of our toolbox under the &ldquo;<FONT FACE="Courier New, monospace">local</FONT>&rdquo;
+key will parse this header and store in the session an ordered list
+of languages. We must also ensure that we can bypass this browser
+preference setting when the user explicitly asks for a specific
+language (by clicking on a language flag).</P>
+<H2 CLASS="western">Localization of web pages static part</H2>
+<P>No magic here. We need a specific instance of the whole site
+(static pages and templates) in each covered language. At least, we
+can provide a fall through mechanism where the default language page
+is returned instead of queried ones if they aren't available.</P>
+<P>The easiest way to organize the site hierarchy is to create a root
+directory for each language (<FONT FACE="Courier New, monospace">/fr</FONT>,
+<FONT FACE="Courier New, monospace">/en</FONT>...). All other
+non-localizable files like CSS and images are not concerned (but
+should be gathered in appropriate directories like &ldquo;<FONT FACE="Courier New, monospace">/img</FONT>&rdquo;).
+We also want this additional root directory to be transparent for
+HTTP, so we need a subclass of the <FONT FACE="Courier New, monospace">VelocityViewServlet</FONT>
+to make the link between the session and the resource loader. This
+new <FONT FACE="Courier New, monospace">LocalizationServlet</FONT>
+class will just subclass the <FONT FACE="Courier New, monospace">handleRequest</FONT>
+method and add this piece of code:</P>
+<PRE CLASS="code"><B>LocalisationServlet.java</B>
+
+[...]
+// now take queried languages into account
+Localizer localizer = (Localizer)ctx.get(&quot;local&quot;);
+if(localizer==null) {
+        Logger.error(&quot;LocalizationServlet: localizer tool not found under 'local'       name!&quot;);
+        // so? maybe try with the original path...
+        return getTemplate(path);
+}
+for(String lang:localizer.getLanguageList()) {
+        try {
+                return getTemplate(&quot;/&quot;+lang+path);
+        } catch (ResourceNotFoundException rnfe) {
+        }
+}
+
+// fall back to the original path...
+return getTemplate(path);
+[...]</PRE><P>
+<BR><BR>
+</P>
+<P>And we put this new servlet instead of the <FONT FACE="Courier New, monospace">VelocityViewServlet</FONT>
+in our <FONT FACE="Courier New, monospace">web.xml</FONT> file.Over ?
+Not yet... Since our index file is now hidden inside a language
+directory, we need a dummy <FONT FACE="Courier New, monospace">index.hml</FONT>
+file at the webapp root so that the servlet container gives control
+to our servlet (under linux, a &ldquo;<FONT FACE="Courier New, monospace">touch
+index.html</FONT>&rdquo; is sufficient...).</P>
+<P>TODO: The LocalizationServlet should check existing language
+directories and filter the requested list thereafter.</P>
+<H1>Authentication</H1>
+<H2 CLASS="western">Generic part</H2>
+<P>We implement authentication via a servlet filter
+(<FONT FACE="Courier New, monospace">AuthenticationFilter.java</FONT>)
+that simply checks that the user is authenticated and redirects
+towards the login page if not. Then, we map URLs of all restricted
+areas to that filter in <FONT FACE="Courier New, monospace">web.xml</FONT>
+(we use <FONT FACE="Courier New, monospace">/auth/</FONT>). When
+redirecting the user towards the login page, the filter saves the
+original target request and restores it if the login is successful.</P>
+<P>The filter rely on an authenticator tool (<FONT FACE="Courier New, monospace">Authenticator.java</FONT>)
+to perform the real task of authenticating the user. To avoid clear
+passwords in HTTP, we'll use a challenge+answer mechanism: within
+each login page, the webapp sends a new <I>challenge</I> under the
+form of a big integer and the login form sends back to the server a
+combination of this challenge and of the password wich is never
+transmitted in clear. On the javascript side, we make use of a big
+integer library to calculate the appropriate answer.</P>
+<P STYLE="font-style: normal">The authenticator has two abstract
+methods that must be subclassed:</P>
+<PRE STYLE="margin-left: 1.25cm">protected abstract String getPassword(String login);
+protected abstract Object getUser(String login);</PRE><P>
+<BR><BR>
+</P>
+<H2 CLASS="western">Implementation with Mysql + Velosurf</H2>
+<P><BR><BR>
+</P>
+<H1>Access rights</H1>
+<P><BR><BR>
+</P>
+</BODY>
+</HTML>

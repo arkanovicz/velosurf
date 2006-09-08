@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>Java Reference</TITLE>
+    <link rel="stylesheet" href="velosurf.css" type="text/css">
+</HEAD>
+<BODY LANG="en-US" LINK="#0000ff" VLINK="#0000ff" DIR="LTR">
+<TABLE WIDTH=100% CELLPADDING=2 CELLSPACING=2 STYLE="page-break-before: always">
+	<TR>
+		<TD WIDTH=100 VALIGN=TOP>
+			<P><A HREF="http://jakarta.apache.org/velocity/index.html"><FONT COLOR="#0000ff"><IMG SRC="powered-by-logo.gif" NAME="graphics1" ALIGN=BOTTOM WIDTH=77 HEIGHT=32 BORDER=1></FONT></A><BR><BR><A HREF="index.html">Overview</A><BR><A HREF="installation.html">Installation</A><BR><A HREF="template.html">VTL&nbsp;reference</A><BR><A HREF="configuration.html">Configuration</A><BR><A HREF="architecture.html">Architecture</A><BR><B>Java&nbsp;reference<BR></B><A HREF="faq.html">Velosurf&nbsp;FAQ</A></P>
+		</TD>
+		<TD>
+			<H1 ALIGN=LEFT>Java Reference</H1>
+			<H2 ALIGN=LEFT>Defining custom entity classes</H2>
+			<P ALIGN=LEFT>You can easily use a custom instance class for an
+			entity.</P>
+			<P ALIGN=LEFT>All you have to do is to specify its full qualified
+			name in the 'class' attribute of the target entity in the
+			configuration file. The class can be a POJO (Plain Old Java
+			Object).</P>
+			<P ALIGN=LEFT>You can then decide to declare some of the getters
+			or setters, or one of the insert(), update() or delete() methods
+			if you want to specialize them, for instance to include some
+			specific validation code.</P>
+			<P ALIGN=LEFT>It is also allowed to have your class inherit from
+			<CODE>velosurf.context.Instance</CODE>, in case it will be
+			directly used by Velosurf instead of being wrapped, which allows a
+			more advanced customization.</P>
+			<H2 ALIGN=LEFT>Standalone usage</H2>
+			<P ALIGN=LEFT>If you are not using the velocity-tools project, you
+			can easily populate a Velocity context with a code as simple as
+			this one:</P>
+			<P ALIGN=LEFT><CODE>import org.apache.velocity.Context;<BR>import
+			velosurf.standalone.Velosurf;<BR>[...]<BR><BR>context.put(&quot;db&quot;,new
+			Velosurf());</CODE></P>
+			<P ALIGN=LEFT>Some remarks, thought:</P>
+			<UL>
+				<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">You should
+				initialize <A HREF="api/velosurf/util/Logger.html">Velosurf
+				Logger</A> if you want to log to somewhere else than System.err. 
+				</P>
+				<LI><P ALIGN=LEFT>You must ensure that Velosurf will find its
+				configuration file (velosurf.xml), according to <A HREF="api/velosurf/standalone/Velosurf.html">this
+				documentation</A>. 
+				</P>
+			</UL>
+			<P ALIGN=LEFT>Alternatively, you can handle yourself the
+			initialization process:</P>
+			<UL>
+				<P ALIGN=LEFT><CODE>import velosurf.context.DBReference;<BR>import
+				velosurf.sql.DBConnection;<BR>[...]<BR>// static initialisation
+				(do it once)<BR>InputStream is =
+				inServletContext.getResourceAsStream(&quot;./path/to/velosurf.xml&quot;);<BR>DBConnection
+				connection = DBConnection.getInstance(is);<BR>[...]<BR>// context
+				initialisation (for each new context)<BR>DBReference db = new
+				DBReference(connection);<BR>context.put(&quot;db&quot;,db);</CODE></P>
+			</UL>
+			<H2 ALIGN=LEFT>Javadoc</H2>
+			<P ALIGN=LEFT>You can build the <A HREF="api/index.html">javadoc</A>
+			using the 'javadoc' ant target.</P>
+			<H2 ALIGN=LEFT>Using Velosurf from within Java</H2>
+			<P ALIGN=LEFT>Velosurf can be used from Java as easily as from
+			VTL.</P>
+			<P ALIGN=LEFT>It can be more convenient than using the jdbc
+			classes and methods, especially if you want to re-use from Java
+			the attributes you have defined in velosurf.xml.</P>
+			<P ALIGN=LEFT>Please note that to avoid sql connection timeouts,
+			you should not declare Velosurf prepared statements as variables
+			having a long lifecycle (like static members). You should only
+			keep references to Velosurf connection objets on the long term
+			(they do handle timeouts).</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=100 VALIGN=TOP></TD>
+		<TD></TD>
+	</TR>
+</TABLE>
+<P><BR><BR>
+</P>
+</BODY>
+</HTML>

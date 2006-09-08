@@ -1,0 +1,56 @@
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<meta name="generator" content="Adobe GoLive 4">
+		<title>Architecture</title>
+		<link rel="stylesheet" href="velosurf.css" type="text/css">
+	</head>
+
+	<body>
+		<table width="100%">
+			<tr>
+				<td width="100" valign="top"><a href="http://jakarta.apache.org/velocity/index.html"><img src="powered-by-logo.gif" width="77" height="32"></a><br>
+					<br>
+					<a href="index.html">Overview</a><br>
+					<a href="installation.html">Installation</a><br>
+					<a href="template.html">VTL&nbsp;reference</a><br>
+					<a href="configuration.html">Configuration</a><br>
+                    <b>Architecture</b><br>
+   					<a href="java.html">Java&nbsp;reference<br>
+					</a><a href="faq.html">Velosurf&nbsp;FAQ</a></td>
+				<td align="left">
+					<h1>Architecture</h1>
+					<p>This section gives some elements on the inner architecture of Velosurf.</p>
+					<p>Here are the main packages of Velosurf:</p>
+					<ul>
+						<li><a href="./api/velosurf/cache/package-summary.html"><code>velosurf.cache</code></a> contains the cache (used by the <code>Entity</code> class).
+						<li><a href="./api/velosurf/context/package-summary.html"><code>velosurf.context</code></a> contains all the classes that are to be populated 
+						in Velocity contexts. Some of them are wrappers for internal classes (see the diagram below).
+						<li><a href="./api/velosurf/model/package-summary.html"><code>velosurf.model</code></a> contains the classes that help modelize the data model 
+						as reverse-enginered and specified in the XML configuration file.
+						<li><a href="./api/velosurf/sql/package-summary.html"><code>velosurf.sql</code></a> contains all the classes dealing with the database itself 
+						via jdbc.
+						<li><a href="./api/velosurf/standalone/package-summary.html"><code>velosurf.standalone</code></a> contains a helper class to use Velosurf in 
+						a standalone application.
+						<li><a href="./api/velosurf/tools/package-summary.html"><code>velosurf.tools</code></a> contains the two classes that can be used as 
+						Velocity-tools tools: HttpQueryTool and VelosurfTool.
+						<li><a href="./api/velosurf/util/package-summary.html"><code>velosurf.util</code></a> contains various utilities.
+					</ul>
+					<p>The next diagram shows the dependency relationships between the main classes of Velosurf. It should
+					be a good introduction for someone willing to browse the api or to dig into the sources.</p>
+					<img src="./class-diagram.gif">
+					<p>Some dependencies are not shown to lighten the diagram:</p>
+					<ul>
+					<li>almost all objects of the <code>model</code> and <code>context</code> packages use the <code>PooledPreparedStatement</code> class, and many 
+					use the <code>Database</code> class
+					<li>the <code>Database</code> class itself references many classes of the <code>model</code> and <code>context</code> packages
+					</ul>
+					<p>[to be extended]</p>
+				</td>
+			</tr>
+			
+		</table>
+	</body>
+
+</html>

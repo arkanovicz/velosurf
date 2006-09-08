@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<project name="velosurf" default="usage" basedir=".">
+  
+  
+  <!-- NAMES -->
+  <property name="project"      value="velosurf"/>
+  <property name="version"      value="2.0"/>
+  <property name="final.name"	value="${project}-${version}"/>
+  
+  <!-- COMPILATION PARAMETERS -->
+<!--  <property name="build.compiler"          value="jikes"/> -->
+<!--  <property name="build.compiler.emacs"    value="true"/> -->
+
+  <property name="debug" value="on"/>
+
+  <!-- DIRECTORIES -->		
+  <property name="src.dir"           value="${basedir}/src"/>
+  <property name="build.dir" 	     value="${basedir}/class"/>
+  <property name="lib.dir"           value="${basedir}/lib"/>
+  <property name="bin.dir"           value="${basedir}/bin"/>
+  <property name="conf.dir"          value="${basedir}/conf"/>
+  <property name="images.dir"        value="${basedir}/images"/>
+  <property name="test.dir"          value="${basedir}/test"/>
+  <property name="data.dir"          value="${basedir}/data"/>
+  <property name="tmp.dir"           value="${basedir}/tmp"/>
+  <property name="javadoc.destdir"   value="${basedir}/docs/api"/>
+  <property name="final.name"        value="${project}-${version}"/>
+  <property name="dist.root"         value="${basedir}/dist"/>
+  <property name="dist.dir"          value="${dist.root}/${final.name}"/>
+
+  <!-- BUILD PROPERTIES -->
+  <property file="build.properties"/>                <!-- Component local   -->
+  <property file="${user.home}/build.properties"/>   <!-- User local        -->
+
+  <!-- Build classpath automatically -->
+<!--
+  <path id="classpath">
+    <fileset dir="./lib">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
+-->
+
+  <!-- Explicit classpath construction -->
+  <!-- Construct explicit classpath of libs needed to compile this project -->
+  <path id="classpath">
+    <pathelement location="${commons-beanutils.jar}"/>
+    <pathelement location="${commons-digester.jar}"/>
+    <pathelement location="${commons-logging.jar}"/>
+    <pathelement location="${gnu-regexp.jar}"/>
+    <pathelement location="${jdom.jar}"/>
+    <pathelement location="${jsdk.jar}"/>
+    <pathelement location="${velocity.jar}"/>
+    <pathelement location="${velocity-tools-view.jar}"/>
+  </path>                                                
+                                                
+  
+  <!-- PATTERN SETS -->
+  <patternset id="sources" >
+    <include name="velosurf/*" />
+    <include name="velosurf/cache/*" />
+    <include name="velosurf/context/*" />
+    <include name="velosurf/model/*" />
+    <include name="velosurf/sql/*" />
+    <include name="velosurf/standalone/*" />
+    <include name="velosurf/tools/*" />
+    <include name="velosurf/util/*" />
+<!--	<include name="velosurf/test/*" /> -->
+  </patternset>
+
+<!-- targets section -->
+
+  <target name="usage">
+    <echo>
+No target specified.
+Please specify a target among :
+  jar : builds velosurf jar
+  javadoc : builds velosurf javadoc
+  tarball : builds velosurf tgz package</echo>
+  </target>
+
+  <target name="prepare">
+    <!-- MAKE THE DIRECTORIES IF NEEDED -->
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${dist.dir}" />
+    <mkdir dir="${bin.dir}" />
+    <delete dir="${tmp.dir}" />
+    <mkdir dir="${tmp.dir}" />
+    <tstamp />
+  </target>
+  
+  <target name="jar" depends="prepare">
+    <property name="myclasspath" refid="classpath"/>
+    <echo message="using classpath= ${myclasspath}"/>
+    <javac srcdir="${basedir}/src" destdir="${build.dir}" debug="${debug}" debuglevel="lines,vars,source" encoding="ISO-8859-1" source="1.5" target="1.5">
+	  <patternset refid="sources"/>
+      <classpath refid="classpath"/>
+	</javac>
+    <jar jarfile="${bin.dir}/velosurf-${version}.jar" basedir="${build.dir}" >
+	  <patternset refid="sources"/>
+	</jar>
+  </target>
+
+  <target name="javadoc" depends="prepare">
+
+    <property name="javadoc.breakiterator" value="" />	<mkdir dir="${javadoc.destdir}"/>
+    <condition property="javadoc.breakiterator" value="-breakiterator" >
+      <or>
+        <equals arg1="${ant.java.version}" arg2="1.4" />
+        <equals arg1="${ant.java.version}" arg2="1.5" />
+      </or>
+    </condition>
+
+    <property name="javadoc.jdk.href" value="" />
+    <property name="javadoc.jdk.offline" value="false" />
+    <property name="javadoc.jdk.packaglistLoc" value="" />
+    <condition property="javadoc.jdk.href" value="http://java.sun.com/products/jdk/1.2/docs/api/">
+      <equals arg1="${ant.java.version}" arg2="1.2" />
+    </condition>
+    <condition property="javadoc.jdk.href" value="http://java.sun.com/j2se/1.3/docs/api/">
+      <equals arg1="${ant.java.version}" arg2="1.3" />
+    </condition>
+    <condition property="javadoc.jdk.href" value="http://java.sun.com/j2se/1.4/docs/api/">
+      <equals arg1="${ant.zojava.version}" arg2="1.4" />
+    </condition>
+    <condition property="javadoc.jdk.href" value="http://java.sun.com/j2se/1.5/docs/api/">
+      <equals arg1="${ant.java.version}" arg2="1.5" />
+    </condition>
+	
+    <javadoc
+      sourcepath="${src.dir}"
+      packagenames="velosurf.*"
+      destdir="${javadoc.destdir}"
+      author="true"
+      private="true"
+      version="true"
+      use="true"
+	  additionalparam="${javadoc.breakiterator}"
+      windowtitle="${project} ${version} API"
+      doctitle="${project} ${version} API">
+      <link offline="${javadoc.jdk.offline}" href="${javadoc.jdk.href}" packagelistLoc="${javadoc.jdk.packagelistLoc}" />
+      <bottom><![CDATA[<div align='center'>~ooOoo~</div>]]></bottom>
+      <classpath refid="classpath"/> 
+	</javadoc>
+  </target>
+
+  <target name="tarball" depends="javadoc,jar">
+
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${dist.dir}/src"/>
+
+    <copy todir="${dist.dir}/src">
+      <fileset dir="${basedir}/src/">
+        <include name="**"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${dist.dir}/docs">
+      <fileset dir="${basedir}/docs">
+        <include name="**"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${dist.dir}/lib" >
+      <fileset dir="${basedir}/lib" >
+        <include name="crimson.jar" />
+        <include name="dom4j.jar" />
+        <include name="gnu-regexp-1.1.4.jar" />
+        <include name="jdom.jar" />
+        <include name="jsdk23.jar" />
+        
+   <!--     <include name="velocity-dep-1.5-dev.jar" />
+        <include name="velocity-tools-view-1.2-dev.jar" />
+        <include name="common-beanutils.jar" />
+        <include name="common-digester.jar" />
+        <include name="common-logging.jar" /> -->
+        
+      </fileset>
+    </copy>
+
+    <copy todir="${dist.dir}">
+      <fileset dir="${basedir}">
+        <include name="build.xml"/>
+        <include name="CHANGELOG"/>
+        <include name="COPYING.gnu"/>
+        <include name="LICENSE"/>
+        <include name="NOTICE"/>
+        <include name="README"/>
+        <include name="TODO"/>
+      </fileset>
+    </copy>
+    
+    <copy todir="${dist.dir}/src">
+      <fileset dir="${basedir}/src/">
+        <include name="**"/>
+      </fileset>
+    </copy>
+    
+    <copy todir="${dist.dir}/samples">
+      <fileset dir="${basedir}/samples/">
+        <include name="**"/>
+      </fileset>
+    </copy>
+
+	<mkdir dir="${dist.dir}/bin"/>
+    <copy file="${basedir}/bin/${project}-${version}.jar" tofile="${dist.dir}/bin/${project}-${version}.jar"/>
+
+      <delete file="${basedir}/${final.name}.tar" quiet="true"/>
+      <delete file="${basedir}/${final.name}.tgz" quiet="true"/>
+      <tar tarfile="${basedir}/${final.name}.tar" basedir="${dist.root}" 
+           includes="**/${final.name}/**" longfile="gnu"/>
+      <gzip zipfile="${basedir}/${final.name}.tgz" src="${basedir}/${final.name}.tar"/>
+      <delete file="${basedir}/${final.name}.tar" quiet="true"/>
+  </target>
+
+  
+</project>

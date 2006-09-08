@@ -1,0 +1,42 @@
+This sample is taken out from turbine - the day I'll have more time, I'll put
+in somehting funnier.
+
+It is provided as a web-app - maybe it should also be available as a
+standalone application
+
+PREREQUISITES :
+
+You know how to install a web-app in your servlet container (and you have one,
+don't you ? tomcat, resin, weblogic, websphere....).
+
+You know how to create a database in your DBMS, you've got the appropriate
+jdbc driver, and you know the user/password/url combination to get access to
+the bookstore database
+
+INSTALLATION :
+
+1. copy the 'bookstore' directory to your webapps directory and configure your
+servlets container ; don't forget to set up the web-app log (specific to your
+container), it might be usefull
+
+2. copy necessary libs to the /WEB-INF/lib directory (/bin/velosurf-x.y.jar,
+along with those provided in the /velosurf/lib/ directory should be ok, but
+don't forget the libraries of your jdbc driver)
+
+3. create the 'bookstore' database or schema using your favourite DBMS and the
+provided bookstore.sql. You may have to adapt a little bit the file so that it
+fits with your dmbs rules (just try and catch SQL errors...).
+
+4. edit the first line of /WEB-INF/velosurf.xml, don't forget to add
+schema="bookstore" if 'bookstore' is a schema.
+
+5. check it works by pointing your browser to http://your_server/bookstore and
+by browsing a bit. If yes, shout "YEEEEEEEEEEES !", else crawl the logs, debug
+your config, and retry...
+
+REMARKS :
+
+As you may notice, the IDs of new objects are randomly choosen - it's because
+this method is database independant. It is somewhat redundant with the use of
+IDs obfuscation, but this is a sample !
+

@@ -1,0 +1,47 @@
+<html><body><xmp>
+<html><head><title>Velosurf Very Simple Example</title></head>
+<body>
+<h3>Velosurf Very Simple Example</h3>
+
+<b>My Strings</b>
+
+#set ($success = true)
+#if ($query.action == "insert")
+        #set( $success = $db.my_strings.insert($query) )
+#elseif ($query.action == "delete")
+        #set( $test = $db.my_strings.fetch($query.id) )
+        #set( $success = $test.delete() )
+#end
+#if( !$success ) Error : $db.error #end
+
+Table my_strings contains :<br>
+
+#foreach ($row in $db.my_strings)
+  <form>
+        id $row.id = $row.string
+        <input type=hidden name="id" value="$row.id">
+        <input type=hidden name="action" value="delete">
+        <input type=submit value="Delete">
+  </form>
+#end
+
+<br>
+<form>
+        <input type=hidden name="action" value="insert">
+        <input type="text" name="string">
+        <input type=submit value="Add">
+</form>
+
+<b>Messages by users</b>
+
+#foreach ($user in $db.user)
+	<br>Messages for user <b>$user.name</b> :
+	<ul>
+		#foreach ($message in $user.messages)
+			<li>$message.subject</li>
+		#end
+	</ul>
+#end
+
+</body></html>
+</xmp></body></html>

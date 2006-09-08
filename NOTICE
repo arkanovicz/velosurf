@@ -1,0 +1,6 @@
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+Regular Expression Support is provided by the gnu regexp package,
+published under the LGPL licence found at http://www.gnu.org/copyleft/lesser.html
+The original package can be found at http://www.cacas.org/java/gnu/regexp/
