@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database user="toto" password="titi" url="jdbc:mysql://127.0.0.1/mydatabase" driver="org.gjt.mm.mysql.Driver" default-access="rw">
+
+	<!-- my_strings table -->
+	<entity name="my_strings"/>
+
+	<!-- user table -->
+	<entity name="user">
+		<!-- get all user's messages -->
+		<attribute name="messages" result="rowset/message">select * from message where msg_user=<user_id/></attribute>
+	</entity>
+
+	<!-- message table -->
+	<entity name="message">
+		<!-- get the user this message belons to -->
+		<attribute name="user" result="row/user" foreign-key="msg_user"/>
+	</entity>
+
+</database>

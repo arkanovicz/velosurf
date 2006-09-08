@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>VTL reference</TITLE>
+    <link rel="stylesheet" href="velosurf.css" type="text/css">
+</HEAD>
+<BODY LANG="en-US" LINK="#0000ff" VLINK="#0000ff" DIR="LTR">
+<TABLE WIDTH=100% CELLPADDING=2 CELLSPACING=2 STYLE="page-break-before: always">
+	<TR>
+		<TD WIDTH=100 VALIGN=TOP>
+			<P><A HREF="http://jakarta.apache.org/velocity/index.html"><FONT COLOR="#0000ff"><IMG SRC="powered-by-logo.gif" NAME="graphics1" ALIGN=BOTTOM WIDTH=77 HEIGHT=32 BORDER=1></FONT></A><BR><BR><A HREF="index.html">Overview</A><BR><A HREF="installation.html">Installation</A><BR><B>VTL&nbsp;reference</B><BR><A HREF="configuration.html">Configuration</A><BR><A HREF="architecture.html">Architecture</A><BR><A HREF="java.html">Java&nbsp;reference<BR></A><A HREF="faq.html">Velosurf&nbsp;FAQ</A></P>
+		</TD>
+		<TD>
+			<H1 ALIGN=LEFT>VTL reference</H1>
+			<P ALIGN=LEFT>Plain keywords represent actual names of properties
+			or methods, while keywords in italic stand for user variables and
+			indicate their type.</P>
+			<P ALIGN=LEFT>The <B><FONT SIZE=2><FONT COLOR="#20ff20">r</FONT></FONT></B>
+			<FONT SIZE=2>and <B><FONT COLOR="#ff0000">w</FONT></B></FONT> tags
+			mean that an attribute is readable and/or writable (in the sense
+			of the Velocity template language, i.e. an attribute is read by
+			referencing it, and modified using the #set directive).</P>
+			<P ALIGN=LEFT>All methods that take a <CODE><I>values_map</I></CODE>
+			as argument are quite convenient to use with the <CODE>$query</CODE>
+			variable (that contains all the HTTP query parameters) when coming
+			from an HTML form: you only have to ensure that the names of HTML
+			input fields map correctly to the names of the corresponding table
+			columns.</P>
+			<H2 ALIGN=LEFT>1. <I>Database</I> attributes and methods</H2>
+			<P ALIGN=LEFT><STRONG>$db.<EM>entity_name</EM></STRONG> <B><FONT SIZE=2><FONT COLOR="#20ff20">r</FONT></FONT></B>
+			: entity.</P>
+			<UL>
+				<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm"><CODE>#foreach($u in
+				$db.user) user name : $u.name #end</CODE> 
+				</P>
+				<LI><P ALIGN=LEFT><CODE>#set( $current_user =
+				$db.user.fetch($query.user_id) )</CODE> 
+				</P>
+			</UL>
+			<P ALIGN=LEFT><STRONG>$db.<EM>root_attribute_name</EM></STRONG> <B><FONT SIZE=2><FONT COLOR="#20ff20">r</FONT></FONT></B>
+			: root attribute or root action. The value of an action is the
+			number of affected rows.</P>
+			<UL>
+				<LI><P ALIGN=LEFT><CODE>Today, there are $db.today_events_count
+				events.</CODE> 
+				</P>
+			</UL>
+			<P ALIGN=LEFT><STRONG>$db.error</STRONG> <B><FONT SIZE=2><FONT COLOR="#20ff20">r
+			</FONT></FONT></B>: last error message encountered. We generally
+			know that an error has occured when one of the methods returns
+			null or false.</P>
+			<UL>
+				<LI><P ALIGN=LEFT><CODE>## don't do this in a MVC app!<BR>#if ( !
+				$db.user.insert($query) ) Error : $db.error #end</CODE> 
+				</P>
+			</UL>
+			<H2 ALIGN=LEFT>2. <I>Entity</I> attributes and&nbsp;methods</H2>
+			<P ALIGN=LEFT STYLE="margin-bottom: 0cm"><STRONG>$<EM>entity</EM>.fetch(<EM>values_list</EM>)</STRONG>
+			: returns the instance defined by the values of its primary key
+			columns, or null otherwise.</P>
+			<UL>
+				<LI><P ALIGN=LEFT><CODE>#set( $str =
+				$db.localized_resource.fetch(['welcome_message','EN']) )</CODE> 
+				</P>
+			</UL>
+			<P ALIGN=LEFT><STRONG>$<EM>entity</EM>.fetch(<EM>value</EM>)</STRONG>
+			: returns the instance defined by the value of its unique primary
+			key, or null otherwise.</P>
+			<UL>
+				<LI><P ALIGN=LEFT><CODE>#set( $current_user =
+				$db.user.fetch($query.user_id) )</CODE> 
+				</P>
+			</UL>
+			<P ALIGN=LEFT STYLE="margin-bottom: 0cm"><STRONG>#foreach
+			($<EM>instance</EM> in $<EM>entity</EM>)</STRONG> : loop on all
+			(or a subset of - if refined) instances of this
+			entity.<BR><BR><B>$<I>entity</I><SPAN STYLE="font-style: normal">.rows
+			:</SPAN></B><SPAN STYLE="font-weight: medium"><SPAN STYLE="font-style: normal">
+			returns a list of all the instances of this entity.</SPAN></SPAN><SPAN STYLE="font-style: normal"><B>
+			</B></SPAN>
+			</P>
+			<P ALIGN=LEFT><STRONG><STRONG><STRONG><STRONG><STRONG><STRONG><STRONG><STRONG><FONT COLOR="#ffa500"><FONT COLOR="#ffa500"><BR></FONT></FONT>$<EM><EM><EM><EM><EM><EM><EM><EM>entity</EM></EM></EM></EM></EM></EM></EM></EM>.order</STRONG></STRONG></STRONG></STRONG></STRONG></STRONG></STRONG></STRONG>
+			<B><FONT SIZE=2><FONT SIZE=2><FONT COLOR="#ff0000"><FONT COLOR="#ff0000">w</FONT></FONT></FONT></FONT></B>
+			: use this attribute to specify an order before issuing a #foreach
+			directive on this entity. Reseted in every context. Pass it an
+			empty string to reset it manually.</P>
+			<UL>
+				<LI><P ALIGN=LEFT><CODE>#set( $db.user.order = &quot;lastname&quot;
+				)<BR>#foreach($u in $db.user) ... #end</CODE> 
+				</P>
+			</UL>
+			<P ALIGN=LEFT><STRONG>$<EM>entity</EM>.refine(&quot;<EM>sql-condition</EM>&quot;)</STRONG>
+			: use this method to specify an additionnal SQL condition before
+			issuing a #foreach directive on this entity. Can be called several
+			times. Reseted in every context.</P>
+			<UL>
+				<LI><P ALIGN=LEFT><CODE>#set( $db.user.refine = &quot; profile =
+				'admin' &quot; )<BR>#* loop on admins *#<BR>#foreach ($u in
+				$db.user) ... #end</CODE> 
+				</P>
+			</UL>
+			<P ALIGN=LEFT><STRONG>$<I>entity</I>.clearRefinement( )</STRONG> :
+			clear any refinement clauses for this entity<BR><BR><FONT COLOR="#ffa500">The
+			following entity methods are not advised in a MVC architecture.</FONT></P>
+			<P ALIGN=LEFT><STRONG>$<EM>entity</EM>.update(<EM>values_map</EM>)</STRONG>
+			: update a row in this entity's table. Velosurf will ensure all
+			key columns are specified, to avoid an accidental massive update.</P>
+			<UL>
+				<LI><P ALIGN=LEFT><CODE>#set( $success = $db.user.update($query)
+				)</CODE> 
+				</P>
+			</UL>
+			<P ALIGN=LEFT><STRONG>$<EM>entity</EM>.delete(<EM>values_map</EM>)</STRONG>
+			: delete a row from this entity's table. Velosurf will ensure all
+			key columns are specified, to avoid an accidental massive delete.</P>
+			<UL>
+				<LI><P ALIGN=LEFT><CODE>#set( $success = $db.user.delete($query)
+				)</CODE> 
+				</P>
+			</UL>
+			<P ALIGN=LEFT><STRONG>$<EM>entity</EM>.insert(<EM>values_map</EM>)</STRONG>
+			: insert a new row in this entity's table.</P>
+			<UL>
+				<LI><P ALIGN=LEFT><CODE>#set( $success = $db.user.insert($query)
+				)<BR>#if ($success)<BR>#set( $user =
+				$db.user.fetch($db.user.lastInsertID) )<BR>#else Error:
+				$db.error<BR>#end</CODE> 
+				</P>
+			</UL>
+			<P ALIGN=LEFT><STRONG>$<EM>entity</EM>.lastInsertID</STRONG> :
+			last inserted ID, for entities with only one primary key column,
+			autoincremented.<BR>See the above example.</P>
+			<H2 ALIGN=LEFT>3. <I>Attribute</I> attributes and&nbsp;methods</H2>
+			<P ALIGN=LEFT>Only multivalued attributes can be referenced from
+			templates. Others are directly evaluated when
+			referenced.<BR><BR><STRONG>#foreach ($<EM>instance</EM> in
+			$<EM>multivalued_attribute</EM>)</STRONG> : loop on all (or a
+			subset of - if refined) instances returned by the evaluation of
+			this multivalued Attribute.<BR><BR><B>$<I>multivaled_atribute</I><SPAN STYLE="font-style: normal">.rows
+			:</SPAN></B><SPAN STYLE="font-weight: medium"><SPAN STYLE="font-style: normal">
+			returns a list of all the instances of this entity.</SPAN></SPAN><SPAN STYLE="font-style: normal"><B>
+			</B></SPAN><BR><BR><STRONG>$<EM>multivalued_attribute</EM>.order</STRONG>
+			<B><FONT SIZE=2><FONT COLOR="#ff0000">w</FONT></FONT></B> : use
+			this attribute to specify an order before issuing a #foreach
+			directive on this
+			Attribute.<BR><BR><STRONG>$<EM>multivalued_attribute</EM>.refine(&quot;<EM>sql-condition</EM>&quot;)</STRONG>
+			: use this method to specify an additionnal condition before
+			issuing a #foreach directive on this multivalued Attribute. Can be
+			called several times. See Javadoc for additional
+			details.<BR><BR><STRONG>$<I>multivalued_attribute</I>.clearRefinement(
+			)</STRONG> : clear any refinement clauses for this attribute.<BR><BR><BR><BR>
+			</P>
+			<H2 ALIGN=LEFT>4. Action attributes and methods</H2>
+			<P ALIGN=LEFT>An action has no attribute and no method. It is
+			executed when referenced, and returns the number of affected rows.</P>
+			<H2 ALIGN=LEFT>5. Instance attributes and methods</H2>
+			<P ALIGN=LEFT><STRONG>$<EM>instance</EM>.entity</STRONG> <B><FONT SIZE=2><FONT COLOR="#20ff20">r</FONT></FONT></B>
+			: the name of this instance's entity, or null if it's a generic
+			instance.<BR><BR><STRONG>$<EM>instance</EM>.<EM>attribute</EM></STRONG>
+			<B><FONT SIZE=2><FONT COLOR="#20ff20">r</FONT></FONT></B> : refers
+			to an Attribute of this instance.<BR><BR><STRONG>$<EM>instance</EM>.<EM>action</EM></STRONG>
+			<B><FONT SIZE=2><FONT COLOR="#20ff20">r</FONT></FONT></B> :
+			executes the specified action on this instance. The value of an
+			action is the number of affected rows.<BR><BR><B>$<I>instance</I>.primaryKey</B>
+			<B><FONT SIZE=2><FONT COLOR="#20ff20">r</FONT></FONT></B> :
+			returns a list of two-elements map, name and value, or each column
+			in the primary key.</P>
+			<UL>
+				<LI><P ALIGN=LEFT><CODE>#foreach($key in $instance)<BR>&nbsp;&nbsp;&lt;input
+				type=&quot;hidden&quot; name=&quot;$key.name&quot;
+				value=&quot;$key.value&quot;&gt;<BR>#end</CODE> 
+				</P>
+			</UL>
+			<P ALIGN=LEFT><BR><STRONG>$<EM>instance.column_name</EM></STRONG>
+			<FONT SIZE=2><B><FONT COLOR="#20ff20">r</FONT></B>,<B><FONT COLOR="#ff0000">w</FONT></B></FONT>
+			: gives the scalar value of this column for this row, or sets its
+			value.</P>
+			<P ALIGN=LEFT><FONT COLOR="#ffa500">The writable form of the
+			previous attribute, as long as the following methods, are not
+			advised in a MVC architecture.</FONT></P>
+			<P ALIGN=LEFT><STRONG>$<EM>instance</EM>.update(<EM>values_map</EM>)</STRONG>
+			: update the row of this instance, from passed values. Velosurf
+			will ensure all key columns are specified, to avoid an accidental
+			massive update.<BR><BR><STRONG>$<EM>instance</EM>.update()</STRONG>
+			: update the row of this instance, from actual values. Velosurf
+			will ensure all key columns are specified, to avoid an accidental
+			massive update.<BR><BR><STRONG>$<EM>instance</EM>.delete()</STRONG>
+			: delete the row of this instance. Velosurf will ensure all key
+			columns are specified, to avoid an accidental massive
+			delete.<BR><BR><STRONG>$<EM>instance</EM>.insert()</STRONG> :
+			insert a new row .</P>
+		</TD>
+	</TR>
+</TABLE>
+<P><BR><BR>
+</P>
+</BODY>
+</HTML>

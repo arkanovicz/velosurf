@@ -1,0 +1,321 @@
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<meta name="generator" content="Adobe GoLive 4">
+		<title>XML Reference</title>
+		<link rel="stylesheet" href="velosurf.css" type="text/css">
+	</head>
+
+	<body>
+		<table>
+			<tr>
+				<td width="100" valign="top"><a href="http://jakarta.apache.org/velocity/index.html"><img src="powered-by-logo.gif" width="77" height="32"></a><br>
+					<br>
+					<a href="index.html">Overview</a><br>
+					<a href="installation.html">Installation</a><br>
+					<a href="template.html">VTL&nbsp;reference</a><br>
+					<b>Configuration</b><br>
+					 <a href="architecture.html">Architecture</a><br>
+					<a href="java.html">Java&nbsp;reference<br>
+					</a><a href="faq.html">Velosurf&nbsp;FAQ</a></td>
+				<td>
+					<h1>XML Configuration</h1>
+					<p><i>Don't be confused here, 'entity' and 'attribute' are both used as XML concepts and velosurf concepts... The velosurf entity has a corresponding XML entity, the velosurf attribute has a corresponding XML entity, and both have XML attributes.</i><br>
+					<br>This file has a very simple DTD:<br>
+					</p>
+					<pre>&lt;!ENTITY database (entity*,attribute*,action*)&gt;
+
+&lt;!ATTLIST database
+	user #REQUIRED
+	password #REQUIRED
+	url #REQUIRED
+	driver #IMPLIED
+	schema #IMPLIED
+	default-access #IMPLIED
+	default-caching #IMPLIED
+	reverse #IMPLIED
+	case #IMPLIED
+	reverse #IMPLIED
+	loglevel #IMPLIED
+	min-connections #IMPLIED
+	max-connections #IMPLIED
+
+&lt;!ENTITY entity (attribute*)&gt;
+
+&lt;!ATTLIST entity
+	name #REQUIRED
+	table #IMPLIED
+	access #IMPLIED
+	class #IMPLIED
+	caching #IMPLIED
+	obfuscate #IMPLIED
+	autofetch #IMPLIED&gt;
+
+&lt;!ENTITY attribute #PCDATA&gt; &lt;!-- where #PCDATA is an SQL query with column tags --&gt;
+
+&lt;!ATTLIST attribute
+	name #REQUIRED
+	result #IMPLIED
+	foreign-key #IMPLIED&gt;
+
+&lt;!ENTITY action #PCDATA&gt; &lt;!-- where #PCDATA is an SQL query with column tags --&gt;
+
+&lt;!ATTLIST action
+	name #REQUIRED&gt;
+</pre>
+					<p><br>
+							(or look at the sample in the <a href="index.html#config">overview</a>, anyway you should...).<br>
+						<br>Here is the syntax and meaning of all the XML attributes:<br>
+						<br>
+					
+					
+					
+					
+					
+					<table border="1">
+						<tr align="center">
+							<td bgcolor="#e0ffff"><b>XML entity</b></td>
+							<td bgcolor="#e0ffff"><b>XML attribute</b></td>
+							<td bgcolor="#e0ffff"><b>syntax</b></td>
+							<td bgcolor="#e0ffff"><b>default value</b></td>
+							<td bgcolor="#e0ffff"><b>meaning</b></td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">database</td>
+							<td bgcolor="#7fffd4">user</td>
+							<td bgcolor="#7fffd4"><i>string</i>&nbsp;</td>
+							<td bgcolor="#7fffd4"><b>(required)</b></td>
+							<td bgcolor="#7fffd4">database account login</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">database</td>
+							<td bgcolor="#7fffd4">password</td>
+							<td bgcolor="#7fffd4">&nbsp;<i>string</i></td>
+							<td bgcolor="#7fffd4"><b>(required)</b></td>
+							<td bgcolor="#7fffd4">database account password</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">database</td>
+							<td bgcolor="#7fffd4">url</td>
+							<td bgcolor="#7fffd4">&nbsp;<i>string</i></td>
+							<td bgcolor="#7fffd4"><b>(required)</b></td>
+							<td bgcolor="#7fffd4">database url</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">database</td>
+							<td bgcolor="#7fffd4">driver</td>
+							<td bgcolor="#7fffd4"><i> java_class_name</i></td>
+							<td bgcolor="#7fffd4">(none)</td>
+							<td bgcolor="#7fffd4">database driver class - if not specified, Velosurf will try to deduce it from the database url</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">database</td>
+							<td bgcolor="#7fffd4">schema</td>
+							<td bgcolor="#7fffd4"><i>string</i></td>
+							<td bgcolor="#7fffd4">(none)</td>
+							<td bgcolor="#7fffd4">schema used, if any</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">database</td>
+							<td bgcolor="#7fffd4">default-access</td>
+							<td bgcolor="#7fffd4">ro <font color="red">|</font> rw</td>
+							<td bgcolor="#7fffd4">ro</td>
+							<td bgcolor="#7fffd4">entities default access mode, read-only or read-write</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">database</td>
+							<td bgcolor="#7fffd4">default-caching</td>
+							<td bgcolor="#7fffd4">none <font color="red">|</font> soft <font color="red">|</font> full</td>
+							<td bgcolor="#7fffd4">none</td>
+							<td bgcolor="#7fffd4">default caching method</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">database</td>
+							<td bgcolor="#7fffd4">case</td>
+							<td bgcolor="#7fffd4">sensitive <font color="red">|<br>
+								</font> uppercase <font color="red">|<br>
+								</font> lowercase</td>
+							<td bgcolor="#7fffd4">(driver-dependant)</td>
+							<td bgcolor="#7fffd4">case-sensivity: sensitive, uppercase or lowercase - see remarks</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">database</td>
+							<td bgcolor="#7fffd4">reverse</td>
+							<td bgcolor="#7fffd4">none <font color="red">|</font> partial <font color="red">|</font> full</td>
+							<td bgcolor="#7fffd4">full</td>
+							<td bgcolor="#7fffd4">degree of reverse-enginering: in the 'partial' mode, only the tables corresponding to entities listed in the config file are reverse-enginered - it may become the default mode in future versions</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">database</td>
+							<td bgcolor="#7fffd4">loglevel</td>
+							<td bgcolor="#7fffd4">trace <font color="red">|</font> debug <font color="red">|</font> info <font color="red">|</font> warn <font color="red">|</font> error</td>
+							<td bgcolor="#7fffd4">trace</td>
+							<td bgcolor="#7fffd4">logging level, from the most verbose to the less verbose</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">database</td>
+							<td bgcolor="#7fffd4">min-connections</td>
+							<td bgcolor="#7fffd4"><i>integer</i></td>
+							<td bgcolor="#7fffd4">1</td>
+							<td bgcolor="#7fffd4">the initial number of connections in the connection pool</td>							
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">database</td>
+							<td bgcolor="#7fffd4">max-connections</td>
+							<td bgcolor="#7fffd4"><i>integer</i></td>
+							<td bgcolor="#7fffd4">50</td>
+							<td bgcolor="#7fffd4">the maximum number of connections in the connection pool</td>							
+						</tr>
+						<tr align="center">
+							<td bgcolor="#e0ffff">entity</td>
+							<td bgcolor="#e0ffff">name</td>
+							<td bgcolor="#e0ffff"><i>string&nbsp;</i></td>
+							<td bgcolor="#e0ffff"><b>(required)</b></td>
+							<td bgcolor="#e0ffff">entity name; if it is the name of an existing table, the columns of the table will automatically become attributes of this entity</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#e0ffff">entity</td>
+							<td bgcolor="#e0ffff">table</td>
+							<td bgcolor="#e0ffff"><i>string&nbsp;</i></td>
+							<td bgcolor="#e0ffff">entity name</td>
+							<td bgcolor="#e0ffff">use this attribute if the table name and the entity name are to be different</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#e0ffff">entity</td>
+							<td bgcolor="#e0ffff">access</td>
+							<td bgcolor="#e0ffff">ro <font color="red">|</font> rw</td>
+							<td bgcolor="#e0ffff">ro</td>
+							<td bgcolor="#e0ffff">access mode, read-only or read-write</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#e0ffff">entity</td>
+							<td bgcolor="#e0ffff">class</td>
+							<td bgcolor="#e0ffff"><i>java_class_name</i></td>
+							<td bgcolor="#e0ffff">velosurf.context.Instance</td>
+							<td bgcolor="#e0ffff">java class used to map an instance of this entity (that must inherit velosurf.context.Instance and have the same constructor, see the javadoc)</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#e0ffff">entity</td>
+							<td bgcolor="#e0ffff">caching</td>
+							<td bgcolor="#e0ffff">none <font color="red">|</font> soft <font color="red">|</font> full</td>
+							<td bgcolor="#e0ffff">(none)</td>
+							<td bgcolor="#e0ffff">caching method: none, soft (automatic with respect to memory) or full (only cleared on <i>Entity.clearCache()</i> calls)</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#e0ffff">entity</td>
+							<td bgcolor="#e0ffff">obfuscate</td>
+							<td bgcolor="#e0ffff"><i>column </i><font color="red">[</font>,<i>column</i><font color="red"><i>...</i>]</font></td>
+							<td bgcolor="#e0ffff">(none)</td>
+							<td bgcolor="#e0ffff">columns that will be obfuscated</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#e0ffff">entity</td>
+							<td bgcolor="#e0ffff">autofetch</td>
+							<td bgcolor="#e0ffff"><font color="red">[[</font>query.<font color="red">]</font><i>name =</i><font color="red">]</font><i> http_param_name</i></td>
+							<td bgcolor="#e0ffff">(none)</td>
+							<td bgcolor="#e0ffff">whenever <i>http_param_name</i> is found in the HTTP query string, the HttpQueryTool interprets it as a primary key and fetches the corresponding instance, storing it in the context under $<i>name</i> or $query.<i>name</i> (or the name of the entity if unspecified)</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">attribute</td>
+							<td bgcolor="#7fffd4">name</td>
+							<td bgcolor="#7fffd4">&nbsp;<i>string</i></td>
+							<td bgcolor="#7fffd4"><b>(required)</b></td>
+							<td bgcolor="#7fffd4">attribute name, can overload an existing column</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">attribute</td>
+							<td bgcolor="#7fffd4">result</td>
+							<td bgcolor="#7fffd4">scalar <font color="red">|<br>
+								</font> <nobr>row<font color="red">[</font>/<i>entity</i><font color="red">]</font></nobr> <font color="red">|<br>
+									 </font><nobr>rowset<font color="red">[</font>/<i>entity</i><font color="red">]</font></nobr></td>
+							<td bgcolor="#7fffd4">(none)</td>
+							<td bgcolor="#7fffd4">result type: scalar, single row or rowset ; in the last two cases, the resulting entity can be specified, so that access can be re-entrant; in the first case (scalar), the engine will return the value found in the first column of the first row.</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#7fffd4">attribute</td>
+							<td bgcolor="#7fffd4">foreign-key</td>
+							<td bgcolor="#7fffd4"><i>column_name</i></td>
+							<td bgcolor="#7fffd4">(none)</td>
+							<td bgcolor="#7fffd4">foreign-key column towards the entity specified as a result (that is required in this case) ; when this XML attribute is used, the SQL query is ignored ; in fact this XML attribute is just a shorthand for the join query</td>
+						</tr>
+						<tr align="center">
+							<td bgcolor="#e0ffff">action</td>
+							<td bgcolor="#e0ffff">name</td>
+							<td bgcolor="#e0ffff">&nbsp;<i>string</i></td>
+							<td bgcolor="#e0ffff"><b>(required)</b></td>
+							<td bgcolor="#e0ffff">action name</td>
+						</tr>
+					</table>
+					<br>And some important remarks on this config file:
+					<ul>
+						<li><b>root attributes and actions</b>: Along with attributes and actions declared inside an entity (that become properties of this entity), 
+						attributes and actions can be declared directly under <nobr>&lt;database&gt;</nobr>: they become root attributes and root actions, direct 
+						properties of $db.<br>
+							If specified, the root action named <code>startup</code> is executed at startup.<br>
+							<br>
+						
+						<li><b>using current instance values</b>: SQL queries of attributes and actions may (and often have to) reference columns of the current instance, by simply inserting XML tags at the right place.<br>
+						<br>For instance, assuming 'owner_id' is a field of the 'event' table:<pre>&lt;entity name=&quot;event&quot;&gt;
+	&lt;attribute name=&quot;owner&quot; result=&quot;row/user&quot;&gt;
+		select * from user where user_id = <font color="red">&lt;owner_id/&gt;</font>
+	&lt;/attribute&gt;
+&lt;/entity&gt;</pre>
+						<p>Then, in VTL, if <code>$event</code> contains an event, then <code>$event.owner</code> will return the user that owns the event.<br>
+						<br>
+						</p>
+						<li><b>external parameters</b>: sometimes there is the need for an external parameter to appear in an SQL query. In that case, it can be named as an XML tag inside the query, and later used by setting its value on the surrounding entity (or on $db for root actions/attributes).<br>
+						<br>For instance, here is the definition of a root attribute that lists all events of a month:<pre>&lt;attribute name=&quot;month_events&quot; result=&quot;rowset/event&quot;&gt;
+	select * from event where month(event_date) = <font color="red">&lt;selected_month/&gt;</font>
+&lt;/attribute&gt;</pre>
+						<p>In VTL, you can then write:</p>
+						<pre>#set($db.selected_month = 3)
+
+#foreach($event in $db.month_events)
+ ... display the event ...
+#end</pre>
+						<p>Note that the name <code>selected_month</code> does not correspond to anything in the database: it is only a label that can be used as a prepared statement parameter.</p>
+							<p>Note also that external parameters only retain their value within the scope of one VelosurfTool instance (which is the request scope by default).<br>
+								<br>
+							</p>
+						
+						<li><b>XML parsing of queries</b>: Since XML parsers may add spaces here and there inside #PCDATA, and since that may sometimes break the syntax of SQL queries, it is a good idea to specify <code>xml-space=&quot;preserve&quot;</code> as an XML attribute of any XML entity containing a SQL query.<br>
+						<br>
+						<li><b>escaping of XML&nbsp;special characters</b>: be sure to escapes characters &lt; &gt; &amp; and ' with their XML equivalent whenever they appear inside your queries.<br>
+							<br>
+						
+						
+						<li><b>IDs obfuscation</b>: When you obfuscate a key column, be sure to also obfuscate all foreign-keys that reference this column. If you want to specify an explicit value to an obfuscated column (via an update or an insert), you have to obfuscate it first since it will always be deobfuscated - you can do so with the <code>entity.obfuscate(value)</code> method. Please note that this feature requires some <code>javax.crypto</code> classes that are not included by default in the jdk for versions prior to 1.4 ; in this case, you'll have to download the <a href="(EmptyReference!)" target="http://java.sun.com/products/jce/index.jsp">Java Cryptographic Extension</a> (jce1_2_2.jar and sunjce_provider.jar) from java.sun.com.<br>
+							<br>
+						<li><b>Autofetching</b>: Autofetching only works if you are using the toolbox.xml mechanism and the velosurf.tool.HttpQueryTool tool. Here are the VTL equivalent for the three forms of the declaration (assuming the HttpQueryTool is named $query):
+							<ul>
+								<li><code>&lt;entity name=&quot;user&quot; autofetch=&quot;user_id&quot;/&gt;</code> is equivalent to:<br>
+									<code>#if( $query.user_id ) #set( $user = $db.user.fetch( $query.user_id )) #end<br>
+										&nbsp;</code>
+								<li><code>&lt;entity name=&quot;user&quot; autofetch=&quot;logged_user=user_id&quot;/&gt;</code> is equivalent to:<br>
+									<code>#if( $query.user_id ) #set( $logged_user = $db.user.fetch( $query.user_id )) #end<br>
+										&nbsp;</code>
+								<li><code>&lt;entity name=&quot;user&quot; autofetch=&quot;query.logged_user=user_id&quot;/&gt;</code> is equivalent to:<br>
+									<code>#if( $query.user_id ) #set( $query.loggued_user = $db.user.fetch( $query.user_id )) #end<br>
+									</code><br>
+								
+							</ul>
+						<li><b>Case-sensivity</b>: Indicates the policy that Velosurf must follow with SQL keywords (tables and columns). It should mimic the behaviour the database engine has with its metadata tables, and the default is choosen depending on the database vendor (see DriverInfo.java). It is one of:
+							<ul>
+								<li><code>sensitive</code>: It does not necessarily mean that the database is case-sensitive, only that Velosurf won't issue any conversion.
+								<li><code>uppercase</code>: Entities and attributes are case-insensitive; all identifiers will be stored internally and passed to the JDBC driver as uppercase strings (references in templates and names in the configuration file are then case-insensitive).<li><code>lowercase</code>: Same as above, lowercase.
+							</ul>
+							<br>
+						<li><b>Connection pooling</b>: Velosurf uses two connection pools. One with connections having the autocommit flag set to true for all 
+						standard queries, and one with connections having the autocommit flag set to false for transactionnal queries (i.e. composite queries made of 
+						a sequence of several atomic queries, and on wich a rollback must be issued when something goes wrong during the processing). Since such 
+						queries are 
+						usually less frequent and less heavy than standard ones, the latter pool is initialized with only one connection. The
+						<code>min-connections</code> parameter only applies to the former pool.
+					</ul>
+				</td>
+			</tr>
+		</table>
+	</body>
+
+</html>

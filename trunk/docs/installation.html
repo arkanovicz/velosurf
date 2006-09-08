@@ -1,0 +1,109 @@
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<meta name="generator" content="Adobe GoLive 4">
+		<title>Installation</title>
+		<link rel="stylesheet" href="velosurf.css" type="text/css">
+	</head>
+
+	<body>
+		<table width="100%">
+			<tr>
+				<td width="100" valign="top"><a href="http://jakarta.apache.org/velocity/index.html"><img src="powered-by-logo.gif" width="77" height="32"></a><br>
+					<br>
+					<a href="index.html">Overview</a><br>
+					<b>Installation</b><br>
+					<a href="template.html">VTL&nbsp;reference</a><br>
+					<a href="configuration.html">Configuration</a><br>
+                    <a href="architecture.html">Architecture</a><br>
+   					<a href="java.html">Java&nbsp;reference<br>
+					</a><a href="faq.html">Velosurf&nbsp;FAQ</a></td>
+				<td align="left">
+					<h1>Installation</h1>
+					<p>You should be familiar with Velocity and the concept of Webapp to easily understand the following.<br>
+					<br>Content:<br>
+					&nbsp;<a href="#building">Building the Velosurf archive</a><br>
+					&nbsp;<a href="#toolbox">Configuring the toolbox</a><br>
+					&nbsp;<a href="#velosurf">Configuring Velosurf</a><br>
+						<br>
+						<br>
+					<a name="building"></a></p>
+					<h2>Building the Velosurf archive</h2>
+					<p>The last release is included in the /bin directory, but if you want to re-build the library, you need to have <a href="http://jakarta.apache.org/ant/index.html">ant</a> installed.<br>
+					<br>
+						Then, the <code>./build.xml</code> file contains the following ant targets:</p>
+					<ul>
+						<li><b>jar</b>: builds ./bin/velosurf-0.x.jar<li><b>javadoc</b>: builds the javadoc in ./docs/api<li><b>tarball</b>: builds the distribution tarball</ul>
+					<p><a name="toolbox"></a></p>
+					<h2>Configuring the toolbox</h2>
+					<p>The following instructions detail how to use Velosurf as a Velocity tool using the VelocityViewServlet and the toolbox.xml mechanism.</p>
+					<p>First, you need to set up the Velocity toolbox in your Webapp. This involves:</p>
+					<ul>
+						<li>copying needed archives from ./lib to /WEB-INF/lib<li>inheriting the servlet(s) used to render templates from the class org.apache.velocity.tools.view.servlet.VelocityViewServlet (which you can also use directly)
+						<li>adding a reference to the toolbox in the context-parameters of the Webapp deployment descriptor (web.xml):<pre>&lt;context-param&gt;
+  &lt;param-name&gt;org.apache.velocity.toolbox&lt;/param-name&gt;
+  &lt;param-value&gt;/WEB-INF/toolbox.xml&lt;/param-value&gt;
+&lt;/context-param&gt;</pre>
+						<li>adding a reference to the velosurf XML config file, if the default name (velosurf.xml) is not ok for you, at the same place:<pre>&lt;context-param&gt;
+  &lt;param-name&gt;velosurf.config&lt;/param-name&gt;
+  &lt;param-value&gt;/WEB-INF/myvelosurf.xml&lt;/param-value&gt;
+&lt;/context-param&gt;</ul>
+
+
+
+
+
+					<p>Then, you can set up the Velosurf tools in /WEB-INF/toolbox.xml, like:</p>
+					<pre>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;toolbox&gt;
+
+  &lt;!-- http query parameters tool:
+You can either use org.apache.velocity.tools.view.tools.ParameterParser
+or velosurf.tool.HttpQueryTool.
+If you are using the autofetch feature, the Velosurf version is mandatory.
+    --&gt;
+
+  &lt;tool&gt;
+    &lt;key&gt;query&lt;/key&gt;
+    &lt;scope&gt;request&lt;/scope&gt;
+    &lt;class&gt;org.apache.velocity.tools.view.tools.ParameterParser&lt;/class&gt;
+  &lt;/tool&gt;
+
+  &lt;!-- database --&gt;
+
+  &lt;tool&gt;
+    &lt;key&gt;db&lt;/key&gt;
+    &lt;scope&gt;request&lt;/scope&gt;
+    &lt;class&gt;velosurf.tools.VelosurfTool&lt;/class&gt;
+  &lt;/tool&gt;
+
+&lt;/toolbox&gt;</pre>
+					
+					<p><a name="velosurf"></a></p>
+					
+					
+					<h2>Configuring Velosurf
+					
+					
+					</h2>
+					<p>Velosurf will search for a default configuration file named '/WEB-INF/velosurf.xml'. Its goal is to gather all SQL code.</p>
+					<p>If you wish to change its name, you can set the appropriate context-param in your Webapp, with 'velosurf.config' as key and the target file as value.</p>
+					<p>By default, the database will be reverse enginered and each table becomes an entity, each column an attribute. But this file lets you fully customize entities and attributes.</p>
+					<p>You can start with the minimal configuration, that only specify the database connection parameters:	</p>
+					<pre>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;database user='<i>login</i>' password='<i>password</i>' url='<i>database_url</i>'&gt;
+&lt;/database&gt;</pre>
+					<p>You can then check your installation with a very simple template that checks that you can see your tables.</p>
+					
+				</td>
+			</tr>
+			<tr>
+				<td width="100" valign="top"></td>
+				<td align="left"></td>
+			</tr>
+			
+		</table>
+	</body>
+
+</html>

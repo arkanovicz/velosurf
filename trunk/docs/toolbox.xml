@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<toolbox>
+	<!-- http query parameters -->
+	<tool>
+		<key>
+			query
+		</key>
+		<class>
+			org.apache.velocity.tools.view.tools.ParameterParser
+		</class>
+	</tool>
+	<!-- database -->
+	<tool>
+		<key>
+			db
+		</key>
+		<class>
+			velosurf.tools.VelosurfTool
+		</class>
+	</tool>
+</toolbox>

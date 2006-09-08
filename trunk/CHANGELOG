@@ -1,0 +1,235 @@
+**** Changes ****
+
+v2.0 (September 2006)
+----
+ - added an abstract localization tool (HTTPLocalizerTool) and a mechanism by which localized
+   columns of an instance are resolved on-the-fly.
+ - "Using config file..." message only logged on database connection creation.
+ - marked the "full" caching method as deprecated.
+ - replaced gnu regexps by jdk ones.
+ - tolerate and eat a semi-colon at the end of queries.
+
+v1.4.3 (May 2006)
+------
+ - added static methods getConnection(configfile,servletcontext) and getDefaultConnection(servletcontext)
+   to VelosurfTool.
+ - renamed Database.newInstance to Database.getInstance (consistency).
+ - fix: bug in the recovery process (bad statements not properly removed)
+ - fix: ConnectionWrapper now handles itself a 'closed' boolean flag (to work around buggy drivers)
+
+v1.4.2 (May 2006)
+------
+ - fix: bug in the recovery process (concurrent access to the list of statements)
+
+v1.4.1 (May 2006)
+------
+ - fix: AttributeReference properties are cleared from DatabaseReference when new values
+   are set into external parameters
+ - fix: the process of deletion of bad statements during the recovery was broken
+
+
+v1.4 (March 2006)
+----
+
+ - added the database 'seed' property to specify the random seed used by the cryptograph
+ - supressed the deprecated reference to RowInterator in Instance
+ - Instance method internalGet now checks external object
+ - added the ability to map rows with external objets (POJOs) via an ExternalObjectWrapper class
+ - added some new constructors to the standalone tool
+ - copied the class velosurf.standalone.Velosurf to class velosurf.Velosurf and deprecated the latter
+ - made Database internal maps private
+ - use a stringbuffer where possible in queries construction
+ - removed some old deprecated methods
+ - added a default constructor for Instance
+ - corrected classpath errors in build.xml
+ - doc: updated the class-diagram
+ - added an Instance.equals() method that checks key values if possible
+ - added a getRows() method to RowIterator, AttributeReference and EntityReference
+
+v1.3.1 (June 2005)
+------
+
+ - getLastInsertID now returns an obfuscated value if the ID column is obfuscated for that column
+ - doc: speech about not keeping long lifecycle references of prep statements objects
+ - doc: the 'table' attribute was missing
+ - fix: clear the DBReference cache when external parameters are set on the db
+ - fix: 'ro' and 'rw' param values for 'default-access' where inverted
+ - fix: obfuscate and deobfuscate methods now also do http encoding and decoding
+
+v1.3 (November 2004)
+---
+
+ - added min-connections and max-connections parameters to the database configuration
+ - docs: added details about obfuscation and autofetching in the overview
+ - docs: added a page about Velosurf architecture
+ - the jars for Velocity, Velocity-tools and their dependencies are no longer included in the tarball
+ - introduced a ConnectionWrapper class to handle a 'busy' state per connection
+ - moved getLastInsertId method to DriverInfo
+ - renamed DBConnection to Database
+ - moved checkConnection to ConnectionWrapper
+ - introduced a ConnectionPool class
+ - removed Database.reconnect() method: meaningless when using connection pools
+ - moved all the calls to Pooled[Prepared]Statement.notifyInUse() from Database to [Prepared]StatementPool
+ - fix: PreparedStatementPool.evaluate was throwing an exception for an empty result
+
+v1.2 (September 2004)
+----
+
+ - fix: obfuscation was broken.
+ - added VelosurfTool.getConnection(config) and VelosurfTool.getDefaultConnection() methods
+
+v1.1 (September 2004)
+----
+
+ - made Instance inherit from TreeMap so that order of columns is preserved
+ - fix: a root attribute with a rowset result throwed a NullException under some case policies
+ - made standalone.Velosurf.findConfig() static
+ - fix: VelosurfTool.configure was throwing a NullException when a null parameter was given
+ - add the missing method getColumns( ) to EntityReference
+ - made Instance.getEntity( ) return an EntityReference instead of an Entity
+
+v1.0 (June 2004)
+----
+
+ - fix: added missing DOCTYPE tag to the bookstore sample web.xml
+ - fix: the ISBN field was missing in book_form.html in the bookstore sample
+ - velosurf.tool.VelosurfTool now supports VelTools initialization parameters (very usefull when dealing with several DBs)
+ - new 'reverse' option to control the degree of reverse enginering (none|partial|full)
+ - reenginering of the initialization methods for sql.DBConnection: now the config file is fully parsed before connecting to the database
+ - docs: some clarifications on the case-sensivity policy
+ - fix: external parameters now work with entities (were working only with root attributes)
+ - logging debug level now set via velosurf.xml
+ - jce1_2_2.jar and sunjce_provider.jar not included anymore in the tarball
+ - the Cryptograph class is loaded only if obfuscation is actually used
+  - VelosurfTool.initDB made protected
+  - connection caches (by connection params or by config file)
+  - entities can be referenced across VelosurfTool instances binded to different schemas
+
+v0.9.1 (March 2004)
+------
+
+ - fix: root actions were not visible from VTL
+ - fix: bookstore sample was broken (reviewed sql file, added missing autofetch attributes)
+ - full rewrite of the driver-specific infos
+ - 'startup' root action executed at startup
+ - code cleaning in DBConnection and Entity - deprecated methods removed
+ - case handling policies
+ - schemas: added automatic selection of current schema (schema was only used for name resolution)
+ - call DriverManager.setLogStream instead of DriverManager.setLogWriter so that JDBC 1.0 drivers can log
+ - fix: automatic database driver class determination wasn't working
+ - docs corrected for syntax, grammar and clarity by Kai Carver (thanks Kai!)
+
+v0.9 (February 2004)
+----
+
+ - added obfuscation methods to DBReference to allow by hand obfuscation
+ - updated license stuff files (apache/gnu/sun)
+ - Logger: log2stdout & log2stderr methods
+ - Logger: stdout and stderr methods renamed from startLogStdout
+ - added autofetching of instances from HTTP parameters
+ - added a FAQ
+ - added class and docs for standalone usage
+ - deprecated old instance fetch/update/insert methods of DBConnection
+ - deprecated Instance.getKeys in favor of the new method Instance.getPrimaryKey
+ - much cleaner parsing in refineQuery and orderQuery
+ - checkConnection behaviour is now specific to each database vendor
+ - applied changes submitted by Asar Khan:
+   . schema database attribute
+   . explicitely close resultsets in finally blocks
+   . don't load tables whose name contains '/'
+ - bookstore sample
+ - docs: updated configuration documentation for the 'table' attribute
+ - query parameters automatic obfuscation
+ - table aliasing
+ - bug "java.lang.NoClassDefFoundError:org/gjt/mm/mysql/Statement" (when using another dbms than MySql) corrected
+ - bug: several DBConnection methods were checking the normal connection, not the one dedicated to transactions
+
+v0.8 (October 17, 2003)
+----
+
+ - support for transactions
+ - javadoc'ed almost all the files
+ - fetch methods now take a Number instead of an Integer
+ - methods to clean the cache for an entity
+ - methods clearRefinement to remode any refinement on an attribute or an entity
+ - setting the order to an empty string reset it
+ - VelosurfTool can now be used in any scope (application / session / request)
+
+v0.7.1 (September 2003)
+------
+
+ - HttpQueryTool now has getStrings and getInts methods
+ - some simple examples added to the doc
+ - velocity wants a Map interface to allow a generic setter
+
+v0.7 (September 2003)
+----
+
+ - many additions to the docs
+ - method Instance.initialize()
+ - action tag
+ - soft caching
+ - When fetching instances, automatically read all fields and put them in the instance's map (allows iterations on fields and meta-info fetching)
+ - Moved all resultset metainfo stuff to SqlUtil
+ - Added a getUri() method to HttpQueryTool
+
+v0.6.1 (March 2003)
+------
+ - now compatible with the new velocity-tools sourcetree
+ - bug with java.sql.Timestamp columns: time was reseted at update
+
+v0.6 (February 21, 2003)
+----
+
+ - support for external parameters in attributes
+ - velosurf is no longer case insensitive for table and column names
+ - attribute lastInsertID for entities (only with mysql for now)
+ - db connections recovery is now functional
+
+v0.5.1 (July 22,2002)
+------
+ - bug in PreparedStatementPool.clear() corrected
+ - added $query.getInt(key)
+
+v0.5 (July 8,2002)
+----
+
+ - connection is checked and reopened if down
+ - config can be done via an xml file
+ - conversion utility def2xml: convert config file from .def format to .xml format
+ - access control (/entity)
+ - return the 'natural' slq->java type for each column
+ - behaviour with null values: issue calls to ResultSet.wasNull()
+ - velosurf appears as a Velocity ViewTool
+ - http query parameters are now parsed by HttpQueryTool, another ViewTool
+
+v0.3 & 0.4 (May-June 2002)
+----------
+
+ - added easier fetch methods for single-column primary keys
+ - property velosurf.template.extension (extension to add to extension-less uris to find templates)
+ - corrected newInstance package bug
+ - avoid putting multivalued arrays in a new instance value
+ - check that Instance methods 'update' and 'delete' affect only 1 row... warn if 0, error if >1
+ - log now adds a date & time header
+ - fetch(Map)
+ - VelosurfServlet now inherits VelocityViewServlet
+ - integers are returned as Integer
+ - fetch(Integer)
+ - uses ViewToolLogger
+ - instance update was calling Map.get and not Instance.get
+
+v0.2 (April 17,2002)
+----
+
+ - Query is now optional in non-root attribute definitions (in which case, the fetch query of the associated entity is used).
+ - Core objects are not any more passed to the context, but wrapped in 'reference' objects (see velosurf.context package).
+ - Attribute definitions can now be done from inside a template file ; the special file "database.vm", if found, is used to build a context from which new ones are chained.
+ - Iterators are created only on demand, thus no more velocity warning and entities and attributes properties can be accessed.
+ - Ordering can now be achieved via the 'order' property of entities and attributes.
+ - Entity and attribute queries can now be refined via the 'refine( )' method.
+
+v0.1 (March 1,2002)
+----
+
+ - Initial release
