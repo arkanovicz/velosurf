@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.tools;
+package velosurf.local;
 
 /** To be implemented by localizers used by the engine to get localized strings from their database id.
  *

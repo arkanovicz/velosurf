@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.tools;
+package velosurf.web;
 
 import java.io.InputStream;
 import java.util.Map;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.tools;
+package velosurf.local;
 
 import org.apache.velocity.tools.view.context.ViewContext;
 import org.apache.velocity.tools.view.tools.ViewTool;
