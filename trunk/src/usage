@@ -1,4 +1,0 @@
-#!/bin/sh
-
-grep -riwl $1 * | grep -v $1 | grep -v Entries
-
