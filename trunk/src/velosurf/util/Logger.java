@@ -38,20 +38,26 @@ public class Logger
      */
     public final static int DEBUG_ID = 1;
 
-    /** 
+    /**
      * Prefix for info messages.
      */
     public final static int INFO_ID = 2;
-    
-    /** 
+
+    /**
      * Prefix for warning messages.
      */
     public final static int WARN_ID = 3;
 
-    /** 
+    /**
      * Prefix for error messages.
      */
     public final static int ERROR_ID = 4;
+
+    /**
+     * Prefix for fatal error messages.
+     */
+    public final static int FATAL_ID = 5;
+
 
 	/**
 	 * Current log level
@@ -110,25 +116,25 @@ public class Logger
 			e.printStackTrace(System.err);
 		}
 	}
-	
+
 	/** stdout old value
 	 */
 	static PrintStream sOldStdout = null;
 	/** stderr old value
 	 */
 	static PrintStream sOldStderr = null;
-		
+
 	/** logs a string
-	 * 
+	 *
 	 * @param s string
 	 */
 	static protected void log(String s) {
 		sLog.println(header()+s);
 		sLog.flush();
 	}
-	
+
 	/** logs an exception with a string
-	 * 
+	 *
 	 * @param s string
 	 * @param e exception
 	 */
@@ -137,9 +143,9 @@ public class Logger
 		e.printStackTrace(sLog);
 		sLog.flush();
 	}
-	
+
 	/** log an exception
-	 * 
+	 *
 	 * @param e exception
 	 */
 	static public void log(Throwable e) {
@@ -150,7 +156,7 @@ public class Logger
     static int lines = 0;
 
 	/** log a string using a verbose level
-	 * 
+	 *
 	 * @param level verbose level
 	 * @param s string to log
 	 */
@@ -173,6 +179,9 @@ public class Logger
 			case ERROR_ID:
 				prefix=" [error] ";
 				break;
+            case FATAL_ID:
+                prefix=" [fatal] ";
+                break;
 		}
 		log(prefix+s);
         lines++;
@@ -184,57 +193,65 @@ public class Logger
             warn("Automatically switching to stderr");
         }
 	}
-	
+
 	/** logs a tracing string
-	 * 
+	 *
 	 * @param s tracing string
 	 */
 	static public void trace(String s) {
 		log(TRACE_ID,s);
 	}
-	
+
 	/** logs a debug string
-	 * 
+	 *
 	 * @param s debug string
 	 */
 	static public void debug(String s) {
 		log(DEBUG_ID,s);
 	}
-	
+
 	/** logs an info string
-	 * 
+	 *
 	 * @param s info string
 	 */
 	static public void info(String s) {
 		log(INFO_ID,s);
 	}
-	
+
 	/** logs a warning string
-	 * 
+	 *
 	 * @param s warning string
 	 */
 	static public void warn(String s) {
 		log(WARN_ID,s);
 	}
-	
+
 	/** logs an error string
-	 * 
+	 *
 	 * @param s error string
 	 */
 	static public void error(String s) {
 		log(ERROR_ID,s);
 	}
-		
+
+    /** logs a fatal error string
+     *
+     * @param s fatal error string
+     */
+    static public void fatal(String s) {
+        log(ERROR_ID,s);
+    }
+
 	/** get the output writer
-	 * 
+	 *
 	 * @return writer
 	 */
 	static public PrintWriter getWriter() {
 		return sLog;
 	}
-	
+
 	/** set the output writer
-	 * 
+	 *
 	 * @param out PrintWriter or Writer or OutputStream
 	 */
 	static public void setWriter(Object out) {
@@ -248,7 +265,7 @@ public class Logger
 		else throw new RuntimeException("Logger.setWriter: PANIC! class "+out.getClass().getName()+" cannot be used to build a PrintWriter!");
 		if (sAsyncLog != null) flushAsyncLog();
 	}
-	
+
 	/** redirects stdout towards output writer
 	 */
 	static public void startCaptureStdout() {
@@ -256,7 +273,7 @@ public class Logger
 		System.setOut(new PrintStream(new WriterOutputStream(sLog)));
         sCaptureStdout = true;
 	}
-	
+
 	/** stop redirecting stdout
 	 */
 	static public void stopCaptureStdout() {
@@ -271,7 +288,7 @@ public class Logger
 		System.setErr(new PrintStream(new WriterOutputStream(sLog)));
         sCaptureStderr = true;
 	}
-	
+
 	/** stops redirecting stderr
 	 */
 	static public void stopCaptureStderr() {
@@ -298,7 +315,7 @@ public class Logger
     }
 
 	/** returns "Velosurf "
-	 * 
+	 *
 	 * @return return the header
 	 */
 	static protected String header() {
@@ -330,5 +347,5 @@ public class Logger
             e.printStackTrace(sLog);
         }
     }
-	
+
 }
