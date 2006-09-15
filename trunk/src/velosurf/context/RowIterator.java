@@ -28,7 +28,7 @@ import velosurf.model.Entity;
 import velosurf.sql.DataAccessor;
 import velosurf.sql.Pooled;
 import velosurf.util.Logger;
-import velosurf.tools.Localizer;
+import velosurf.local.Localizer;
 
 /** This class is a context wrapper for ResultSets, and provides an iteration mecanism for #foreach loops, as long as getters for values of the current row.
  *
