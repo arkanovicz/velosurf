@@ -31,6 +31,8 @@ import velosurf.context.DBReference;
 import velosurf.sql.Database;
 import velosurf.util.Logger;
 import velosurf.util.ServletLogWriter;
+import velosurf.util.ToolFinder;
+import velosurf.local.Localizer;
 
 /** <p>This class is a tool meant to be referenced in toolbox.xml</p>
  * <p>It can be used in any scope you want (application/session/request), depending on the behaviour you need for the refinement and ordering mechanisms (which will follow the same scope).
@@ -157,8 +159,6 @@ public class VelosurfTool extends DBReference implements ViewTool /*,Configurabl
      */
     public void configure(Map map) {
         mConfigFile = (String)map.get("config");
-        String localizerToolKey = (String)map.get("localizer");
-        mLocalizerToolKey = (localizerToolKey == null ? sDefaultLocalizerToolKey : localizerToolKey);
     }
 
     /** returns the existing Database for the specified config file, or null
@@ -215,15 +215,6 @@ public class VelosurfTool extends DBReference implements ViewTool /*,Configurabl
         return getConnection(DEFAULT_DATABASE_CONFIG_FILE,inServletContext);
     }
 
-    /** default localizer tool key
-     */
-
-    protected static final String sDefaultLocalizerToolKey = "local";
-
-    /**
-     * key of the localizer tool in toolbox.xml
-     */
-    protected String mLocalizerToolKey = null;
 
     /**
      * do we need to try to fetch the localizer object ?
@@ -234,13 +225,7 @@ public class VelosurfTool extends DBReference implements ViewTool /*,Configurabl
 
     protected void fetchLocalizer(ViewContext inViewContext) {
         if (mLocalizer == null) {
-            HttpSession session = inViewContext.getRequest().getSession(false);
-            if (session != null) {
-                Map sessionTools = (Map)session.getAttribute("org.apache.velocity.tools.view.servlet.ServletToolboxManager:session-tools");
-                if (sessionTools != null) {
-                    mLocalizer = (Localizer)sessionTools.get(mLocalizerToolKey);
-                }
-            }
+            mLocalizer = ToolFinder.findTool(inViewContext.getRequest().getSession(false),Localizer.class);
             if (mLocalizer == null) {
                 // don't search for it again
                 sFetchLocalizer = false;
