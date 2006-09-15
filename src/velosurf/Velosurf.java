@@ -16,17 +16,6 @@
 
 package velosurf;
 
-/** this class is the Velosurf main entry class if you do not use the toolbox.xml mechanism.
- *  Unless you specify the config file to use, it will successively search for a configuration file :
- *  <ul>
- *  <li><p>from the java property "config.velosurf" (like in 'java -Dconfig.velosurf=/.../velosurf.xml ...' )</p>
- *  <li><p>from the Velocity property "config.velosurf" (entry of the velocity.properties file)</p>
- *  <li><p>as './velosurf.xml', './conf/velosurf.xml', './WEB-INF/velosurf.xml', './cfg/velosurf.xml'
- *
- * @author Claude Brisson
- *
- */
-
 import velosurf.context.DBReference;
 import velosurf.util.Logger;
 import velosurf.sql.Database;
@@ -38,6 +27,18 @@ import java.io.InputStream;
 import java.sql.SQLException;
 
 import org.apache.velocity.app.Velocity;
+
+/** this class is the Velosurf main entry class if you do not use the toolbox.xml mechanism.
+ *  Unless you specify the config file to use, it will successively search for a configuration file :
+ *  <ul>
+ *  <li><p>from the java property "config.velosurf" (like in 'java -Dconfig.velosurf=/.../velosurf.xml ...' )</p>
+ *  <li><p>from the Velocity property "config.velosurf" (entry of the velocity.properties file)</p>
+ *  <li><p>as './velosurf.xml', './conf/velosurf.xml', './WEB-INF/velosurf.xml', './cfg/velosurf.xml'
+ *
+ * @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
+ *
+ */
+
 
 public class Velosurf extends DBReference
 {

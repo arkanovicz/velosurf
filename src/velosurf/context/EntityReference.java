@@ -25,7 +25,7 @@ import java.sql.SQLException;
 
 import velosurf.model.Entity;
 import velosurf.util.Logger;
-import velosurf.tools.Localizer;
+import velosurf.local.Localizer;
 
 // inherits AbstractList so that Velocity will call iterator() from within a #foreach directive
 /** Context wrapper for an entity.
