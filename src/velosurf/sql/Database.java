@@ -34,8 +34,11 @@ import velosurf.context.RowIterator;
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
 import velosurf.model.Action;
-import velosurf.util.*;
-import velosurf.tools.HttpQueryTool;
+import velosurf.util.Logger;
+import velosurf.util.LineWriterOutputStream;
+import velosurf.util.Cryptograph;
+import velosurf.util.StringLists;
+import velosurf.web.HttpQueryTool;
 
 /** This class encapsulates  a connection to the database and contains all the stuff relative to it.
  *
