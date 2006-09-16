@@ -334,7 +334,7 @@ public class SavedRequest {
             saved.addLocale(locale);
         }
         Map parameters = request.getParameterMap();
-        for(Map.Entry entry:parameters.entrySet()) {
+        for(Map.Entry entry:(Set<Map.Entry>)parameters.entrySet()) {
             saved.addParameter((String)entry.getKey(),(String[])entry.getValue());
         }
         saved.setMethod(request.getMethod());

@@ -233,7 +233,7 @@ public class Instance extends TreeMap implements DataAccessor
                 values.put(mDB.adaptCase(key),getInternal(key));
             }
             if (inValues != null && inValues != this) {
-                for(Map.Entry entry:inValues.entrySet()) {
+                for(Map.Entry entry:(Set<Map.Entry>)inValues.entrySet()) {
                     values.put(mDB.adaptCase((String)entry.getKey()),entry.getValue());
                 }
             }
