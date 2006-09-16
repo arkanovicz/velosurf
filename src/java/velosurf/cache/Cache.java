@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Cache that keeps fetched instances in memory.
- * 
+ *
  * <p>
  * <p>
  * Three modes :
@@ -33,7 +33,7 @@ import java.util.Map;
  * <li>SOFT_CACHE (cache='soft' in velosurf.xml) : caching occurs as long as memory is ont reclaimed (see the behaviour of java soft references).
  * <li>FULL_CACHE (cache='full' in velosuf.xml) : caching occurs until manually freed.
  * </ul>
- * 
+ *
  * For an entity's instances to be cached, the associated table must have a primary key (even if multivalued).
  * <p>
  * This caching mechanism is meant for straightforward optimizations in simple situations, for instance to
@@ -56,37 +56,37 @@ public class Cache {
 	public static final int FULL_CACHE = 2; // FIXME : need user cleaning methods
 
 	/** Cache constructor
-	 * 
+	 *
 	 * @param inCachingMethod required caching mode
 	 */
 	public Cache(int inCachingMethod) {
 		mCachingMethod = inCachingMethod;
 		mInnerCache = new HashMap();
 	}
-	
+
 	/** Put an instance in the cache
-	 * 
+	 *
 	 * @param inKey key field(s) of this instance
 	 * @param inValue instance
 	 */
 	public void put(Object inKey,Object inValue) {
 		Object key = (inKey.getClass().isArray()?new ArrayKey((Object[])inKey):inKey);
-		Object value = (mCachingMethod == SOFT_CACHE?new SoftReference(inValue):inValue);  
+		Object value = (mCachingMethod == SOFT_CACHE?new SoftReference(inValue):inValue);
 		synchronized(mInnerCache) {
 			mInnerCache.put(key,value);
 		}
 	}
-	
+
 	/** Getter for the size of the cache
-	 * 
+	 *
 	 * @return the size of the cache
 	 */
 	public int size() {
 		return mInnerCache.size();
 	}
-	
+
 	/** Try to get an instance from the cache
-	 * 
+	 *
 	 * @param inKey key field(s) of the asked instance
 	 * @return Asked instance or null if not found
 	 */
@@ -103,37 +103,37 @@ public class Cache {
 				synchronized(mInnerCache) {
 					mInnerCache.remove(key);
 				}
-			} 
+			}
 		}
 		return ret;
 	}
-    
+
     /** Clear the cache
     *
     */
     public void clear() {
         mInnerCache.clear();
     }
-	
+
 	/** The caching method this cache uses
 	 */
 	protected int mCachingMethod;
 	/** the inner map that stores associations
 	 */
 	protected Map mInnerCache = null;
-	
-	public static class ArrayKey {
-		
+
+	public static final class ArrayKey {
+
 		/** ArrayKey is a simple wrapper that provides a field-to-field equal method between encapsulated arrays
-		 * 
+		 *
 		 * @param inKeys key values
 		 */
 		public ArrayKey(Object[] inKeys) {
 			mKeys = inKeys;
 		}
-		
+
 		/** checks the cell-to-cell equality of two arrays
-		 * 
+		 *
 		 * @param inSource source array
 		 * @return a boolean indicating the equality
 		 */
@@ -148,9 +148,9 @@ public class Cache {
 			}
 			return false;
 		}
-		
+
 		/** hashcode of an array, based on the hashcode of its members
-		 * 
+		 *
 		 * @return the hashcode
 		 */
 		public int hashCode() {
@@ -159,7 +159,7 @@ public class Cache {
 				hash += mKeys[i].hashCode();
 			return hash;
 		}
-		
+
 		/** the wrapped array
 		 */
 		protected Object[] mKeys = null;

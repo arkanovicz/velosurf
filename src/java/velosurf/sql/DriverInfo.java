@@ -41,13 +41,13 @@ public class DriverInfo
 //            _IDGenerationQuery = IDGenerationQuery;
     }
 
-    public String _name;                // name of the database vendor
-    public String _jdbcTag;             // jdbc tag of the database vendor
-    public String[] _drivers;           // list of driver classes
-    public String _pingQuery;           // ping SQL query
-    public String _caseSensivity;       // case-sensivity
-    public String _schemaQuery;         // SQL query to set the current schema
-    public String _IDGenerationMethod;  // ID generation method
+    protected String _name;                // name of the database vendor
+    protected String _jdbcTag;             // jdbc tag of the database vendor
+    protected String[] _drivers;           // list of driver classes
+    protected String _pingQuery;           // ping SQL query
+    protected String _caseSensivity;       // case-sensivity
+    protected String _schemaQuery;         // SQL query to set the current schema
+    protected String _IDGenerationMethod;  // ID generation method
 // not yet implemented (TODO)
 //        public String _IDGenerationQuery;   // ID generation query
 
@@ -63,7 +63,7 @@ public class DriverInfo
         return _jdbcTag;
     }
 
-    public String[] getDrivers() {
+    protected String[] getDrivers() {
         return _drivers;
     }
 

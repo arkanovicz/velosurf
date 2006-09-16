@@ -231,7 +231,7 @@ public class Database {
      * @return a new connection
      */
     public static Database getInstance(String inUser,String inPassword,String inUrl,String inDriver,String inSchema) throws SQLException {
-        Integer hash = new Integer(inUser.hashCode() ^ inPassword.hashCode() ^ inUrl.hashCode() ^ (inDriver==null?0:inDriver.hashCode()) ^ (inSchema==null?0:inSchema.hashCode()) );
+        Integer hash = Integer.valueOf(inUser.hashCode() ^ inPassword.hashCode() ^ inUrl.hashCode() ^ (inDriver==null?0:inDriver.hashCode()) ^ (inSchema==null?0:inSchema.hashCode()) );
         Database instance = (Database)sConnectionsByParams.get(hash);
         if (instance == null) {
             instance = new Database(inUser,inPassword,inUrl,inDriver,inSchema);
@@ -247,7 +247,7 @@ public class Database {
 	 * @return a new connection
 	 */
     public static Database getInstance(String inConfigFilename) throws SQLException,FileNotFoundException,IOException {
-        Integer hash = new Integer(inConfigFilename.hashCode());
+        Integer hash = Integer.valueOf(inConfigFilename.hashCode());
         Database instance = (Database)sConnectionsByConfigFile.get(hash);
         if (instance == null) {
             instance = getInstance(new FileInputStream(inConfigFilename));
@@ -912,7 +912,7 @@ public class Database {
      */
     private Integer getMagicNumber(String schema) {
         // url is not checked for now because for some databases, the schema is part of the url.
-        return new Integer((mUser/*+mUrl*/+schema).hashCode());
+        return Integer.valueOf((mUser/*+mUrl*/+schema).hashCode());
     }
 
     /** get the schema

@@ -39,7 +39,7 @@ public class Action
 {
 	/** Constructor
 	 *
-	 * @param inDB database connection
+	 * @param inEntity entity
 	 * @param inJDOMAction the XML tree for this action
 	 */
 	public Action(Entity inEntity,Element inJDOMAction) {

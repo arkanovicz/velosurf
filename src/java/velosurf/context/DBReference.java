@@ -119,7 +119,7 @@ public class DBReference extends HashMap implements DataAccessor
 
             // 3) try to get a root action
             Action action = mDB.getAction(inProperty);
-            if (action != null) return new Integer(action.perform(this));
+            if (action != null) return Integer.valueOf(action.perform(this));
 
 			// 3) try to get an entity
 			Entity entity = mDB.getEntity(inProperty);

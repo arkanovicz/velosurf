@@ -143,7 +143,7 @@ public class Instance extends TreeMap implements DataAccessor
                         }
                     else {
                     	Action action = mEntity.getAction(property);
-                    	if (action != null) result = new Integer(action.perform(this));
+                    	if (action != null) result = Integer.valueOf(action.perform(this));
                     }
 				}
 			} else if (mLocalize && mEntity.isLocalized((String)inKey)) {
@@ -233,9 +233,8 @@ public class Instance extends TreeMap implements DataAccessor
                 values.put(mDB.adaptCase(key),getInternal(key));
             }
             if (inValues != null && inValues != this) {
-                for(Iterator it = inValues.keySet().iterator();it.hasNext();) {
-                    String key = (String)it.next();
-                    values.put(mDB.adaptCase(key),inValues.get(key));
+                for(Map.Entry entry:inValues.entrySet()) {
+                    values.put(mDB.adaptCase((String)entry.getKey()),entry.getValue());
                 }
             }
 			if (mEntity == null) throw new SQLException("Entity is null!");
