@@ -133,7 +133,7 @@ public class FastHttpDateFormat {
                                           DateFormat threadLocalformat) {
 
         String cachedDate = null;
-        Long longValue = new Long(value);
+        Long longValue = Long.valueOf(value);
         try {
             cachedDate = (String) formatCache.get(longValue);
         } catch (Exception e) {
@@ -220,7 +220,7 @@ public class FastHttpDateFormat {
         if (date == null) {
             return null;
         }
-        return new Long(date.getTime());
+        return Long.valueOf(date.getTime());
     }
 
 

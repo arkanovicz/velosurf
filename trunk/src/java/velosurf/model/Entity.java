@@ -405,8 +405,8 @@ public class Entity
 	 * @return the last insert id
 	 */
     public Object getLastInsertID() {
-        if (mKeys.size() == 1 && isObfuscated((String)mKeys.get(0))) return obfuscate(new Long(mLastInsertID));
-        return new Long(mLastInsertID);
+        if (mKeys.size() == 1 && isObfuscated((String)mKeys.get(0))) return obfuscate(Long.valueOf(mLastInsertID));
+        return Long.valueOf(mLastInsertID);
     }
 
 	/** update a row based on values of a Map
@@ -486,10 +486,10 @@ public class Entity
                 PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
                 if (mObfuscate) {
                     inValues = new HashMap(inValues);
-                    for(Iterator i = inValues.keySet().iterator();i.hasNext();) {
-                        String col = (String)i.next();
-                        if(isObfuscated(col))
-                            inValues.put(col,deobfuscate(inValues.get(col)));
+                    for(Map.Entry entry:inValues.entrySet()) {
+                        if (isObfuscated((String)entry.getKey())) {
+                            entry.setValue(deobfuscate(entry.getValue()));
+                        }
                     }
                 }
                 instance = (Instance)statement.fetch(inValues,this);

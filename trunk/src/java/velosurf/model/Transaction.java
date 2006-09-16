@@ -39,7 +39,7 @@ public class Transaction extends Action
 {
 	/** Builds a new transaction
 	 *
-	 * @param inDB database connection
+	 * @param inEntity entity
 	 * @param inJDOMAction XML tree
 	 */
     public Transaction(Entity inEntity,Element inJDOMAction) {
@@ -53,7 +53,7 @@ public class Transaction extends Action
     protected void defineQuery(Element inJDOMAction) {
         mQueries = new ArrayList();
         mParamNamesList = new ArrayList();
-        String query = "";
+        StringBuilder query = new StringBuilder();
         List paramNames = new ArrayList();
         Iterator queryElements = inJDOMAction.getContent().iterator();
         while (queryElements.hasNext()) {
@@ -62,16 +62,16 @@ public class Transaction extends Action
                 String text = Strings.trimSpacesAndEOF(((Text)content).getText());
                 int i = text.indexOf(';');
                 if (i!=-1) {
-                    query += text.substring(0,i);
+                    query.append(text.substring(0,i));
                     mQueries.add(query);
                     mParamNamesList.add(paramNames);
-                    query = "";
+                    query = new StringBuilder();
                     paramNames = new ArrayList();
                 }
-                query += text.substring(i+1);
+                query.append(text.substring(i+1));
             }
             else {
-                query+=" ? ";
+                query.append(" ? ");
                 Element elem = (Element)content;
                 paramNames.add(elem.getName());
             }

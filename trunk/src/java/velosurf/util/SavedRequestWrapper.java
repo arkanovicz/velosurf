@@ -47,7 +47,7 @@ public class SavedRequestWrapper extends HttpServletRequestWrapper {
     /**
      * The default Locale if none are specified.
      */
-    protected static Locale defaultLocale = Locale.getDefault();
+    protected static final Locale defaultLocale = Locale.getDefault();
 
     /**
      * The set of SimpleDateFormat formats to use in getDateHeader().

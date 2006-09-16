@@ -134,6 +134,7 @@ import velosurf.model.Entity;
         String mName;
         boolean mProtect;
     }
-    protected static boolean sAutofetchingEnabled = false;
-    protected static Map sAutofetchMap = new HashMap();
+
+    private static boolean sAutofetchingEnabled = false;
+    private static Map sAutofetchMap = new HashMap();
 }

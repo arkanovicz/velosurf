@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /** this class is the logger used by velosurf
  */
@@ -62,7 +63,12 @@ public class Logger
 	/**
 	 * Current log level
 	 */
-	public static int mLogLevel = INFO_ID;
+	private static int mLogLevel = INFO_ID;
+
+    /**
+     * whether to display timestamps
+     */
+    private static boolean mDisplayTimestamps = false;
 
     /**
      * whether the logger captures stdout
@@ -85,6 +91,13 @@ public class Logger
 	public static void setLogLevel(int inLogLevel) {
 		mLogLevel = inLogLevel;
 	}
+
+    /** whether to display timestamps
+     *
+     */
+    public static void setDisplayTimestamps(boolean timestamps) {
+        mDisplayTimestamps = timestamps;
+    }
 
     /** Gets the current log level
      * @return the current log level
@@ -319,7 +332,7 @@ public class Logger
 	 * @return return the header
 	 */
 	static protected String header() {
-		return /*sFormat.format(new Date())+*/ " Velosurf ";
+		return mDisplayTimestamps ? sFormat.format(new Date())+ " Velosurf " : " Velosurf ";
 	}
 
 	/** flush the asynchronous log in the output writer

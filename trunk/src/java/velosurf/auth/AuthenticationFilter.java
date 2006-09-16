@@ -56,7 +56,7 @@ import velosurf.util.ToolFinder;
  *
  * <p>The javascript file <i>login.js.vtl</i> contains the necessary encryption functions. It uses
  * the <i>bignum.js</i> library file. You will find those files in <code>/src/resources/auth</code>
- * or in the authentication sample webapp. 
+ * or in the authentication sample webapp.
  *
  *
  * <p>The filter expect the login to be present in the HTTP 'login' form field, and the </p>
@@ -76,10 +76,21 @@ import velosurf.util.ToolFinder;
 
 public class AuthenticationFilter implements Filter {
 
-    private FilterConfig _config = null;
+    protected FilterConfig _config = null;
+
+    protected int _maxInactiveInterval = 0;
 
     public void init(FilterConfig config) throws ServletException {
         _config = config;
+        String param = _config.getInitParameter("max-inactive-interval");
+        int max = 0;
+        if (param != null) {
+            try {
+                _maxInactiveInterval = Integer.parseInt(param);
+            } catch (NumberFormatException nfe) {
+                Logger.error("AuthenticationFilter: bad format for the max-inactive-interval parameter: "+param);
+            }
+        }
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
@@ -102,14 +113,17 @@ public class AuthenticationFilter implements Filter {
             if (session == null) {
                 // not loggued
                 session = request.getSession(true);
-                session.setMaxInactiveInterval(1);
+                if (_maxInactiveInterval > 0) {
+                    session.setMaxInactiveInterval(_maxInactiveInterval);
+                }
             }
             session.removeAttribute("user");
 
             if ( (login = request.getParameter("login")) != null
                     && (answer = request.getParameter("answer")) != null
-                    && session.getId().equals(request.getRequestedSessionId())) { // ?! When would this happen??? Does it help hacking?
+                    && session.getId().equals(request.getRequestedSessionId())) {
                 // a user is trying to log in
+
                 // get a reference to the authenticator tool
                 Authenticator auth = ToolFinder.findTool(session,Authenticator.class);
 
@@ -140,9 +154,13 @@ public class AuthenticationFilter implements Filter {
                     response.sendRedirect("/login.html");
                 }
             } else {
-            // not loggued...
-            // save the original request
+                // not loggued...
+                // save the original request
                 session.setAttribute("unauth_request",SavedRequest.saveRequest(request));
+                // if there is a requested session id, it means the current session has expired
+                if (request.getRequestedSessionId() != null) {
+                    session.setAttribute("loginMessage","Vous avez été déconnecté après "+session.getMaxInactiveInterval()+" secondes d'inactivité.");
+                }
                 // redirect to login page
                 response.sendRedirect("/login.html");
             }

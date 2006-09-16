@@ -334,11 +334,8 @@ public class SavedRequest {
             saved.addLocale(locale);
         }
         Map parameters = request.getParameterMap();
-        Iterator paramNames = parameters.keySet().iterator();
-        while (paramNames.hasNext()) {
-            String paramName = (String) paramNames.next();
-            String paramValues[] = (String[]) parameters.get(paramName);
-            saved.addParameter(paramName, paramValues);
+        for(Map.Entry entry:parameters.entrySet()) {
+            saved.addParameter((String)entry.getKey(),(String[])entry.getValue());
         }
         saved.setMethod(request.getMethod());
         saved.setQueryString(request.getQueryString());
