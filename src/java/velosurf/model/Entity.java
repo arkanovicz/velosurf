@@ -486,7 +486,7 @@ public class Entity
                 PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
                 if (mObfuscate) {
                     inValues = new HashMap(inValues);
-                    for(Map.Entry entry:inValues.entrySet()) {
+                    for(Map.Entry entry:(Set<Map.Entry>)inValues.entrySet()) {
                         if (isObfuscated((String)entry.getKey())) {
                             entry.setValue(deobfuscate(entry.getValue()));
                         }
