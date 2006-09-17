@@ -25,38 +25,38 @@ import velosurf.sql.PooledPreparedStatement;
 import velosurf.util.Logger;
 
 public class Test {
-	
-	public static void main(String args[]) {
-		
-		try {
+    
+    public static void main(String args[]) {
+        
+        try {
 
-			// test normal select
-			Database db = Database.getInstance("user","pass","jdbc:mysql://127.0.0.1/db","");
-			RowIterator row = db.query("select pr_name from project");
-			while (row.next()!=null) {
-				System.out.println(row.get("pr_name"));
-			}
+            // test normal select
+            Database db = Database.getInstance("user","pass","jdbc:mysql://127.0.0.1/db","");
+            RowIterator row = db.query("select pr_name from project");
+            while (row.next()!=null) {
+                System.out.println(row.get("pr_name"));
+            }
 
-			row = db.query("select pr_name from project");
-			while (row.next()!=null) {
-				System.out.println(row.get("pr_name"));
-			}
-			
-			// test prepared statement
-			Hashtable rowt = null;
-			PooledPreparedStatement st = db.prepare("select pr_name from project where pr_id=?");
-			for (int i=1;i<=10;i++) {
-				rowt = (Hashtable)st.fetch(Arrays.asList(new String[] {""+i}));
-				System.out.println(rowt.get("pr_name"));
-			}
-			
-			db.displayStats();
+            row = db.query("select pr_name from project");
+            while (row.next()!=null) {
+                System.out.println(row.get("pr_name"));
+            }
+            
+            // test prepared statement
+            Hashtable rowt = null;
+            PooledPreparedStatement st = db.prepare("select pr_name from project where pr_id=?");
+            for (int i=1;i<=10;i++) {
+                rowt = (Hashtable)st.fetch(Arrays.asList(new String[] {""+i}));
+                System.out.println(rowt.get("pr_name"));
+            }
+            
+            db.displayStats();
 
-			db.close();
-		
-		} catch (Exception e) {
-			Logger.log(e);
-		}
-	}
-	
+            db.close();
+        
+        } catch (Exception e) {
+            Logger.log(e);
+        }
+    }
+    
 }

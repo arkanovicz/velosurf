@@ -41,25 +41,25 @@ import velosurf.util.Strings;
  */
 public class Attribute
 {
-	// attribute type constants
-	/** constant meaning the return type is undefined
-	 */
-	public static final int UNDEFINED = 0;
-	/** constant meaning the result is a single row
-	 */
-	public static final int ROW = 1;
-	/** constant meaning the result is a rowset
-	 */
-	public static final int ROWSET = 2;
-	/** constant meaning the result is a scalar
-	 */
-	public static final int SCALAR = 3;
+    // attribute type constants
+    /** constant meaning the return type is undefined
+     */
+    public static final int UNDEFINED = 0;
+    /** constant meaning the result is a single row
+     */
+    public static final int ROW = 1;
+    /** constant meaning the result is a rowset
+     */
+    public static final int ROWSET = 2;
+    /** constant meaning the result is a scalar
+     */
+    public static final int SCALAR = 3;
 
-	/** builds a new attribute
-	 *
-	 * @param inEntity parent entity
-	 * @param inJDOMAttribute XML tree for this attribute
-	 */
+    /** builds a new attribute
+     *
+     * @param inEntity parent entity
+     * @param inJDOMAttribute XML tree for this attribute
+     */
     public Attribute(Entity inEntity,Element inJDOMAttribute) throws SQLException {
         mEntity = inEntity;
         mDB = inEntity.mDB;
@@ -102,106 +102,106 @@ public class Attribute
         }
     }
 
-	/** fetch the row result of this attribute
-	 *
-	 * @param inSource source object
-	 * @exception SQLException when thrown by the database
-	 * @return instance fetched
-	 */
-	public Object fetch(DataAccessor inSource) throws SQLException {
-		if (mType != ROW) throw new SQLException("cannot call fetch: result of attribute '"+mName+"' is not a row");
-		return mDB.prepare(getQuery()).fetch(buildArrayList(inSource),mDB.getEntity(mResultEntity));
-	}
+    /** fetch the row result of this attribute
+     *
+     * @param inSource source object
+     * @exception SQLException when thrown by the database
+     * @return instance fetched
+     */
+    public Object fetch(DataAccessor inSource) throws SQLException {
+        if (mType != ROW) throw new SQLException("cannot call fetch: result of attribute '"+mName+"' is not a row");
+        return mDB.prepare(getQuery()).fetch(buildArrayList(inSource),mDB.getEntity(mResultEntity));
+    }
 
-	/** query the resultset for this multivalued attribute
-	 *
-	 * @param inSource the source object
-	 * @exception SQLException when thrown from the database
-	 * @return the resulting row iterator
-	 */
-	public RowIterator query(DataAccessor inSource) throws SQLException {
+    /** query the resultset for this multivalued attribute
+     *
+     * @param inSource the source object
+     * @exception SQLException when thrown from the database
+     * @return the resulting row iterator
+     */
+    public RowIterator query(DataAccessor inSource) throws SQLException {
         return query(inSource,null,null);
-	}
+    }
 
-	/** query the rowset for this attribute
-	 *
-	 * @param inSource source object
-	 * @param inRefineCriteria refine criteria
-	 * @param inOrder order clause
-	 * @exception SQLException when thrown by the database
-	 * @return the resulting row iterator
-	 */
-	public RowIterator query(DataAccessor inSource,List inRefineCriteria,String inOrder) throws SQLException {
+    /** query the rowset for this attribute
+     *
+     * @param inSource source object
+     * @param inRefineCriteria refine criteria
+     * @param inOrder order clause
+     * @exception SQLException when thrown by the database
+     * @return the resulting row iterator
+     */
+    public RowIterator query(DataAccessor inSource,List inRefineCriteria,String inOrder) throws SQLException {
         if (mType != ROWSET) throw new SQLException("cannot call query: result of attribute '"+mName+"' is not a rowset");
         String query = getQuery();
-		if (inRefineCriteria != null) query = SqlUtil.refineQuery(query,inRefineCriteria);
-		if (inOrder != null && inOrder.length()>0) query = SqlUtil.orderQuery(query,inOrder);
-		return mDB.prepare(query).query(buildArrayList(inSource),mDB.getEntity(mResultEntity));
-	}
+        if (inRefineCriteria != null) query = SqlUtil.refineQuery(query,inRefineCriteria);
+        if (inOrder != null && inOrder.length()>0) query = SqlUtil.orderQuery(query,inOrder);
+        return mDB.prepare(query).query(buildArrayList(inSource),mDB.getEntity(mResultEntity));
+    }
 
 
-	/** evaluate this scalar attribute
-	 *
-	 * @param inSource source object
-	 * @exception SQLException when thrown from the database
-	 * @return the resulting scalar
-	 */
-	public Object evaluate(DataAccessor inSource) throws SQLException {
+    /** evaluate this scalar attribute
+     *
+     * @param inSource source object
+     * @exception SQLException when thrown from the database
+     * @return the resulting scalar
+     */
+    public Object evaluate(DataAccessor inSource) throws SQLException {
         if (mType != SCALAR) throw new SQLException("cannot call evaluate: result of attribute '"+mName+"' is not a scalar");
-		return mDB.prepare(getQuery()).evaluate(buildArrayList(inSource));
-	}
+        return mDB.prepare(getQuery()).evaluate(buildArrayList(inSource));
+    }
 
-	/** do an update via this attribute: deprecated, prefer to use an action instead
-	 *
-	 * @param inSource source object
-	 * @exception SQLException when thrown from the database
-	 * @return the numer of affected rows
-	 */
-	public int update(DataAccessor inSource) throws SQLException {
+    /** do an update via this attribute: deprecated, prefer to use an action instead
+     *
+     * @param inSource source object
+     * @exception SQLException when thrown from the database
+     * @return the numer of affected rows
+     */
+    public int update(DataAccessor inSource) throws SQLException {
         if (mType != SCALAR) throw new SQLException("cannot call update: result of attribute '"+mName+"' is not a scalar");
         if (mForeignKey != null) throw new SQLException("cannot call update: attribute '"+mName+"' is a foreign key");
-		return mDB.prepare(getQuery()).update(buildArrayList(inSource));
-	}
+        return mDB.prepare(getQuery()).update(buildArrayList(inSource));
+    }
 
-	/** gets the type of this attribute
-	 *
-	 * @return this attribute's type
-	 */
-	public int getType() {
-		return mType;
-	}
+    /** gets the type of this attribute
+     *
+     * @return this attribute's type
+     */
+    public int getType() {
+        return mType;
+    }
 
-	/** builds the list of parameter values - do not use directly
-	 *
-	 * @param inSource source object
-	 * @exception SQLException thrown by the database engine
-	 * @return the built list
-	 */
-	public List buildArrayList(DataAccessor inSource) throws SQLException {
-		ArrayList result = new ArrayList();
+    /** builds the list of parameter values - do not use directly
+     *
+     * @param inSource source object
+     * @exception SQLException thrown by the database engine
+     * @return the built list
+     */
+    public List buildArrayList(DataAccessor inSource) throws SQLException {
+        ArrayList result = new ArrayList();
         if (inSource!=null)
             for (Iterator i = mParamNames.iterator();i.hasNext();) {
                 String paramName = (String)i.next();
                 Object value = inSource.get(paramName);
                 if (mEntity.isObfuscated(paramName)) value = mDB.deobfuscate(value);
                 if (value == null) Logger.warn("Query "+mQuery+": param "+paramName+" is null!");
-        		result.add(value);
+                result.add(value);
             }
-		return result;
-	}
+        return result;
+    }
 
-	/** gets the name of the attribute
-	 *
-	 * @return name of the attribute
-	 */
+    /** gets the name of the attribute
+     *
+     * @return name of the attribute
+     */
     public String getName() {
         return mName;
     }
 
-	/** debug method
-	 *
-	 * @return the definition string of this attribute
-	 */
+    /** debug method
+     *
+     * @return the definition string of this attribute
+     */
     public String toString() {
         String result = "";
         switch (mType) {
@@ -226,41 +226,41 @@ public class Attribute
         return mQuery == null ? mDB.getEntity(mResultEntity).getFetchQuery() : mQuery;
     }
 
-	/** gets the database connection
-	 *
-	 * @return database connection
-	 */
+    /** gets the database connection
+     *
+     * @return database connection
+     */
     public Database getDB() {
         return mDB;
     }
 
 
-	/** database connection
-	 */
-	protected Database mDB = null;
-	/** name
-	 */
+    /** database connection
+     */
+    protected Database mDB = null;
+    /** name
+     */
     protected String mName = null;
 
     /** parent entity
      */
     protected Entity mEntity;
 
-	/** for row and rowset attributes, the resulting entity (if specified)
-	 */
-	protected String mResultEntity;
+    /** for row and rowset attributes, the resulting entity (if specified)
+     */
+    protected String mResultEntity;
 
     /** if used, name of the foreign key
      */
     protected String mForeignKey = null;
 
-	/** list of the parameter names
-	 */
-	protected List mParamNames = null;
-	/** attribute query
-	 */
-	protected String mQuery = null;
-	/** attribute type
-	 */
-	protected int mType = UNDEFINED;
+    /** list of the parameter names
+     */
+    protected List mParamNames = null;
+    /** attribute query
+     */
+    protected String mQuery = null;
+    /** attribute type
+     */
+    protected int mType = UNDEFINED;
 }

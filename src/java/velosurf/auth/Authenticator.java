@@ -41,7 +41,7 @@ public abstract class Authenticator {
         if (initData instanceof ViewContext) {
             _session = ((ViewContext)initData).getRequest().getSession();
         } else {
-			Logger.error("Authentifier tool should be used in a session scope!");
+            Logger.error("Authentifier tool should be used in a session scope!");
         }
     }
 

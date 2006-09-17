@@ -41,38 +41,38 @@ import org.jdom.Element;
  */
 public class Entity
 {
-	/** Constructor reserved for the framework
-	 *
-	 * @param inDB database connection
-	 * @param inName entity name
-	 * @param inAccess access mode (read-write or read-only)
-	 * @param inCachingMethod caching method to be used
-	 */
-	public Entity(Database inDB,String inName,boolean inAccess,int inCachingMethod) {
-		mDB = inDB;
-		mName = inName;
+    /** Constructor reserved for the framework
+     *
+     * @param inDB database connection
+     * @param inName entity name
+     * @param inAccess access mode (read-write or read-only)
+     * @param inCachingMethod caching method to be used
+     */
+    public Entity(Database inDB,String inName,boolean inAccess,int inCachingMethod) {
+        mDB = inDB;
+        mName = inName;
         mTable = inName; // default mapped table has same name
         mReadOnly = inAccess;
         mCachingMethod = inCachingMethod;
         if (mCachingMethod != Cache.NO_CACHE) mCache = new Cache(mCachingMethod);
         mInstanceClass = Instance.class;
-	}
+    }
 
-	/** add a column at the end of the sequential list of named columns (called during the reverse engeenering of the database)
-	 *
-	 * @param inColName column name
-	 */
-	public void addColumn(String inColName) {
-		mColumns.add(inColName);
-	}
+    /** add a column at the end of the sequential list of named columns (called during the reverse engeenering of the database)
+     *
+     * @param inColName column name
+     */
+    public void addColumn(String inColName) {
+        mColumns.add(inColName);
+    }
 
-	/** adds a key column to the sequential list of the key columns (called during the reverse-engeenering of the database)
-	 *
-	 * @param inColName name of the key column
-	 */
-	public void addKey(String inColName) {
-		mKeys.add(inColName);
-	}
+    /** adds a key column to the sequential list of the key columns (called during the reverse-engeenering of the database)
+     *
+     * @param inColName name of the key column
+     */
+    public void addKey(String inColName) {
+        mKeys.add(inColName);
+    }
 
     /** Used by the framework to notify this entity that its reverse enginering is over
      */
@@ -86,42 +86,42 @@ public class Entity
         }
     }
 
-	/** Get a named attribute of this entity
-	 *
-	 * @param inProperty attribute name
-	 * @return the attribute
-	 */
-	public Attribute getAttribute(String inProperty) {
-		return (Attribute)mAttributeMap.get(mDB.adaptCase(inProperty));
-	}
+    /** Get a named attribute of this entity
+     *
+     * @param inProperty attribute name
+     * @return the attribute
+     */
+    public Attribute getAttribute(String inProperty) {
+        return (Attribute)mAttributeMap.get(mDB.adaptCase(inProperty));
+    }
 
-	/** get the named action from this entity
-	 *
-	 * @param inProperty action name
-	 * @return the action
-	 */
-	public Action getAction(String inProperty) {
-		return (Action)mActionMap.get(mDB.adaptCase(inProperty));
-	}
+    /** get the named action from this entity
+     *
+     * @param inProperty action name
+     * @return the action
+     */
+    public Action getAction(String inProperty) {
+        return (Action)mActionMap.get(mDB.adaptCase(inProperty));
+    }
 
-	/** defines a new action in this entity (called during the reading of the config file)
-	 *
-	 * @param inJDOMAction the xml tree for the new action
-	 */
-	public void defineAction(Element inJDOMAction) {
-		String name = inJDOMAction.getAttributeValue("name");
-		Action action =
+    /** defines a new action in this entity (called during the reading of the config file)
+     *
+     * @param inJDOMAction the xml tree for the new action
+     */
+    public void defineAction(Element inJDOMAction) {
+        String name = inJDOMAction.getAttributeValue("name");
+        Action action =
             Action.isTransaction(inJDOMAction) ?
             new Transaction(this,inJDOMAction) :
             new Action(this,inJDOMAction);
-		mActionMap.put(mDB.adaptCase(name),action);
-		Logger.info("action "+mName+"."+name+" = "+action);
-	}
+        mActionMap.put(mDB.adaptCase(name),action);
+        Logger.info("action "+mName+"."+name+" = "+action);
+    }
 
-	/** defines a new attribute in this entity (called during the reading of the config file)
-	 *
-	 * @param inJDOMAttribute the XML tree for this attribute
-	 */
+    /** defines a new attribute in this entity (called during the reading of the config file)
+     *
+     * @param inJDOMAttribute the XML tree for this attribute
+     */
     public void defineAttribute(Element inJDOMAttribute) throws SQLException {
         String name = inJDOMAttribute.getAttributeValue("name");
         Attribute attribute = new Attribute(this,inJDOMAttribute);
@@ -129,44 +129,44 @@ public class Entity
         Logger.info("attribute "+mName+"."+name+" = "+attribute);
     }
 
-	/** Specify a custom class to use when instanciating this entity
-	 *
-	 * @param inClassName the java class name
-	 */
-	public void setInstanceClass(String inClassName) {
-		try {
-			mInstanceClass = Class.forName(inClassName);
-		}
-		catch (Exception e) {
-			Logger.log(e);
-		}
-	}
+    /** Specify a custom class to use when instanciating this entity
+     *
+     * @param inClassName the java class name
+     */
+    public void setInstanceClass(String inClassName) {
+        try {
+            mInstanceClass = Class.forName(inClassName);
+        }
+        catch (Exception e) {
+            Logger.log(e);
+        }
+    }
 
-	/** Specify the caching method, see {@link Cache} for allowed constants.
-	 *
-	 * @param inCaching Caching method
-	 */
-	public void setCachingMethod(int inCaching) {
-		if (mCachingMethod != inCaching) {
-			mCachingMethod = inCaching;
-			if (mCachingMethod == Cache.NO_CACHE) mCache = null;
-			else mCache = new Cache(mCachingMethod);
-		}
-	}
+    /** Specify the caching method, see {@link Cache} for allowed constants.
+     *
+     * @param inCaching Caching method
+     */
+    public void setCachingMethod(int inCaching) {
+        if (mCachingMethod != inCaching) {
+            mCachingMethod = inCaching;
+            if (mCachingMethod == Cache.NO_CACHE) mCache = null;
+            else mCache = new Cache(mCachingMethod);
+        }
+    }
 
-	/** Clear the cache
-	 */
+    /** Clear the cache
+     */
     public void clearCache() {
         if (mCache != null) mCache.clear();
     }
 
-	/** create a new realisation of this entity
-	 *
-	 * @return the newly created instance
-	 */
-	public Instance newInstance() {
-		Instance result = null;
-		try {
+    /** create a new realisation of this entity
+     *
+     * @return the newly created instance
+     */
+    public Instance newInstance() {
+        Instance result = null;
+        try {
             if (Instance.class.isAssignableFrom(mInstanceClass)) {
                 try {
                     result = (Instance)mInstanceClass.newInstance();
@@ -179,14 +179,14 @@ public class Entity
             } else {
                 result = new ExternalObjectWrapper(this,mInstanceClass.newInstance());
             }
-		}
-		catch (Exception e) {
+        }
+        catch (Exception e) {
             Logger.error("could not create a new instance for entity "+getName());
-			Logger.log(e);
-			result = null;
-		}
-		return result;
-	}
+            Logger.log(e);
+            result = null;
+        }
+        return result;
+    }
 
     /** builds a new instance from values contained in a Map
      *
@@ -216,57 +216,57 @@ public class Entity
     }
 
 
-	/** get an instance whose values are in a map (by default, do not update instance values with map values if the instance is found in the cache)
-	 *
-	 * @param inValues the map containing the key values
-	 * @return the instance
-	 */
-	public Instance getInstance(Map inValues) {
-		return getInstance(new MapDataAccessor(inValues),false);
-	}
+    /** get an instance whose values are in a map (by default, do not update instance values with map values if the instance is found in the cache)
+     *
+     * @param inValues the map containing the key values
+     * @return the instance
+     */
+    public Instance getInstance(Map inValues) {
+        return getInstance(new MapDataAccessor(inValues),false);
+    }
 
-	/** get an instance whose values are in a map
-	 *
-	 * @param inValues the map containing the values
-	 * @param inUpdateValues whether the instance should be updated from the
-	 *      map if found in the cache
-	 * @return the instance
-	 */
-	public Instance getInstance(Map inValues,boolean inUpdateValues) {
-		return getInstance(new MapDataAccessor(inValues),inUpdateValues);
-	}
+    /** get an instance whose values are in a map
+     *
+     * @param inValues the map containing the values
+     * @param inUpdateValues whether the instance should be updated from the
+     *      map if found in the cache
+     * @return the instance
+     */
+    public Instance getInstance(Map inValues,boolean inUpdateValues) {
+        return getInstance(new MapDataAccessor(inValues),inUpdateValues);
+    }
 
-	/** get an instance from its values contained in a DataAccessor object (by default, update all fields based on the values in the DataAccessor if the instance has been found in the cache)
-	 *
-	 * @param inValues the DataAccessor object containing the values
-	 * @return the instance
-	 */
-	public Instance getInstance(DataAccessor inValues) {
-		return getInstance(inValues,false);
-	}
+    /** get an instance from its values contained in a DataAccessor object (by default, update all fields based on the values in the DataAccessor if the instance has been found in the cache)
+     *
+     * @param inValues the DataAccessor object containing the values
+     * @return the instance
+     */
+    public Instance getInstance(DataAccessor inValues) {
+        return getInstance(inValues,false);
+    }
 
-	/** get an instance from a DataAccessor object
-	 *
-	 * @param inValues the DataAccessor object containing the values
-	 * @param inUpdateValues whether all values are to be read from the
-	 *     DataAccessor if the instance has been found in the cache
-	 * @return the instance
-	 */
-	public Instance getInstance(DataAccessor inValues,boolean inUpdateValues) {
-		Instance ret = null;
-		try {
-			if (mCachingMethod != Cache.NO_CACHE)
-				// try in cache
-				ret = (Instance)mCache.get(buildKey(inValues));
-			if (ret == null) ret = newInstance(inValues);
-			else if	(inUpdateValues) extractColumnValues(inValues,ret);
-			return ret;
-		}
-		catch (SQLException sqle) {
-			Logger.log(sqle);
-			return null;
-		}
-	}
+    /** get an instance from a DataAccessor object
+     *
+     * @param inValues the DataAccessor object containing the values
+     * @param inUpdateValues whether all values are to be read from the
+     *     DataAccessor if the instance has been found in the cache
+     * @return the instance
+     */
+    public Instance getInstance(DataAccessor inValues,boolean inUpdateValues) {
+        Instance ret = null;
+        try {
+            if (mCachingMethod != Cache.NO_CACHE)
+                // try in cache
+                ret = (Instance)mCache.get(buildKey(inValues));
+            if (ret == null) ret = newInstance(inValues);
+            else if    (inUpdateValues) extractColumnValues(inValues,ret);
+            return ret;
+        }
+        catch (SQLException sqle) {
+            Logger.log(sqle);
+            return null;
+        }
+    }
 
     /** extract column values from an input DataAccessor source and store result in inTarget
      *
@@ -296,22 +296,22 @@ public class Entity
         }
     }
 
-	/** build the key for the Cache from a DataAccessor
-	 *
-	 * @param inValues the DataAccessor containing all values
-	 * @exception SQLException the getter of the DataAccessor throws an
-	 *     SQLException
-	 * @return an array containing all key values
-	 */
-	protected Object buildKey(DataAccessor inValues) throws SQLException {
+    /** build the key for the Cache from a DataAccessor
+     *
+     * @param inValues the DataAccessor containing all values
+     * @exception SQLException the getter of the DataAccessor throws an
+     *     SQLException
+     * @return an array containing all key values
+     */
+    protected Object buildKey(DataAccessor inValues) throws SQLException {
 
-		// build key
-		Object [] key = new Object[mKeys.size()];
-		int c=0;
-		for(Iterator i = mKeys.iterator(); i.hasNext();)
-			key[c++] = inValues.get(i.next());
-		return key;
-	}
+        // build key
+        Object [] key = new Object[mKeys.size()];
+        int c=0;
+        for(Iterator i = mKeys.iterator(); i.hasNext();)
+            key[c++] = inValues.get(i.next());
+        return key;
+    }
 
     /** build the key for the Cache from a DataAccessor
      *
@@ -330,11 +330,11 @@ public class Entity
         return key;
     }
 
-	/** getter for the name of this entity
-	 *
-	 * @return the name of the entity
-	 */
-	public String getName() { return mName; }
+    /** getter for the name of this entity
+     *
+     * @return the name of the entity
+     */
+    public String getName() { return mName; }
 
     /** set the name of this entity ** DO NOT USE DIRECTLY **
      *
@@ -342,28 +342,28 @@ public class Entity
      */
     public void rename(String inName) { mName = inName; }
 
-	/** getter for the list of key column names
-	 *
-	 * @return the list of key column names
-	 */
-	public List getKeys() {
-		return mKeys;
-	}
+    /** getter for the list of key column names
+     *
+     * @return the list of key column names
+     */
+    public List getKeys() {
+        return mKeys;
+    }
 
-	/** getter for the list of column names
-	 *
-	 * @return the list of column names
-	 */
-	public List getColumns() {
-		return mColumns;
-	}
+    /** getter for the list of column names
+     *
+     * @return the list of column names
+     */
+    public List getColumns() {
+        return mColumns;
+    }
 
-	/** insert a new row based on values of a map
-	 *
-	 * @param inValues the  Map object containing the values
-	 * @return success indicator
-	 */
-	public boolean insert(Map inValues) {
+    /** insert a new row based on values of a map
+     *
+     * @param inValues the  Map object containing the values
+     * @return success indicator
+     */
+    public boolean insert(Map inValues) {
         try {
             return insert(new MapDataAccessor(inValues));
         }
@@ -372,7 +372,7 @@ public class Entity
             Logger.log(sqle);
             return false;
         }
-	}
+    }
 
     /** insert a new row based on values of a map
      *
@@ -392,59 +392,59 @@ public class Entity
 
 
     // used only by Instance (=> not the same package, hence not protected... Damn it !)
-	/** Used by the framework to set the last insert id (do not use directly !)
-	 *
-	 * @param inLastInsertID the last insert id
-	 */
+    /** Used by the framework to set the last insert id (do not use directly !)
+     *
+     * @param inLastInsertID the last insert id
+     */
     public void setLastInsertID(long inLastInsertID) {
         mLastInsertID = inLastInsertID;
     }
 
-	/** get the last insert id (obfuscatd if needed)
-	 *
-	 * @return the last insert id
-	 */
+    /** get the last insert id (obfuscatd if needed)
+     *
+     * @return the last insert id
+     */
     public Object getLastInsertID() {
         if (mKeys.size() == 1 && isObfuscated((String)mKeys.get(0))) return obfuscate(Long.valueOf(mLastInsertID));
         return Long.valueOf(mLastInsertID);
     }
 
-	/** update a row based on values of a Map
-	 *
-	 * @param inValues the Map object containing the values
-	 * @return success indicator
-	 */
-	public boolean update(Map inValues) {
+    /** update a row based on values of a Map
+     *
+     * @param inValues the Map object containing the values
+     * @return success indicator
+     */
+    public boolean update(Map inValues) {
         if (mReadOnly) {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
         }
-		Instance instance = newInstance(inValues);
-		return instance.update();
-	}
+        Instance instance = newInstance(inValues);
+        return instance.update();
+    }
 
-	/** delete a row based on (key) values in a Map
-	 *
-	 * @param inValues the Map containing the values
-	 * @return success indicator
-	 */
-	public boolean delete(Map inValues) {
+    /** delete a row based on (key) values in a Map
+     *
+     * @param inValues the Map containing the values
+     * @return success indicator
+     */
+    public boolean delete(Map inValues) {
         if (mReadOnly) {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
         }
-		Instance instance = newInstance(inValues);
-		return instance.delete();
-	}
+        Instance instance = newInstance(inValues);
+        return instance.delete();
+    }
 
-	/** fetch an instance from key values stored in a List in natural order
-	 *
-	 * @param inValues the List containing the key values
-	 * @return the fetched instance
-	 */
-	public Instance fetch(List inValues) {
-		try {
-			if (inValues.size() != mKeys.size()) throw new SQLException("Entity.fetch: Error: Wrong number of values for '"+mName+"' primary key!");
+    /** fetch an instance from key values stored in a List in natural order
+     *
+     * @param inValues the List containing the key values
+     * @return the fetched instance
+     */
+    public Instance fetch(List inValues) {
+        try {
+            if (inValues.size() != mKeys.size()) throw new SQLException("Entity.fetch: Error: Wrong number of values for '"+mName+"' primary key!");
             Instance instance = null;
             // try in cache
             if (mCachingMethod != Cache.NO_CACHE)
@@ -460,22 +460,22 @@ public class Entity
                 }
                 instance = (Instance)statement.fetch(inValues,this);
             }
-			return instance;
-		}
-		catch (SQLException sqle) {
-			mDB.setError(sqle.getMessage());
-			Logger.log(sqle);
-			return null;
-		}
-	}
+            return instance;
+        }
+        catch (SQLException sqle) {
+            mDB.setError(sqle.getMessage());
+            Logger.log(sqle);
+            return null;
+        }
+    }
 
-	/** fetch an instance from key values stored in a Map
-	 *
-	 * @param inValues the Map containing the key values
-	 * @return the fetched instance
-	 */
-	public Instance fetch(Map inValues) {
-		try {
+    /** fetch an instance from key values stored in a Map
+     *
+     * @param inValues the Map containing the key values
+     * @return the fetched instance
+     */
+    public Instance fetch(Map inValues) {
+        try {
             Instance instance = null;
             // try in cache
             if (mCachingMethod != Cache.NO_CACHE)
@@ -495,25 +495,25 @@ public class Entity
                 instance = (Instance)statement.fetch(inValues,this);
             }
             return instance;
-		}
-		catch (SQLException sqle) {
-			mDB.setError(sqle.getMessage());
-			Logger.log(sqle);
-			return null;
-		}
-	}
+        }
+        catch (SQLException sqle) {
+            mDB.setError(sqle.getMessage());
+            Logger.log(sqle);
+            return null;
+        }
+    }
 
-	/** fetch an instance from its key value as a string
-	 *
-	 * @param inKeyValue the key
-	 * @return the fetched instance
-	 */
-	public Instance fetch(String inKeyValue) {
-		try {
-			if (mKeys.size()!=1) {
-				if (mKeys.size()==0) throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has no primary key!");
-				else throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has a multi-column primary key!");
-			}
+    /** fetch an instance from its key value as a string
+     *
+     * @param inKeyValue the key
+     * @return the fetched instance
+     */
+    public Instance fetch(String inKeyValue) {
+        try {
+            if (mKeys.size()!=1) {
+                if (mKeys.size()==0) throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has no primary key!");
+                else throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has a multi-column primary key!");
+            }
             Instance instance = null;
             // try in cache
             if (mCachingMethod != Cache.NO_CACHE)
@@ -529,25 +529,25 @@ public class Entity
                 instance = (Instance)statement.fetch(params,this);
             }
             return instance;
-		}
-		catch (SQLException sqle) {
-			mDB.setError(sqle.getMessage());
-			Logger.log(sqle);
-			return null;
-		}
-	}
+        }
+        catch (SQLException sqle) {
+            mDB.setError(sqle.getMessage());
+            Logger.log(sqle);
+            return null;
+        }
+    }
 
-	/** fetch an instance from its key value specified as a Number
-	 *
-	 * @param inKeyValue the key
-	 * @return the fetched instance
-	 */
-	public Instance fetch(Number inKeyValue) {
-		try {
-			if (mKeys.size()!=1) {
-				if (mKeys.size()==0) throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has no primary key!");
-				else throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has a multi-column primary key!");
-			}
+    /** fetch an instance from its key value specified as a Number
+     *
+     * @param inKeyValue the key
+     * @return the fetched instance
+     */
+    public Instance fetch(Number inKeyValue) {
+        try {
+            if (mKeys.size()!=1) {
+                if (mKeys.size()==0) throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has no primary key!");
+                else throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has a multi-column primary key!");
+            }
             Instance instance = null;
             // try in cache
             if (mCachingMethod != Cache.NO_CACHE)
@@ -562,68 +562,68 @@ public class Entity
                 instance = (Instance)statement.fetch(params,this);
             }
             return instance;
-		}
-		catch (SQLException sqle) {
-			mDB.setError(sqle.getMessage());
-			Logger.log(sqle);
-			return null;
-		}
-	}
+        }
+        catch (SQLException sqle) {
+            mDB.setError(sqle.getMessage());
+            Logger.log(sqle);
+            return null;
+        }
+    }
 
-	/** get the SQL query string used to fetch one instance of this query
-	 *
-	 * @return the SLQ query
-	 */
-	public String getFetchQuery() {
-		if (mFetchQuery == null) buildFetchQuery();
-		return mFetchQuery;
-	}
+    /** get the SQL query string used to fetch one instance of this query
+     *
+     * @return the SLQ query
+     */
+    public String getFetchQuery() {
+        if (mFetchQuery == null) buildFetchQuery();
+        return mFetchQuery;
+    }
 
-	/** build the SQL query used to fetch one instance of this query
-	 */
-	protected void buildFetchQuery() {
-		ArrayList whereClause = new ArrayList();
- 		for (Iterator i = mKeys.iterator();i.hasNext();)
-			whereClause.add((String)i.next()+"=?");
-		mFetchQuery = "select * from "+mTable+" where "+StringLists.join(whereClause," and ");
-	}
+    /** build the SQL query used to fetch one instance of this query
+     */
+    protected void buildFetchQuery() {
+        ArrayList whereClause = new ArrayList();
+         for (Iterator i = mKeys.iterator();i.hasNext();)
+            whereClause.add((String)i.next()+"=?");
+        mFetchQuery = "select * from "+mTable+" where "+StringLists.join(whereClause," and ");
+    }
 
-	/** issue a query to iterate though all instances of this entity
-	 *
-	 * @return the resulting RowIterator
-	 */
-	public RowIterator query() {
-		return query(null,null);
-	}
+    /** issue a query to iterate though all instances of this entity
+     *
+     * @return the resulting RowIterator
+     */
+    public RowIterator query() {
+        return query(null,null);
+    }
 
-	/** issue a query to iterate thought instances of this entity, with a facultative refining criteria and a facultative order by clause
-	 *
-	 * @param inRefineCriteria a refining criteria or null to get all instances
-	 * @param inOrder an 'order by' clause or null to get instances in their
-	 *     natural order
-	 * @return the resulting RowIterator
-	 */
-	public RowIterator query(List inRefineCriteria,String inOrder) {
-		String query = "select * from "+mName;
-		if (inRefineCriteria!=null) query = SqlUtil.refineQuery(query,inRefineCriteria);
-		if (inOrder!=null && inOrder.length()>0) query = SqlUtil.orderQuery(query,inOrder);
-		return mDB.query(query,this);
-	}
+    /** issue a query to iterate thought instances of this entity, with a facultative refining criteria and a facultative order by clause
+     *
+     * @param inRefineCriteria a refining criteria or null to get all instances
+     * @param inOrder an 'order by' clause or null to get instances in their
+     *     natural order
+     * @return the resulting RowIterator
+     */
+    public RowIterator query(List inRefineCriteria,String inOrder) {
+        String query = "select * from "+mName;
+        if (inRefineCriteria!=null) query = SqlUtil.refineQuery(query,inRefineCriteria);
+        if (inOrder!=null && inOrder.length()>0) query = SqlUtil.orderQuery(query,inOrder);
+        return mDB.query(query,this);
+    }
 
-//	public boolean hasColumn
-//	public List getColumns
+//    public boolean hasColumn
+//    public List getColumns
 
-	/** get the database connection
-	 *
-	 * @return the database connection
-	 */
-	public Database getDB() { return mDB; }
+    /** get the database connection
+     *
+     * @return the database connection
+     */
+    public Database getDB() { return mDB; }
 
-	/** set this entity to be read-only or read-write
-	 *
-	 * @param inReadOnly the mode to switch to : true for read-only, false for
-	 *     read-write
-	 */
+    /** set this entity to be read-only or read-write
+     *
+     * @param inReadOnly the mode to switch to : true for read-only, false for
+     *     read-write
+     */
     public void setReadOnly(boolean inReadOnly) {
         mReadOnly = inReadOnly;
     }
@@ -706,18 +706,18 @@ public class Entity
         return mLocalizedColumns != null && mLocalizedColumns.size() > 0;
     }
 
-	/** name
-	 */
-	protected String mName = null;
+    /** name
+     */
+    protected String mName = null;
     /** table
      */
     protected String mTable = null;
-	/** column names in natural order
-	 */
-	protected List mColumns = new ArrayList(); // list<String>
-	/** key column names in natural order
-	 */
-	protected List mKeys = new ArrayList();
+    /** column names in natural order
+     */
+    protected List mColumns = new ArrayList(); // list<String>
+    /** key column names in natural order
+     */
+    protected List mKeys = new ArrayList();
     /** whether to obfuscate something
      */
     protected boolean mObfuscate = false;
@@ -730,32 +730,32 @@ public class Entity
     /** localized columns
      */
     protected List mLocalizedColumns = null;
-	/** attributes of this entity
-	 */
-	protected Map mAttributeMap = new HashMap(); // map<Name,Attribute>
-	/** actions of this entity
-	 */
-	protected Map mActionMap = new HashMap();
-	/** the java class to use to realize this instance
-	 */
-	protected Class mInstanceClass = null;
-	/** the SQL query used to fetch one instance of this entity
-	 */
-	protected String mFetchQuery = null;
-	/** whether this entity is read-only or not
-	 */
-	protected boolean mReadOnly;
-	/** the database connection
-	 */
-	protected Database mDB = null;
-	/** the last insert id
-	 */
+    /** attributes of this entity
+     */
+    protected Map mAttributeMap = new HashMap(); // map<Name,Attribute>
+    /** actions of this entity
+     */
+    protected Map mActionMap = new HashMap();
+    /** the java class to use to realize this instance
+     */
+    protected Class mInstanceClass = null;
+    /** the SQL query used to fetch one instance of this entity
+     */
+    protected String mFetchQuery = null;
+    /** whether this entity is read-only or not
+     */
+    protected boolean mReadOnly;
+    /** the database connection
+     */
+    protected Database mDB = null;
+    /** the last insert id
+     */
     protected long mLastInsertID = -1;
-	/** the caching method
-	 */
+    /** the caching method
+     */
     protected int mCachingMethod = 0;
-	/** the cache
-	 */
+    /** the cache
+     */
     protected Cache mCache = null;
 
 }

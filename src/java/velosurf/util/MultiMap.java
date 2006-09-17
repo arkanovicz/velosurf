@@ -22,8 +22,8 @@ import java.util.Set;
 /** 
  * A MultiMap is a Map allowing multiple occurrences of keys.
  *
- * @version 	$ProjectVersion: 0.207 $
- * @author 	Mark Richters
+ * @version     $ProjectVersion: 0.207 $
+ * @author     Mark Richters
  * @see         java.util.Map
  */
 

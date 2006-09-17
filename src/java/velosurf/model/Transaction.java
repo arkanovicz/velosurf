@@ -37,19 +37,19 @@ import velosurf.util.Strings;
  */
 public class Transaction extends Action
 {
-	/** Builds a new transaction
-	 *
-	 * @param inEntity entity
-	 * @param inJDOMAction XML tree
-	 */
+    /** Builds a new transaction
+     *
+     * @param inEntity entity
+     * @param inJDOMAction XML tree
+     */
     public Transaction(Entity inEntity,Element inJDOMAction) {
         super(inEntity,inJDOMAction);
     }
 
-	/** builds the queries
-	 *
-	 * @param inJDOMAction XML tree
-	 */
+    /** builds the queries
+     *
+     * @param inJDOMAction XML tree
+     */
     protected void defineQuery(Element inJDOMAction) {
         mQueries = new ArrayList();
         mParamNamesList = new ArrayList();
@@ -82,12 +82,12 @@ public class Transaction extends Action
         }
     }
 
-	/** performs this action
-	 *
-	 * @param inSource DataAccessor containing parameter values
-	 * @exception SQLException thrown from the database
-	 * @return number of affected rows (addition of all the partial counts)
-	 */
+    /** performs this action
+     *
+     * @param inSource DataAccessor containing parameter values
+     * @exception SQLException thrown from the database
+     * @return number of affected rows (addition of all the partial counts)
+     */
     public int perform(DataAccessor inSource) throws SQLException {
         // Since for now we only have one connection for transactions,
         // we have to synchronize on it ! Otherwise commits and rollbacks
@@ -117,10 +117,10 @@ public class Transaction extends Action
         } // synchronized
     }
 
-	/** debug method
-	 *
-	 * @return the definition string of the transaction
-	 */
+    /** debug method
+     *
+     * @return the definition string of the transaction
+     */
     public String toString() {
         StringBuffer result = new StringBuffer();
         int nb = mQueries.size();
@@ -138,11 +138,11 @@ public class Transaction extends Action
 
     }
 
-	/** all the queries
-	 */
+    /** all the queries
+     */
     protected List mQueries; //  = null; WARNING : this init code is executed AFER Action constructor
-	/** list of lists of parameter names
-	 */
+    /** list of lists of parameter names
+     */
     protected List mParamNamesList; // = null;
 
 }

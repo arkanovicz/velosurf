@@ -22,27 +22,27 @@ import java.io.Writer;
 
 public class LineWriterOutputStream extends OutputStream {
 
-	protected Writer writer = null;
+    protected Writer writer = null;
     protected StringBuffer buffer = new StringBuffer(200);
 
-	/**
-	 * Construct a new WriterOutputStream, bound to the specified writer.
-	 * 
-	 * @param w the writer
-	 */
+    /**
+     * Construct a new WriterOutputStream, bound to the specified writer.
+     * 
+     * @param w the writer
+     */
     public LineWriterOutputStream(Writer w) {
-	    writer = w;
+        writer = w;
     }
 
-	/** 
-	 * Write a byte to this output stream.
-	 * 
-	 * @exception IOException may be thrown
-	 */
+    /** 
+     * Write a byte to this output stream.
+     * 
+     * @exception IOException may be thrown
+     */
     public void write(int c) throws IOException {
         if (c=='\n') {
             writer.write(buffer.toString());
-	        buffer.delete(0,buffer.length());
+            buffer.delete(0,buffer.length());
         }
         else buffer.append((char)c);
     }

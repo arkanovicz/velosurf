@@ -84,7 +84,7 @@ public class SavedRequest {
      * @param value header value
      */
     public void addHeader(String name, String value) {
-    	name = name.toLowerCase();
+        name = name.toLowerCase();
         ArrayList values = (ArrayList) headers.get(name);
         if (values == null) {
             values = new ArrayList();
@@ -109,7 +109,7 @@ public class SavedRequest {
      * @return iterator over header values
      */
     public Iterator getHeaderValues(String name) {
-    	name = name.toLowerCase();
+        name = name.toLowerCase();
         ArrayList values = (ArrayList) headers.get(name);
         if (values == null)
             return ((new ArrayList()).iterator());

@@ -50,75 +50,75 @@ import velosurf.web.HttpQueryTool;
 public class Database {
 
     /** builds a new connection
-	 *
-	 * @exception SQLException thrown by the database engine
-	 */
-	protected Database() throws SQLException {
-	}
+     *
+     * @exception SQLException thrown by the database engine
+     */
+    protected Database() throws SQLException {
+    }
 
-	/** builds a new connection
-	 *
-	 * @param inUser user name
-	 * @param inPassword password
-	 * @param inUrl database url
-²	 * @exception SQLException thrown by the database engine
-	 */
+    /** builds a new connection
+     *
+     * @param inUser user name
+     * @param inPassword password
+     * @param inUrl database url
+²     * @exception SQLException thrown by the database engine
+     */
     protected Database(String inUser,String inPassword,String inUrl) throws SQLException {
         open(inUser,inPassword,inUrl,null,null);
     }
 
-	/** builds a new connection
-	 *
-	 * @param inUser user name
-	 * @param inPassword password
-	 * @param inUrl database url
-	 * @param inDriver driver java class name
-	 * @exception SQLException thrown by the database engine
-	 */
-	protected Database(String inUser,String inPassword,String inUrl,String inDriver) throws SQLException {
-		open(inUser,inPassword,inUrl,inDriver,null);
-	}
+    /** builds a new connection
+     *
+     * @param inUser user name
+     * @param inPassword password
+     * @param inUrl database url
+     * @param inDriver driver java class name
+     * @exception SQLException thrown by the database engine
+     */
+    protected Database(String inUser,String inPassword,String inUrl,String inDriver) throws SQLException {
+        open(inUser,inPassword,inUrl,inDriver,null);
+    }
 
-	/** builds a new connection
-	 *
-	 * @param inUser user name
-	 * @param inPassword password
-	 * @param inUrl database url
-	 * @param inDriver driver java class name
-	 * @param inSchema schema name to use
-	 * @exception SQLException thrown by the database engine
-	 */
-	protected Database(String inUser,String inPassword,String inUrl,String inDriver,String inSchema) throws SQLException {
-		open(inUser,inPassword,inUrl,inDriver,inSchema);
-	}
+    /** builds a new connection
+     *
+     * @param inUser user name
+     * @param inPassword password
+     * @param inUrl database url
+     * @param inDriver driver java class name
+     * @param inSchema schema name to use
+     * @exception SQLException thrown by the database engine
+     */
+    protected Database(String inUser,String inPassword,String inUrl,String inDriver,String inSchema) throws SQLException {
+        open(inUser,inPassword,inUrl,inDriver,inSchema);
+    }
 
-	/** open the connection
-	 *
-	 * @param inUser user name
-	 * @param inPassword password
-	 * @param inUrl database url
-	 * @param inDriver driver java class name
-	 * @exception SQLException thrown by the database engine
-	 */
+    /** open the connection
+     *
+     * @param inUser user name
+     * @param inPassword password
+     * @param inUrl database url
+     * @param inDriver driver java class name
+     * @exception SQLException thrown by the database engine
+     */
     protected void open(String inUser,String inPassword,String inUrl,String inDriver) throws SQLException {
         open(inUser,inPassword,inUrl,inDriver,null);
     }
 
-	/** open the connection
-	 *
-	 * @param inUser user name
-	 * @param inPassword password
-	 * @param inUrl database url
-	 * @param inDriver driver java class name
-	 * @param inSchema schema name
-	 * @exception SQLException thrown by the database engine
-	 */
-	protected void open(String inUser,String inPassword,String inUrl,String inDriver,String inSchema) throws SQLException {
+    /** open the connection
+     *
+     * @param inUser user name
+     * @param inPassword password
+     * @param inUrl database url
+     * @param inDriver driver java class name
+     * @param inSchema schema name
+     * @exception SQLException thrown by the database engine
+     */
+    protected void open(String inUser,String inPassword,String inUrl,String inDriver,String inSchema) throws SQLException {
 
-		mUser = inUser;
-		mPassword = inPassword;
-		mUrl = inUrl;
-		mSchema = inSchema;
+        mUser = inUser;
+        mPassword = inPassword;
+        mUrl = inUrl;
+        mSchema = inSchema;
 
         if (mDriverInfo == null) mDriverInfo = loadDriver(mUrl,inDriver);
 
@@ -137,7 +137,7 @@ public class Database {
 
         mTransactionStatementPool = new StatementPool(mTransactionConnectionPool);
         mTransactionPreparedStatementPool = new PreparedStatementPool(mTransactionConnectionPool);
-	}
+    }
 
     /** loads the appropriate driver
      *
@@ -207,18 +207,18 @@ public class Database {
         return getInstance(inUser,inPassword,inUrl,null,null);
     }
 
-	/** get a unique Database from connection params
-	 *
-	 * @param inUser user name
-	 * @param inPassword password
-	 * @param inUrl database url
-	 * @param inDriver driver java class name
-	 * @exception SQLException thrown by the database engine
-	 * @return a new connection
-	 */
-	public static Database getInstance(String inUser,String inPassword,String inUrl,String inDriver) throws SQLException {
-		return getInstance(inUser,inPassword,inUrl,inDriver,null);
-	}
+    /** get a unique Database from connection params
+     *
+     * @param inUser user name
+     * @param inPassword password
+     * @param inUrl database url
+     * @param inDriver driver java class name
+     * @exception SQLException thrown by the database engine
+     * @return a new connection
+     */
+    public static Database getInstance(String inUser,String inPassword,String inUrl,String inDriver) throws SQLException {
+        return getInstance(inUser,inPassword,inUrl,inDriver,null);
+    }
 
     /** get a unique Database from connection params
      *
@@ -240,12 +240,12 @@ public class Database {
         return instance;
     }
 
-	/** get a unique Database from config filename
-	 *
-	 * @param inConfigFilename config filename
-	 * @exception SQLException thrown by the database engine
-	 * @return a new connection
-	 */
+    /** get a unique Database from config filename
+     *
+     * @param inConfigFilename config filename
+     * @exception SQLException thrown by the database engine
+     * @return a new connection
+     */
     public static Database getInstance(String inConfigFilename) throws SQLException,FileNotFoundException,IOException {
         Integer hash = Integer.valueOf(inConfigFilename.hashCode());
         Database instance = (Database)sConnectionsByConfigFile.get(hash);
@@ -269,73 +269,73 @@ public class Database {
         return instance;
     }
 
-	/** issue a query
-	 *
-	 * @param inQuery an SQL query
-	 * @return the resulting RowIterator
-	 */
-	public RowIterator query(String inQuery) { return query(inQuery,null); }
-	/** issue a query, knowing the resulting entity
-	 *
-	 * @param inQuery an SQL query
-	 * @param inEntity the resulting entity
-	 * @return return the resulting row iterator
-	 */
-	public RowIterator query(String inQuery,Entity inEntity) {
-		PooledStatement statement = null;
-		try {
-			statement=mStatementPool.getStatement();
-			return statement.query(inQuery,inEntity);
-		}
-		catch (SQLException sqle) {
-			Logger.log(sqle);
-			return null;
-		}
-	}
+    /** issue a query
+     *
+     * @param inQuery an SQL query
+     * @return the resulting RowIterator
+     */
+    public RowIterator query(String inQuery) { return query(inQuery,null); }
+    /** issue a query, knowing the resulting entity
+     *
+     * @param inQuery an SQL query
+     * @param inEntity the resulting entity
+     * @return return the resulting row iterator
+     */
+    public RowIterator query(String inQuery,Entity inEntity) {
+        PooledStatement statement = null;
+        try {
+            statement=mStatementPool.getStatement();
+            return statement.query(inQuery,inEntity);
+        }
+        catch (SQLException sqle) {
+            Logger.log(sqle);
+            return null;
+        }
+    }
 
-	/** evaluate a query to a scalar
-	 *
-	 * @param inQuery an sql query
-	 * @return the resulting scalar
-	 */
-	public Object evaluate(String inQuery) {
-		PooledStatement statement = null;
-		try {
-			statement=mStatementPool.getStatement();
-			return statement.evaluate(inQuery);
-		}
-		catch (SQLException sqle) {
-			Logger.log(sqle);
-			return null;
-		}
-	}
+    /** evaluate a query to a scalar
+     *
+     * @param inQuery an sql query
+     * @return the resulting scalar
+     */
+    public Object evaluate(String inQuery) {
+        PooledStatement statement = null;
+        try {
+            statement=mStatementPool.getStatement();
+            return statement.evaluate(inQuery);
+        }
+        catch (SQLException sqle) {
+            Logger.log(sqle);
+            return null;
+        }
+    }
 
-/*	public RowIterator query(String inEntity,String inAttribute,List inParams) throws SQLException {
+/*    public RowIterator query(String inEntity,String inAttribute,List inParams) throws SQLException {
 
-	}*/
+    }*/
 
-	/** prepare a query
-	 *
-	 * @param inQuery an sql query
-	 * @return the pooled prepared statement corresponding to the query
-	 */
-	public PooledPreparedStatement prepare(String inQuery) {
-		PooledPreparedStatement statement = null;
-		try {
-			statement = mPreparedStatementPool.getPreparedStatement(inQuery);
-			return statement;
-		}
-		catch (SQLException sqle) {
-			Logger.log(sqle);
-			return null;
-		}
-	}
+    /** prepare a query
+     *
+     * @param inQuery an sql query
+     * @return the pooled prepared statement corresponding to the query
+     */
+    public PooledPreparedStatement prepare(String inQuery) {
+        PooledPreparedStatement statement = null;
+        try {
+            statement = mPreparedStatementPool.getPreparedStatement(inQuery);
+            return statement;
+        }
+        catch (SQLException sqle) {
+            Logger.log(sqle);
+            return null;
+        }
+    }
 
-	/** prepare a query which is part of a transaction
-	 *
-	 * @param inQuery an sql query
-	 * @return the prepared statemenet corresponding to the query
-	 */
+    /** prepare a query which is part of a transaction
+     *
+     * @param inQuery an sql query
+     * @return the prepared statemenet corresponding to the query
+     */
     public PooledPreparedStatement transactionPrepare(String inQuery) {
         PooledPreparedStatement statement = null;
         try {
@@ -348,28 +348,28 @@ public class Database {
         }
     }
 
-	/** issues an update query
-	 *
-	 * @param inQuery an sql query
-	 * @return the number of affected rows
-	 */
-	public int update(String inQuery) {
-		try {
-   			PooledStatement statement = mStatementPool.getStatement();
-			return statement.update(inQuery);
-		}
-		catch (SQLException sqle) {
-			setError(sqle.getMessage());
-			Logger.log(sqle);
-			return -1;
-		}
-	}
+    /** issues an update query
+     *
+     * @param inQuery an sql query
+     * @return the number of affected rows
+     */
+    public int update(String inQuery) {
+        try {
+               PooledStatement statement = mStatementPool.getStatement();
+            return statement.update(inQuery);
+        }
+        catch (SQLException sqle) {
+            setError(sqle.getMessage());
+            Logger.log(sqle);
+            return -1;
+        }
+    }
 
-	/** issue an update query that is part of a transaction
-	 *
-	 * @param inQuery an sql query
-	 * @return the number of affected rows
-	 */
+    /** issue an update query that is part of a transaction
+     *
+     * @param inQuery an sql query
+     * @return the number of affected rows
+     */
     public int transactionUpdate(String inQuery) {
         try {
             PooledStatement statement = mTransactionStatementPool.getStatement();
@@ -382,13 +382,13 @@ public class Database {
         }
     }
 
-	/** close the connection
-	 *
-	 * @exception SQLException thrown by the database engine
-	 */
-	public void close() throws SQLException {
+    /** close the connection
+     *
+     * @exception SQLException thrown by the database engine
+     */
+    public void close() throws SQLException {
         mConnectionPool.clear();
-		mConnectionPool = null;
+        mConnectionPool = null;
         mTransactionConnectionPool.clear();
         mTransactionConnectionPool = null;
         mStatementPool.clear();
@@ -399,45 +399,45 @@ public class Database {
         mPreparedStatementPool = null;
         mTransactionPreparedStatementPool.clear();
         mTransactionPreparedStatementPool = null;
-	}
+    }
 
-	/** display statistics about the statements pools
-	 */
-	public void displayStats() {
-		System.out.println("DB statistics:");
-		int [] normalStats = mStatementPool.getUsageStats();
-		int [] preparedStats = mPreparedStatementPool.getUsageStats();
-		System.out.println("\tsimple statements   - "+normalStats[0]+" free statements out of "+normalStats[1]);
-		System.out.println("\tprepared statements - "+preparedStats[0]+" free statements out of "+preparedStats[1]);
-	}
+    /** display statistics about the statements pools
+     */
+    public void displayStats() {
+        System.out.println("DB statistics:");
+        int [] normalStats = mStatementPool.getUsageStats();
+        int [] preparedStats = mPreparedStatementPool.getUsageStats();
+        System.out.println("\tsimple statements   - "+normalStats[0]+" free statements out of "+normalStats[1]);
+        System.out.println("\tprepared statements - "+preparedStats[0]+" free statements out of "+preparedStats[1]);
+    }
 
-	/** get a jdbc connection
-	 *
-	 * @return jdbc connection
-	 */
-	public Connection getConnection() throws SQLException {
-		return mConnectionPool.getConnection();
-	}
+    /** get a jdbc connection
+     *
+     * @return jdbc connection
+     */
+    public Connection getConnection() throws SQLException {
+        return mConnectionPool.getConnection();
+    }
 
-	/** get the underlying jdbc connection used for transactions
-	 *
-	 * @return jdbc connection
-	 */
+    /** get the underlying jdbc connection used for transactions
+     *
+     * @return jdbc connection
+     */
     public Connection getTransactionConnection() throws SQLException {
         return mTransactionConnectionPool.getConnection();
     }
 
-	/** read the meta data from the database : reverse engeenering
-	 *
-	 * @exception SQLException thrown by the database engine
-	 */
-	protected void readMetaData() throws SQLException {
+    /** read the meta data from the database : reverse engeenering
+     *
+     * @exception SQLException thrown by the database engine
+     */
+    protected void readMetaData() throws SQLException {
 
-		DatabaseMetaData meta = getConnection().getMetaData();
-		ResultSet tables = null;
+        DatabaseMetaData meta = getConnection().getMetaData();
+        ResultSet tables = null;
 
-		// perform the reverse enginering
-		try	{
+        // perform the reverse enginering
+        try    {
 
             switch(mReverseMode)
             {
@@ -469,7 +469,7 @@ public class Database {
                     break;
             }
         }
-        finally	{
+        finally    {
             if (tables != null) tables.close();
         }
         // extra debug information about which jdbc driver we are using
@@ -485,7 +485,7 @@ public class Database {
 
         // read columns
         ResultSet cols = null;
-        try	{
+        try    {
             cols = meta.getColumns(null,mSchema,tableName,null);
             while (cols.next()) {
                 String column = adaptCase(cols.getString("COLUMN_NAME"));
@@ -498,7 +498,7 @@ public class Database {
 
         // read primary keys
         ResultSet pks = null;
-        try	{
+        try    {
             pks = meta.getPrimaryKeys(null,mSchema,tableName);
             int keysize = 0;
             while (pks.next()) {
@@ -511,17 +511,17 @@ public class Database {
                 entity.addKey((String)keylist.get(k));
             }
         }
-        finally	{
+        finally    {
             if (pks != null) pks.close();
             entity.reverseEnginered();
         }
-	}
+    }
 
-	/** read the given config file
-	 *
-	 * @param inConfigFile config file pathname
-	 * @exception SQLException thrown by the database engine
-	 */
+    /** read the given config file
+     *
+     * @param inConfigFile config file pathname
+     * @exception SQLException thrown by the database engine
+     */
     public void readConfigFile(String inConfigFile) throws SQLException,IOException {
         try {
             Logger.info("reading properties from file "+inConfigFile+"...");
@@ -532,11 +532,11 @@ public class Database {
         }
     }
 
-	/** read configuration from the given input stream
-	 *
-	 * @param inConfig input stream on the config file
-	 * @exception SQLException thrown by the database engine
-	 */
+    /** read configuration from the given input stream
+     *
+     * @param inConfig input stream on the config file
+     * @exception SQLException thrown by the database engine
+     */
     public void readConfigFile(InputStream inConfig) throws SQLException,IOException {
         try {
             Logger.info("reading properties...");
@@ -629,7 +629,7 @@ public class Database {
 
             // define root actions
             for(Iterator rootActions = database.getChildren("action").iterator();rootActions.hasNext();) {
-            	mRootEntity.defineAction((Element)rootActions.next());
+                mRootEntity.defineAction((Element)rootActions.next());
             }
 
             // define entities
@@ -693,9 +693,9 @@ public class Database {
                 }
 
                 // define entity actions
-    	        for(Iterator actions = entityElement.getChildren("action").iterator();actions.hasNext();) {
-        	    	entity.defineAction((Element)actions.next());
-            	}
+                for(Iterator actions = entityElement.getChildren("action").iterator();actions.hasNext();) {
+                    entity.defineAction((Element)actions.next());
+                }
 
                 // autofetching
                 String autofetch = entityElement.getAttributeValue("autofetch");
@@ -750,16 +750,16 @@ public class Database {
     }
 
     /** parse a caching value
-	 *
-	 * @param caching string describing the type of caching
-	 * @return type of caching
-	 */
+     *
+     * @param caching string describing the type of caching
+     * @return type of caching
+     */
     private static int parseCaching(String caching) {
-		return
-			caching == null || caching.equalsIgnoreCase("none") || caching.equalsIgnoreCase("no") ? Cache.NO_CACHE :
-			caching.equalsIgnoreCase("soft") || caching.equalsIgnoreCase("yes") ? Cache.SOFT_CACHE :
-			caching.equalsIgnoreCase("full") ? Cache.FULL_CACHE :
-			Cache.NO_CACHE;
+        return
+            caching == null || caching.equalsIgnoreCase("none") || caching.equalsIgnoreCase("no") ? Cache.NO_CACHE :
+            caching.equalsIgnoreCase("soft") || caching.equalsIgnoreCase("yes") ? Cache.SOFT_CACHE :
+            caching.equalsIgnoreCase("full") ? Cache.FULL_CACHE :
+            Cache.NO_CACHE;
     }
 
     /** check the syntax of a parameter in the config file
@@ -781,28 +781,28 @@ public class Database {
     }
 
 
-	/** get a named entity or creeate it if it doesn't exist
-	 *
-	 * @param name name of an entity
-	 * @return the named entity
-	 */
-	public Entity getEntityCreate(String name) {
-		Entity entity = getEntity(name);
-		if (entity == null) {
-			entity = new Entity(this,name,mDefaultReadOnly,mDefaultCaching);
-			mEntities.put(adaptCase(name),entity);
-		}
-		return entity;
-	}
+    /** get a named entity or creeate it if it doesn't exist
+     *
+     * @param name name of an entity
+     * @return the named entity
+     */
+    public Entity getEntityCreate(String name) {
+        Entity entity = getEntity(name);
+        if (entity == null) {
+            entity = new Entity(this,name,mDefaultReadOnly,mDefaultCaching);
+            mEntities.put(adaptCase(name),entity);
+        }
+        return entity;
+    }
 
-	/** get an existing entity
-	 *
-	 * @param inName the name of an entity
-	 * @return the named entity
-	 */
-	public Entity getEntity(String inName) {
+    /** get an existing entity
+     *
+     * @param inName the name of an entity
+     * @return the named entity
+     */
+    public Entity getEntity(String inName) {
         int i;
-		Entity entity=(Entity)mEntities.get(adaptCase(inName));
+        Entity entity=(Entity)mEntities.get(adaptCase(inName));
         if (entity == null && inName != null && (i=inName.indexOf('.')) != -1) {
             // imported from another schema ?
             String schema = inName.substring(0,i);
@@ -811,17 +811,17 @@ public class Database {
             if (external != null) entity = (Entity)external.get(inName);
         }
         return entity;
-	}
+    }
 
-	/** get a named attribute
-	 *
-	 * @param inName name of an attribute
-	 * @return the named attribute
-	 */
-	public Attribute getAttribute(String inName) {
-		if (mRootEntity != null) return mRootEntity.getAttribute(adaptCase(inName));
-		else return null;
-	}
+    /** get a named attribute
+     *
+     * @param inName name of an attribute
+     * @return the named attribute
+     */
+    public Attribute getAttribute(String inName) {
+        if (mRootEntity != null) return mRootEntity.getAttribute(adaptCase(inName));
+        else return null;
+    }
 
     /** get a named action
      *
@@ -833,21 +833,21 @@ public class Database {
         else return null;
     }
 
-	/** set the error string
-	 *
-	 * @param inError error string
-	 */
-	public void setError(String inError) {
-		mError = inError;
-	}
+    /** set the error string
+     *
+     * @param inError error string
+     */
+    public void setError(String inError) {
+        mError = inError;
+    }
 
-	/** get the error string
-	 *
-	 * @return error string
-	 */
-	public String getError() {
-		return mError;
-	}
+    /** get the error string
+     *
+     * @return error string
+     */
+    public String getError() {
+        return mError;
+    }
 
     /** obfuscate the given value
      * @param value value to obfuscate
@@ -922,18 +922,18 @@ public class Database {
         return mSchema;
     }
 
-	/** database user
-	 */
-	protected String mUser = null;
-	/** database user's password
-	 */
-	protected String mPassword = null;
-	/** database url
-	 */
-	protected String mUrl = null;
-	/** schema
-	 */
-	protected String mSchema = null;
+    /** database user
+     */
+    protected String mUser = null;
+    /** database user's password
+     */
+    protected String mPassword = null;
+    /** database url
+     */
+    protected String mUrl = null;
+    /** schema
+     */
+    protected String mSchema = null;
 
     /**
      * Pool of connections
@@ -947,44 +947,44 @@ public class Database {
      */
     protected ConnectionPool mTransactionConnectionPool = null;
 
-	/** pool of statements
-	 */
-	protected StatementPool mStatementPool = null;
+    /** pool of statements
+     */
+    protected StatementPool mStatementPool = null;
 
     /** pool of statements for transactions
      */
     protected StatementPool mTransactionStatementPool = null;
 
-	/** pool of prepared statements
-	 */
-	protected PreparedStatementPool mPreparedStatementPool = null;
+    /** pool of prepared statements
+     */
+    protected PreparedStatementPool mPreparedStatementPool = null;
 
     /** pool of prepared statements for transactions
      */
     protected PreparedStatementPool mTransactionPreparedStatementPool = null;
 
-	/** default access mode
-	 */
+    /** default access mode
+     */
     protected boolean mDefaultReadOnly = true;
-	/** default caching mode
-	 */
+    /** default caching mode
+     */
     protected int mDefaultCaching = Cache.NO_CACHE;
 
-	/** error string for the last error
-	 */
-	protected String mError = "no error";
+    /** error string for the last error
+     */
+    protected String mError = "no error";
 
-	/** map name->entity
-	 */
-	protected Map mEntities = null; // entity name -> entity;
+    /** map name->entity
+     */
+    protected Map mEntities = null; // entity name -> entity;
 
     /* map table->entity, valid only between readConfigFile and readMetaData
     */
     protected Map mEntitiesByTableName = null;
 
-	/** root entity that contains all root attributes and actions
-	 */
-	protected Entity mRootEntity = null;
+    /** root entity that contains all root attributes and actions
+     */
+    protected Entity mRootEntity = null;
 
     /** driver infos (database vendor specific)
      */

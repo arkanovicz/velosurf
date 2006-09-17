@@ -37,25 +37,25 @@ public class StringLists
         return list;
     }
 
-	/** joins strings using a separator
-	 * 
-	 * @param inStringList strings to join
-	 * @param inJoinString separator to include between strings
-	 * @return the result of the join
-	 */
-	public static String join(Collection inStringList,String inJoinString) {
-		Iterator i=inStringList.iterator();
-		
-		StringBuffer result = new StringBuffer();
-		
-		if (!i.hasNext()) return "";
-		
-		result.append(i.next().toString());
-		
-		while (i.hasNext()) {
-			result.append(inJoinString);
-			result.append((String)i.next());
-		}
-		return result.toString();
-	}
+    /** joins strings using a separator
+     * 
+     * @param inStringList strings to join
+     * @param inJoinString separator to include between strings
+     * @return the result of the join
+     */
+    public static String join(Collection inStringList,String inJoinString) {
+        Iterator i=inStringList.iterator();
+        
+        StringBuffer result = new StringBuffer();
+        
+        if (!i.hasNext()) return "";
+        
+        result.append(i.next().toString());
+        
+        while (i.hasNext()) {
+            result.append(inJoinString);
+            result.append((String)i.next());
+        }
+        return result.toString();
+    }
 }

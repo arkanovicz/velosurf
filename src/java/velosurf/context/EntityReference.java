@@ -34,14 +34,14 @@ import velosurf.local.Localizer;
  */
 public class EntityReference extends AbstractList
 {
-	/** Builds a new EntityReference.
-	 *
-	 * @param inEntity the wrapped entity
-	 */
-	public EntityReference(Entity inEntity) {
+    /** Builds a new EntityReference.
+     *
+     * @param inEntity the wrapped entity
+     */
+    public EntityReference(Entity inEntity) {
         this(inEntity,null);
-		mEntity = inEntity;
-	}
+        mEntity = inEntity;
+    }
 
     /** Builds a new EntityReference.
      *
@@ -52,14 +52,14 @@ public class EntityReference extends AbstractList
         mLocalizer = inLocalizer;
     }
 
-	/** Insert a new row in this entity's table.
-	 *
-	 * @param inValues col -> value map
-	 * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
-	 */
-	public boolean insert(Map inValues) {
-		return mEntity.insert(inValues);
-	}
+    /** Insert a new row in this entity's table.
+     *
+     * @param inValues col -> value map
+     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
+     */
+    public boolean insert(Map inValues) {
+        return mEntity.insert(inValues);
+    }
 
     /** Returns the ID of the last inserted row (obfuscated if needed)
      *
@@ -69,88 +69,88 @@ public class EntityReference extends AbstractList
         return mEntity.getLastInsertID();
     }
 
-	/** Update a row in this entity's table.
-	 * <p>
-	 * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
-	 *
-	 * @param inValues col -> value map
-	 * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
-	 */
-	public boolean update(Map inValues) {
-		return mEntity.update(inValues);
-	}
+    /** Update a row in this entity's table.
+     * <p>
+     * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
+     *
+     * @param inValues col -> value map
+     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
+     */
+    public boolean update(Map inValues) {
+        return mEntity.update(inValues);
+    }
 
-	/** Detele a row from this entity's table.
-	 * <p>
-	 * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
-	 * <p>
-	 *
-	 * @param inValues col -> value map
-	 * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
-	 */
-	public boolean delete(Map inValues) {
-		return mEntity.delete(inValues);
-	}
+    /** Detele a row from this entity's table.
+     * <p>
+     * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
+     * <p>
+     *
+     * @param inValues col -> value map
+     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
+     */
+    public boolean delete(Map inValues) {
+        return mEntity.delete(inValues);
+    }
 
-	/** Fetch an Instance of this entity, specifying the values of its key columns in their natural order.
-	 *
-	 * @param inValues values of the key columns
-	 * @return an Instance, or null if an error occured (in which case
-	 *     $db.lastError can be checked)
-	 */
-	public Instance fetch(List inValues) {
-		Instance instance = mEntity.fetch(inValues);
-        if (mLocalizer != null) instance.setLocalizer(mLocalizer);
-        return instance;
-	}
-
-	/** Fetch an Instance of this entity, specifying the values of its key columns in the map.
-	 *
-	 * @param inValues key=>value map
-	 * @return an Instance, or null if an error occured (in which case
-	 *     $db.lastError can be checked)
-	 */
-	public Instance fetch(Map inValues) {
+    /** Fetch an Instance of this entity, specifying the values of its key columns in their natural order.
+     *
+     * @param inValues values of the key columns
+     * @return an Instance, or null if an error occured (in which case
+     *     $db.lastError can be checked)
+     */
+    public Instance fetch(List inValues) {
         Instance instance = mEntity.fetch(inValues);
         if (mLocalizer != null) instance.setLocalizer(mLocalizer);
         return instance;
-	}
+    }
 
-	/** Fetch an Instance of this entity, specifying the value of its unique key column as a string
-	 *
-	 * @param inKeyValue value of the key column
-	 * @return an Instance, or null if an error occured (in which case
-	 *     $db.lastError can be checked)
-	 */
-	public Instance fetch(String inKeyValue) {
+    /** Fetch an Instance of this entity, specifying the values of its key columns in the map.
+     *
+     * @param inValues key=>value map
+     * @return an Instance, or null if an error occured (in which case
+     *     $db.lastError can be checked)
+     */
+    public Instance fetch(Map inValues) {
+        Instance instance = mEntity.fetch(inValues);
+        if (mLocalizer != null) instance.setLocalizer(mLocalizer);
+        return instance;
+    }
+
+    /** Fetch an Instance of this entity, specifying the value of its unique key column as a string
+     *
+     * @param inKeyValue value of the key column
+     * @return an Instance, or null if an error occured (in which case
+     *     $db.lastError can be checked)
+     */
+    public Instance fetch(String inKeyValue) {
         Instance instance = mEntity.fetch(inKeyValue);
         if (mLocalizer != null) instance.setLocalizer(mLocalizer);
         return instance;
-	}
+    }
 
-	/** Fetch an Instance of this entity, specifying the value of its unique key column as an integer
-	 *
-	 * @param inKeyValue value of the key column
-b	 * @return an Instance, or null if an error occured (in which case
-	 *     $db.lastError can be checked)
-	 */
-	public Instance fetch(Number inKeyValue) {
+    /** Fetch an Instance of this entity, specifying the value of its unique key column as an integer
+     *
+     * @param inKeyValue value of the key column
+b     * @return an Instance, or null if an error occured (in which case
+     *     $db.lastError can be checked)
+     */
+    public Instance fetch(Number inKeyValue) {
         Instance instance = mEntity.fetch(inKeyValue);
         if (mLocalizer != null) instance.setLocalizer(mLocalizer);
         return instance;
-	}
+    }
 
-	// called by the #foreach directive
-	/** Called by the #foreach directive.
-	 *
-	 * @return a RowIterator on all instances of this entity, possibly previously
-	 *      refined or ordered.
-	 */
-	public Iterator iterator() {
-		RowIterator iterator =  mEntity.query(mRefineCriteria,mOrder);
+    // called by the #foreach directive
+    /** Called by the #foreach directive.
+     *
+     * @return a RowIterator on all instances of this entity, possibly previously
+     *      refined or ordered.
+     */
+    public Iterator iterator() {
+        RowIterator iterator =  mEntity.query(mRefineCriteria,mOrder);
         if (mLocalizer != null) iterator.setLocalizer(mLocalizer);
         return iterator;
-	}
+    }
 
     /** gets all the rows in a list of maps
      *
@@ -162,29 +162,29 @@ b	 * @return an Instance, or null if an error occured (in which case
         return iterator.getRows();
     }
 
-	/** Refines this entity reference querying result: the provided criterium will be added to the 'where' clause (or a 'where' clause will be added).
-	 * <p>
-	 * This method can be called several times, thus allowing a field-by-field handling of an html search form.
-	 * <p>
-	 * All criteria will be merged with the sql 'and' operator (if there is an initial where clause, it is wrapped into parenthesis).
-	 * <p>
-	 * Example: if we issue the following calls from inside the template:
-	 * <blockquote>
-	 * $person.refine("age>30")
-	 * <p>
-	 * $person.refine("salary>3000")
-	 * </blockquote>
-	 * the resulting query that will be issed is:
-	 * <p>
-	 * select * from person where (age>30) and (salary>3000)
-	 *
-	 * @param inCriterium a valid sql condition
-	 */
-	public void refine(String inCriterium) {
+    /** Refines this entity reference querying result: the provided criterium will be added to the 'where' clause (or a 'where' clause will be added).
+     * <p>
+     * This method can be called several times, thus allowing a field-by-field handling of an html search form.
+     * <p>
+     * All criteria will be merged with the sql 'and' operator (if there is an initial where clause, it is wrapped into parenthesis).
+     * <p>
+     * Example: if we issue the following calls from inside the template:
+     * <blockquote>
+     * $person.refine("age>30")
+     * <p>
+     * $person.refine("salary>3000")
+     * </blockquote>
+     * the resulting query that will be issed is:
+     * <p>
+     * select * from person where (age>30) and (salary>3000)
+     *
+     * @param inCriterium a valid sql condition
+     */
+    public void refine(String inCriterium) {
         Logger.debug("refineS: "+inCriterium);
-		if (mRefineCriteria == null) mRefineCriteria = new ArrayList();
-		mRefineCriteria.add(inCriterium);
-	}
+        if (mRefineCriteria == null) mRefineCriteria = new ArrayList();
+        mRefineCriteria.add(inCriterium);
+    }
 
     /** Clears any refinement made on this entity
      * <p>
@@ -193,26 +193,26 @@ b	 * @return an Instance, or null if an error occured (in which case
         mRefineCriteria = null;
     }
 
-	/** Specify an 'order by' clause for this attribute reference result.<p>
+    /** Specify an 'order by' clause for this attribute reference result.<p>
      * If an 'order by' clause is already present in the original query, the new one is appended (but successive calls to this method overwrite previous ones)<p>
      * Pass it null or an empty string to clear any ordering.
-	 *
-	 * @param inOrder valid sql column names (separated by commas) indicating the
-	 *      desired order
-	 */
-	public void setOrder(String inOrder) {
-		mOrder = inOrder;
-	}
+     *
+     * @param inOrder valid sql column names (separated by commas) indicating the
+     *      desired order
+     */
+    public void setOrder(String inOrder) {
+        mOrder = inOrder;
+    }
 
-	/** Create a new instance for this entity
-	 *
-	 * @return null
-	 */
-	public Instance newInstance() {
-		Instance instance = mEntity.newInstance();
+    /** Create a new instance for this entity
+     *
+     * @return null
+     */
+    public Instance newInstance() {
+        Instance instance = mEntity.newInstance();
         if (mLocalizer != null) instance.setLocalizer(mLocalizer);
         return instance;
-	}
+    }
 
     /** getter for the list of column names
      *
@@ -223,30 +223,30 @@ b	 * @return an Instance, or null if an error occured (in which case
     }
 
 
-	/** Dummy method. Since this class has to appear as a Collection for Velocity, it extends the AbstractList class but only the iterator() method has a real meaning.
-	 *
-	 * @param i ignored
-	 * @return null
-	 */
-	public Object get(int i) { return null; }
+    /** Dummy method. Since this class has to appear as a Collection for Velocity, it extends the AbstractList class but only the iterator() method has a real meaning.
+     *
+     * @param i ignored
+     * @return null
+     */
+    public Object get(int i) { return null; }
 
-	/** Dummy method. Since this class has to appear as a Collection for Velocity, it extends the AbstractList class but only the iterator() method has a real meaning.
-	 *
-	 * @return 0
-	 */
-	public int size() { return 0; }
+    /** Dummy method. Since this class has to appear as a Collection for Velocity, it extends the AbstractList class but only the iterator() method has a real meaning.
+     *
+     * @return 0
+     */
+    public int size() { return 0; }
 
-	/** the wrapped entity
-	 */
-	protected Entity mEntity = null;
+    /** the wrapped entity
+     */
+    protected Entity mEntity = null;
 
-	/** specified order
-	 */
-	protected String mOrder = null;
+    /** specified order
+     */
+    protected String mOrder = null;
 
-	/** specified refining criteria
-	 */
-	protected List mRefineCriteria = null;
+    /** specified refining criteria
+     */
+    protected List mRefineCriteria = null;
 
     /** localizer to give to created instances
      *

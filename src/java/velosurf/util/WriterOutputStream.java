@@ -22,23 +22,23 @@ import java.io.Writer;
 
 public class WriterOutputStream extends OutputStream {
 
-	protected Writer writer = null;
+    protected Writer writer = null;
 
-	/** 
-	 * Construct a new WriterOutputStream, bound to the specified writer.
-	 * 
-	 * @param w the writer
-	 */
+    /** 
+     * Construct a new WriterOutputStream, bound to the specified writer.
+     * 
+     * @param w the writer
+     */
     public WriterOutputStream(Writer w) {
-	writer = w;
+    writer = w;
     }
 
-	/** 
-	 * Write a byte to this output stream.
-	 * 
-	 * @exception IOException may be thrown
-	 */
+    /** 
+     * Write a byte to this output stream.
+     * 
+     * @exception IOException may be thrown
+     */
     public void write(int c) throws IOException {
-	writer.write(c);
+    writer.write(c);
     }
 }

@@ -68,16 +68,16 @@ import velosurf.local.Localizer;
  */
 public class VelosurfTool extends DBReference implements ViewTool /*,Configurable*/
 {
-	/** builds a new VelosurfTool
-	 */
+    /** builds a new VelosurfTool
+     */
     public VelosurfTool() {
     }
 
-	/**
-	 * Initializes this instance using the given ViewContext
-	 *
-	 * @param inViewContext initialization data
-	 */
+    /**
+     * Initializes this instance using the given ViewContext
+     *
+     * @param inViewContext initialization data
+     */
     public void init(Object inViewContext) {
         // get servlet context
         ServletContext ctx = null;
@@ -118,11 +118,11 @@ public class VelosurfTool extends DBReference implements ViewTool /*,Configurabl
         if (sFetchLocalizer && hasViewContext) fetchLocalizer((ViewContext)inViewContext);
     }
 
-	/** initialization
-	 *
-	 * @param inServletContext servlet context
-	 * @return database connection
-	 */
+    /** initialization
+     *
+     * @param inServletContext servlet context
+     * @return database connection
+     */
     protected Database initDB(ServletContext inServletContext) {
         try {
             // init log
@@ -137,8 +137,8 @@ public class VelosurfTool extends DBReference implements ViewTool /*,Configurabl
         }
     }
 
-	/** key used in the deployment descriptor (web.xml) to set the name of the config file
-	 */
+    /** key used in the deployment descriptor (web.xml) to set the name of the config file
+     */
     protected static final String DATABASE_CONFIG_FILE_KEY = "velosurf.config";
 
     /** default database config file
@@ -149,8 +149,8 @@ public class VelosurfTool extends DBReference implements ViewTool /*,Configurabl
      */
     protected String mConfigFile = null;
 
-	/** database connections
-	 */
+    /** database connections
+     */
     protected static Map sDBMap = new HashMap();
 
     /** configure

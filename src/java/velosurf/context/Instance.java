@@ -35,14 +35,14 @@ import velosurf.local.Localizer;
  */
 public class Instance extends TreeMap implements DataAccessor
 {
-	/** Build an empty instance for the given entity
-	 *
-	 * @param inEntity Entity this instance is a realisation of
+    /** Build an empty instance for the given entity
+     *
+     * @param inEntity Entity this instance is a realisation of
      * @deprecated As of Velosurf 1.4, please use the default constructor and call initialize(Entity) thereafter.
-	 */
-	public Instance(Entity inEntity) {
+     */
+    public Instance(Entity inEntity) {
         initialize(inEntity);
-	}
+    }
 
     /** Build an empty instance that must be latter initialized via the initialize(Entity) method.
      *
@@ -51,20 +51,20 @@ public class Instance extends TreeMap implements DataAccessor
     }
 
 
-	 /** Meant to be overloaded if needed
-	  */
-	 public void initialize(Entity inEntity) {
+     /** Meant to be overloaded if needed
+      */
+     public void initialize(Entity inEntity) {
          mEntity = inEntity;
          mDB = mEntity.getDB();
-	 }
+     }
 
     /** Get this Instance's Entity.
-	 *
-	 * @return this Instance's Entity.
-	 */
-	public EntityReference getEntity() {
+     *
+     * @return this Instance's Entity.
+     */
+    public EntityReference getEntity() {
         return new EntityReference(mEntity,mLocalizer.get());
-	}
+    }
 
     /** Get the name of the table mapped by this Instance's Entity.
      *
@@ -75,18 +75,18 @@ public class Instance extends TreeMap implements DataAccessor
         return null;
     }
 
-	/** @deprecated As of Velosurf version 0.9, replaced by getPrimaryKey
+    /** @deprecated As of Velosurf version 0.9, replaced by getPrimaryKey
      * Returns an ArrayList of two-entries maps ('name' & 'value'), meant to be use in a #foreach loop to build form fields, like:<p>
-	 * <code>
-	 * #foreach ($field in $product.keys)<p>
-	 * &nbsp;&nbsp;&lt;input type=hidden name='$field.name' value='$field.value'&gt;
-	 * #end</code><p>
-	 *
-	 * @return an ArrayList of two-entries maps ('name' & 'value')
-	 */
-	public List getKeys() {
+     * <code>
+     * #foreach ($field in $product.keys)<p>
+     * &nbsp;&nbsp;&lt;input type=hidden name='$field.name' value='$field.value'&gt;
+     * #end</code><p>
+     *
+     * @return an ArrayList of two-entries maps ('name' & 'value')
+     */
+    public List getKeys() {
         return getPrimaryKey();
-	}
+    }
 
     /** Returns an ArrayList of two-entries maps ('name' & 'value'), meant to be use in a #foreach loop to build form fields, like:<p>
      * <code>
@@ -110,20 +110,20 @@ public class Instance extends TreeMap implements DataAccessor
         return result;
     }
 
-	/** Generic getter, used to access this instance properties by their name.<p>
-	 * Asked property is first searched in the Map, then among Attributes defined for the entity.
-	 *
-	 * @param inKey key of the property to be returned
-	 * @return a String, an Instance, an AttributeReference or null if an error
-	 *      occurs
-	 */
-	public Object get(Object inKey) {
+    /** Generic getter, used to access this instance properties by their name.<p>
+     * Asked property is first searched in the Map, then among Attributes defined for the entity.
+     *
+     * @param inKey key of the property to be returned
+     * @return a String, an Instance, an AttributeReference or null if an error
+     *      occurs
+     */
+    public Object get(Object inKey) {
         String property = mDB.adaptCase((String)inKey);
-		Object result = null;
-		try {
-			result = super.get(property);
-			if (result == null) {
-				if (mEntity!=null) {
+        Object result = null;
+        try {
+            result = super.get(property);
+            if (result == null) {
+                if (mEntity!=null) {
                     Attribute attribute = mEntity.getAttribute(property);
                     if (attribute != null)
                         switch (attribute.getType()) {
@@ -142,20 +142,20 @@ public class Instance extends TreeMap implements DataAccessor
                                 Logger.error("Unknown attribute type for "+mEntity.getName()+"."+inKey+"!");
                         }
                     else {
-                    	Action action = mEntity.getAction(property);
-                    	if (action != null) result = Integer.valueOf(action.perform(this));
+                        Action action = mEntity.getAction(property);
+                        if (action != null) result = Integer.valueOf(action.perform(this));
                     }
-				}
-			} else if (mLocalize && mEntity.isLocalized((String)inKey)) {
+                }
+            } else if (mLocalize && mEntity.isLocalized((String)inKey)) {
 
             }
-		}
-		catch (SQLException e) {
-			mDB.setError(e.getMessage());
-			Logger.log(e);
-		}
-		return result;
-	}
+        }
+        catch (SQLException e) {
+            mDB.setError(e.getMessage());
+            Logger.log(e);
+        }
+        return result;
+    }
 
     /** Generic setter<p>
      *
@@ -207,27 +207,27 @@ public class Instance extends TreeMap implements DataAccessor
         return super.equals(o);
     }
 
-	/** Update the row associated with this Instance from passed values<p>
-	 * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
-	 *
-	 * @return <code>true</code> if successfull, <code>false</code> if an error
-	 *     occurs (in which case $db.lastError can be checked).
-	 */
-	public synchronized boolean update() {
-		return update(null);
-	}
+    /** Update the row associated with this Instance from passed values<p>
+     * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
+     *
+     * @return <code>true</code> if successfull, <code>false</code> if an error
+     *     occurs (in which case $db.lastError can be checked).
+     */
+    public synchronized boolean update() {
+        return update(null);
+    }
 
-	// update from passed values
-	/** Update the row associated with this Instance from actual values<p>
-	 * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
-	 *
-	 * @param inValues values to be used for the update
-	 * @return <code>true</code> if successfull, <code>false</code> if an error
-	 *      occurs (in which case $db.lastError can be checked).
-	 */
-	public synchronized boolean update(Map inValues) {
-		try {
-			Map values = new HashMap();
+    // update from passed values
+    /** Update the row associated with this Instance from actual values<p>
+     * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
+     *
+     * @param inValues values to be used for the update
+     * @return <code>true</code> if successfull, <code>false</code> if an error
+     *      occurs (in which case $db.lastError can be checked).
+     */
+    public synchronized boolean update(Map inValues) {
+        try {
+            Map values = new HashMap();
             for(Iterator it = keySet().iterator();it.hasNext();) {
                 String key = (String)it.next();
                 values.put(mDB.adaptCase(key),getInternal(key));
@@ -237,122 +237,122 @@ public class Instance extends TreeMap implements DataAccessor
                     values.put(mDB.adaptCase((String)entry.getKey()),entry.getValue());
                 }
             }
-			if (mEntity == null) throw new SQLException("Entity is null!");
-			List updateClause = new ArrayList();
-			List whereClause = new ArrayList();
-			List params = new ArrayList();
-			ArrayList cols = new ArrayList(mEntity.getColumns());
-			cols.removeAll(mEntity.getKeys());
-			for (Iterator i=cols.iterator();i.hasNext();) {
-				String col = (String)i.next();
-				Object value = values.get(col);
-				if (value!=null) {
-					updateClause.add(col+"=?");
+            if (mEntity == null) throw new SQLException("Entity is null!");
+            List updateClause = new ArrayList();
+            List whereClause = new ArrayList();
+            List params = new ArrayList();
+            ArrayList cols = new ArrayList(mEntity.getColumns());
+            cols.removeAll(mEntity.getKeys());
+            for (Iterator i=cols.iterator();i.hasNext();) {
+                String col = (String)i.next();
+                Object value = values.get(col);
+                if (value!=null) {
+                    updateClause.add(col+"=?");
                     if (mEntity.isObfuscated(col)) value = mEntity.deobfuscate(value);
-					params.add(value);
-				}
-			}
-			for (Iterator i = mEntity.getKeys().iterator();i.hasNext();) {
-				String col = (String)i.next();
-				Object value = values.get(col);
-				if (value == null) throw new SQLException("field '"+col+"' belongs to primary key and cannot be null!");
+                    params.add(value);
+                }
+            }
+            for (Iterator i = mEntity.getKeys().iterator();i.hasNext();) {
+                String col = (String)i.next();
+                Object value = values.get(col);
+                if (value == null) throw new SQLException("field '"+col+"' belongs to primary key and cannot be null!");
                 if (mEntity.isObfuscated(col)) value = mEntity.deobfuscate(value);
 //                if (mEntity.isLocalized(col)) value = mEntity.unlocalize(value);
-				whereClause.add(col+"=?");
-				params.add(value);
-			}
-			String query = "update "+getTable()+" set "+StringLists.join(updateClause,",")+" where "+StringLists.join(whereClause," and ");
-			PooledPreparedStatement statement = mDB.prepare(query);
-			int nb = statement.update(params);
-			if (nb==0) {
-				Logger.warn("query \""+query+"\" affected 0 row...");
-			}
-			else if (nb>1) // ?!?! Referential integrities on key columns should avoid this...
-				throw new SQLException("query \""+query+"\" affected more than 1 rows!");
-			return true;
-		}
-		catch (SQLException sqle) {
-			mDB.setError(sqle.getMessage());
-			Logger.log(sqle);
-			return false;
-		}
-	}
+                whereClause.add(col+"=?");
+                params.add(value);
+            }
+            String query = "update "+getTable()+" set "+StringLists.join(updateClause,",")+" where "+StringLists.join(whereClause," and ");
+            PooledPreparedStatement statement = mDB.prepare(query);
+            int nb = statement.update(params);
+            if (nb==0) {
+                Logger.warn("query \""+query+"\" affected 0 row...");
+            }
+            else if (nb>1) // ?!?! Referential integrities on key columns should avoid this...
+                throw new SQLException("query \""+query+"\" affected more than 1 rows!");
+            return true;
+        }
+        catch (SQLException sqle) {
+            mDB.setError(sqle.getMessage());
+            Logger.log(sqle);
+            return false;
+        }
+    }
 
-	/** Delete the row associated with this Instance.<p>
-	 * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
-	 *
-	 * @return <code>true</code> if successfull, <code>false</code> if an error
-	 *     occurs (in which case $db.lastError can be checked).
-	 */
-	public synchronized boolean delete() {
-		try {
-			if (mEntity == null) throw new SQLException("Instance.delete: Error: Entity is null!");
-			List whereClause = new ArrayList();
-			List params = new ArrayList();
-			for (Iterator i = mEntity.getKeys().iterator();i.hasNext();) {
-				String col = (String)i.next();
-				Object value = getInternal(col);
-				if (value == null) throw new SQLException("Instance.delete: Error: field '"+col+"' belongs to primary key and cannot be null!");
+    /** Delete the row associated with this Instance.<p>
+     * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
+     *
+     * @return <code>true</code> if successfull, <code>false</code> if an error
+     *     occurs (in which case $db.lastError can be checked).
+     */
+    public synchronized boolean delete() {
+        try {
+            if (mEntity == null) throw new SQLException("Instance.delete: Error: Entity is null!");
+            List whereClause = new ArrayList();
+            List params = new ArrayList();
+            for (Iterator i = mEntity.getKeys().iterator();i.hasNext();) {
+                String col = (String)i.next();
+                Object value = getInternal(col);
+                if (value == null) throw new SQLException("Instance.delete: Error: field '"+col+"' belongs to primary key and cannot be null!");
                 if (mEntity.isObfuscated(col)) value = mEntity.deobfuscate(value);
-				whereClause.add(col+"=?");
-				params.add(value);
-			}
-			String query = "delete from "+getTable()+" where "+StringLists.join(whereClause," and ");
-			PooledPreparedStatement statement = mDB.prepare(query);
-			int nb = statement.update(params);
-			if (nb==0) {
-				Logger.warn("query \""+query+"\" affected 0 row...");
-			}
-			else if (nb>1) // ?!?! Referential integrities on key columns should avoid this...
-				throw new SQLException("query \""+query+"\" affected more than 1 rows!");
-			return true;
-		}
-		catch (SQLException sqle) {
-			mDB.setError(sqle.getMessage());
-			Logger.log(sqle);
-			return false;
-		}
-	}
+                whereClause.add(col+"=?");
+                params.add(value);
+            }
+            String query = "delete from "+getTable()+" where "+StringLists.join(whereClause," and ");
+            PooledPreparedStatement statement = mDB.prepare(query);
+            int nb = statement.update(params);
+            if (nb==0) {
+                Logger.warn("query \""+query+"\" affected 0 row...");
+            }
+            else if (nb>1) // ?!?! Referential integrities on key columns should avoid this...
+                throw new SQLException("query \""+query+"\" affected more than 1 rows!");
+            return true;
+        }
+        catch (SQLException sqle) {
+            mDB.setError(sqle.getMessage());
+            Logger.log(sqle);
+            return false;
+        }
+    }
 
-	/** Insert a new row corresponding to this Instance.
-	 *
-	 * @return <code>true</code> if successfull, <code>false</code> if an error
-	 *     occurs (in which case $db.lastError can be checked).
-	 */
-	public synchronized boolean insert() {
-		try {
-			if (mEntity == null) throw new SQLException("Instance.insert: Error: Entity is null!");
-			List colsClause = new ArrayList();
-			List valsClause = new ArrayList();
-			List params = new ArrayList();
-			List cols = mEntity.getColumns();
-			for (Iterator i=cols.iterator();i.hasNext();) {
-				String col = (String)i.next();
-				Object value = getInternal(col);
-				if (value!=null) {
-					colsClause.add(col);
-					valsClause.add("?");
+    /** Insert a new row corresponding to this Instance.
+     *
+     * @return <code>true</code> if successfull, <code>false</code> if an error
+     *     occurs (in which case $db.lastError can be checked).
+     */
+    public synchronized boolean insert() {
+        try {
+            if (mEntity == null) throw new SQLException("Instance.insert: Error: Entity is null!");
+            List colsClause = new ArrayList();
+            List valsClause = new ArrayList();
+            List params = new ArrayList();
+            List cols = mEntity.getColumns();
+            for (Iterator i=cols.iterator();i.hasNext();) {
+                String col = (String)i.next();
+                Object value = getInternal(col);
+                if (value!=null) {
+                    colsClause.add(col);
+                    valsClause.add("?");
                     if (mEntity.isObfuscated(col)) value = mEntity.deobfuscate(value);
-					params.add(value);
-				}
-			}
-			String query = "insert into "+getTable()+" ("+StringLists.join(colsClause,",")+") values ("+StringLists.join(valsClause,",")+")";
-			PooledPreparedStatement statement = mDB.prepare(query);
-			statement.update(params);
+                    params.add(value);
+                }
+            }
+            String query = "insert into "+getTable()+" ("+StringLists.join(colsClause,",")+") values ("+StringLists.join(valsClause,",")+")";
+            PooledPreparedStatement statement = mDB.prepare(query);
+            statement.update(params);
             List keys = mEntity.getKeys();
             if (keys.size() == 1) {
                 // is this call valid if the id is not autoincremented ?
                 mEntity.setLastInsertID(statement.getLastInsertID());
                 //... how to check for autoincrements ? => metadata!
             }
-			return true;
-		}
-		catch (SQLException sqle) {
-			mDB.setError(sqle.getMessage());
-			Logger.log(sqle);
-			return false;
-		}
-	}
+            return true;
+        }
+        catch (SQLException sqle) {
+            mDB.setError(sqle.getMessage());
+            Logger.log(sqle);
+            return false;
+        }
+    }
 
     /** set this instance localizer (thread local)
      *
@@ -365,11 +365,11 @@ public class Instance extends TreeMap implements DataAccessor
     }
 
     /** this Instance's Entity
-	 */
-	protected Entity mEntity = null;
-	/** the main database connection
-	 */
-	protected Database mDB = null;
+     */
+    protected Entity mEntity = null;
+    /** the main database connection
+     */
+    protected Database mDB = null;
 
     /** whether to localize a column
      *

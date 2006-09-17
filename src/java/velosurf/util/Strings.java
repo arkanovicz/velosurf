@@ -20,43 +20,43 @@ package velosurf.util;
  */
 public class Strings
 {
-	/** replace a string by another inside a target string
-	 * 
-	 * @param inTarget target string
-	 * @param inOldPattern old pattern
-	 * @param inNewPattern new pattern
-	 * @return result
-	 */
-	public static String replace(String inTarget,String inOldPattern,String inNewPattern) {
-		if (inTarget == null)
-			return null;
+    /** replace a string by another inside a target string
+     * 
+     * @param inTarget target string
+     * @param inOldPattern old pattern
+     * @param inNewPattern new pattern
+     * @return result
+     */
+    public static String replace(String inTarget,String inOldPattern,String inNewPattern) {
+        if (inTarget == null)
+            return null;
 
-		if (inOldPattern==null || inOldPattern.length()==0 || inNewPattern==null) return inTarget;
+        if (inOldPattern==null || inOldPattern.length()==0 || inNewPattern==null) return inTarget;
 
-		StringBuffer buff = new StringBuffer();
-		int previous=0,offset=0,length=inOldPattern.length();
+        StringBuffer buff = new StringBuffer();
+        int previous=0,offset=0,length=inOldPattern.length();
 
-		while ( (offset=inTarget.indexOf(inOldPattern,previous)) !=-1)
-		{
-			buff.append(inTarget.substring(previous,offset));
-			buff.append(inNewPattern);
-			previous=offset+length;
-		}
-		buff.append(inTarget.substring(previous));
+        while ( (offset=inTarget.indexOf(inOldPattern,previous)) !=-1)
+        {
+            buff.append(inTarget.substring(previous,offset));
+            buff.append(inNewPattern);
+            previous=offset+length;
+        }
+        buff.append(inTarget.substring(previous));
 
-		return buff.toString();
-		
-	}
+        return buff.toString();
+        
+    }
     
-	/** characters to trim
-	 */
+    /** characters to trim
+     */
     private static String sTrimmed = " \t\r\n";
     
-	/** trim spaces and EOL characters (TODO : fix the typo - nothing to do with EOF characters)
-	 * 
-	 * @param inTarget target string
-	 * @return the trimmed string
-	 */
+    /** trim spaces and EOL characters (TODO : fix the typo - nothing to do with EOF characters)
+     * 
+     * @param inTarget target string
+     * @return the trimmed string
+     */
     public static String trimSpacesAndEOF(String inTarget) {
         if (inTarget == null || inTarget.length() == 0) return inTarget;
         
