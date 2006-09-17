@@ -37,101 +37,101 @@ import velosurf.util.Strings;
  */
 public class Action
 {
-	/** Constructor
-	 *
-	 * @param inEntity entity
-	 * @param inJDOMAction the XML tree for this action
-	 */
-	public Action(Entity inEntity,Element inJDOMAction) {
-		mEntity = inEntity;
-		mDB = mEntity.mDB;
-		mName = inJDOMAction.getAttributeValue("name");
+    /** Constructor
+     *
+     * @param inEntity entity
+     * @param inJDOMAction the XML tree for this action
+     */
+    public Action(Entity inEntity,Element inJDOMAction) {
+        mEntity = inEntity;
+        mDB = mEntity.mDB;
+        mName = inJDOMAction.getAttributeValue("name");
         defineQuery(inJDOMAction);
     }
 
-	/** define the query from the XML tree
-	 *
-	 * @param inJDOMAction the XML tree
-	 */
+    /** define the query from the XML tree
+     *
+     * @param inJDOMAction the XML tree
+     */
     protected void defineQuery(Element inJDOMAction) {
-		mQuery="";
-		mParamNames = new ArrayList();
-		Iterator queryElements = inJDOMAction.getContent().iterator();
-		while (queryElements.hasNext()) {
-			Object content = queryElements.next();
-			if (content instanceof Text) mQuery += Strings.trimSpacesAndEOF(((Text)content).getText());
-			else {
-				mQuery+=" ? ";
-				Element elem = (Element)content;
-				mParamNames.add(mDB.adaptCase(elem.getName()));
-			}
-		}
-	}
+        mQuery="";
+        mParamNames = new ArrayList();
+        Iterator queryElements = inJDOMAction.getContent().iterator();
+        while (queryElements.hasNext()) {
+            Object content = queryElements.next();
+            if (content instanceof Text) mQuery += Strings.trimSpacesAndEOF(((Text)content).getText());
+            else {
+                mQuery+=" ? ";
+                Element elem = (Element)content;
+                mParamNames.add(mDB.adaptCase(elem.getName()));
+            }
+        }
+    }
 
-	/** executes this action
-	 *
-	 * @param inSource the object on which apply the action
-	 * @exception SQLException an SQL problem occurs
-	 * @return number of impacted rows
-	 */
-	public int perform(DataAccessor inSource) throws SQLException {
-		// TODO: check type
-		List params = buildArrayList(inSource);
-		return mDB.prepare(mQuery).update(params);
-	}
+    /** executes this action
+     *
+     * @param inSource the object on which apply the action
+     * @exception SQLException an SQL problem occurs
+     * @return number of impacted rows
+     */
+    public int perform(DataAccessor inSource) throws SQLException {
+        // TODO: check type
+        List params = buildArrayList(inSource);
+        return mDB.prepare(mQuery).update(params);
+    }
 
 
-	/** get the list of values for all parameters
-	 *
-	 * @param inSource the DataAccessor
-	 * @exception SQLException thrown by the DataAccessor
-	 * @return the list of values
-	 */
-	public List buildArrayList(DataAccessor inSource) throws SQLException {
-		ArrayList result = new ArrayList();
-		if (inSource!=null)
-			for (Iterator i = mParamNames.iterator();i.hasNext();) {
-				String paramName = (String)i.next();
-				Object value = inSource.get(paramName);
-				if (mEntity.isObfuscated(paramName)) value = mDB.deobfuscate(value);
-				if (value == null) Logger.warn("Query "+mQuery+": param "+paramName+" is null!");
-				result.add(value);
-			}
-		return result;
-	}
+    /** get the list of values for all parameters
+     *
+     * @param inSource the DataAccessor
+     * @exception SQLException thrown by the DataAccessor
+     * @return the list of values
+     */
+    public List buildArrayList(DataAccessor inSource) throws SQLException {
+        ArrayList result = new ArrayList();
+        if (inSource!=null)
+            for (Iterator i = mParamNames.iterator();i.hasNext();) {
+                String paramName = (String)i.next();
+                Object value = inSource.get(paramName);
+                if (mEntity.isObfuscated(paramName)) value = mDB.deobfuscate(value);
+                if (value == null) Logger.warn("Query "+mQuery+": param "+paramName+" is null!");
+                result.add(value);
+            }
+        return result;
+    }
 
-	/** get the name of the action
-	 *
-	 * @return the name
-	 */
-	public String getName() {
-		return mName;
-	}
+    /** get the name of the action
+     *
+     * @return the name
+     */
+    public String getName() {
+        return mName;
+    }
 
-	/** for debugging purpose
-	 *
-	 * @return definition string
-	 */
-	public String toString() {
-		String result = "";
-		if (mParamNames.size()>0) result += "("+StringLists.join(mParamNames,",")+")";
-		result+=":"+mQuery;
-		return result;
-	}
+    /** for debugging purpose
+     *
+     * @return definition string
+     */
+    public String toString() {
+        String result = "";
+        if (mParamNames.size()>0) result += "("+StringLists.join(mParamNames,",")+")";
+        result+=":"+mQuery;
+        return result;
+    }
 
-	/** get the database connection
-	 *
-	 * @return the database connection
-	 */
-	public Database getDB() {
-		return mDB;
-	}
+    /** get the database connection
+     *
+     * @return the database connection
+     */
+    public Database getDB() {
+        return mDB;
+    }
 
-	/** checks whether the action defined by this XML tree is a simple action or a transaction
-	 *
-	 * @param inElement XML tree defining an action
-	 * @return true if the action is a transaction
-	 */
+    /** checks whether the action defined by this XML tree is a simple action or a transaction
+     *
+     * @param inElement XML tree defining an action
+     * @return true if the action is a transaction
+     */
     public static boolean isTransaction(Element inElement) {
         Iterator queryElements = inElement.getContent().iterator();
         while (queryElements.hasNext()) {
@@ -150,22 +150,22 @@ public class Action
         return false;
     }
 
-	/** the satabase connection
-	 */
-	protected Database mDB = null;
-	/** the entity this action belongs to
-	 */
-	protected Entity mEntity = null;
-	/** the name of this action
-	 */
-	protected String mName = null;
+    /** the satabase connection
+     */
+    protected Database mDB = null;
+    /** the entity this action belongs to
+     */
+    protected Entity mEntity = null;
+    /** the name of this action
+     */
+    protected String mName = null;
 
     // for simple actions
-	/** parameter names of this action
-	 */
-	protected List mParamNames = null;
-	/** query of this action
-	 */
-	protected String mQuery = null;
+    /** parameter names of this action
+     */
+    protected List mParamNames = null;
+    /** query of this action
+     */
+    protected String mQuery = null;
 
 }

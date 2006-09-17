@@ -38,7 +38,7 @@ public class DESCryptograph implements Cryptograph {
 
     public void init(String random) {
         try {
-			// this is the only method that gives us reproducibility
+            // this is the only method that gives us reproducibility
             SecureRandom seed = SecureRandom.getInstance("SHA1PRNG");
             seed.setSeed(random.getBytes());
             KeyGenerator keygen = KeyGenerator.getInstance("DES");

@@ -114,8 +114,8 @@ public class ConnectionWrapper
     public void close()
         throws SQLException
     {
-		// since some sql drivers refuse to close a connection that has been interrupted,
-		// better handle this also ourselves
+        // since some sql drivers refuse to close a connection that has been interrupted,
+        // better handle this also ourselves
         closed = true;
         connection.close();
     }

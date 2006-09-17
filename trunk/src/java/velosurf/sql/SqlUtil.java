@@ -47,8 +47,8 @@ public class SqlUtil
         return ret.toString();
     }
 
-	// add seach criteria to a query
-	public static String refineQuery(String inQuery,List inCriteria) {
+    // add seach criteria to a query
+    public static String refineQuery(String inQuery,List inCriteria) {
 
         if (inCriteria == null || inCriteria.size()==0) return inQuery;
 
@@ -98,11 +98,11 @@ public class SqlUtil
             Logger.log(ree);
             return inQuery;
         }
-	}
+    }
 
-	public static String orderQuery(String inQuery,String inOrder) {
+    public static String orderQuery(String inQuery,String inOrder) {
 
-		if (inOrder == null || inOrder.length()==0) return inQuery;
+        if (inOrder == null || inOrder.length()==0) return inQuery;
 
         try {
             /* issue all searches on a string where all constant strings
@@ -142,7 +142,7 @@ public class SqlUtil
             Logger.log(e);
             return null; // or inQuery ?
         }
-	}
+    }
 
     public static List getColumnNames(ResultSet inResultSet) throws SQLException {
         List columnNames = new ArrayList();

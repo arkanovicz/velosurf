@@ -66,7 +66,7 @@ public abstract class HTTPLocalizerTool implements Localizer,ViewTool {
     public void init(Object initData) {
         if (initData instanceof ViewContext) {
             HttpServletRequest request = ((ViewContext)initData).getRequest();
-			String languageHeader = request.getHeader("Accept-Language");
+            String languageHeader = request.getHeader("Accept-Language");
             Logger.debug("localizer: Accept-Language = "+languageHeader);
             if (languageHeader != null) {
                 parseLanguageHeader(_defaultLocale);
@@ -74,7 +74,7 @@ public abstract class HTTPLocalizerTool implements Localizer,ViewTool {
                 parseLanguageHeader(languageHeader);
             }
         } else {
-			Logger.error("Localizer tool should be used in a session scope!");
+            Logger.error("Localizer tool should be used in a session scope!");
         }
     }
 

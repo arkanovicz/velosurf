@@ -28,46 +28,46 @@ import java.sql.SQLException;
  */
 public abstract class Pooled {
 
-	/** builds a new pooled object
-	 */
-	public Pooled() {
-		mTagTime = System.currentTimeMillis();
-	}
+    /** builds a new pooled object
+     */
+    public Pooled() {
+        mTagTime = System.currentTimeMillis();
+    }
 
-	/** get the time tag of this pooled object
-	 *
-	 * @return the time tag
-	 */
-	public long getTagTime() {
-		return mTagTime;
-	}
+    /** get the time tag of this pooled object
+     *
+     * @return the time tag
+     */
+    public long getTagTime() {
+        return mTagTime;
+    }
 
-	/** reset the time tag
-	 */
-	public void resetTagTime() {
-		mTagTime = System.currentTimeMillis();
-	}
+    /** reset the time tag
+     */
+    public void resetTagTime() {
+        mTagTime = System.currentTimeMillis();
+    }
 
-	/** notify this object that it is in use
-	 */
-	public void notifyInUse() {
-		mInUse = true;
-		resetTagTime();
-	}
+    /** notify this object that it is in use
+     */
+    public void notifyInUse() {
+        mInUse = true;
+        resetTagTime();
+    }
 
-	/** notify this object that it is no more in use
-	 */
-	public void notifyOver() {
-		mInUse = false;
-	}
+    /** notify this object that it is no more in use
+     */
+    public void notifyOver() {
+        mInUse = false;
+    }
 
-	/** checks whether this pooled object is in use
-	 *
-	 * @return whether this object is in use
-	 */
-	public boolean isInUse() {
-		return mInUse;
-	}
+    /** checks whether this pooled object is in use
+     *
+     * @return whether this object is in use
+     */
+    public boolean isInUse() {
+        return mInUse;
+    }
 
     /** checks whether this pooled object is marked as valid or invalid
      * (used in the recovery process)
@@ -90,25 +90,25 @@ public abstract class Pooled {
      */
     public abstract ConnectionWrapper getConnection();
 
-	/** close this pooled object
-	 *
-	 * @exception SQLException when thrown by the database engine
-	 */
+    /** close this pooled object
+     *
+     * @exception SQLException when thrown by the database engine
+     */
     public abstract void close() throws SQLException;
 
-	/** time tag
-	 */
-	protected long mTagTime = 0;
-	// states (inUse - useOver) : (false-false) -> (true-false) -> (true-true) -> [delay] (false-false)
+    /** time tag
+     */
+    protected long mTagTime = 0;
+    // states (inUse - useOver) : (false-false) -> (true-false) -> (true-true) -> [delay] (false-false)
 
     /** valid statement ?
      */
     protected boolean mValid = true;
 
-	/** is this object in use ?
-	 */
-	protected boolean mInUse = false;
-	/** is the usage of this object over ?
-	 */
-	protected boolean mUseOver = false;
+    /** is this object in use ?
+     */
+    protected boolean mInUse = false;
+    /** is the usage of this object over ?
+     */
+    protected boolean mUseOver = false;
 }

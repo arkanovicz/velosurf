@@ -28,27 +28,27 @@ import velosurf.util.Logger;
  */
 public class StatementPool implements Runnable,Pool {
 
-	/** builds a new pool
-	 *
-	 * @param inConnectionPool connection pool
-	 */
-	public StatementPool(ConnectionPool inConnectionPool) {
-		mConnectionPool = inConnectionPool;
-		mCheckTimeoutThread = new Thread(this);
-//		mCheckTimeoutThread.start();
-	}
+    /** builds a new pool
+     *
+     * @param inConnectionPool connection pool
+     */
+    public StatementPool(ConnectionPool inConnectionPool) {
+        mConnectionPool = inConnectionPool;
+        mCheckTimeoutThread = new Thread(this);
+//        mCheckTimeoutThread.start();
+    }
 
-	/** gets a valid statement
-	 *
-	 * @exception SQLException thrown by the database engine
-	 * @return a valid statement
-	 */
-	public synchronized PooledStatement getStatement() throws SQLException {
-		PooledStatement statement = null;
+    /** gets a valid statement
+     *
+     * @exception SQLException thrown by the database engine
+     * @return a valid statement
+     */
+    public synchronized PooledStatement getStatement() throws SQLException {
+        PooledStatement statement = null;
         ConnectionWrapper connection = null;
-		for (Iterator it=mStatements.iterator();it.hasNext();) {
+        for (Iterator it=mStatements.iterator();it.hasNext();) {
             statement = (PooledStatement)it.next();
-			if (statement.isValid()) {
+            if (statement.isValid()) {
                 if (!statement.isInUse() && !(connection = (ConnectionWrapper)statement.getConnection()).isBusy()) {
                     // check connection
                     if (connection.check()) {
@@ -63,48 +63,48 @@ public class StatementPool implements Runnable,Pool {
             else {
                 it.remove();
             }
-		}
-		if (mCount == sMaxStatements) throw new SQLException("Error: Too many opened statements!");
+        }
+        if (mCount == sMaxStatements) throw new SQLException("Error: Too many opened statements!");
         connection = mConnectionPool.getConnection();
-		statement = new PooledStatement(connection,connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY));
-		mStatements.add(statement);
+        statement = new PooledStatement(connection,connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY));
+        mStatements.add(statement);
         statement.notifyInUse();
-		return statement;
-	}
+        return statement;
+    }
 
-	// timeout loop
-	/** run the loop of statements checking and recycling
-	 */
-	public void run() {
-		while (mRunning) {
-			try {
-				Thread.sleep(sCheckDelay);
-			} catch (InterruptedException e) {}
-			long now = System.currentTimeMillis();
-			PooledStatement statement = null;
-			for (Iterator it=mStatements.iterator();it.hasNext();) {
-				statement = (PooledStatement)it.next();
-				if (statement.isInUse() && now-statement.getTagTime() > sTimeout)
-					statement.notifyOver();
-			}
-		}
-	}
+    // timeout loop
+    /** run the loop of statements checking and recycling
+     */
+    public void run() {
+        while (mRunning) {
+            try {
+                Thread.sleep(sCheckDelay);
+            } catch (InterruptedException e) {}
+            long now = System.currentTimeMillis();
+            PooledStatement statement = null;
+            for (Iterator it=mStatements.iterator();it.hasNext();) {
+                statement = (PooledStatement)it.next();
+                if (statement.isInUse() && now-statement.getTagTime() > sTimeout)
+                    statement.notifyOver();
+            }
+        }
+    }
 
-	/** debug - two ints long array containing nb of statements in use and total nb of statements
-	 *
-	 * @return 2 integers long array
-	 */
-	public int[] getUsageStats() {
-		int [] stats = new int[] {0,0};
-		for (Iterator it=mStatements.iterator();it.hasNext();)
-			if (!((PooledStatement)it.next()).isInUse())
-				stats[0]++;
-		stats[1]=mStatements.size();
-		return stats;
-	}
+    /** debug - two ints long array containing nb of statements in use and total nb of statements
+     *
+     * @return 2 integers long array
+     */
+    public int[] getUsageStats() {
+        int [] stats = new int[] {0,0};
+        for (Iterator it=mStatements.iterator();it.hasNext();)
+            if (!((PooledStatement)it.next()).isInUse())
+                stats[0]++;
+        stats[1]=mStatements.size();
+        return stats;
+    }
 
-	/** close all statements
-	 */
+    /** close all statements
+     */
     public void clear() {
         // close all statements
         for (Iterator it=mStatements.iterator();it.hasNext();)
@@ -115,7 +115,7 @@ public class StatementPool implements Runnable,Pool {
                 Logger.log(sqle);
             }
         mStatements.clear();
-	}
+    }
 
     /* drop all statements relative to a specific connection
      * @param connection the connection
@@ -129,36 +129,36 @@ public class StatementPool implements Runnable,Pool {
         try { connection.close(); } catch(SQLException sqle) {}
     }
 
-	/** close statements on exit
-	 */
+    /** close statements on exit
+     */
     protected void finalize() {
         clear();
     }
 
-	/** Connection pool
-	 */
-	protected ConnectionPool mConnectionPool = null;
+    /** Connection pool
+     */
+    protected ConnectionPool mConnectionPool = null;
 
-	/** number of statements
-	 */
-	protected int mCount = 0;
-	/** statements
-	 */
-	protected List mStatements = new ArrayList();
-	/** timeout checking thread
-	 */
-	protected Thread mCheckTimeoutThread = null;
-	/** is the thread running ?
-	 */
-	protected boolean mRunning = true;
+    /** number of statements
+     */
+    protected int mCount = 0;
+    /** statements
+     */
+    protected List mStatements = new ArrayList();
+    /** timeout checking thread
+     */
+    protected Thread mCheckTimeoutThread = null;
+    /** is the thread running ?
+     */
+    protected boolean mRunning = true;
 
-	/** delay between checks
-	 */
-	protected static final long sCheckDelay = 30*1000;
-	/** timeout on which statements are automatically recycled if not used
-	 */
-	protected static final long sTimeout = 10*60*1000;
-	/** maximum number of statements
-	 */
-	protected static final int sMaxStatements = 50;
+    /** delay between checks
+     */
+    protected static final long sCheckDelay = 30*1000;
+    /** timeout on which statements are automatically recycled if not used
+     */
+    protected static final long sTimeout = 10*60*1000;
+    /** maximum number of statements
+     */
+    protected static final int sMaxStatements = 50;
 }

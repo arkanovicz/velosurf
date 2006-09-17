@@ -77,44 +77,44 @@ import velosurf.model.Entity;
         return val == null ? false : Boolean.valueOf(val).booleanValue();
     }
 
-	public String[] getStrings(String inKey) {
-		String[] ret;
-		Object value = get(inKey);
-		if (value instanceof List) {
-			List list = (List)value;
-			ret = new String[list.size()];
-			int i=0;
-			for(Iterator it = list.iterator();it.hasNext();i++) {
-				ret[i] = (String)it.next();
-			}
-		}
-		else {
-			ret = new String[1];
-			ret[0] = (String)value;
-		}
-		return ret;
-	}
+    public String[] getStrings(String inKey) {
+        String[] ret;
+        Object value = get(inKey);
+        if (value instanceof List) {
+            List list = (List)value;
+            ret = new String[list.size()];
+            int i=0;
+            for(Iterator it = list.iterator();it.hasNext();i++) {
+                ret[i] = (String)it.next();
+            }
+        }
+        else {
+            ret = new String[1];
+            ret[0] = (String)value;
+        }
+        return ret;
+    }
 
-	public int[] getInts(String inKey) {
-		int[] ret;
-		Object value = get(inKey);
-		if (value instanceof List) {
-			List list = (List)value;
-			ret = new int[list.size()];
-			int i=0;
-			for(Iterator it = list.iterator();it.hasNext();i++) {
-				ret[i] = Integer.parseInt((String)it.next());
-			}
-		}
-		else {
-			ret = new int[1];
-			ret[0] = Integer.parseInt((String)value);
-		}
-		return ret;
-	}
+    public int[] getInts(String inKey) {
+        int[] ret;
+        Object value = get(inKey);
+        if (value instanceof List) {
+            List list = (List)value;
+            ret = new int[list.size()];
+            int i=0;
+            for(Iterator it = list.iterator();it.hasNext();i++) {
+                ret[i] = Integer.parseInt((String)it.next());
+            }
+        }
+        else {
+            ret = new int[1];
+            ret[0] = Integer.parseInt((String)value);
+        }
+        return ret;
+    }
 
     public String getUri() {
-    	return request.getRequestURI();
+        return request.getRequestURI();
     }
 
     public static void autofetch(Entity entity,String param,String name,boolean protect) {

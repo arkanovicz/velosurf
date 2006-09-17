@@ -25,24 +25,24 @@ import java.util.Map;
  */
 public class MapDataAccessor implements DataAccessor {
 
-	/** builds a new MapDataAccessor
-	 * 
-	 * @param inInnerMap the Map object to encapsulate
-	 */
-	public MapDataAccessor(Map inInnerMap){
-		mInnerMap = inInnerMap;
-	}
-	/** get the property named inKey in the wrapped Map
-	 * 
-	 * @param inKey the name of the property
-	 * @return the property value or null if not found
-	 * @see velosurf.sql.DataAccessor#get(java.lang.Object)
-	 */
-	public Object get(Object inKey) {
-		return mInnerMap.get(inKey);
-	}
+    /** builds a new MapDataAccessor
+     * 
+     * @param inInnerMap the Map object to encapsulate
+     */
+    public MapDataAccessor(Map inInnerMap){
+        mInnerMap = inInnerMap;
+    }
+    /** get the property named inKey in the wrapped Map
+     * 
+     * @param inKey the name of the property
+     * @return the property value or null if not found
+     * @see velosurf.sql.DataAccessor#get(java.lang.Object)
+     */
+    public Object get(Object inKey) {
+        return mInnerMap.get(inKey);
+    }
 
-	/** the wrapped Map
-	 */
-	protected Map mInnerMap = null;
+    /** the wrapped Map
+     */
+    protected Map mInnerMap = null;
 }
