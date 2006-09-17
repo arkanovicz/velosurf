@@ -24,15 +24,20 @@ import java.util.*;
 
 import velosurf.util.Logger;
 
-/** This class is able to parse the "Accepted-Language" HTTP header to detect
- *  the appropriate locale to be used.
- * Its subclasses must implement the abstract <code>String get(Object id)</code> method.
- * It accepts a "default-language" configuration parameter in toolbox.xml.
- * It is meant for the session scope.
+/** <p>This class is able to parse the "Accepted-Language" HTTP header to detect
+ *  the appropriate locale to be used. The "Accepted-Language" header contains
+ *  a list of at least one locale (a language code plus an optional country code)
+ * with an optional <i>quality</i> coefficient </p>
  *
- * Note: this class uses some java 1.5 syntax.
+ * <p>You can find on the web the list of
+ * <a href="http://www.loc.gov/standards/iso639-2/englangn.html">ISO Language Codes</a>
+ * and the list of
+ * <a href="http://www.iso.ch/iso/en/prods-services/iso3166ma/02iso-3166-code-lists/list-en1.html">ISO Country Codes</a>.
  *
- * @author Claude Brisson
+ * <p>This tool accepts a "default-language" configuration parameter in toolbox.xml.</p>
+ * <p>It is meant for the session scope.</p>
+ *
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  **/
 
@@ -51,8 +56,11 @@ public abstract class HTTPLocalizerTool implements Localizer,ViewTool {
     }
 
     public void configure(Map parameters) {
-        _defaultLanguage = (String)parameters.get("default-language");
-        Logger.info("Localizer: using default language: "+_defaultLanguage);
+        String def = (String)parameters.get("default-language");
+        if (def != null) {
+            _defaultLocale = def;
+        }
+        Logger.info("Localizer: using default locale: "+_defaultLocale);
     }
 
     public void init(Object initData) {
@@ -60,8 +68,8 @@ public abstract class HTTPLocalizerTool implements Localizer,ViewTool {
             HttpServletRequest request = ((ViewContext)initData).getRequest();
 			String languageHeader = request.getHeader("Accept-Language");
             Logger.debug("localizer: Accept-Language = "+languageHeader);
-            if (languageHeader == null) {
-                parseLanguageHeader(_defaultLanguage);
+            if (languageHeader != null) {
+                parseLanguageHeader(_defaultLocale);
             } else {
                 parseLanguageHeader(languageHeader);
             }
@@ -71,25 +79,42 @@ public abstract class HTTPLocalizerTool implements Localizer,ViewTool {
     }
 
     protected void parseLanguageHeader(String header) {
-        _languageList = new ArrayList<String>();
+        _localeList = new ArrayList<Locale>();
         String[] entries = header.split(",");
         Arrays.sort(entries,new PreferredLanguageComparator());
         for(String entry:entries) {
             int sep = entry.indexOf(';');
-            _languageList .add(sep==-1?entry:entry.substring(0,sep));
+            double quality = 1.0;
+            if (sep != -1) {
+                entry = entry.substring(0,sep);
+                quality = Float.parseFloat(entry.substring(sep+3));
+            }
+            if (quality > 0.0) {
+                Locale locale;
+                if ((sep=entry.indexOf('-'))==-1) {
+                    locale = new Locale(entry);
+                } else {
+                    locale = new Locale(entry.substring(0,sep),entry.substring(sep+1));
+                }
+                _localeList.add(locale);
+            }
         }
         // Is it faster to always add the default language or to check
         // if it is already present in the array ?
         // The former will be faster for valid pages and longer for invalid ones... so maybe better
-        _languageList .add(_defaultLanguage);
+        _localeList.add(new Locale(_defaultLocale));
     }
 
-    public List<String> getLanguageList() {
-        return _languageList ;
+    public List<Locale> getLocaleList() {
+        return _localeList ;
+    }
+
+    public Locale getLocale() {
+        return _localeList.get(0);
     }
 
     public abstract String get(Object id);
 
-    protected List<String> _languageList = null;
-    protected String _defaultLanguage = "fr";
+    protected List<Locale> _localeList = null;
+    protected String _defaultLocale = "en";
 }

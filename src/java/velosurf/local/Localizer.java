@@ -16,13 +16,16 @@
 
 package velosurf.local;
 
+import java.util.Locale;
+
 /** To be implemented by localizers used by the engine to get localized strings from their database id.
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  **/
 
 public interface Localizer {
+    public Locale getLocale();
     public String get(Object id);
 //    public Object getId(String text);
 }
