@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database user="USER" password="PASSWORD" url="jdbc:MY_DBMS://127.0.0.1/bookstore" default-access="rw" >
+
+	<entity name="publisher" obfuscate="publisher_id" autofetch="publisher_id">
+		<attribute name="books" result="rowset/book" xml:space="preserve">
+			SELECT * FROM book WHERE publisher_id=<publisher_id/>
+		</attribute>
+	</entity>
+
+	<entity name="author" obfuscate="author_id" autofetch="author_id">
+		<attribute name="books" result="rowset/book" xml:space="preserve">
+			SELECT * FROM book WHERE author_id=<author_id/>
+		</attribute>
+		<attribute name="full_name" result="scalar" xml:space="preserve">
+		    SELECT CONCAT(first_name,CONCAT(' ',last_name)) FROM author WHERE author_id=<author_id/>
+		</attribute>
+	</entity>
+
+	<entity name="book" obfuscate="book_id,author_id,publisher_id" autofetch="book_id">
+		<attribute name="publisher" result="row/publisher" foreign-key="publisher_id"/>
+		<attribute name="author" result="row/author" foreign-key="author_id"/>
+	</entity>
+
+	<attribute name="books_nb" result="scalar">
+		select count(*) from book
+	</attribute>
+
+</database>

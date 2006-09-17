@@ -1,0 +1,23 @@
+<html>
+<head>
+<title>The Bookstore Sample</title>
+</head>
+<body>
+##not needed with autofetching : 
+##if($query.author_id) #set( $author = $db.author.fetch($query.author_id) ) #end
+
+#if($author)
+<h2>Edit author</h2>
+#else
+<h2>Add author</h2>
+#end
+<ul>
+<form method="post" action="./author_commit.vm">
+<input type="hidden" name="author_id" value="$!author.author_id">
+<li>First Name : <input type="text" name="first_name" value="$!author.first_name">
+<li>Last Name : <input type="text" name="last_name" value="$!author.last_name">
+</ul>
+<input type="submit" value="Ok">
+</form>
+</body>
+</html>
