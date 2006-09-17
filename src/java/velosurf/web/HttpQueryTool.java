@@ -31,7 +31,7 @@ import velosurf.model.Entity;
  *
  * It is meant for the query scope.
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  **/
  public class HttpQueryTool extends HashMap implements ViewTool

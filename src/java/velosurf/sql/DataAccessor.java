@@ -20,7 +20,7 @@ import java.sql.SQLException;
 
 /** This interface represents objects having read-only properties
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public interface DataAccessor

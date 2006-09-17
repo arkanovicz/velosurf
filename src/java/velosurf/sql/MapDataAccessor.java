@@ -20,7 +20,7 @@ import java.util.Map;
 
 /** This class encapsulates a Map as a DataAccessor
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class MapDataAccessor implements DataAccessor {

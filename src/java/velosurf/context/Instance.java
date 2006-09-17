@@ -31,7 +31,7 @@ import velosurf.local.Localizer;
 
 /** An Instance provides field values by their name.
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
 public class Instance extends TreeMap implements DataAccessor
 {

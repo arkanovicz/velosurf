@@ -32,7 +32,7 @@ import velosurf.util.Strings;
 
 /** This class is an action that gather several consecutive queries
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class Transaction extends Action
