@@ -28,7 +28,7 @@ import velosurf.util.Logger;
 
 /** This class is a pool of PooledPreparedStatements
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class PreparedStatementPool implements Runnable,Pool {

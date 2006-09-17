@@ -40,7 +40,7 @@ import java.util.Map;
  * avoid re-fetching the loggued user at each request. Please keep in mind that the cache can quickly
  * become inconsistant if used in conjunction with complex modification queries (that occur in its back...).
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class Cache {

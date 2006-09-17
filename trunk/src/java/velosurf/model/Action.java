@@ -32,7 +32,7 @@ import velosurf.util.Strings;
 
 /** This class correspond to custom update and delete queries
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class Action

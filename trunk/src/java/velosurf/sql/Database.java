@@ -44,7 +44,7 @@ import velosurf.web.HttpQueryTool;
  *
  *  <p>To get a new instance, client classes should call one of the getInstance static methods.</p>
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class Database {

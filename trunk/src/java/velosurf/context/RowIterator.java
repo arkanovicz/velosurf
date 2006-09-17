@@ -32,7 +32,7 @@ import velosurf.local.Localizer;
 
 /** This class is a context wrapper for ResultSets, and provides an iteration mecanism for #foreach loops, as long as getters for values of the current row.
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
 public class RowIterator implements Iterator,DataAccessor {
 
@@ -84,7 +84,7 @@ public class RowIterator implements Iterator,DataAccessor {
 		else return this;
 	}
 
-	// for Iterator interface, but RO
+	// for Iterator interface, but RO (why? -> TODO)
 	/** not implemented.
 	 */
 	public void remove() {

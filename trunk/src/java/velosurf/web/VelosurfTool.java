@@ -63,7 +63,7 @@ import velosurf.local.Localizer;
  *
  *</pre>
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class VelosurfTool extends DBReference implements ViewTool /*,Configurable*/

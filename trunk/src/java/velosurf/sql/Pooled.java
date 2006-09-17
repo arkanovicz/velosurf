@@ -23,7 +23,7 @@ import java.sql.SQLException;
  * The cycle of those two booleans is the following :<p>
  * states (inUse - useOver) : (false-false) -> (true-false) -> (true-true) -> [delay] (false-false)
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public abstract class Pooled {

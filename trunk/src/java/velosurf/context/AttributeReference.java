@@ -29,7 +29,7 @@ import velosurf.local.Localizer;
 
 /** Context wrapper for attributes
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
 public class AttributeReference extends AbstractList
 {

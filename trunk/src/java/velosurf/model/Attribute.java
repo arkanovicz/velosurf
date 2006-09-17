@@ -36,7 +36,7 @@ import velosurf.util.Strings;
 
 /** This class represents an attribute in the object model
  *
- * @author Claude Brisson
+ *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class Attribute
