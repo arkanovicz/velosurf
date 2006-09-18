@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<toolbox>
+
+  <tool>
+    <key>db</key>
+    <scope>request</scope>
+    <class>velosurf.web.VelosurfTool</class>
+  </tool>
+
+  <tool>
+    <key>query</key>
+    <scope>request</scope>
+    <class>velosurf.web.HttpQueryTool</class>
+  </tool>
+
+  <tool>
+    <key>logger</key>
+    <scope>application</scope>
+    <class>velosurf.util.Logger</class>
+  </tool>
+
+  <tool>
+    <key>local</key>
+    <scope>session</scope>
+    <class>DBLocalizer</class>
+    <parameter name='default-language' value='fr'/>
+  </tool>
+
+  <tool>
+    <key>authent</key>
+    <scope>session</scope>
+    <class>DBAuthenticator</class>
+  </tool>
+
+</toolbox>

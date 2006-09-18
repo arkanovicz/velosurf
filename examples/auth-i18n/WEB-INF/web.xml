@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+
+   <access-log id='$app-dir/WEB-INF/log/access.log' rollover-period='1D' />
+   <log href='$app-dir/WEB-INF/log/error.log' rollover-period='1D' />
+   <classpath id='WEB-INF/classes' source='WEB-INF/src'/>
+
+  <!-- Filters -->
+
+  <filter>
+    <filter-name>localization</filter-name>
+    <filter-class>velosurf.i18n.LocalizationFilter</filter-class>
+  </filter>
+
+  <filter>
+    <filter-name>authentication</filter-name>
+    <filter-class>velosurf.auth.AuthenticationFilter</filter-class>
+    <!-- since we'll be using the VtlWebappLoader that adds ".vtl"
+         automatically, we can use only the '.html' extension in urls -->
+    <init-param>
+        <param-name>index-page</param-name>
+        <param-value>/${locale}/index.html</param-value>
+    </init-param>
+    <init-param>
+        <param-name>login-page</param-name>
+        <param-value>/${locale}/login.html</param-value>
+    </init-param>
+    <init-param>
+        <param-name>authenticated-index-page</param-name>
+        <param-value>/${locale}/auth/index.html</param-value>
+    </init-param>
+  </filter>
+
+  <!-- Filter Mapping -->
+
+  <filter-mapping>
+    <filter-name>localization</filter-name>
+    <url-pattern>/index.html</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>authentication</filter-name>
+    <url-pattern>/en/auth/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>authentication</filter-name>
+    <url-pattern>/fr/auth/*</url-pattern>
+  </filter-mapping>
+
+<!-- tests -->
+
+  <filter-mapping>
+    <filter-name>authentication</filter-name>
+    <url-pattern>/test1/index.html</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>authentication</filter-name>
+    <url-pattern>/test2/index.html</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>authentication</filter-name>
+    <url-pattern>/test3/index.html</url-pattern>
+  </filter-mapping>
+
+
+  <!-- Servlets -->
+
+  <context-param velosurf.config='/WEB-INF/velosurf.xml' />
+  <context-param org.apache.velocity.properties='/WEB-INF/velocity.properties' />
+  <context-param org.apache.velocity.toolbox='/WEB-INF/toolbox.xml' />
+
+  <servlet>
+    <servlet-name>velocityview</servlet-name> 
+    <servlet-class>org.apache.velocity.tools.view.servlet.VelocityViewServlet</servlet-class>
+    <load-on-startup/>
+  </servlet>
+
+  <!-- Servlet Mapping -->
+
+<servlet-mapping>
+  <servlet-name>velocityview</servlet-name> 
+  <url-pattern>*.html</url-pattern> 
+</servlet-mapping>
+
+<servlet-mapping>
+  <servlet-name>velocityview</servlet-name> 
+  <url-pattern>index.html.vtl</url-pattern> 
+</servlet-mapping>
+
+<!--
+<servlet-mapping>
+  <servlet-name>nullservlet</servlet-name> 
+  <url-pattern>*.vtl</url-pattern> 
+</servlet-mapping>
+-->
+
+<servlet-mapping>
+  <servlet-name>velocityview</servlet-name> 
+  <url-pattern>*.js</url-pattern> 
+</servlet-mapping>
+
+<welcome-file-list>
+  <welcome-file>index.html</welcome-file> 
+  <welcome-file>index.html.vtl</welcome-file> 
+</welcome-file-list>
+
+</web-app>
