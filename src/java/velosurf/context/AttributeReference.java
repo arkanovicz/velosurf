@@ -25,7 +25,7 @@ import java.util.List;
 import velosurf.model.Attribute;
 import velosurf.sql.DataAccessor;
 import velosurf.util.Logger;
-import velosurf.local.Localizer;
+import velosurf.i18n.Localizer;
 
 /** Context wrapper for attributes
  *
