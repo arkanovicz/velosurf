@@ -27,7 +27,7 @@ import velosurf.sql.DataAccessor;
 import velosurf.sql.PooledPreparedStatement;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
-import velosurf.local.Localizer;
+import velosurf.i18n.Localizer;
 
 /** An Instance provides field values by their name.
  *
