@@ -17,8 +17,8 @@ public class DriverInfo
     {
         String vendor = null;
         try {
-            Matcher matcher = Pattern.compile("jdbc:([^:]+):").matcher(inUrl);
-            if (matcher.matches()) vendor = matcher.group(1);
+            Matcher matcher = Pattern.compile("^jdbc:([^:]+):").matcher(inUrl);
+            if (matcher.find()) vendor = matcher.group(1);
         }
         catch(PatternSyntaxException pse) {
             Logger.log(pse);
