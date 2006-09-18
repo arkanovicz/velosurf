@@ -24,15 +24,13 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
 import org.apache.velocity.tools.view.context.ViewContext;
-import org.apache.velocity.tools.view.tools.ViewTool;
-import org.apache.velocity.tools.view.tools.Configurable;
 
 import velosurf.context.DBReference;
 import velosurf.sql.Database;
 import velosurf.util.Logger;
 import velosurf.util.ServletLogWriter;
 import velosurf.util.ToolFinder;
-import velosurf.local.Localizer;
+import velosurf.i18n.Localizer;
 
 /** <p>This class is a tool meant to be referenced in toolbox.xml</p>
  * <p>It can be used in any scope you want (application/session/request), depending on the behaviour you need for the refinement and ordering mechanisms (which will follow the same scope).
@@ -66,7 +64,7 @@ import velosurf.local.Localizer;
  *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
-public class VelosurfTool extends DBReference implements ViewTool /*,Configurable*/
+public class VelosurfTool extends DBReference
 {
     /** builds a new VelosurfTool
      */
@@ -107,15 +105,16 @@ public class VelosurfTool extends DBReference implements ViewTool /*,Configurabl
             }
         }
 
-        Database db;
-        synchronized(sDBMap) {
-            db = getConnection(mConfigFile);
-            if (db == null) db = initDB(ctx);
+        if (!Logger.isInitialized() && ctx != null) {
+            Logger.setWriter(new ServletLogWriter(ctx));
         }
 
-        super.init(db);
-
+        /* fetch the localizer */
         if (sFetchLocalizer && hasViewContext) fetchLocalizer((ViewContext)inViewContext);
+
+        /* initialize with a new connection */
+        super.init(getConnection(mConfigFile,ctx));
+
     }
 
     /** initialization
@@ -125,8 +124,6 @@ public class VelosurfTool extends DBReference implements ViewTool /*,Configurabl
      */
     protected Database initDB(ServletContext inServletContext) {
         try {
-            // init log
-            Logger.setWriter(new ServletLogWriter(inServletContext));
             Logger.info("Velosurf tool initialization...");
 
             return getConnection(mConfigFile);
@@ -151,7 +148,7 @@ public class VelosurfTool extends DBReference implements ViewTool /*,Configurabl
 
     /** database connections
      */
-    protected static Map sDBMap = new HashMap();
+    protected static Map<String,Database> sDBMap = new HashMap();
 
     /** configure
      *
@@ -162,23 +159,33 @@ public class VelosurfTool extends DBReference implements ViewTool /*,Configurabl
     }
 
     /** returns the existing Database for the specified config file, or null
-     * if it does not already exist.
+     * if it isn't already open.
      * @param inConfigFile
      * @return a Database
      */
-
-    public static Database getConnection(String inConfigFile) {
+    protected static Database getConnection(String inConfigFile) {
         if (!inConfigFile.startsWith("/")) inConfigFile = "/"+inConfigFile;
-        return (Database)sDBMap.get(inConfigFile);
+        return sDBMap.get(inConfigFile);
     }
+
+    /** returns a db reference on the existing Database for the specified config file, or null
+     * if it isn't already open.
+     * @param inConfigFile
+     * @return a DBReference
+     */
+    public static DBReference getInstance(String inConfigFile) {
+        if (!inConfigFile.startsWith("/")) inConfigFile = "/"+inConfigFile;
+        Database db = sDBMap.get(inConfigFile);
+        return db == null ? null : new DBReference(db);
+    }
+
 
     /** returns the existing Database for the specified config file and servlet context,
      * or null if an error occurs.
      * @param inConfigFile
      * @return a Database
      */
-
-    public static Database getConnection(String inConfigFile,ServletContext inServletContext) {
+    protected static Database getConnection(String inConfigFile,ServletContext inServletContext) {
         if (!inConfigFile.startsWith("/")) inConfigFile = "/"+inConfigFile;
         Database db = (Database)sDBMap.get(inConfigFile);
         if (db == null) {
@@ -196,33 +203,65 @@ public class VelosurfTool extends DBReference implements ViewTool /*,Configurabl
         return db;
     }
 
+    /** returns a db reference on the existing Database for the specified config file and servlet context,
+     * or null if an error occurs.
+     * @param inConfigFile
+     * @return a DBReference
+     */
+    public static DBReference getInstance(String inConfigFile,ServletContext inServletContext) {
+        Database db = getConnection(inConfigFile,inServletContext);
+        return db == null ? null : new DBReference(db);
+    }
+
 
     /** returns the existing Database for the default config file, or null
      * if it does not already exist.
      * @return a Database
      */
-    public static Database getDefaultConnection()
+    protected static Database getDefaultConnection()
     {
         return (Database)sDBMap.get(DEFAULT_DATABASE_CONFIG_FILE);
+    }
+
+    /** returns a db reference the existing Database for the default config file, or null
+     * if it does not already exist.
+     * @return a DBReference
+     */
+    public static DBReference getDefaultInstance() {
+        Database db = getDefaultConnection();
+        return db == null ? null : new DBReference(db);
     }
 
     /** returns the existing Database for the default config file and servlet context,
      * or null if an error occurs.
      * @return a Database
      */
-    public static Database getDefaultConnection(ServletContext inServletContext)
+    protected static Database getDefaultConnection(ServletContext inServletContext)
     {
         return getConnection(DEFAULT_DATABASE_CONFIG_FILE,inServletContext);
     }
 
+    /** returns a db reference on the existing Database for the default config file and servlet context,
+     * or null if an error occurs.
+     * @return a Database
+     */
+    public static DBReference getDefaultInstance(ServletContext inServletContext)
+    {
+        Database db = getConnection(DEFAULT_DATABASE_CONFIG_FILE,inServletContext);
+        return db == null ? null : new DBReference(db);
+    }
+
+    protected static boolean sLoggerInitialized = false;
 
     /**
      * do we need to try to fetch the localizer object ?
      * True initially, false after one unsuccessful try.
      */
-
     protected static boolean sFetchLocalizer = true;
 
+    /**
+     * Utility method used to fetch the localizer from the toolbox.
+     */
     protected void fetchLocalizer(ViewContext inViewContext) {
         if (mLocalizer == null) {
             mLocalizer = ToolFinder.findTool(inViewContext.getRequest().getSession(false),Localizer.class);
