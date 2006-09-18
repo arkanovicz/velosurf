@@ -17,6 +17,7 @@
 package velosurf.auth;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -28,17 +29,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import velosurf.util.Logger;
-import velosurf.util.SavedRequest;
-import velosurf.util.SavedRequestWrapper;
-import velosurf.util.ToolFinder;
+import velosurf.util.*;
+import velosurf.i18n.Localizer;
 
 /**
- * <p>This class is a servlet filter used to protect web pages behind an authentication mechanism.
- * It works in conjunction with an Authenticator object that must be present in the session scope
- * of the toolbox.</p>
+ * <p>This class is a servlet filter used to protect web pages behind an authentication mechanism. When a
+ * non-authenticated user requests a protected page, (s)he is redirected towards the login page and thereafter,
+ * if (s)he loggued in successfully, towards his(her) initially requested page.</p>
  *
- * <p>To use it, you just have to map protected urls to go through this filter, as in :</p>
+ * <p>Authentication is performed via a CRAM (challenge-response authentication mechanism).
+ * Passwords are never transmitted in clear.</p>
+ *
+ * <p>This filter works in conjunction with an Authenticator object that must be present in the session scope
+ * of the toolbox and with a javascript password encryption function.</p>
+ *
+ * <p>To use it, you just have to map protected urls (and especially, the target of the login form, this is
+ * very important for the authentication to work properly!) to go through this filter, as in :</p>
  * <pre>
  *   <filter>
  *     <filter-name>authentication</filter-name>
@@ -50,21 +56,38 @@ import velosurf.util.ToolFinder;
  *   </filter-mapping>
  * </pre>
  *
- * <p>The password is never transmitted in clear between the client page and the server. It is
- * encrypted in an irreversible manner into an <i>answer</i>, and to check the login,
+ * <p>The password is encrypted in an irreversible manner into an <i>answer</i>, and to check the login,
  * the answer that the client sends back to the server is compared to the correct awaited answer.</p>
  *
  * <p>The javascript file <i>login.js.vtl</i> contains the necessary encryption functions. It uses
  * the <i>bignum.js</i> library file. You will find those files in <code>/src/resources/auth</code>
- * or in the authentication sample webapp.
+ * or in the auth-i18n sample webapp.</p>
  *
+ * <p>The filter expect the login to be present in the HTTP 'login' form field, and the answer in
+ * the 'answer' form field (which should be all right if you use the login.js.vtl as is).</p>
  *
- * <p>The filter expect the login to be present in the HTTP 'login' form field, and the </p>
+ * <p>The loggued state is materialized by the presence of a user Object in the session under
+ * the <i>user</i> key. This user object in the one returned by the abstract method Authenticator.getUser(login).</p>
  *
- * <p>The loggued state is materialized by the presence of a User object in the session. This User
- * object in the one returned by the method Authenticator.getUser(login).</p>
+ * <p>This filter will search for an occurrence of a localizer tool in the session toolbox to resolve some values.
+ * The presence of this localizer is optional.</p>
  *
- *
+ * <p>Optional configuration parameters:
+ * <ul><li>max-inactive-interval: delay upon which an inactive user is disconnected in seconds.
+ * The default value is one hour.</li>
+ * <li>index-page: the index page URI. A "<code>${locale}</code>" pattern resolves to the active locale name if a localizer
+ * tool is available. Default is '/index.html'.</li>
+ * <li>login-page: the login page URI. The "<code>${locale}</code>" pattern applies as well. Default is '/login.html'.</li>
+ * <li>authenticated-index-page: the default page once authenticated. he "<code>${locale}</code>" pattern applies as well.
+ * Default is '/loggued.html'.</li>
+ * <li>bad-login-message: the message to be displayed in case of bad login. If this parameter is not
+ * specified, the filter will try to get a reference from the localizer tool and ask it for a "badLogin"
+ * message, and if this fails, it will simply use "Bad login or password.".</li>
+ * <li>disconnected-message: the message to be displayed when the user is disconnected after a period
+ * of inactivity on the site. Same remark if this parameter is not supplied: the filter will search
+ * for a "disconnected" message in the localizer tool if present, and otherwise display "You have been disconnected."</li>
+ * </ul>
+ * </p>
  *
  *
  * @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
@@ -78,12 +101,35 @@ public class AuthenticationFilter implements Filter {
 
     protected FilterConfig _config = null;
 
-    protected int _maxInactiveInterval = 0;
+    protected int _maxInactiveInterval = 3600;
+
+    protected String _indexPage = "/index.html.vtl";
+    protected String _loginPage = "/login.html.vtl";
+    protected String _authenticatedIndexPage = "/index.html.vtl";
+
+    protected String _badLoginMessage = null;
+    protected String _badLoginMsgKey = "badLogin";
+    protected static String _defaultBadLoginMessage = "Bad login or password.";
+
+    protected String _disconnectedMessage = null;
+    protected String _disconnectedMsgKey = "disconnected";
+    protected static String _defaultDisconnectedMessage = "You have been disconnected.";
+
+    /**
+     * Whether _indexPage, _loginPage or _authenticatedIndexPage contains a ${locale} to be resolved.
+     */
+    protected boolean _resolveLocale = false;
 
     public void init(FilterConfig config) throws ServletException {
         _config = config;
+
+        /* logger initialization */
+        if (!Logger.isInitialized()) {
+            Logger.setWriter(new ServletLogWriter(config.getServletContext()));
+        }
+
+        /* max-inactive-interval */
         String param = _config.getInitParameter("max-inactive-interval");
-        int max = 0;
         if (param != null) {
             try {
                 _maxInactiveInterval = Integer.parseInt(param);
@@ -91,6 +137,28 @@ public class AuthenticationFilter implements Filter {
                 Logger.error("AuthenticationFilter: bad format for the max-inactive-interval parameter: "+param);
             }
         }
+        /* index page */
+        param = _config.getInitParameter("index-page");
+        if (param != null) {
+            _indexPage = param;
+            _resolveLocale |= _indexPage.indexOf("${locale}") != -1;
+        }
+        /* login page */
+        param = _config.getInitParameter("login-page");
+        if (param != null) {
+            _loginPage = param;
+            _resolveLocale |= _indexPage.indexOf("${locale}") != -1;
+        }
+        /* authenticated index page */
+        param = _config.getInitParameter("authenticated-index-page");
+        if (param != null) {
+            _authenticatedIndexPage = param;
+            _resolveLocale |= _indexPage.indexOf("${locale}") != -1;
+        }
+        /* bad login message */
+        _badLoginMessage = _config.getInitParameter("bad-login-message");
+        /* disconnected message */
+        _disconnectedMessage = _config.getInitParameter("disconnected-message");
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
@@ -101,22 +169,56 @@ public class AuthenticationFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse)servletResponse;
 
         String login,challenge,answer = null;
+        Localizer localizer = null;
+        String indexPage;
+        String loginPage;
+        String authenticatedIndexPage;
+
+        Locale locale = (Locale)session.getAttribute("active-locale"); /* TODO: gather 'active-locale' handling in HTTPLocalizerTool */
+        Logger.trace("auth: locale="+locale);
+
+        if (_resolveLocale) {
+            /* means the pages uris need the current locale */
+            if (locale == null)
+            {
+                Logger.error("AuthenticationFilter error: cannot find the active locale in the session! The LocalizationFilter must reside before this filter in the filters chain when redirection is used for localization.");
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                return;
+            }
+            indexPage = _indexPage.replaceAll("\\$\\{locale\\}",locale.toString());
+            loginPage = _loginPage.replaceAll("\\$\\{locale\\}",locale.toString());
+            authenticatedIndexPage = _authenticatedIndexPage.replaceAll("\\$\\{locale\\}",locale.toString());
+        } else {
+            indexPage = _indexPage;
+            loginPage = _loginPage;
+            authenticatedIndexPage = _authenticatedIndexPage;
+        }
+
 
         if (session != null
                 && session.getId().equals(request.getRequestedSessionId()) // ?! When would this happen??? Does it help hacking?
                 && session.getAttribute("user") != null) {
             // already loggued
             // if the request is still pointing on /login.html, redirect to /auth/index.html
-            if (request.getRequestURI().equals(""))
-            chain.doFilter(servletRequest,servletResponse);
+
+            if (request.getRequestURI().equals(loginPage)) {
+                Logger.trace("auth: redirecting loggued user to "+authenticatedIndexPage);
+                response.sendRedirect(authenticatedIndexPage);
+            } else {
+                Logger.trace("auth: user is authenticated.");
+                chain.doFilter(servletRequest,servletResponse);
+            }
         } else {
+
             if (session == null) {
                 // not loggued
                 session = request.getSession(true);
-                if (_maxInactiveInterval > 0) {
-                    session.setMaxInactiveInterval(_maxInactiveInterval);
-                }
+
+            } else {
+                /* try to find a localizer tool for login messages*/
+                localizer = ToolFinder.findTool(session,Localizer.class);
             }
+
             session.removeAttribute("user");
 
             if ( (login = request.getParameter("login")) != null
@@ -129,29 +231,38 @@ public class AuthenticationFilter implements Filter {
 
                 if (auth == null) {
                     Logger.fatal("AuthenticationFilter: cannot find any reference to the authenticator tool in the session!");
-                    session.setAttribute("loginMessage","Erreur interne.");
-                    response.sendRedirect("/login.html");
+                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     return;
                 }
                 // check answer
                 if (auth.checkLogin(login,answer)) {
                     // login ok
-                    Logger.info("User "+login+" successfully loggued in.");
+                    Logger.info("auth: user '"+login+"' successfully loggued in.");
                     session.setAttribute("user",auth.getUser(login));
+                    if (_maxInactiveInterval > 0) {
+                        session.setMaxInactiveInterval(_maxInactiveInterval);
+                    }
                     session.removeAttribute("challenge");
                     session.removeAttribute("authenticator");
                     // then handle the former request if not null
-                    if (session.getAttribute("saved-request") == null) {
+                    if (session.getAttribute("unauth_request") == null) {
                         // redirect to /auth/index.html
-                        response.sendRedirect("/auth/index.html");
+                        Logger.trace("auth: redirecting newly loggued user to "+authenticatedIndexPage);
+                        response.sendRedirect(authenticatedIndexPage);
                     } else {
-                        chain.doFilter(new SavedRequestWrapper(request),servletResponse);
+                        SavedRequestWrapper savedRequestWrapper = new SavedRequestWrapper(request);
+                        Logger.trace("auth: forwarding newly loggued user to "+savedRequestWrapper.getRequestURI());
+                        chain.doFilter(savedRequestWrapper,servletResponse);
                     }
                 } else {
-                    Logger.warn("User "+login+" made an unsuccessfull login attempt.");
-                    session.setAttribute("loginMessage","Mauvais login ou mot de passe.");
+                    Logger.warn("auth: user "+login+" made an unsuccessfull login attempt.");
+                    String message = _badLoginMessage != null ?
+                            _badLoginMessage :
+                            getMessage(localizer,_badLoginMsgKey,_defaultBadLoginMessage);
+                    session.setAttribute("loginMessage",message);
                     // redirect to login page
-                    response.sendRedirect("/login.html");
+                    Logger.trace("auth: redirecting unauthenticated user to "+loginPage);
+                    response.sendRedirect(loginPage);
                 }
             } else {
                 // not loggued...
@@ -159,15 +270,27 @@ public class AuthenticationFilter implements Filter {
                 session.setAttribute("unauth_request",SavedRequest.saveRequest(request));
                 // if there is a requested session id, it means the current session has expired
                 if (request.getRequestedSessionId() != null) {
-                    session.setAttribute("loginMessage","Vous avez été déconnecté après "+session.getMaxInactiveInterval()+" secondes d'inactivité.");
+                    String message = _disconnectedMessage != null ?
+                            _disconnectedMessage :
+                            getMessage(localizer,_disconnectedMsgKey,_defaultDisconnectedMessage);
+                    session.setAttribute("loginMessage",message);
                 }
                 // redirect to login page
-                response.sendRedirect("/login.html");
+                Logger.trace("auth: redirecting unauthenticated user to "+loginPage);
+                response.sendRedirect(loginPage);
             }
         }
     }
 
-  public void destroy() {
-  }
+    protected String getMessage(Localizer localizer,String key,String defaultMessage) {
+        String message = null;
+        if (localizer != null) {
+            message = localizer.get(key);
+        }
+        return message == null ? defaultMessage : message;
+    }
+
+    public void destroy() {
+    }
 
 }
