@@ -15,7 +15,7 @@
   <property name="debug" value="on"/>
 
   <!-- DIRECTORIES -->		
-  <property name="src.dir"           value="${basedir}/src"/>
+  <property name="src.dir"           value="${basedir}/src/java"/>
   <property name="build.dir" 	     value="${basedir}/class"/>
   <property name="lib.dir"           value="${basedir}/lib"/>
   <property name="bin.dir"           value="${basedir}/bin"/>
@@ -48,7 +48,6 @@
     <pathelement location="${commons-beanutils.jar}"/>
     <pathelement location="${commons-digester.jar}"/>
     <pathelement location="${commons-logging.jar}"/>
-    <pathelement location="${gnu-regexp.jar}"/>
     <pathelement location="${jdom.jar}"/>
     <pathelement location="${jsdk.jar}"/>
     <pathelement location="${velocity.jar}"/>
@@ -59,13 +58,14 @@
   <!-- PATTERN SETS -->
   <patternset id="sources" >
     <include name="velosurf/*" />
+    <include name="velosurf/auth/*" />
     <include name="velosurf/cache/*" />
     <include name="velosurf/context/*" />
+    <include name="velosurf/i18n/*" />
     <include name="velosurf/model/*" />
     <include name="velosurf/sql/*" />
-    <include name="velosurf/standalone/*" />
-    <include name="velosurf/tools/*" />
     <include name="velosurf/util/*" />
+    <include name="velosurf/web/*" />
 <!--	<include name="velosurf/test/*" /> -->
   </patternset>
 
@@ -76,6 +76,7 @@
 No target specified.
 Please specify a target among :
   jar : builds velosurf jar
+  clean : deletes all intermediary files
   javadoc : builds velosurf javadoc
   tarball : builds velosurf tgz package</echo>
   </target>
@@ -89,11 +90,15 @@ Please specify a target among :
     <mkdir dir="${tmp.dir}" />
     <tstamp />
   </target>
+
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+  </target>
   
   <target name="jar" depends="prepare">
     <property name="myclasspath" refid="classpath"/>
     <echo message="using classpath= ${myclasspath}"/>
-    <javac srcdir="${basedir}/src" destdir="${build.dir}" debug="${debug}" debuglevel="lines,vars,source" encoding="ISO-8859-1" source="1.5" target="1.5">
+    <javac srcdir="${src.dir}" destdir="${build.dir}" debug="${debug}" debuglevel="lines,vars,source" encoding="ISO-8859-1" source="1.5" target="1.5">
 	  <patternset refid="sources"/>
       <classpath refid="classpath"/>
 	</javac>
