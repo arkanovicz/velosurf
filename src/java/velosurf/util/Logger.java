@@ -63,7 +63,7 @@ public class Logger
     /**
      * Current log level
      */
-    private static int mLogLevel = INFO_ID;
+    private static int mLogLevel = TRACE_ID; //INFO_ID; TODO put back INFO_ID after debugging
 
     /**
      * whether to display timestamps
@@ -84,6 +84,11 @@ public class Logger
      * max number of lines to log in asynchronous mode
      */
     private static int sAsyncLimit = 50;
+
+    /**
+     * Did someone give me an otput writer ?
+     */
+    private static boolean sInitialized = false;
 
     /** Sets the log level
      * @param inLogLevel log level
@@ -277,6 +282,7 @@ public class Logger
         else if (out instanceof OutputStream) sLog = new PrintWriter((OutputStream)out);
         else throw new RuntimeException("Logger.setWriter: PANIC! class "+out.getClass().getName()+" cannot be used to build a PrintWriter!");
         if (sAsyncLog != null) flushAsyncLog();
+        sInitialized = true;
     }
 
     /** redirects stdout towards output writer
@@ -348,6 +354,13 @@ public class Logger
                 log(ioe);
             }
         }
+    }
+
+    /** queries the initialized state
+     *
+     */
+    static public boolean isInitialized() {
+        return sInitialized;
     }
 
     /** dumps the current stack
