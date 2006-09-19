@@ -83,7 +83,6 @@ public abstract class HTTPLocalizerTool implements Localizer,ViewTool {
     public static List<Locale> getRequestedLocales(HttpServletRequest request) {
         List<Locale> list = new ArrayList<Locale>();
         Enumeration locales = request.getLocales();
-        list = new ArrayList<Locale>();
         while(locales.hasMoreElements()) {
             list.add((Locale)locales.nextElement());
         }
