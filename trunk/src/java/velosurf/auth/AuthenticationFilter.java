@@ -64,7 +64,9 @@ import velosurf.i18n.Localizer;
  * or in the auth-i18n sample webapp.</p>
  *
  * <p>The filter expect the login to be present in the HTTP 'login' form field, and the answer in
- * the 'answer' form field (which should be all right if you use the login.js.vtl as is).</p>
+ * the 'answer' form field (which should be all right if you use the login.js.vtl as is). The action of the form
+ * is never used (since the filter will redirect the user towards the page asked before the login), but <b>it must
+ * be catched by an url-pattern of this filter</b>. You can for instance define a mapping towards "/process_login".</p>
  *
  * <p>The loggued state is materialized by the presence of a user Object in the session under
  * the <i>user</i> key. This user object in the one returned by the abstract method Authenticator.getUser(login).</p>
@@ -75,10 +77,8 @@ import velosurf.i18n.Localizer;
  * <p>Optional configuration parameters:
  * <ul><li>max-inactive-interval: delay upon which an inactive user is disconnected in seconds.
  * The default value is one hour.</li>
- * <li>index-page: the index page URI. A "<code>${locale}</code>" pattern resolves to the active locale name if a localizer
- * tool is available. Default is '/index.html'.</li>
- * <li>login-page: the login page URI. The "<code>${locale}</code>" pattern applies as well. Default is '/login.html'.</li>
- * <li>authenticated-index-page: the default page once authenticated. he "<code>${locale}</code>" pattern applies as well.
+ * <li>login-page: the login page URI. The "<code>@</code>" pattern applies as well. Default is '/login.html'.</li>
+ * <li>authenticated-index-page: the default page once authenticated. The "<code>@</code>" pattern applies as well.
  * Default is '/loggued.html'.</li>
  * <li>bad-login-message: the message to be displayed in case of bad login. If this parameter is not
  * specified, the filter will try to get a reference from the localizer tool and ask it for a "badLogin"
@@ -103,20 +103,19 @@ public class AuthenticationFilter implements Filter {
 
     protected int _maxInactiveInterval = 3600;
 
-    protected String _indexPage = "/index.html.vtl";
     protected String _loginPage = "/login.html.vtl";
     protected String _authenticatedIndexPage = "/index.html.vtl";
 
     protected String _badLoginMessage = null;
     protected String _badLoginMsgKey = "badLogin";
-    protected static String _defaultBadLoginMessage = "Bad login or password.";
+    protected static final String _defaultBadLoginMessage = "Bad login or password.";
 
     protected String _disconnectedMessage = null;
     protected String _disconnectedMsgKey = "disconnected";
-    protected static String _defaultDisconnectedMessage = "You have been disconnected.";
+    protected static final String _defaultDisconnectedMessage = "You have been disconnected.";
 
     /**
-     * Whether _indexPage, _loginPage or _authenticatedIndexPage contains a ${locale} to be resolved.
+     * Whether _indexPage, _loginPage or _authenticatedIndexPage contains a @ to be resolved.
      */
     protected boolean _resolveLocale = false;
 
@@ -137,23 +136,17 @@ public class AuthenticationFilter implements Filter {
                 Logger.error("AuthenticationFilter: bad format for the max-inactive-interval parameter: "+param);
             }
         }
-        /* index page */
-        param = _config.getInitParameter("index-page");
-        if (param != null) {
-            _indexPage = param;
-            _resolveLocale |= _indexPage.indexOf("${locale}") != -1;
-        }
         /* login page */
         param = _config.getInitParameter("login-page");
         if (param != null) {
             _loginPage = param;
-            _resolveLocale |= _indexPage.indexOf("${locale}") != -1;
+            _resolveLocale |= _loginPage.indexOf("@") != -1;
         }
         /* authenticated index page */
         param = _config.getInitParameter("authenticated-index-page");
         if (param != null) {
             _authenticatedIndexPage = param;
-            _resolveLocale |= _indexPage.indexOf("${locale}") != -1;
+            _resolveLocale |= _authenticatedIndexPage.indexOf("@") != -1;
         }
         /* bad login message */
         _badLoginMessage = _config.getInitParameter("bad-login-message");
@@ -170,11 +163,13 @@ public class AuthenticationFilter implements Filter {
 
         String login,challenge,answer = null;
         Localizer localizer = null;
-        String indexPage;
         String loginPage;
         String authenticatedIndexPage;
 
-        Locale locale = (Locale)session.getAttribute("active-locale"); /* TODO: gather 'active-locale' handling in HTTPLocalizerTool */
+        Locale locale = null;
+        if (session != null) {
+            locale = (Locale)session.getAttribute("active-locale"); /* TODO: gather 'active-locale' handling in HTTPLocalizerTool */
+        }
         Logger.trace("auth: locale="+locale);
 
         if (_resolveLocale) {
@@ -185,11 +180,9 @@ public class AuthenticationFilter implements Filter {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 return;
             }
-            indexPage = _indexPage.replaceAll("\\$\\{locale\\}",locale.toString());
-            loginPage = _loginPage.replaceAll("\\$\\{locale\\}",locale.toString());
-            authenticatedIndexPage = _authenticatedIndexPage.replaceAll("\\$\\{locale\\}",locale.toString());
+            loginPage = _loginPage.replaceAll("@",locale.toString());
+            authenticatedIndexPage = _authenticatedIndexPage.replaceAll("@",locale.toString());
         } else {
-            indexPage = _indexPage;
             loginPage = _loginPage;
             authenticatedIndexPage = _authenticatedIndexPage;
         }
