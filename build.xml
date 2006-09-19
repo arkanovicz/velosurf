@@ -171,7 +171,6 @@ Please specify a target among :
       <fileset dir="${basedir}/lib" >
         <include name="crimson.jar" />
         <include name="dom4j.jar" />
-        <include name="gnu-regexp-1.1.4.jar" />
         <include name="jdom.jar" />
         <include name="jsdk23.jar" />
         
@@ -188,7 +187,6 @@ Please specify a target among :
       <fileset dir="${basedir}">
         <include name="build.xml"/>
         <include name="CHANGELOG"/>
-        <include name="COPYING.gnu"/>
         <include name="LICENSE"/>
         <include name="NOTICE"/>
         <include name="README"/>
