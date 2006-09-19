@@ -47,8 +47,8 @@ import java.util.regex.Matcher;
  * <li>localization-method: <code>redirect</code> or <code>forward</code>, default is <code>redirect</code>.</li>
  * <li>match-host & rewrite-host: not yet implemented.<sup>(2)</sup></li>
  * <li>match-uri & rewrite-uri: the regular expression against which an unlocalized uri is matched, and the replacement uri, where
- * <code>${locale}</code> represents the locale and $1, $2, ... the matched sub-patterns. Defaults are <code>^(.*)$</code>
- * for match-uri and <code>/${locale}$1</code> for rewrite-uri.(2)</li>
+ * <code>@</code> represents the locale and $1, $2, ... the matched sub-patterns. Defaults are <code>^/(.*)$</code>
+ * for match-uri and <code>/@/$1</code> for rewrite-uri.(2)</li>
  * <li>match-query-string & rewrite-query-string: not yet implemented.(2)</li>
  * <li>match-url & rewrite-url: not yet implemented.(2)</li>
  * </ul>
@@ -80,7 +80,7 @@ public class LocalizationFilter implements Filter {
     protected List<Locale> _supportedLocales = null;
 
     protected String _defaultMatchUri = "^/(.*)$";
-    protected String _defaultRewriteUri = "/${locale}/$1";
+    protected String _defaultRewriteUri = "/@/$1";
     protected Pattern _matchUri = null;
     protected String _rewriteUri = null;
 
@@ -202,9 +202,9 @@ public class LocalizationFilter implements Filter {
         }
 
         if (shouldRedirectOrForward) {
-            //  && (i = _rewriteUri.indexOf("${locale}")) != -1) ?
+            //  && (i = _rewriteUri.indexOf("@")) != -1) ?
 
-            String rewriteUri = _rewriteUri.replaceFirst("\\$\\{locale\\}",locale.toString());
+            String rewriteUri = _rewriteUri.replaceFirst("@",locale.toString());
             String newUri = _matchUri.matcher(request.getRequestURI()).replaceFirst(rewriteUri);
 
             switch(_l10nMethod) {
@@ -238,7 +238,7 @@ public class LocalizationFilter implements Filter {
             param = config.getServletContext().getInitParameter("supported-locales");
             if (param == null) {
                 int i;
-                if (_rewriteUri != null && (i=_rewriteUri.indexOf("${locale}")) != -1) {
+                if (_rewriteUri != null && (i=_rewriteUri.indexOf("@")) != -1) {
                     _supportedLocales = HTTPLocalizerTool.getSupportedLocales(_config.getServletContext(),_rewriteUri.substring(0,i));
                     if(Logger.getLogLevel() <= Logger.TRACE_ID) {
                         Logger.trace("l10n: supported locales = " + StringLists.join(Arrays.asList(_supportedLocales),","));
