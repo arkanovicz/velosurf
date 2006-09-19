@@ -789,6 +789,7 @@ public class Database {
     public Entity getEntityCreate(String name) {
         Entity entity = getEntity(name);
         if (entity == null) {
+            Logger.trace("Created entity: "+name);
             entity = new Entity(this,name,mDefaultReadOnly,mDefaultCaching);
             mEntities.put(adaptCase(name),entity);
         }
