@@ -2,8 +2,12 @@
 
 v2.0 (September 2006)
 ----
+ - added a TemplateNameFilter which adds ".vtl" to template URIs
  - added an abstract localization tool (HTTPLocalizerTool) and a mechanism by which localized
    columns of an instance are resolved on-the-fly.
+ - added a LocalizationFilter that triggers redirections and forwards in respect to the localization scheme.
+ - added an authentication scheme (AuthenticationFilter and AuthenticatorTool).
+ - added an example webapp to demonstrate authentication and i18n.
  - "Using config file..." message only logged on database connection creation.
  - marked the "full" caching method as deprecated.
  - replaced gnu regexps by jdk ones.
