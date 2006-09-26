@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.web;
+package velosurf.util;
 
 import java.io.IOException;
 
