@@ -140,7 +140,7 @@ public class VelosurfTool extends DBReference
 
     /** default database config file
      */
-    protected static final String DEFAULT_DATABASE_CONFIG_FILE = "/WEB-INF/velosurf.xml";
+    protected static final String DEFAULT_DATABASE_CONFIG_FILE = "/WEB-INF/model.xml";
 
     /** path to the config file
      */
@@ -186,12 +186,17 @@ public class VelosurfTool extends DBReference
      * @return a Database
      */
     protected static Database getConnection(String inConfigFile,ServletContext inServletContext) {
-        if (!inConfigFile.startsWith("/")) inConfigFile = "/"+inConfigFile;
+        if (!inConfigFile.startsWith("/")) {
+            inConfigFile = "/"+inConfigFile;
+        }
         Database db = (Database)sDBMap.get(inConfigFile);
         if (db == null) {
             try {
                 Logger.debug("Using config file '"+inConfigFile+"'");
                 InputStream is = inServletContext.getResourceAsStream(inConfigFile);
+                if (is == null) {
+                    return null;
+                }
                 db = Database.getInstance(is);
                 sDBMap.put(inConfigFile,db);
             }

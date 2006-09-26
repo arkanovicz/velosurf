@@ -83,7 +83,8 @@ public class Velosurf extends DBReference
 
         // then try some standard pathes
         String [] guesses = {
-            "./velosurf.xml","./conf/velosurf.xml","./WEB-INF/velosurf.xml","./cfg/velosurf.xml"
+            "./velosurf.xml","./conf/velosurf.xml","./WEB-INF/velosurf.xml","./cfg/velosurf.xml",
+            "./model.xml","./conf/model.xml","./WEB-INF/model.xml","./cfg/model.xml"
         };
         for (int i=0;i<guesses.length;i++) {
             file = new File(guesses[i]);
