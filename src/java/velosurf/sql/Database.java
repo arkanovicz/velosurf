@@ -581,10 +581,10 @@ public class Database {
                 try {
                     int min = Integer.parseInt(minstr);
                     if (min>0) mMinConnections = min;
-                    else Logger.error("error: the parameter 'min-connections' wants an integer > 0 !");
+                    else Logger.error("the parameter 'min-connections' wants an integer > 0 !");
                 }
                 catch(NumberFormatException nfe) {
-                    Logger.error("error: the parameter 'min-connections' wants an integer!");
+                    Logger.error("the parameter 'min-connections' wants an integer!");
                 }
             }
 
@@ -593,10 +593,10 @@ public class Database {
                 try {
                     int max = Integer.parseInt(maxstr);
                     if (max>=mMinConnections) mMaxConnections = max;
-                    else Logger.error("error: the parameter 'max-connections' must be >= min-connection!");
+                    else Logger.error("the parameter 'max-connections' must be >= min-connection!");
                 }
                 catch(NumberFormatException nfe) {
-                    Logger.error("error: the parameter 'max-connections' wants an integer!");
+                    Logger.error("the parameter 'max-connections' wants an integer!");
                 }
             }
 
