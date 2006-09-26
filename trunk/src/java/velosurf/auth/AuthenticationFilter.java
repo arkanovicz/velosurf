@@ -75,7 +75,7 @@ import velosurf.i18n.Localizer;
  * The presence of this localizer is optional.</p>
  *
  * <p>Optional configuration parameters:
- * <ul><li>max-inactive-interval: delay upon which an inactive user is disconnected in seconds.
+ * <ul><li>max-inactive: delay upon which an inactive user is disconnected in seconds.
  * The default value is one hour.</li>
  * <li>login-page: the login page URI. The "<code>@</code>" pattern applies as well. Default is '/login.html'.</li>
  * <li>authenticated-index-page: the default page once authenticated. The "<code>@</code>" pattern applies as well.
@@ -101,7 +101,7 @@ public class AuthenticationFilter implements Filter {
 
     protected FilterConfig _config = null;
 
-    protected int _maxInactiveInterval = 3600;
+    protected int _maxInactive = 3600;
 
     protected String _loginPage = "/login.html.vtl";
     protected String _authenticatedIndexPage = "/index.html.vtl";
@@ -127,13 +127,13 @@ public class AuthenticationFilter implements Filter {
             Logger.setWriter(new ServletLogWriter(config.getServletContext()));
         }
 
-        /* max-inactive-interval */
-        String param = _config.getInitParameter("max-inactive-interval");
+        /* max-inactive */
+        String param = _config.getInitParameter("max-inactive");
         if (param != null) {
             try {
-                _maxInactiveInterval = Integer.parseInt(param);
+                _maxInactive = Integer.parseInt(param);
             } catch (NumberFormatException nfe) {
-                Logger.error("AuthenticationFilter: bad format for the max-inactive-interval parameter: "+param);
+                Logger.error("AuthenticationFilter: bad format for the max-inactive parameter: "+param);
             }
         }
         /* login page */
@@ -161,22 +161,35 @@ public class AuthenticationFilter implements Filter {
         HttpSession session = request.getSession(false);
         HttpServletResponse response = (HttpServletResponse)servletResponse;
 
-        String login,challenge,answer = null;
+        String uri = request.getRequestURI();
+
+        /* check to see if the current user has been disconnected
+           note that this test will fail when the servlet container
+           reuses session ids */
+        boolean disconnected = false;
+        String reqId = request.getRequestedSessionId();
+        Logger.trace("auth: session="+session.getId()+", requested="+reqId);
+        if (reqId != null && (session == null || !session.getId().equals(reqId))) {
+            disconnected = true;
+        }
+
+        String login=null,answer = null;
         Localizer localizer = null;
         String loginPage;
         String authenticatedIndexPage;
 
-        Locale locale = null;
-        if (session != null) {
-            locale = (Locale)session.getAttribute("active-locale"); /* TODO: gather 'active-locale' handling in HTTPLocalizerTool */
-        }
-        Logger.trace("auth: locale="+locale);
-
         if (_resolveLocale) {
             /* means the pages uris need the current locale */
+            Locale locale = null;
+
+            if (session != null) {
+                locale = (Locale)session.getAttribute("velosurf.i18n.active-locale"); /* TODO: gather 'active-locale' handling in HTTPLocalizerTool */
+            }
+
             if (locale == null)
             {
-                Logger.error("AuthenticationFilter error: cannot find the active locale in the session! The LocalizationFilter must reside before this filter in the filters chain when redirection is used for localization.");
+                Logger.error("auth: cannot find the active locale in the session!");
+                Logger.error("auth: the LocalizationFilter must reside before this filter in the filters chain.");
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 return;
             }
@@ -187,34 +200,50 @@ public class AuthenticationFilter implements Filter {
             authenticatedIndexPage = _authenticatedIndexPage;
         }
 
-
         if (session != null
-                && session.getId().equals(request.getRequestedSessionId()) // ?! When would this happen??? Does it help hacking?
-                && session.getAttribute("user") != null) {
-            // already loggued
-            // if the request is still pointing on /login.html, redirect to /auth/index.html
+                && session.getId().equals(request.getRequestedSessionId()) /* not needed in theory */
+                && session.getAttribute("velosurf.auth.user") != null) {
+            /* already loggued*/
 
-            if (request.getRequestURI().equals(loginPage)) {
+            /* if asked to logout, well, logout! */
+            if (uri.endsWith("/logout.do")) {
+                session.removeAttribute("velosurf.auth.user");
+                response.sendRedirect(loginPage);
+            }
+
+            /* if the request is still pointing on /login.html, redirect to /auth/index.html */
+            if (uri.equals(loginPage)) {
                 Logger.trace("auth: redirecting loggued user to "+authenticatedIndexPage);
                 response.sendRedirect(authenticatedIndexPage);
             } else {
                 Logger.trace("auth: user is authenticated.");
-                chain.doFilter(servletRequest,servletResponse);
+                chain.doFilter(new SavedRequestWrapper(request),response);
             }
         } else {
+
+            /* never protect the login page itself */
+            if (uri.equals(loginPage)) {
+                chain.doFilter(request,response);
+                return;
+            }
 
             if (session == null) {
                 // not loggued
                 session = request.getSession(true);
 
             } else {
+                /* clear any previous loginMessage */
+                session.removeAttribute("loginMessage");
+
                 /* try to find a localizer tool for login messages*/
                 localizer = ToolFinder.findTool(session,Localizer.class);
+                Logger.trace("auth: "+(localizer==null?"localizer not found.":" found a localizer with locale: "+localizer.getLocale()));
             }
 
-            session.removeAttribute("user");
+            session.removeAttribute("velosurf.auth.user");
 
-            if ( (login = request.getParameter("login")) != null
+            if ( uri.endsWith("/login.do")
+                    && (login = request.getParameter("login")) != null
                     && (answer = request.getParameter("answer")) != null
                     && session.getId().equals(request.getRequestedSessionId())) {
                 // a user is trying to log in
@@ -223,29 +252,32 @@ public class AuthenticationFilter implements Filter {
                 Authenticator auth = ToolFinder.findTool(session,Authenticator.class);
 
                 if (auth == null) {
-                    Logger.fatal("AuthenticationFilter: cannot find any reference to the authenticator tool in the session!");
-                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    Logger.error("auth: cannot find any reference to the authenticator tool in the session!");
+                    /* Maybe the current user tried to validate an expired login form... well... ask him again... */
+                    response.sendRedirect(loginPage);
                     return;
                 }
                 // check answer
                 if (auth.checkLogin(login,answer)) {
                     // login ok
                     Logger.info("auth: user '"+login+"' successfully loggued in.");
-                    session.setAttribute("user",auth.getUser(login));
-                    if (_maxInactiveInterval > 0) {
-                        session.setMaxInactiveInterval(_maxInactiveInterval);
+                    session.setAttribute("velosurf.auth.user",auth.getUser(login));
+                    if (_maxInactive > 0) {
+                        Logger.trace("auth: setting session max inactive interval to "+_maxInactive);
+                        session.setMaxInactiveInterval(_maxInactive);
                     }
                     session.removeAttribute("challenge");
                     session.removeAttribute("authenticator");
                     // then handle the former request if not null
-                    if (session.getAttribute("unauth_request") == null) {
+                    SavedRequest savedRequest = (SavedRequest)session.getAttribute("velosurf.auth.saved-request");
+                    if (savedRequest == null) {
                         // redirect to /auth/index.html
                         Logger.trace("auth: redirecting newly loggued user to "+authenticatedIndexPage);
                         response.sendRedirect(authenticatedIndexPage);
                     } else {
-                        SavedRequestWrapper savedRequestWrapper = new SavedRequestWrapper(request);
-                        Logger.trace("auth: forwarding newly loggued user to "+savedRequestWrapper.getRequestURI());
-                        chain.doFilter(savedRequestWrapper,servletResponse);
+                        String formerUri = savedRequest.getRequestURI();
+                        Logger.trace("auth: redirecting newly loggued user to "+formerUri);
+                        response.sendRedirect(formerUri);
                     }
                 } else {
                     Logger.warn("auth: user "+login+" made an unsuccessfull login attempt.");
@@ -260,9 +292,9 @@ public class AuthenticationFilter implements Filter {
             } else {
                 // not loggued...
                 // save the original request
-                session.setAttribute("unauth_request",SavedRequest.saveRequest(request));
-                // if there is a requested session id, it means the current session has expired
-                if (request.getRequestedSessionId() != null) {
+                Logger.trace("auth: saving request towards "+uri);
+                session.setAttribute("velosurf.auth.saved-request",SavedRequest.saveRequest(request));
+                if(disconnected) {
                     String message = _disconnectedMessage != null ?
                             _disconnectedMessage :
                             getMessage(localizer,_disconnectedMsgKey,_defaultDisconnectedMessage);
