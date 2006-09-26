@@ -29,7 +29,7 @@ import velosurf.util.Logger;
  * in toolbox.xml as a session-scoped tool.
  *
  * You will need to implement the same password encryption on the client side using the provided
- * javascript files and the example login.html.vtl page. 
+ * javascript files and the example login.html.vtl page.
  */
 
 public abstract class Authenticator {
@@ -53,7 +53,13 @@ public abstract class Authenticator {
 
     public boolean checkLogin(String login,String answer) {
         String password = getPassword(login);
+        /* TODO we may want an option to accept empty passwords */
+        if(password == null || password.length() == 0) {
+            return false;
+        }
         String correctAnswer = generateAnswer((BigInteger)_session.getAttribute("challenge"),hash(password)).toString();
+        Logger.trace("auth: received="+answer);
+        Logger.trace("auth: correct ="+correctAnswer);
         return (correctAnswer.equals(answer));
     }
 
