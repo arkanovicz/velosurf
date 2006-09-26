@@ -319,13 +319,13 @@ public class ConnectionWrapper
     }
 
     public void enterBusyState() {
-        Logger.trace("connection #"+toString()+": entering busy state.");
+        //Logger.trace("connection #"+toString()+": entering busy state.");
         busy = true;
     }
 
     public void leaveBusyState() {
         busy = false;
-        Logger.trace("connection #"+toString()+": leaving busy state.");
+        //Logger.trace("connection #"+toString()+": leaving busy state.");
     }
 
     public boolean isBusy() {
