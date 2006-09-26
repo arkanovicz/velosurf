@@ -65,7 +65,7 @@ public class SavedRequestWrapper extends HttpServletRequestWrapper {
         if (session == null)
             return;
 
-        SavedRequest saved = (SavedRequest)session.getAttribute("saved-request");
+        SavedRequest saved = (SavedRequest)session.getAttribute("velosurf.auth.saved-request");
         if (saved == null)
             return;
 
@@ -75,7 +75,7 @@ public class SavedRequestWrapper extends HttpServletRequestWrapper {
 
         if (requestURI.equals(request.getRequestURI())) {
             savedRequest = saved;
-            session.removeAttribute("saved-request");
+            session.removeAttribute("velosurf.auth.saved-request");
 
             formats[0] = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
             formats[1] = new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US);
