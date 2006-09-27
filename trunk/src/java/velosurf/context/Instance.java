@@ -227,6 +227,12 @@ public class Instance extends TreeMap implements DataAccessor
      */
     public synchronized boolean update(Map inValues) {
         try {
+            if (mEntity == null) {
+                throw new SQLException("Cannot update an instance whose Entity is null.");
+            }
+            if (mEntity.isReadOnly()) {
+                throw new SQLException("Entity "+mEntity.getName()+" is read-only.");                
+            }
             Map values = new HashMap();
             for(Iterator it = keySet().iterator();it.hasNext();) {
                 String key = (String)it.next();
@@ -237,7 +243,6 @@ public class Instance extends TreeMap implements DataAccessor
                     values.put(mDB.adaptCase((String)entry.getKey()),entry.getValue());
                 }
             }
-            if (mEntity == null) throw new SQLException("Entity is null!");
             List updateClause = new ArrayList();
             List whereClause = new ArrayList();
             List params = new ArrayList();
@@ -267,8 +272,14 @@ public class Instance extends TreeMap implements DataAccessor
             if (nb==0) {
                 Logger.warn("query \""+query+"\" affected 0 row...");
             }
-            else if (nb>1) // ?!?! Referential integrities on key columns should avoid this...
+            else if (nb>1) { // ?!?! Referential integrities on key columns should avoid this...
                 throw new SQLException("query \""+query+"\" affected more than 1 rows!");
+            } else {
+                /* invalidate cache */
+                if (mEntity != null) {
+                    mEntity.invalidateInstance(this);
+                }
+            }
             return true;
         }
         catch (SQLException sqle) {
