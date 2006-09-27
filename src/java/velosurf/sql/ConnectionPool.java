@@ -26,6 +26,8 @@ import java.util.ArrayList;
 
 /**
  *  Connection pool
+ *
+ *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 
 public class ConnectionPool {

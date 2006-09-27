@@ -31,7 +31,7 @@ import velosurf.util.Logger;
 
 /** this class encapsulates a jdbc Statement
  *
- *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class PooledStatement extends Pooled implements DataAccessor {
@@ -188,7 +188,7 @@ public class PooledStatement extends Pooled implements DataAccessor {
     public ConnectionWrapper getConnection() {
         return mConnection;
     }
-    
+
     /** SQL query
      */
     protected String mQuery = null;

@@ -11,6 +11,17 @@ import java.lang.reflect.Method;
 
 import velosurf.util.Logger;
 
+/**
+ * <p>Contains specific description and behaviour of jdbc drivers</p>
+ *
+ * <p>(main sources:
+ * <ul><li>http://www.schemaresearch.com/products/srtransport/doc/modules/jdbcconf.html
+ * <li>http://db.apache.org/torque/ and org.apache.torque.adapter classes
+ * </ul></p>
+ * 
+ *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
+ */
+
 public class DriverInfo
 {
     static DriverInfo getDriverInfo(String inUrl)

@@ -16,6 +16,11 @@
 
 package velosurf.sql;
 
+/** Connection wrapper class - allows handling of a busy state
+ *
+ *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
+ */ 
+
 import velosurf.util.Logger;
 
 import java.sql.*;

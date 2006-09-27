@@ -20,20 +20,20 @@ import java.util.Map;
 
 /** This class encapsulates a Map as a DataAccessor
  *
- *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class MapDataAccessor implements DataAccessor {
 
     /** builds a new MapDataAccessor
-     * 
+     *
      * @param inInnerMap the Map object to encapsulate
      */
     public MapDataAccessor(Map inInnerMap){
         mInnerMap = inInnerMap;
     }
     /** get the property named inKey in the wrapped Map
-     * 
+     *
      * @param inKey the name of the property
      * @return the property value or null if not found
      * @see velosurf.sql.DataAccessor#get(java.lang.Object)
