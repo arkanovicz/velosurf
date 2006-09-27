@@ -18,7 +18,7 @@ package velosurf.sql;
 
 /** This interface represents a generic pool of objects - no real need for now
  *
- *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public interface Pool {

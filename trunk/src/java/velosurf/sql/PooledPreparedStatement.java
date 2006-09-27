@@ -33,7 +33,7 @@ import velosurf.util.Logger;
 
 /** this class encapsulates a jdbc PreparedStatement
  *
- *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class PooledPreparedStatement extends Pooled implements DataAccessor {

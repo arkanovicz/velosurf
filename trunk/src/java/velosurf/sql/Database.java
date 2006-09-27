@@ -44,7 +44,7 @@ import velosurf.web.HttpQueryTool;
  *
  *  <p>To get a new instance, client classes should call one of the getInstance static methods.</p>
  *
- *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class Database {
@@ -274,7 +274,10 @@ public class Database {
      * @param inQuery an SQL query
      * @return the resulting RowIterator
      */
-    public RowIterator query(String inQuery) { return query(inQuery,null); }
+    public RowIterator query(String inQuery) {
+        return query(inQuery,null);
+    }
+
     /** issue a query, knowing the resulting entity
      *
      * @param inQuery an SQL query
@@ -539,6 +542,7 @@ public class Database {
      */
     public void readConfigFile(InputStream inConfig) throws SQLException,IOException {
         try {
+            new ConfigLoader(this).load(inConfig);
             Logger.info("reading properties...");
 
             // build JDOM tree

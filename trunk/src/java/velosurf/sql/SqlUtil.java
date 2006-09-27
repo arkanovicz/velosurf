@@ -31,7 +31,7 @@ import velosurf.util.Logger;
 
 /** various SQL-related helpers
  *
- *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 
