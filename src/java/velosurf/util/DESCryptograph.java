@@ -26,7 +26,10 @@ import java.security.SecureRandom;
 import java.security.Security;
 
 /**
+ * Implemenation of the cryptograph for the DES algorithm 
  * inspired from some code found at http://javaalmanac.com/
+ *
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
 public class DESCryptograph implements Cryptograph {
     Cipher ecipher;

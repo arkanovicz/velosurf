@@ -26,6 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /** this class is the logger used by velosurf
+ *
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
 public class Logger
 {

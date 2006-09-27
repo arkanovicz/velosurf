@@ -27,9 +27,7 @@ import java.util.Map;
 
 public class ToolFinder  {
 
-    /**
-     * The key used to store the tools in the session
-     */
+    private static final String toolsMapKey = "org.apache.velocity.tools.view.servlet.ServletToolboxManager:session-tools";
 
     /**
      *
@@ -38,7 +36,7 @@ public class ToolFinder  {
      */
     public static <T> T findTool(HttpSession session, Class<T> toolClass) {
         if (session != null) {
-            Map sessionTools = (Map)session.getAttribute("org.apache.velocity.tools.view.servlet.ServletToolboxManager:session-tools");
+            Map sessionTools = (Map)session.getAttribute(toolsMapKey);
             if (sessionTools != null) {
                 for(Object t:sessionTools.values()) {
                     if (toolClass.isAssignableFrom(t.getClass())) {

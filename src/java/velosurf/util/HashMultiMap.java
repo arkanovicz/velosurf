@@ -28,7 +28,6 @@ import java.util.Set;
  *
  * @author Mark Richters
  * @see java.util.Map
- * @version $ProjectVersion: 0.207 $
  */
 
 public class HashMultiMap implements MultiMap {
@@ -123,7 +122,7 @@ public class HashMultiMap implements MultiMap {
      * multimap.
      */
     public void putAll(MultiMap t) {
-        
+
     Iterator it = t.keySet().iterator();
     while ( it.hasNext() ) {
         Object key = it.next();

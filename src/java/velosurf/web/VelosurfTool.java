@@ -61,7 +61,7 @@ import velosurf.i18n.Localizer;
  *
  *</pre>
  *
- *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class VelosurfTool extends DBReference

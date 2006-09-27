@@ -22,7 +22,6 @@ import java.util.Set;
 /** 
  * A MultiMap is a Map allowing multiple occurrences of keys.
  *
- * @version     $ProjectVersion: 0.207 $
  * @author     Mark Richters
  * @see         java.util.Map
  */
@@ -36,29 +35,29 @@ public interface MultiMap {
     int size();
 
     /**
-     * Returns <tt>true</tt> if this multimap contains no mappings.  
+     * Returns <tt>true</tt> if this multimap contains no mappings.
      */
     boolean isEmpty();
 
     /**
      * Returns <tt>true</tt> if this multimap contains a mapping for
-     * the specified key.  
+     * the specified key.
      */
     boolean containsKey(Object key);
 
     /**
      * Returns <tt>true</tt> if this multimap maps one or more keys to
-     * the specified value.  
+     * the specified value.
      */
     boolean containsValue(Object value);
 
     /**
      * Returns a list of values to which this multimap maps the specified
-     * key.  
+     * key.
      *
      * @return the list of values to which this map maps the specified
      *         key, the list may be empty if the multimap contains no
-     *         mapping for this key. 
+     *         mapping for this key.
      */
     List get(Object key);
 
@@ -71,7 +70,7 @@ public interface MultiMap {
 
     /**
      * Copies all entries from the specified multimap to this
-     * multimap.  
+     * multimap.
      */
     void putAll(MultiMap t);
 

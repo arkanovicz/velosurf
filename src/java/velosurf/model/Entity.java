@@ -36,7 +36,7 @@ import org.jdom.Element;
 
 /** The Entity class represents an entity in the data model. It should not be constructed directly.
  *
- *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class Entity

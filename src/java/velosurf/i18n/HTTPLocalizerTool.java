@@ -35,7 +35,7 @@ import velosurf.util.Logger;
  * <p>This tool accepts a "default-locale" configuration parameter in toolbox.xml.</p>
  * <p>It is meant for the session scope.</p>
  *
- *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  **/
 

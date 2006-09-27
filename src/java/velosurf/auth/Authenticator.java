@@ -30,6 +30,8 @@ import velosurf.util.Logger;
  *
  * You will need to implement the same password encryption on the client side using the provided
  * javascript files and the example login.html.vtl page.
+ *
+ *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 
 public abstract class Authenticator {

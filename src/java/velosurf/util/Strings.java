@@ -17,11 +17,13 @@
 package velosurf.util;
 
 /** this class gathers static utility methods for strings
+ *
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
 public class Strings
 {
     /** replace a string by another inside a target string
-     * 
+     *
      * @param inTarget target string
      * @param inOldPattern old pattern
      * @param inNewPattern new pattern
@@ -45,27 +47,27 @@ public class Strings
         buff.append(inTarget.substring(previous));
 
         return buff.toString();
-        
+
     }
-    
+
     /** characters to trim
      */
     private static String sTrimmed = " \t\r\n";
-    
+
     /** trim spaces and EOL characters (TODO : fix the typo - nothing to do with EOF characters)
-     * 
+     *
      * @param inTarget target string
      * @return the trimmed string
      */
     public static String trimSpacesAndEOF(String inTarget) {
         if (inTarget == null || inTarget.length() == 0) return inTarget;
-        
+
         char c;
         int i=0;
         do {
             c = inTarget.charAt(i++);
         } while (sTrimmed.indexOf(c) != -1 && i<inTarget.length());
-        
+
         int j=inTarget.length();
         if (j>i) {
             do {

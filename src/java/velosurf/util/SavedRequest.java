@@ -40,7 +40,6 @@ import java.util.*;
  *
  * @author Craig R. McClanahan
  * @author Andrey Grebnev <a href="mailto:andrey.grebnev@blandware.com">&lt;andrey.grebnev@blandware.com&gt;</a>
- * @version $Revision: 1.4 $ $Date: 2006/06/15 17:28:17 $
  */
 
 public class SavedRequest {
