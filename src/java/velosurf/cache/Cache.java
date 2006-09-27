@@ -36,9 +36,10 @@ import java.util.Map;
  *
  * For an entity's instances to be cached, the associated table must have a primary key (even if multivalued).
  * <p>
+ *
+ * <p><b>Warning</b>: Velosurf will invalidate entries on update requests, but global updates are not taken into account.</p>
  * This caching mechanism is meant for straightforward optimizations in simple situations, for instance to
- * avoid re-fetching the loggued user at each request. Please keep in mind that the cache can quickly
- * become inconsistant if used in conjunction with complex modification queries (that occur in its back...).
+ * avoid re-fetching the loggued user at each request.
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
@@ -113,6 +114,16 @@ public class Cache {
     */
     public void clear() {
         mInnerCache.clear();
+    }
+
+    /** invalidates an entry
+     * (used after an insert or an update)
+     */
+    public void invalidate(Object inKey) {
+        synchronized(mInnerCache) {
+            mInnerCache.remove(inKey);
+        }
+
     }
 
     /** The caching method this cache uses

@@ -45,14 +45,14 @@ public class Entity
      *
      * @param inDB database connection
      * @param inName entity name
-     * @param inAccess access mode (read-write or read-only)
+     * @param readOnly access mode (read-write or read-only)
      * @param inCachingMethod caching method to be used
      */
-    public Entity(Database inDB,String inName,boolean inAccess,int inCachingMethod) {
+    public Entity(Database inDB,String inName,boolean readOnly,int inCachingMethod) {
         mDB = inDB;
         mName = inName;
         mTable = inName; // default mapped table has same name
-        mReadOnly = inAccess;
+        mReadOnly = readOnly;
         mCachingMethod = inCachingMethod;
         if (mCachingMethod != Cache.NO_CACHE) mCache = new Cache(mCachingMethod);
         mInstanceClass = Instance.class;
@@ -265,6 +265,12 @@ public class Entity
         catch (SQLException sqle) {
             Logger.log(sqle);
             return null;
+        }
+    }
+
+    public void invalidateInstance(DataAccessor instance) throws SQLException {
+        if (mCachingMethod != Cache.NO_CACHE) {
+            mCache.invalidate(buildKey(instance));
         }
     }
 
@@ -618,6 +624,14 @@ public class Entity
      * @return the database connection
      */
     public Database getDB() { return mDB; }
+
+    /** Is this entity read-only or read-write?
+     *
+     * @return whether this entity is read-only or not
+     */
+    public boolean isReadOnly() {
+        return mReadOnly;
+    }
 
     /** set this entity to be read-only or read-write
      *
