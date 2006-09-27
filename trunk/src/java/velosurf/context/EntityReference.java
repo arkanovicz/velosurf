@@ -30,7 +30,7 @@ import velosurf.i18n.Localizer;
 // inherits AbstractList so that Velocity will call iterator() from within a #foreach directive
 /** Context wrapper for an entity.
  *
- *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
 public class EntityReference extends AbstractList
 {

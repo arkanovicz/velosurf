@@ -74,6 +74,7 @@ import java.util.regex.Matcher;
  * </ul>
  * </p>
  *
+ *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 
 public class LocalizationFilter implements Filter {

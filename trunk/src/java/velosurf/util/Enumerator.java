@@ -29,7 +29,6 @@ import java.util.*;
  *
  * @author Craig R. McClanahan
  * @author Andrey Grebnev <a href="mailto:andrey.grebnev@blandware.com">&lt;andrey.grebnev@blandware.com&gt;</a>
- * @version $Revision: 1.1 $ $Date: 2005/07/04 12:23:59 $
  */
 public class Enumerator implements Enumeration {
 

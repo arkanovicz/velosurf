@@ -35,7 +35,6 @@ import java.security.Principal;
  * <p><a href="CustomContextHolderAwareRequestWrapper.java.html"><i>View Source</i></a></p>
  *
  * @author Andrey Grebnev <a href="mailto:andrey.grebnev@blandware.com">&lt;andrey.grebnev@blandware.com&gt;</a>
- * @version $Revision: 1.6 $ $Date: 2006/03/09 16:46:03 $
  */
 
 public class SavedRequestWrapper extends HttpServletRequestWrapper {

@@ -32,7 +32,7 @@ import velosurf.i18n.Localizer;
 /** A context wrapper for the main database connection object.<p>
  * The "$db" context variable is assigned a new instance of this class at each velocity parsing.
  *
- *  <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
 
  // FIXME : right now, extends HashMap bkoz velocity wants a HashMap for setters

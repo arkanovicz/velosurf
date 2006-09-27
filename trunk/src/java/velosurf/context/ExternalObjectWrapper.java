@@ -10,6 +10,8 @@ import java.lang.reflect.Method;
 /**
  * <p>This wrapper allows one to specify custom mapping objects that don't inherit from Instance.</p>
  * <p>For now, the introspection is rather basic but may work for standard getters without ambiguïty.</p>
+ *
+ *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 public class ExternalObjectWrapper extends Instance {
 

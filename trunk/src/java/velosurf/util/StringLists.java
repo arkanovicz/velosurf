@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 /** This static class gathers utilities for lists of strings
+ *
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
 public class StringLists
 {
@@ -38,20 +40,20 @@ public class StringLists
     }
 
     /** joins strings using a separator
-     * 
+     *
      * @param inStringList strings to join
      * @param inJoinString separator to include between strings
      * @return the result of the join
      */
     public static String join(Collection inStringList,String inJoinString) {
         Iterator i=inStringList.iterator();
-        
+
         StringBuffer result = new StringBuffer();
-        
+
         if (!i.hasNext()) return "";
-        
+
         result.append(i.next().toString());
-        
+
         while (i.hasNext()) {
             result.append(inJoinString);
             result.append((String)i.next());

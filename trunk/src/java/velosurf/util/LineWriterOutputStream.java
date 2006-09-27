@@ -16,6 +16,13 @@
 
 package velosurf.util;
 
+/**
+ * bufferize chars written on the wrapped writer into lines
+ *
+ *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ * 
+ */
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -26,17 +33,17 @@ public class LineWriterOutputStream extends OutputStream {
     protected StringBuffer buffer = new StringBuffer(200);
 
     /**
-     * Construct a new WriterOutputStream, bound to the specified writer.
-     * 
+     * Construct a new LineWriterOutputStream, bound to the specified writer.
+     *
      * @param w the writer
      */
     public LineWriterOutputStream(Writer w) {
         writer = w;
     }
 
-    /** 
+    /**
      * Write a byte to this output stream.
-     * 
+     *
      * @exception IOException may be thrown
      */
     public void write(int c) throws IOException {

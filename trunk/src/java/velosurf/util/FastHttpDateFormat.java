@@ -31,7 +31,6 @@ import java.text.SimpleDateFormat;
  *
  * @author Remy Maucherat
  * @author Andrey Grebnev <a href="mailto:andrey.grebnev@blandware.com">&lt;andrey.grebnev@blandware.com&gt;</a>
- * @version $Revision: 1.2 $ $Date: 2005/08/02 14:53:46 $
  */
 public class FastHttpDateFormat {
 
