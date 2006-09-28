@@ -2,6 +2,10 @@
 
 v2.0 (September 2006)
 ----
+ - bugfix: instance.update() was possible on a read-only entity
+ - replaced database attribute "default-access=rw|ro" with attribute "read-only=true|false"
+ - added a ReverseEngineer class and moved corresponding code out of Database
+ - added a ConfigLoader class and moved corresponding code out of Database
  - added a TemplateNameFilter which adds ".vtl" to template URIs
  - added an abstract localization tool (HTTPLocalizerTool) and a mechanism by which localized
    columns of an instance are resolved on-the-fly.
