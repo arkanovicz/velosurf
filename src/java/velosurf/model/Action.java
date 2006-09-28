@@ -21,14 +21,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jdom.Element;
-import org.jdom.Text;
-
 import velosurf.sql.Database;
 import velosurf.sql.DataAccessor;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
-import velosurf.util.Strings;
 
 /** This class correspond to custom update and delete queries
  *
@@ -39,33 +35,21 @@ public class Action
 {
     /** Constructor
      *
+     * @param name name
      * @param inEntity entity
-     * @param inJDOMAction the XML tree for this action
      */
-    public Action(Entity inEntity,Element inJDOMAction) {
+    public Action(String name,Entity inEntity) {
         mEntity = inEntity;
         mDB = mEntity.mDB;
-        mName = inJDOMAction.getAttributeValue("name");
-        defineQuery(inJDOMAction);
+        mName = name;
     }
 
-    /** define the query from the XML tree
-     *
-     * @param inJDOMAction the XML tree
-     */
-    protected void defineQuery(Element inJDOMAction) {
-        mQuery="";
-        mParamNames = new ArrayList();
-        Iterator queryElements = inJDOMAction.getContent().iterator();
-        while (queryElements.hasNext()) {
-            Object content = queryElements.next();
-            if (content instanceof Text) mQuery += Strings.trimSpacesAndEOF(((Text)content).getText());
-            else {
-                mQuery+=" ? ";
-                Element elem = (Element)content;
-                mParamNames.add(mDB.adaptCase(elem.getName()));
-            }
-        }
+    public void addParamName(String paramName) {
+        mParamNames.add(paramName);
+    }
+
+    public void setQuery(String query) {
+        mQuery = query;
     }
 
     /** executes this action
@@ -127,29 +111,6 @@ public class Action
         return mDB;
     }
 
-    /** checks whether the action defined by this XML tree is a simple action or a transaction
-     *
-     * @param inElement XML tree defining an action
-     * @return true if the action is a transaction
-     */
-    public static boolean isTransaction(Element inElement) {
-        Iterator queryElements = inElement.getContent().iterator();
-        while (queryElements.hasNext()) {
-            Object content = queryElements.next();
-            if (content instanceof Text) {
-                String text = Strings.trimSpacesAndEOF(((Text)content).getText());
-                char[] chars = text.toCharArray();
-                boolean insideLitteral = false;
-                for (int i=0;i<chars.length;i++) {
-                    if(chars[i] == '\'') insideLitteral = !insideLitteral;
-                    else if (!insideLitteral && chars[i] == ';' && i<chars.length-1)
-                        return true;
-                }
-            }
-        }
-        return false;
-    }
-
     /** the satabase connection
      */
     protected Database mDB = null;
@@ -163,7 +124,7 @@ public class Action
     // for simple actions
     /** parameter names of this action
      */
-    protected List mParamNames = null;
+    protected List<String> mParamNames = new ArrayList<String>();
     /** query of this action
      */
     protected String mQuery = null;

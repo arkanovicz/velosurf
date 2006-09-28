@@ -20,11 +20,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.jdom.Element;
-import org.jdom.Text;
 
 import velosurf.context.RowIterator;
 import velosurf.sql.Database;
@@ -32,7 +27,6 @@ import velosurf.sql.DataAccessor;
 import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
-import velosurf.util.Strings;
 
 /** This class represents an attribute in the object model
  *
@@ -55,51 +49,34 @@ public class Attribute
      */
     public static final int SCALAR = 3;
 
-    /** builds a new attribute
-     *
-     * @param inEntity parent entity
-     * @param inJDOMAttribute XML tree for this attribute
-     */
-    public Attribute(Entity inEntity,Element inJDOMAttribute) throws SQLException {
-        mEntity = inEntity;
-        mDB = inEntity.mDB;
-        mName = inJDOMAttribute.getAttributeValue("name");
-        String result = inJDOMAttribute.getAttributeValue("result");
-        if (result!=null) {
-            if (result.equals("scalar")) mType = SCALAR;
-            else if (result.startsWith("rowset")) mType = ROWSET;
-            else if (result.startsWith("row")) mType = ROW;
-            int slash = result.indexOf("/");
-            if (slash>-1 && slash+1<result.length()) {
-                mResultEntity = mDB.adaptCase(result.substring(slash+1));
-            }
-        }
-        mParamNames = new ArrayList();
-        mForeignKey = inJDOMAttribute.getAttributeValue("foreign-key");
-        if (mForeignKey != null && mResultEntity == null) {
-            throw new SQLException("Attribute '"+mName+"' is a foreign key, need to know the result entity!");
-        }
+    public Attribute(String name,Entity entity) {
+        mEntity = entity;
+        mDB = entity.getDB();
+        mName = name;
+    }
 
-        if (mForeignKey != null) {
-            mParamNames.add(mForeignKey);
-        } else {
-            mQuery="";
-            Iterator queryElements = inJDOMAttribute.getContent().iterator();
-            while (queryElements.hasNext()) {
-                Object content = queryElements.next();
-                if (content instanceof Text) mQuery += Strings.trimSpacesAndEOF(((Text)content).getText());
-                else if (content instanceof Element) {
-                    mQuery+=" ? ";
-                    Element elem = (Element)content;
-                    mParamNames.add(elem.getName());
-                }
-                else{
-                    Logger.error("Try upgrading your jdom library!");
-                    throw new SQLException("Was expecting an org.jdom.Element, found a "+content.getClass().getName()+": '"+content+"'");
-                }
-            }
-            mQuery = Pattern.compile(";\\s*\\Z").matcher(mQuery).replaceFirst("");
-        }
+    public void setResultType(int type) {
+        mType = type;
+    }
+
+    public String getResultEntity() {
+        return mResultEntity;
+    }
+
+    public void setResultEntity(String entityName) {
+        mResultEntity = entityName;
+    }
+
+    public void setForeignKeyColumn(String col) {
+        mForeignKey = col;
+    }
+
+    public void addParamName(String name) {
+        mParamNames.add(name);
+    }
+
+    public void setQuery(String query) {
+        mQuery = query;
     }
 
     /** fetch the row result of this attribute
@@ -256,7 +233,7 @@ public class Attribute
 
     /** list of the parameter names
      */
-    protected List mParamNames = null;
+    protected List<String> mParamNames = new ArrayList<String>();
     /** attribute query
      */
     protected String mQuery = null;

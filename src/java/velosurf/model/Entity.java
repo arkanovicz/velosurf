@@ -31,6 +31,7 @@ import velosurf.sql.PooledPreparedStatement;
 import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
+import velosurf.model.validation.FieldConstraint;
 
 import org.jdom.Element;
 
@@ -74,16 +75,13 @@ public class Entity
         mKeys.add(inColName);
     }
 
-    /** Used by the framework to notify this entity that its reverse enginering is over
+    /** add a new attribute
+     *
      */
-    public void reverseEnginered() {
-        if (mObfuscate && mKeys.size()>0) {
-            mKeyColObfuscated = new boolean[mKeys.size()];
-            Iterator key = mKeys.iterator();
-            int i=0;
-            for (;key.hasNext();i++)
-                mKeyColObfuscated[i] = mObfuscatedColumns.contains(key.next());
-        }
+    public void addAttribute(Attribute attribute) {
+        String name = attribute.getName();
+        mAttributeMap.put(mDB.adaptCase(name),attribute);
+        Logger.debug("attribute "+mName+"."+name+" = "+attribute);
     }
 
     /** Get a named attribute of this entity
@@ -95,6 +93,12 @@ public class Entity
         return (Attribute)mAttributeMap.get(mDB.adaptCase(inProperty));
     }
 
+    public void addAction(Action action) {
+        String name = action.getName();
+        mActionMap.put(mDB.adaptCase(name),action);
+        Logger.debug("action "+mName+"."+name+" = "+action);
+    }
+
     /** get the named action from this entity
      *
      * @param inProperty action name
@@ -102,31 +106,6 @@ public class Entity
      */
     public Action getAction(String inProperty) {
         return (Action)mActionMap.get(mDB.adaptCase(inProperty));
-    }
-
-    /** defines a new action in this entity (called during the reading of the config file)
-     *
-     * @param inJDOMAction the xml tree for the new action
-     */
-    public void defineAction(Element inJDOMAction) {
-        String name = inJDOMAction.getAttributeValue("name");
-        Action action =
-            Action.isTransaction(inJDOMAction) ?
-            new Transaction(this,inJDOMAction) :
-            new Action(this,inJDOMAction);
-        mActionMap.put(mDB.adaptCase(name),action);
-        Logger.info("action "+mName+"."+name+" = "+action);
-    }
-
-    /** defines a new attribute in this entity (called during the reading of the config file)
-     *
-     * @param inJDOMAttribute the XML tree for this attribute
-     */
-    public void defineAttribute(Element inJDOMAttribute) throws SQLException {
-        String name = inJDOMAttribute.getAttributeValue("name");
-        Attribute attribute = new Attribute(this,inJDOMAttribute);
-        mAttributeMap.put(mDB.adaptCase(name),attribute);
-        Logger.info("attribute "+mName+"."+name+" = "+attribute);
     }
 
     /** Specify a custom class to use when instanciating this entity
@@ -151,6 +130,26 @@ public class Entity
             mCachingMethod = inCaching;
             if (mCachingMethod == Cache.NO_CACHE) mCache = null;
             else mCache = new Cache(mCachingMethod);
+        }
+    }
+
+    public void addConstraint(String column,FieldConstraint constraint) {
+        mConstraints.put(column,constraint);
+    }
+
+    public FieldConstraint getConstraint(String col) {
+        return mConstraints.get(col);
+    }
+
+    /** Used by the framework to notify this entity that its reverse enginering is over
+     */
+    public void reverseEnginered() {
+        if (mObfuscate && mKeys.size()>0) {
+            mKeyColObfuscated = new boolean[mKeys.size()];
+            Iterator key = mKeys.iterator();
+            int i=0;
+            for (;key.hasNext();i++)
+                mKeyColObfuscated[i] = mObfuscatedColumns.contains(key.next());
         }
     }
 
@@ -772,4 +771,7 @@ public class Entity
      */
     protected Cache mCache = null;
 
+    /** constraints
+     */
+    private Map<String,FieldConstraint> mConstraints = new HashMap<String,FieldConstraint>();
 }
