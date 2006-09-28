@@ -18,25 +18,71 @@ import velosurf.util.Logger;
  * <ul><li>http://www.schemaresearch.com/products/srtransport/doc/modules/jdbcconf.html
  * <li>http://db.apache.org/torque/ and org.apache.torque.adapter classes
  * </ul></p>
- * 
+ *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 
 public class DriverInfo
 {
-    static DriverInfo getDriverInfo(String inUrl)
+    static DriverInfo getDriverInfo(String inUrl,String inDriverClass)
     {
+        /* always try to use both infos to check for validity */
         String vendor = null;
         try {
             Matcher matcher = Pattern.compile("^jdbc:([^:]+):").matcher(inUrl);
-            if (matcher.find()) vendor = matcher.group(1);
+            if (matcher.find()) {
+                vendor = matcher.group(1);
+            } else {
+                Logger.warn("Could not guess JDBC vendor from URL "+inUrl);
+                Logger.warn("Please report this issue on Velosurf bug tracker.");
+            }
         }
         catch(PatternSyntaxException pse) {
             Logger.log(pse);
         }
-        DriverInfo ret = null;
-        if (vendor != null) ret = (DriverInfo)sDriverMap.get(vendor);
-        if (ret == null) ret = (DriverInfo)sDriverMap.get("unknown");
+        DriverInfo ret = null,ret1 = null, ret2 = null;
+        if (vendor != null) {
+            ret1 = sDriverByVendor.get(vendor);
+            if (ret1 == null) {
+                Logger.warn("Velosurf doesn't know JDBC vendor '"+vendor+"'. Please contribute!");
+            }
+        }
+        if (inDriverClass != null) ret2 = sDriverByClass.get(inDriverClass);
+
+        if (ret1 == null && ret2 == null) {
+            String msg = "No driver infos found for: ";
+            if (inDriverClass != null) {
+                msg += "class "+inDriverClass+", ";
+            }
+            if (vendor != null) {
+                msg+="vendor "+vendor;
+            }
+            Logger.warn(msg);
+            Logger.warn("Please contribute! See http://velosurf.sf.net/velosurf/docs/drivers.html");
+        } else if (ret1 != null && ret2 != null) {
+            if (ret1.equals(ret2)) {
+                ret = ret1;
+            } else {
+                Logger.warn("Driver class '"+inDriverClass+"' and driver vendor '"+vendor+"' do not match!");
+                Logger.warn("Please report this issue on Velosurf bug tracker.");
+                ret = ret2;
+            }
+        } else if (ret1 != null) {
+            if(inDriverClass != null) {
+                Logger.warn("Driver class '"+inDriverClass+"' is not referenced in Velosurf as a known driver for vendor '"+vendor+"'");
+                Logger.warn("Please report this issue on Velosurf bug tracker.");
+                /* not even sure this new driver will have the same behaviour... */
+                ret1._drivers = new String[] {inDriverClass};
+            }
+            ret = ret1;
+        } else if (ret2 != null) {
+            ret = ret2; /* already warned */
+        }
+
+        if (ret == null) {
+            Logger.warn("Using default driver behaviour...");
+            ret = (DriverInfo)sDriverByVendor.get("unknown");
+        }
         return ret;
     }
 
@@ -64,11 +110,18 @@ public class DriverInfo
 
     public static void addDriver(String name,String jdbcTag,String drivers[],String pingQuery,String caseSensivity,String schemaQuery,String IDGenerationMethod/*,String IDGenerationQuery*/)
     {
-        sDriverMap.put(jdbcTag,new DriverInfo(name,jdbcTag,drivers,pingQuery,caseSensivity,schemaQuery,IDGenerationMethod/*,IDGenerationQuery*/));
+        DriverInfo infos = new DriverInfo(name,jdbcTag,drivers,pingQuery,caseSensivity,schemaQuery,IDGenerationMethod/*,IDGenerationQuery*/);
+        sDriverByVendor.put(jdbcTag,infos);
+        for(String clazz:drivers) {
+            sDriverByClass.put(clazz,infos);
+        }
     }
 
-    // map jdbctag -> driver
-    static private Map sDriverMap = new HashMap();
+    /* map jdbctag -> driver infos */
+    static private Map<String,DriverInfo> sDriverByVendor = new HashMap<String,DriverInfo>();
+
+    /* map driver class -> driver infos */
+    static private Map<String,DriverInfo> sDriverByClass = new HashMap<String,DriverInfo>();
 
     public String getJdbcTag() {
         return _jdbcTag;

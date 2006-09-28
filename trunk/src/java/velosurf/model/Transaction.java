@@ -17,18 +17,10 @@
 package velosurf.model;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.jdom.Element;
-import org.jdom.Text;
-
-import velosurf.sql.Database;
 import velosurf.sql.DataAccessor;
-import velosurf.util.Logger;
 import velosurf.util.StringLists;
-import velosurf.util.Strings;
 
 /** This class is an action that gather several consecutive queries
  *
@@ -39,47 +31,19 @@ public class Transaction extends Action
 {
     /** Builds a new transaction
      *
+     * @param name transaction name
      * @param inEntity entity
-     * @param inJDOMAction XML tree
      */
-    public Transaction(Entity inEntity,Element inJDOMAction) {
-        super(inEntity,inJDOMAction);
+    public Transaction(String name,Entity inEntity) {
+        super(name,inEntity);
     }
 
-    /** builds the queries
-     *
-     * @param inJDOMAction XML tree
-     */
-    protected void defineQuery(Element inJDOMAction) {
-        mQueries = new ArrayList();
-        mParamNamesList = new ArrayList();
-        StringBuilder query = new StringBuilder();
-        List paramNames = new ArrayList();
-        Iterator queryElements = inJDOMAction.getContent().iterator();
-        while (queryElements.hasNext()) {
-            Object content = queryElements.next();
-            if (content instanceof Text) {
-                String text = Strings.trimSpacesAndEOF(((Text)content).getText());
-                int i = text.indexOf(';');
-                if (i!=-1) {
-                    query.append(text.substring(0,i));
-                    mQueries.add(query);
-                    mParamNamesList.add(paramNames);
-                    query = new StringBuilder();
-                    paramNames = new ArrayList();
-                }
-                query.append(text.substring(i+1));
-            }
-            else {
-                query.append(" ? ");
-                Element elem = (Element)content;
-                paramNames.add(elem.getName());
-            }
-        }
-        if (query.length()>0) {
-            mQueries.add(query);
-            mParamNamesList.add(paramNames);
-        }
+    public void setQueries(List<String> queries) {
+        mQueries = queries;
+    }
+
+    public void setParamNamesLists(List<List<String>> paramLists) {
+        mParamNamesList = paramLists;
     }
 
     /** performs this action
@@ -140,9 +104,9 @@ public class Transaction extends Action
 
     /** all the queries
      */
-    protected List mQueries; //  = null; WARNING : this init code is executed AFER Action constructor
+    protected List<String> mQueries; //  = null; WARNING : this init code is executed AFER Action constructor
     /** list of lists of parameter names
      */
-    protected List mParamNamesList; // = null;
+    protected List<List<String>> mParamNamesList; // = null;
 
 }

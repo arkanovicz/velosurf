@@ -32,32 +32,32 @@ import java.util.Date;
 public class Logger
 {
     /**
-     * Prefix for trace messages.
+     * trace messages loglevel
      */
     public final static int TRACE_ID = 0;
 
     /**
-     * Prefix for debug messages.
+     * debug messages loglevel
      */
     public final static int DEBUG_ID = 1;
 
     /**
-     * Prefix for info messages.
+     * info messages loglevel
      */
     public final static int INFO_ID = 2;
 
     /**
-     * Prefix for warning messages.
+     * warn messages loglevel
      */
     public final static int WARN_ID = 3;
 
     /**
-     * Prefix for error messages.
+     * error messages loglevel
      */
     public final static int ERROR_ID = 4;
 
     /**
-     * Prefix for fatal error messages.
+     * fatal messages loglevel
      */
     public final static int FATAL_ID = 5;
 

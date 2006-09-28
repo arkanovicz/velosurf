@@ -18,16 +18,9 @@ package velosurf.sql;
 
 import java.io.*;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 
 import velosurf.cache.Cache;
 import velosurf.context.RowIterator;
@@ -37,8 +30,6 @@ import velosurf.model.Action;
 import velosurf.util.Logger;
 import velosurf.util.LineWriterOutputStream;
 import velosurf.util.Cryptograph;
-import velosurf.util.StringLists;
-import velosurf.web.HttpQueryTool;
 
 /** This class encapsulates  a connection to the database and contains all the stuff relative to it.
  *
@@ -51,9 +42,8 @@ public class Database {
 
     /** builds a new connection
      *
-     * @exception SQLException thrown by the database engine
      */
-    protected Database() throws SQLException {
+    private Database() {
     }
 
     /** builds a new connection
@@ -63,7 +53,7 @@ public class Database {
      * @param inUrl database url
 ²     * @exception SQLException thrown by the database engine
      */
-    protected Database(String inUser,String inPassword,String inUrl) throws SQLException {
+    private Database(String inUser,String inPassword,String inUrl) throws SQLException {
         open(inUser,inPassword,inUrl,null,null);
     }
 
@@ -75,7 +65,7 @@ public class Database {
      * @param inDriver driver java class name
      * @exception SQLException thrown by the database engine
      */
-    protected Database(String inUser,String inPassword,String inUrl,String inDriver) throws SQLException {
+    private Database(String inUser,String inPassword,String inUrl,String inDriver) throws SQLException {
         open(inUser,inPassword,inUrl,inDriver,null);
     }
 
@@ -88,111 +78,8 @@ public class Database {
      * @param inSchema schema name to use
      * @exception SQLException thrown by the database engine
      */
-    protected Database(String inUser,String inPassword,String inUrl,String inDriver,String inSchema) throws SQLException {
+    private Database(String inUser,String inPassword,String inUrl,String inDriver,String inSchema) throws SQLException {
         open(inUser,inPassword,inUrl,inDriver,inSchema);
-    }
-
-    /** open the connection
-     *
-     * @param inUser user name
-     * @param inPassword password
-     * @param inUrl database url
-     * @param inDriver driver java class name
-     * @exception SQLException thrown by the database engine
-     */
-    protected void open(String inUser,String inPassword,String inUrl,String inDriver) throws SQLException {
-        open(inUser,inPassword,inUrl,inDriver,null);
-    }
-
-    /** open the connection
-     *
-     * @param inUser user name
-     * @param inPassword password
-     * @param inUrl database url
-     * @param inDriver driver java class name
-     * @param inSchema schema name
-     * @exception SQLException thrown by the database engine
-     */
-    protected void open(String inUser,String inPassword,String inUrl,String inDriver,String inSchema) throws SQLException {
-
-        mUser = inUser;
-        mPassword = inPassword;
-        mUrl = inUrl;
-        mSchema = inSchema;
-
-        if (mDriverInfo == null) mDriverInfo = loadDriver(mUrl,inDriver);
-
-        connect();
-    }
-
-    protected void connect() throws SQLException
-    {
-        Logger.info("opening database "+mUrl+" for user "+mUser+(mSchema == null?"":" using schema "+mSchema));
-
-        mConnectionPool = new ConnectionPool(mUrl,mUser,mPassword,mSchema,mDriverInfo,true,mMinConnections,mMaxConnections);
-        mTransactionConnectionPool = new ConnectionPool(mUrl,mUser,mPassword,mSchema,mDriverInfo,false,1,mMaxConnections);
-
-        mStatementPool = new StatementPool(mConnectionPool);
-        mPreparedStatementPool = new PreparedStatementPool(mConnectionPool);
-
-        mTransactionStatementPool = new StatementPool(mTransactionConnectionPool);
-        mTransactionPreparedStatementPool = new PreparedStatementPool(mTransactionConnectionPool);
-    }
-
-    /** loads the appropriate driver
-     *
-     * @param inUrl database url
-     * @param inDriver driver java class name
-     * @return vendor name
-     */
-    protected static DriverInfo loadDriver(String inUrl,String inDriver) {
-
-        DriverInfo vendor = null;
-
-        if (Logger.getLogLevel() == Logger.TRACE_ID)
-        {
-            // Initialize log
-            //   DriverManager.setLogWriter(Logger.getWriter()); -> doesn't work with jdbc 1.0 drivers
-            //   so use the deprecated form
-            DriverManager.setLogStream(new PrintStream(new LineWriterOutputStream(Logger.getWriter())));
-        }
-
-        // try to deduce the database vendor from the url
-        vendor = DriverInfo.getDriverInfo(inUrl);
-
-        if (inDriver!=null) {
-            try { Class.forName(inDriver); }
-            catch (Exception e) { Logger.log(e); }
-        }
-        else if (vendor != null) {
-            // try to load one of the known drivers
-            String[] drivers = vendor.getDrivers();
-            for (int i=0;i<drivers.length;i++)
-            try {
-                Class.forName(drivers[i]);
-                break;
-            }
-            catch (Exception e) { }
-        }
-
-        return vendor;
-    }
-
-    protected void initCryptograph()
-    {
-        if (mCryptograph != null) return;
-        // to initialize the cryptograph, we need a chunk of user-provided bytes
-        // they must be persistent, so that urls that use encrypted params remain valid
-        // => use the database url if null
-        if (mSeed == null) mSeed = mUrl;
-        try {
-            mCryptograph = (Cryptograph)Class.forName("velosurf.util.DESCryptograph").getDeclaredConstructor(new Class[] {}).newInstance(new Object[] {});
-            mCryptograph.init(mSeed);
-        }
-        catch(Exception e) {
-            Logger.error("Cannot initialize the cryptograph");
-            Logger.log(e);
-        }
     }
 
     /** get a unique Database from connection params
@@ -265,8 +152,167 @@ public class Database {
         Database instance = new Database();
         instance.readConfigFile(inConfig);
         instance.connect();
-        instance.readMetaData();
+        instance.getReverseEngineer().readMetaData();
         return instance;
+    }
+
+    /** open the connection
+     *
+     * @param inUser user name
+     * @param inPassword password
+     * @param inUrl database url
+     * @param inDriver driver java class name
+     * @exception SQLException thrown by the database engine
+     */
+    protected void open(String inUser,String inPassword,String inUrl,String inDriver) throws SQLException {
+        open(inUser,inPassword,inUrl,inDriver,null);
+    }
+
+    /** open the connection
+     *
+     * @param inUser user name
+     * @param inPassword password
+     * @param inUrl database url
+     * @param inDriver driver java class name
+     * @param inSchema schema name
+     * @exception SQLException thrown by the database engine
+     */
+    protected void open(String inUser,String inPassword,String inUrl,String inDriver,String inSchema) throws SQLException {
+
+        mUser = inUser;
+        mPassword = inPassword;
+        mUrl = inUrl;
+        mSchema = inSchema;
+        mDriverClass = inDriver;
+        connect();
+    }
+
+    protected void connect() throws SQLException
+    {
+        Logger.info("opening database "+mUrl+" for user "+mUser+(mSchema == null?"":" using schema "+mSchema));
+
+        loadDriver();
+
+        mConnectionPool = new ConnectionPool(mUrl,mUser,mPassword,mSchema,mDriverInfo,true,mMinConnections,mMaxConnections);
+        mTransactionConnectionPool = new ConnectionPool(mUrl,mUser,mPassword,mSchema,mDriverInfo,false,1,mMaxConnections);
+
+        mStatementPool = new StatementPool(mConnectionPool);
+        mPreparedStatementPool = new PreparedStatementPool(mConnectionPool);
+
+        mTransactionStatementPool = new StatementPool(mTransactionConnectionPool);
+        mTransactionPreparedStatementPool = new PreparedStatementPool(mTransactionConnectionPool);
+
+        // startup action
+        Action startup = mRootEntity.getAction("startup");
+        if (startup != null) startup.perform(null);
+    }
+
+    protected void setReadOnly(boolean readOnly) {
+        mReadOnly = readOnly;
+    }
+
+    protected void setCaching(int cachingMethod) {
+        mCaching = cachingMethod;
+    }
+
+    public void setUser(String user) {
+        mUser = user;
+    }
+
+    public void setPassword(String password) {
+       mPassword = password;
+    }
+
+    public void setURL(String url) {
+        mUrl = url;
+    }
+
+    public void setDriver(String driverClass) {
+        mDriverClass = driverClass;
+    }
+
+    public void setSchema(String schema) {
+        mSchema = schema;
+        if(mSchema != null) {
+            // share entities
+            sSharedCatalog.put(getMagicNumber(mSchema),mEntities);
+        }
+    }
+
+    public void setMinConnections(int minConnections) {
+        mMinConnections = minConnections;
+    }
+
+    public void setMaxConnections(int maxConnections) {
+        mMaxConnections = maxConnections;
+    }
+
+    public void setSeed(String seed) {
+        mSeed = seed;
+    }
+
+    public void setCase(int caseSensivity) {
+        mCaseSensivity = caseSensivity;
+    }
+
+    /** loads the appropriate driver
+     *
+     */
+    protected void loadDriver() {
+
+        if (mDriverLoaded) return;
+        if (Logger.getLogLevel() == Logger.TRACE_ID)
+        {
+            // Initialize log
+            //   DriverManager.setLogWriter(Logger.getWriter()); -> doesn't work with jdbc 1.0 drivers
+            //   so use the deprecated form
+            if(Logger.getLogLevel() <= Logger.DEBUG_ID) {
+                DriverManager.setLogStream(new PrintStream(new LineWriterOutputStream(Logger.getWriter())));
+            }
+        }
+
+        /* driver behaviour */
+        mDriverInfo = DriverInfo.getDriverInfo(mUrl,mDriverClass);
+
+        if (mDriverClass!=null) {
+            try {
+                Class.forName(mDriverClass);
+                mDriverLoaded = true;
+            }
+            catch (Exception e) { Logger.log(e); }
+        }
+        else if (mDriverInfo != null) {
+            // try to load one of the known drivers
+            String[] drivers = mDriverInfo.getDrivers();
+            for (int i=0;i<drivers.length;i++)
+            try {
+                Class.forName(drivers[i]);
+                mDriverLoaded = true;
+                break;
+            }
+            catch (Exception e) { }
+        }
+    }
+
+    protected void initCryptograph()
+    {
+        if (mCryptograph != null) return;
+        // to initialize the cryptograph, we need a chunk of user-provided bytes
+        // they must be persistent, so that urls that use encrypted params remain valid
+        // => use the database url if null
+        if (mSeed == null) mSeed = mUrl;
+        try {
+            mCryptograph = (Cryptograph)Class.forName("velosurf.util.DESCryptograph").getDeclaredConstructor(new Class[] {}).newInstance(new Object[] {});
+            mCryptograph.init(mSeed);
+        }
+        catch(Exception e) {
+            Logger.error("Cannot initialize the cryptograph");
+            Logger.log(e);
+        }
+    }
+
+    public ReverseEngineer getReverseEngineer() {
+        return mReverseEngineer;
     }
 
     /** issue a query
@@ -430,96 +476,6 @@ public class Database {
         return mTransactionConnectionPool.getConnection();
     }
 
-    /** read the meta data from the database : reverse engeenering
-     *
-     * @exception SQLException thrown by the database engine
-     */
-    protected void readMetaData() throws SQLException {
-
-        DatabaseMetaData meta = getConnection().getMetaData();
-        ResultSet tables = null;
-
-        // perform the reverse enginering
-        try    {
-
-            switch(mReverseMode)
-            {
-                case REVERSE_FULL:
-                    tables = meta.getTables(null,mSchema,null,null);
-                    while (tables.next()) {
-                        String tableName = adaptCase(tables.getString("TABLE_NAME"));
-                        if (tableName.indexOf('/')!=-1) continue; // skip special tables (Oracle)
-                        Entity entity = (Entity)mEntitiesByTableName.get(tableName);
-                        if (entity == null) entity = getEntityCreate(adaptCase(tableName));
-                        else mEntitiesByTableName.remove(tableName);
-                        mEntities.put(tableName,entity);
-                        readTableMetaData(meta,entity,tableName);
-                    }
-                    for(Iterator e = mEntitiesByTableName.keySet().iterator();e.hasNext();)
-                    {
-                        Logger.warn("table '"+(String)e.next()+"' not found!");
-                    }
-                    break;
-                case REVERSE_PARTIAL:
-                    for(Iterator e = mEntities.keySet().iterator();e.hasNext();)
-                    {
-                        Entity entity = (Entity)mEntities.get(e.next());
-                        String tableName = entity.getTableName();
-                        readTableMetaData(meta,entity,tableName);
-                    }
-                    break;
-                case REVERSE_NONE:
-                    break;
-            }
-        }
-        finally    {
-            if (tables != null) tables.close();
-        }
-        // extra debug information about which jdbc driver we are using
-        Logger.info("Database Product Name:    " + meta.getDatabaseProductName());
-        Logger.info("Database Product Version: " + meta.getDatabaseProductVersion());
-        Logger.info("JDBC Driver Name:         " + meta.getDriverName());
-        Logger.info("JDBC Driver Version:      " + meta.getDriverVersion());
-    }
-
-    protected void readTableMetaData(DatabaseMetaData meta,Entity entity,String tableName) throws SQLException {
-
-        List keylist = StringLists.getPopulatedArrayList(10); // ever seen a primary key with more than 10 columns ?!
-
-        // read columns
-        ResultSet cols = null;
-        try    {
-            cols = meta.getColumns(null,mSchema,tableName,null);
-            while (cols.next()) {
-                String column = adaptCase(cols.getString("COLUMN_NAME"));
-                entity.addColumn(column);
-            }
-        }
-        finally {
-            if (cols != null) cols.close();
-        }
-
-        // read primary keys
-        ResultSet pks = null;
-        try    {
-            pks = meta.getPrimaryKeys(null,mSchema,tableName);
-            int keysize = 0;
-            while (pks.next()) {
-                short ord = pks.getShort("KEY_SEQ");
-                String column = adaptCase(pks.getString("COLUMN_NAME"));
-                keylist.set(ord-1,column);
-                keysize++;
-            }
-            for (int k=0;k<keysize;k++) {
-                entity.addKey((String)keylist.get(k));
-            }
-        }
-        finally    {
-            if (pks != null) pks.close();
-            entity.reverseEnginered();
-        }
-    }
-
     /** read the given config file
      *
      * @param inConfigFile config file pathname
@@ -542,197 +498,11 @@ public class Database {
      */
     public void readConfigFile(InputStream inConfig) throws SQLException,IOException {
         try {
-            new ConfigLoader(this).load(inConfig);
-            Logger.info("reading properties...");
+            new ConfigLoader(this).loadConfig(inConfig);
 
-            // build JDOM tree
-            Document document = new SAXBuilder().build(inConfig);
-            Element database = document.getRootElement();
-
-            String loglevel = database.getAttributeValue("loglevel");
-            if (checkSyntax("loglevel",loglevel,new String[]{"trace","debug","info","warn","error"})) {
-                if ("trace".equalsIgnoreCase(loglevel)) Logger.setLogLevel(Logger.TRACE_ID);
-                else if ("debug".equalsIgnoreCase(loglevel)) Logger.setLogLevel(Logger.DEBUG_ID);
-                else if ("info".equalsIgnoreCase(loglevel)) Logger.setLogLevel(Logger.INFO_ID);
-                else if ("warn".equalsIgnoreCase(loglevel)) Logger.setLogLevel(Logger.WARN_ID);
-                else if ("error".equalsIgnoreCase(loglevel)) Logger.setLogLevel(Logger.ERROR_ID);
-            }
-
-            String access = database.getAttributeValue("default-access");
-            if (checkSyntax("access",access,new String[]{"ro","rw"}))
-                mDefaultReadOnly = !access.equalsIgnoreCase("rw");
-
-            String caching = database.getAttributeValue("default-caching");
-            if (checkSyntax("caching",caching,new String[] {"none","no","yes","soft","full"})) {
-                mDefaultCaching = parseCaching(caching);
-                if (mDefaultCaching == Cache.FULL_CACHE) Logger.warn("The full caching method is deprecated and will be removed in future versions.");
-            }
-
-            String reverseMode = database.getAttributeValue("reverse");
-            if (checkSyntax("reverse",reverseMode,new String[]{"none","partial","full"})) {
-                if ("full".equalsIgnoreCase(reverseMode) || reverseMode == null) mReverseMode = REVERSE_FULL;
-                else if ("partial".equalsIgnoreCase(reverseMode)) mReverseMode = REVERSE_PARTIAL;
-                else if ("none".equalsIgnoreCase(reverseMode)) mReverseMode = REVERSE_NONE;
-            }
-
-            mUser = database.getAttributeValue("user");
-            mPassword = database.getAttributeValue("password");
-            mUrl = database.getAttributeValue("url");
-            String driver = database.getAttributeValue("driver");
-
-            String minstr = database.getAttributeValue("min-connections");
-            if (minstr != null) {
-                try {
-                    int min = Integer.parseInt(minstr);
-                    if (min>0) mMinConnections = min;
-                    else Logger.error("the parameter 'min-connections' wants an integer > 0 !");
-                }
-                catch(NumberFormatException nfe) {
-                    Logger.error("the parameter 'min-connections' wants an integer!");
-                }
-            }
-
-            String maxstr = database.getAttributeValue("max-connections");
-            if (maxstr != null) {
-                try {
-                    int max = Integer.parseInt(maxstr);
-                    if (max>=mMinConnections) mMaxConnections = max;
-                    else Logger.error("the parameter 'max-connections' must be >= min-connection!");
-                }
-                catch(NumberFormatException nfe) {
-                    Logger.error("the parameter 'max-connections' wants an integer!");
-                }
-            }
-
-            mSeed = database.getAttributeValue("seed");
-
-            mDriverInfo = loadDriver(mUrl,driver);
-
-            String caseSensivity = database.getAttributeValue("case");
-            // if case-sensivity has not been set explicitely, deduce it from the driver
-            if (caseSensivity == null) caseSensivity = mDriverInfo.getCaseSensivity();
-
-            if (checkSyntax("case-sensivity",caseSensivity,new String[]{"sensitive","uppercase","lowercase"})) {
-                Logger.info("Case-sensivity: "+caseSensivity);
-                if("sensitive".equalsIgnoreCase(caseSensivity)) mCaseSensivity = CASE_SENSITIVE;
-                else if("uppercase".equalsIgnoreCase(caseSensivity)) mCaseSensivity = UPPERCASE;
-                else if ("lowercase".equalsIgnoreCase(caseSensivity)) mCaseSensivity = LOWERCASE;
-            }
-
-            mSchema = adaptCase(database.getAttributeValue("schema"));
-
-            mEntities = new HashMap();
-            mRootEntity = new Entity(this,"db",false,Cache.NO_CACHE);
-            mEntities.put("db",mRootEntity);
-            mEntitiesByTableName = new HashMap();
-
-            // define root attributes
-            for (Iterator rootAttributes = database.getChildren("attribute").iterator();rootAttributes.hasNext();) {
-                mRootEntity.defineAttribute((Element)rootAttributes.next());
-            }
-
-            // define root actions
-            for(Iterator rootActions = database.getChildren("action").iterator();rootActions.hasNext();) {
-                mRootEntity.defineAction((Element)rootActions.next());
-            }
-
-            // define entities
-            for (Iterator entities = database.getChildren("entity").iterator();entities.hasNext();) {
-                Element entityElement = (Element)entities.next();
-                String entityName = entityElement.getAttributeValue("name");
-                String table = adaptCase(entityElement.getAttributeValue("table"));
-                Entity entity = getEntityCreate(adaptCase(entityName));
-                mEntities.put(adaptCase(entityName),entity);
-                if (table != null) entity.setTableName(adaptCase(table));
-                mEntitiesByTableName.put(entity.getTableName(),entity);
-
-                // custom class
-                String cls = entityElement.getAttributeValue("class");
-                // TODO : try to instanciate once to avoid subsequent errors
-                if (cls != null) entity.setInstanceClass(cls);
-
-                // access
-                access = entityElement.getAttributeValue("access");
-                if (checkSyntax(entityName+".access",access,new String[]{"ro","rw"})) {
-                    access = access.toLowerCase();
-                    if (access.equalsIgnoreCase("ro")) entity.setReadOnly(true);
-                    else if (access.equalsIgnoreCase("rw")) entity.setReadOnly(false);
-                }
-
-                // caching
-                caching = entityElement.getAttributeValue("caching");
-                if (checkSyntax("caching",caching,new String[] {"none","no","yes","soft","full"}))
-                    entity.setCachingMethod(parseCaching(caching));
-
-                // obfuscation
-                String obfuscate = entityElement.getAttributeValue("obfuscate");
-                boolean needObfuscator = false;
-                if (obfuscate != null) {
-                    needObfuscator = true;
-                    List obfuscatedCols = new ArrayList();
-                    StringTokenizer tokenizer = new StringTokenizer(obfuscate,", ");
-                    while(tokenizer.hasMoreTokens()) {
-                        obfuscatedCols.add(adaptCase(tokenizer.nextToken()));
-                    }
-                    entity.setObfuscated(obfuscatedCols);
-                }
-
-                if (needObfuscator) initCryptograph();
-
-                String localize = entityElement.getAttributeValue("obfuscate");
-                if (localize != null) {
-                    List localizedCols = new ArrayList();
-                    StringTokenizer tokenizer = new StringTokenizer(localize,", ");
-                    while(tokenizer.hasMoreTokens()) {
-                        localizedCols.add(adaptCase(tokenizer.nextToken()));
-                    }
-                    entity.setLocalized(localizedCols);
-                }
-
-                // localization
-
-                // define entity attributes
-                for (Iterator attributes = entityElement.getChildren("attribute").iterator();attributes.hasNext();) {
-                    entity.defineAttribute((Element)attributes.next());
-                }
-
-                // define entity actions
-                for(Iterator actions = entityElement.getChildren("action").iterator();actions.hasNext();) {
-                    entity.defineAction((Element)actions.next());
-                }
-
-                // autofetching
-                String autofetch = entityElement.getAttributeValue("autofetch");
-                if (autofetch != null) {
-                    String target = entityName;
-                    String param = autofetch;
-                    boolean protect = false;
-                    int n = autofetch.indexOf('=');
-                    if (n != -1) {
-                        target = autofetch.substring(0,n).trim();
-                        param = autofetch.substring(n+1).trim();
-                        if (target.startsWith("query.")) {
-                            target = target.substring(6);
-                            protect = true;
-                        }
-                    }
-                    HttpQueryTool.autofetch(entity,param,target,protect);
-                }
-            }
-
-            if (mSchema != null) {
-                // share entities
-                sSharedCatalog.put(getMagicNumber(mSchema),mEntities);
-            }
-
-            Logger.info("Config file successfully read.");
-
-            // startup action
-            Action startup = mRootEntity.getAction("startup");
-            if (startup != null) startup.perform(null);
-        }
-        catch (JDOMException jdome) {
-            Logger.log(jdome);
+        } catch (Exception e) {
+            Logger.error("could not load configuration!");
+            Logger.log(e);
         }
     }
 
@@ -753,37 +523,24 @@ public class Database {
         }
     }
 
-    /** parse a caching value
+    /** add a new entity
      *
-     * @param caching string describing the type of caching
-     * @return type of caching
      */
-    private static int parseCaching(String caching) {
-        return
-            caching == null || caching.equalsIgnoreCase("none") || caching.equalsIgnoreCase("no") ? Cache.NO_CACHE :
-            caching.equalsIgnoreCase("soft") || caching.equalsIgnoreCase("yes") ? Cache.SOFT_CACHE :
-            caching.equalsIgnoreCase("full") ? Cache.FULL_CACHE :
-            Cache.NO_CACHE;
-    }
-
-    /** check the syntax of a parameter in the config file
-     *
-     * @param inParamName name of the parameter
-     * @param inParamValue value of the parameter
-     * @param inPossibleValues possible values for the parameter
-     * @return whether the syntax is correct
-     */
-    protected boolean checkSyntax(String inParamName, String inParamValue, String[] inPossibleValues) {
-        if (inParamValue == null) return false;
-        List possible = Arrays.asList(inPossibleValues);
-        if (inParamValue!=null && Arrays.asList(inPossibleValues).contains(inParamValue.toLowerCase()))
-            return true;
-        else {
-            Logger.error("Parameter '"+inParamName+"' wants one of: " + StringLists.join(possible,","));
-            return false;
+    public void addEntity(Entity entity) {
+        String name = entity.getName();
+        Entity previous = mEntities.put(adaptCase(name),entity);
+        if (previous != null) {
+            Logger.warn("replacing an existing entity with a new one ("+name+")");
+        }
+        if(name.equals("velosurf.root")) {
+            /* this is the root entity */
+            mRootEntity = entity;
         }
     }
 
+    public Entity getRootEntity() {
+        return mRootEntity;
+    }
 
     /** get a named entity or creeate it if it doesn't exist
      *
@@ -794,7 +551,7 @@ public class Database {
         Entity entity = getEntity(name);
         if (entity == null) {
             Logger.trace("Created entity: "+name);
-            entity = new Entity(this,name,mDefaultReadOnly,mDefaultCaching);
+            entity = new Entity(this,name,mReadOnly,mCaching);
             mEntities.put(adaptCase(name),entity);
         }
         return entity;
@@ -818,14 +575,17 @@ public class Database {
         return entity;
     }
 
+    public Map<String,Entity> getEntities() {
+        return mEntities;
+    }
+
     /** get a named attribute
      *
      * @param inName name of an attribute
      * @return the named attribute
      */
     public Attribute getAttribute(String inName) {
-        if (mRootEntity != null) return mRootEntity.getAttribute(adaptCase(inName));
-        else return null;
+        return mRootEntity.getAttribute(adaptCase(inName));
     }
 
     /** get a named action
@@ -834,8 +594,7 @@ public class Database {
      * @return the named attribute
      */
     public Action getAction(String inName) {
-        if (mRootEntity != null) return mRootEntity.getAction(adaptCase(inName));
-        else return null;
+        return mRootEntity.getAction(adaptCase(inName));
     }
 
     /** set the error string
@@ -940,6 +699,13 @@ public class Database {
      */
     protected String mSchema = null;
 
+    /** whether the JDBC driver has been loaded */
+    protected boolean mDriverLoaded = false;
+
+    /** driver class name, if provided in the config file
+     */
+    protected String mDriverClass = null;
+
     /**
      * Pool of connections
      */
@@ -970,10 +736,10 @@ public class Database {
 
     /** default access mode
      */
-    protected boolean mDefaultReadOnly = true;
+    protected boolean mReadOnly = true;
     /** default caching mode
      */
-    protected int mDefaultCaching = Cache.NO_CACHE;
+    protected int mCaching = Cache.NO_CACHE;
 
     /** error string for the last error
      */
@@ -981,11 +747,7 @@ public class Database {
 
     /** map name->entity
      */
-    protected Map mEntities = null; // entity name -> entity;
-
-    /* map table->entity, valid only between readConfigFile and readMetaData
-    */
-    protected Map mEntitiesByTableName = null;
+    protected Map<String,Entity> mEntities = new HashMap<String,Entity>();
 
     /** root entity that contains all root attributes and actions
      */
@@ -1004,20 +766,13 @@ public class Database {
     private Cryptograph mCryptograph = null;
 
     /** case-sensitive policy */
+    public static final int CASE_UNKNOWN = 0;
     public static final int CASE_SENSITIVE = 1;
     public static final int UPPERCASE = 2;
     public static final int LOWERCASE = 3;
 
     /** case-sensivity */
-    protected int mCaseSensivity = CASE_SENSITIVE;
-
-    /** reverse-enginering modes */
-    public static final int REVERSE_NONE = 1;
-    public static final int REVERSE_PARTIAL = 2;
-    public static final int REVERSE_FULL = 3;
-
-    /* reverse-enginering mode */
-    protected int mReverseMode = REVERSE_FULL;
+    protected int mCaseSensivity = CASE_UNKNOWN;
 
     /** map parameters -> instances */
     private static Map sConnectionsByParams = new HashMap();
@@ -1030,4 +785,7 @@ public class Database {
      * Key is hashcode of (name+password+url+schema), value is an entities map.
      */
     private static Map sSharedCatalog = new HashMap();
+
+    protected ReverseEngineer mReverseEngineer = new ReverseEngineer(this);
+
 }
