@@ -2,6 +2,7 @@
 
 v2.0 (September 2006)
 ----
+ - needed jar libraries are now automatically downloaded from the maven repository at build time
  - bugfix: instance.update() was possible on a read-only entity
  - replaced database attribute "default-access=rw|ro" with attribute "read-only=true|false"
  - added a ReverseEngineer class and moved corresponding code out of Database
