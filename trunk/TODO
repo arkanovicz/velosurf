@@ -10,7 +10,6 @@ TODO
      forms validation, authentication and internationalization to the velocity-tools architecture. => 2.0
  - flatten properties ? Person.address.street = person.AdressStreet? May be slow!
  - update class diagram
- - automatic downloading of needed libraries in build.xml => 2.0
  - way of specifying a pair (entity/key parameter name) that will mark the corresponding cached entry as dirty
  - in case of an autoincrement unique id, could Instance.insert() set the new id value in itself ? Yes, if metadata knows about autoincrements.
  - generics for java interface (in a new package) - impossible without recompilation
