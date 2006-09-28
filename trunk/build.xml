@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 
+<!--
+ Copyright 2000-2006 The Apache Software Foundation.
+
+ Licensed under the Apache License, Version 2.0 (the "License")
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
 <project name="velosurf" default="usage" basedir=".">
   
   
@@ -19,54 +35,46 @@
   <property name="build.dir" 	     value="${basedir}/class"/>
   <property name="lib.dir"           value="${basedir}/lib"/>
   <property name="bin.dir"           value="${basedir}/bin"/>
-  <property name="conf.dir"          value="${basedir}/conf"/>
-  <property name="images.dir"        value="${basedir}/images"/>
   <property name="test.dir"          value="${basedir}/test"/>
-  <property name="data.dir"          value="${basedir}/data"/>
   <property name="tmp.dir"           value="${basedir}/tmp"/>
   <property name="javadoc.destdir"   value="${basedir}/docs/api"/>
   <property name="final.name"        value="${project}-${version}"/>
   <property name="dist.root"         value="${basedir}/dist"/>
   <property name="dist.dir"          value="${dist.root}/${final.name}"/>
+  <property name="test.src.dir"      value="${test.dir}/src"/>
+  <property name="test.lib.dir"      value="${test.dir}/lib"/>
+  <property name="test.rst.dir"      value="${test.dir}/rst"/>
+  <property name="test.cmp.dir"      value="${test.dir}/cmp"/>
+  <property name="test.build.dir"    value="${test.dir}/class"/>
+
+  <!-- DOWNLOAD PROPERTIES -->
+  <property name="repo.url"          value="http://www.ibiblio.org/maven"/>
+  <property name="proxy.host"        value=""/>
+  <property name="proxy.port"        value="80"/>
 
   <!-- BUILD PROPERTIES -->
   <property file="build.properties"/>                <!-- Component local   -->
+  <property file="${user.home}/.ant.properties"/>   <!-- User local        -->
   <property file="${user.home}/build.properties"/>   <!-- User local        -->
 
   <!-- Build classpath automatically -->
-<!--
-  <path id="classpath">
-    <fileset dir="./lib">
-      <include name="**/*.jar"/>
-    </fileset>
-  </path>
--->
+   <path id="classpath">
+     <fileset dir="./lib">
+       <include name="**/*.jar"/>
+     </fileset>
+   </path>
 
-  <!-- Explicit classpath construction -->
-  <!-- Construct explicit classpath of libs needed to compile this project -->
-  <path id="classpath">
-    <pathelement location="${commons-beanutils.jar}"/>
-    <pathelement location="${commons-digester.jar}"/>
-    <pathelement location="${commons-logging.jar}"/>
-    <pathelement location="${jdom.jar}"/>
-    <pathelement location="${jsdk.jar}"/>
-    <pathelement location="${velocity.jar}"/>
-    <pathelement location="${velocity-tools-view.jar}"/>
-  </path>                                                
-                                                
+    <!-- test classpath -->
+    <path id="test.classpath">
+      <fileset dir="${test.lib.dir}">
+        <include name="**/*.jar"/>
+      </fileset>
+    </path>
   
+
   <!-- PATTERN SETS -->
   <patternset id="sources" >
-    <include name="velosurf/*" />
-    <include name="velosurf/auth/*" />
-    <include name="velosurf/cache/*" />
-    <include name="velosurf/context/*" />
-    <include name="velosurf/i18n/*" />
-    <include name="velosurf/model/*" />
-    <include name="velosurf/sql/*" />
-    <include name="velosurf/util/*" />
-    <include name="velosurf/web/*" />
-<!--	<include name="velosurf/test/*" /> -->
+    <include name="velosurf/**/*.java" />
   </patternset>
 
 <!-- targets section -->
@@ -75,36 +83,206 @@
     <echo>
 No target specified.
 Please specify a target among :
-  jar : builds velosurf jar
+  jar : builds Velosurf jar
   clean : deletes all intermediary files
-  javadoc : builds velosurf javadoc
-  tarball : builds velosurf tgz package</echo>
+  javadoc : builds Velosurf javadoc
+  tarball : builds Velosurf tgz package
+  test : tests Velosurf
+    </echo>
   </target>
 
   <target name="prepare">
     <!-- MAKE THE DIRECTORIES IF NEEDED -->
+    <mkdir dir="${lib.dir}"/>
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${dist.dir}" />
     <mkdir dir="${bin.dir}" />
     <delete dir="${tmp.dir}" />
     <mkdir dir="${tmp.dir}" />
+    <mkdir dir="${test.build.dir}" />
+    <mkdir dir="${test.lib.dir}" />
+    <mkdir dir="${test.rst.dir}" />
     <tstamp />
+    <!-- DOWNLOAD LIBRARIES IF NEEDED -->
+    <antcall target="build-download" />
   </target>
 
   <target name="clean">
     <delete dir="${build.dir}"/>
+    <delete dir="${tmp.dir}"/>
+    <delete dir="${lib.dir}"/>
+    <delete dir="${test.build.dir}"/>
+    <delete dir="${test.rst.dir}"/>
+    <delete dir="${test.lib.dir}"/>
   </target>
   
+  <target name="build-download">
+   <property name="download.dir" value="${lib.dir}"/>
+   
+   <antcall target="commons-beanutils-download"/>
+   <antcall target="commons-digester-download"/>
+   <antcall target="commons-logging-download"/>
+   <antcall target="crimson-download"/>
+   <antcall target="dom4j-download"/>
+   <antcall target="jdom-download"/>
+   <antcall target="servletapi-download"/>
+   <antcall target="velocity-download"/>
+   <antcall target="velocity-tools-download"/>
+  </target>
+
+  <target name="commons-beanutils-download">
+   <property name="download.jarname" value="commons-beanutils" />
+   <property name="download.jarversion" value="${jar.commons-beanutils.version}" />
+   <antcall target="http-download"/>
+  </target>
+
+  <target name="commons-digester-download">
+   <property name="download.jarname" value="commons-digester" />
+   <property name="download.jarversion" value="${jar.commons-digester.version}" />
+   <antcall target="http-download"/>
+  </target>
+
+  <target name="commons-logging-download">
+   <property name="download.jarname" value="commons-logging" />
+   <property name="download.jarversion" value="${jar.commons-logging.version}" />
+   <antcall target="http-download"/>
+  </target>
+
+  <target name="crimson-download">
+   <property name="download.jarname" value="crimson" />
+   <property name="download.jarversion" value="${jar.crimson.version}" />
+   <antcall target="http-download"/>
+  </target>
+
+  <target name="dom4j-download">
+   <property name="download.jarname" value="dom4j" />
+   <property name="download.jarversion" value="${jar.dom4j.version}" />
+   <antcall target="http-download"/>
+  </target>
+
+  <target name="jdom-download">
+   <property name="download.jarname" value="jdom" />
+   <property name="download.jarversion" value="${jar.jdom.version}" />
+   <antcall target="http-download"/>
+  </target>
+
+  <target name="servletapi-download">
+   <property name="download.jarname" value="servletapi" />
+   <property name="download.jarversion" value="${jar.servletapi.version}" />
+   <antcall target="http-download"/>
+  </target>
+
+  <target name="velocity-download">
+   <property name="download.jarname" value="velocity" />
+   <property name="download.jarversion" value="${jar.velocity.version}" />
+   <antcall target="http-download"/>
+  </target>
+
+  <target name="velocity-tools-download">
+   <property name="download.jarname" value="velocity-tools" />
+   <property name="download.jarversion" value="${jar.velocity-tools.version}" />
+   <antcall target="http-download"/>
+  </target>
+
+  <target name="test-download">
+   <property name="download.dir" value="${test.lib.dir}"/>
+   <antcall target="hsqldb-download"/>
+   <antcall target="junit-download"/>
+  </target>
+
+  <target name="hsqldb-download">
+   <property name="download.jarname" value="hsqldb" />
+   <property name="download.jarversion" value="${jar.hsqldb.version}" />
+   <antcall target="http-download"/>
+  </target>
+
+  <target name="junit-download">
+   <property name="download.jarname" value="junit" />
+   <property name="download.jarversion" value="${jar.junit.version}" />
+   <antcall target="http-download"/>
+  </target>
+
+  <target name="http-download" unless="skip.jar.loading">
+    <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"/>
+    <get src="${repo.url}/${download.jarname}/jars/${download.jarname}-${download.jarversion}.jar"
+         dest="${download.dir}/${download.jarname}-${download.jarversion}.jar"
+         usetimestamp="true"
+         verbose="false"
+         ignoreerrors="false" />
+  </target>
+
   <target name="jar" depends="prepare">
     <property name="myclasspath" refid="classpath"/>
     <echo message="using classpath= ${myclasspath}"/>
-    <javac srcdir="${src.dir}" destdir="${build.dir}" debug="${debug}" debuglevel="lines,vars,source" encoding="ISO-8859-1" source="1.5" target="1.5">
+    <javac 
+        srcdir="${src.dir}"
+        destdir="${build.dir}"
+        debug="${debug}"
+        debuglevel="lines,vars,source"
+        deprecation="on"
+        optimize="on"
+        encoding="UTF-8"
+        source="1.5"
+        target="1.5">
 	  <patternset refid="sources"/>
       <classpath refid="classpath"/>
 	</javac>
     <jar jarfile="${bin.dir}/velosurf-${version}.jar" basedir="${build.dir}" >
 	  <patternset refid="sources"/>
 	</jar>
+  </target>
+
+  <target name="compile-test" depends="prepare,jar">
+    <antcall target="test-download" />
+    <property name="myclasspath" refid="classpath"/>
+    <echo message="using classpath= ${myclasspath}"/>
+    <javac srcdir="${test.src.dir}"
+        destdir="${test.build.dir}"
+        encoding="UTF-8"
+        debug="${debug}"
+        debuglevel="lines,vars,source"
+        deprecation="on"
+        optimize="on"
+        source="1.5"
+        target="1.5">
+      <classpath>
+        <path refid="classpath"/>
+        <path refid="test.classpath"/>
+        <pathelement location="${test.build.dir}"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="test" depends="prepare,compile-test">
+    <junit dir="${test.dir}"
+           fork="true"
+           printSummary="yes"
+           haltonerror="true"
+           haltonfailure="true">
+
+      <classpath>
+        <path refid="classpath" />
+        <path refid="test.classpath" />
+        <pathelement path="${test.build.dir}"/>
+      </classpath>
+
+      <batchtest todir="${test.rst.dir}">
+        <fileset dir="${test.src.dir}">
+<!--
+          <include name="**/*TestCase.java"></include>
+
+          <exclude name="**/BaseTestCase.java"></exclude>
+
+          <exclude name="**/TexenTestCase.java"></exclude>
+          <exclude name="**/TexenClasspathTestCase.java"></exclude>
+          <exclude name="**/AnakiaTestCase.java"></exclude>
+          <exclude name="**/MultiLoaderTestCase.java"></exclude>
+          <exclude name="**/ClasspathResourceTestCase.java"></exclude>
+-->
+        </fileset>
+      </batchtest>
+      <formatter type="plain"/>
+    </junit>
   </target>
 
   <target name="javadoc" depends="prepare">
