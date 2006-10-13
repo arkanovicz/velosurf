@@ -44,7 +44,7 @@ public class PooledPreparedStatement extends Pooled implements DataAccessor {
      * @param inConnection database connection
      * @param inPreparedStatement wrapped prepared statement
      */
-    protected PooledPreparedStatement(ConnectionWrapper inConnection,PreparedStatement inPreparedStatement) {
+    public PooledPreparedStatement(ConnectionWrapper inConnection,PreparedStatement inPreparedStatement) {
         mConnection = inConnection;
         mPreparedStatement = inPreparedStatement;
     }
