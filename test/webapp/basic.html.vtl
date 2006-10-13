@@ -1,0 +1,13 @@
+<html>
+<head><title>Basic tests</title></head>
+<body>
+Basic tests
+#set($publisher = $db.publisher.fetch($db.obfuscate(1)))
+<div id="test1">$publisher.name</div>
+#foreach($book in $publisher.books)
+<div id="test2.$velocityCount">$book.title</div>
+#end
+#set($book = $db.book.fetch($db.obfuscate(1)))
+<div id="test3">$book.title</div>
+<div id="test4">$book.author.full_name</div>
+</body>
