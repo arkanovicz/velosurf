@@ -17,13 +17,14 @@
 package velosurf.web;
 
 import java.util.*;
+import java.sql.SQLException;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.velocity.tools.view.context.ViewContext;
-import org.apache.velocity.tools.view.tools.ViewTool;
 
 import velosurf.util.Logger;
+import velosurf.util.StringLists;
 import velosurf.model.Entity;
 
 /** This class has about the same functionnalities as the tool org.apache.velocity.tools.view.tools.ParameterParser
@@ -34,7 +35,7 @@ import velosurf.model.Entity;
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  **/
- public class HttpQueryTool extends HashMap implements ViewTool
+ public class HttpQueryTool extends HashMap
 {
 
     public HttpQueryTool() {
@@ -58,8 +59,13 @@ import velosurf.model.Entity;
                 if (sAutofetchingEnabled && values[0].length()>0) {
                     AutoFetchInfos infos = (AutoFetchInfos)sAutofetchMap.get(param);
                     if (infos != null) {
-                        if (infos.mProtect) put(infos.mName,infos.mEntity.fetch(values[0]));
-                        else ((ViewContext)inViewContext).getVelocityContext().put(infos.mName,infos.mEntity.fetch(values[0]));
+                        try {
+                            if (infos.mProtect) put(infos.mName,infos.mEntity.fetch(values[0]));
+                            else ((ViewContext)inViewContext).getVelocityContext().put(infos.mName,infos.mEntity.fetch(values[0]));
+                        } catch(SQLException sqle) {
+                            Logger.error("autofetch failed!");
+                            Logger.log(sqle);
+                        }
                     }
                 }
             }
