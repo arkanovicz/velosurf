@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package velosurf.i18n;
+package velosurf.web.i18n;
 
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
 import velosurf.util.ServletLogWriter;
+import velosurf.util.ToolFinder;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -44,7 +45,7 @@ import java.util.regex.Matcher;
  *
  * <p>Optional init parameters:
  * <ul>
- * <li>supported-locales: if not provided, there is an attempt to programatically determine it<sup>(1)</sup>.
+ * <li>supported-locales: comma separated list of supported locales ; if not provided, there is an attempt to programatically determine it<sup>(1)</sup>.
  * No default value provided.</li>
  * <li>default-locale: the locale to be used by default (after four checks: the incoming URI, the session, cookies, and the request headers).
  * No default value provided.</li>
@@ -84,9 +85,11 @@ public class LocalizationFilter implements Filter {
     private List<Locale> _supportedLocales = null;
     private Locale _defaultLocale = null;
 
+    private static int SECONDS_IN_YEAR = 31536000;
+
     private static String _defaultMatchUri = "^/(.*)$";
     private static String _defaultRewriteUri = "/@/$1";
-    private static String _defaultInspectUri = "^/(.*)(?:/|$)";
+    private static String _defaultInspectUri = "^/(.+)(?:/|$)";
     private  Pattern _matchUri = null;
     private String _rewriteUri = null;
     private Pattern _inspectUri = null;
@@ -125,7 +128,7 @@ public class LocalizationFilter implements Filter {
         findSupportedLocales(_config);
 
         /* default locale */
-        _defaultLocale = getMatchedLocale(getInitParameter("default_locale"));
+        _defaultLocale = getMatchedLocale(getInitParameter("default-locale"));
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
@@ -195,11 +198,16 @@ public class LocalizationFilter implements Filter {
             }
         }
 
+        if (locale != null) {
+            Localizer tool = ToolFinder.findTool(session,Localizer.class);
+            tool.setLocale(locale);
+        }
+
         /* sets the session atribute and the cookies */
         session.setAttribute("velosurf.i18n.active-locale",locale);
         Cookie localeCookie = new Cookie("velosurf.i18n.active-locale",locale.toString());
         localeCookie.setPath("/");
-        localeCookie.setMaxAge(Integer.MAX_VALUE);
+        localeCookie.setMaxAge(SECONDS_IN_YEAR);
         response.addCookie(localeCookie);
 
         if (shouldAct) {
@@ -238,24 +246,25 @@ public class LocalizationFilter implements Filter {
         if (param == null) {
             /* look in the webapp context-params */
             param = config.getServletContext().getInitParameter("supported-locales");
-            if (param == null) {
-                /* try to determine it */
-                int i;
-                if (_rewriteUri != null && (i=_rewriteUri.indexOf("@")) != -1) {
-                    _supportedLocales = guessSupportedLocales(_config.getServletContext(),_rewriteUri.substring(0,i));
-                    if(Logger.getLogLevel() <= Logger.TRACE_ID) {
-                        Logger.trace("l10n: supported locales = " + StringLists.join(Arrays.asList(_supportedLocales),","));
-                    }
-                    if (_supportedLocales != null && _supportedLocales.size() > 0) {
-                        return;
-                    }
+        }
+
+        if (param == null) {
+            /* try to determine it */
+            int i;
+            if (_rewriteUri != null && (i=_rewriteUri.indexOf("@")) != -1) {
+                _supportedLocales = guessSupportedLocales(_config.getServletContext(),_rewriteUri.substring(0,i));
+                if(Logger.getLogLevel() <= Logger.TRACE_ID) {
+                    Logger.trace("l10n: supported locales = " + StringLists.join(Arrays.asList(_supportedLocales),","));
                 }
-            } else {
-                _supportedLocales = new ArrayList<Locale>();
-                String[] list = param.split(",");
-                for(String code:list) {
-                    _supportedLocales.add(new Locale(code));
+                if (_supportedLocales != null && _supportedLocales.size() > 0) {
+                    return;
                 }
+            }
+        } else {
+            _supportedLocales = new ArrayList<Locale>();
+            String[] list = param.split(",");
+            for(String code:list) {
+                _supportedLocales.add(new Locale(code));
             }
         }
         if(_supportedLocales != null && _supportedLocales.size() > 0) {
@@ -263,7 +272,7 @@ public class LocalizationFilter implements Filter {
             _config.getServletContext().setAttribute("velosurf.i18n.supported-locales",_supportedLocales);
              */
         } else {
-            Logger.error("l10n: Cannot find any supported locale! Please add a 'supported-locale' context-param.");
+            Logger.error("l10n: Cannot find any supported locale! Please add a 'supported-locales' context-param.");
         }
     }
 
@@ -313,7 +322,7 @@ public class LocalizationFilter implements Filter {
 
     private List<Locale> getRequestedLocales(HttpServletRequest request) {
         List<Locale> list = (List<Locale>)Collections.list(request.getLocales());
-        if(list.size() == 0 && _defaultLocale != null) {
+        if(/*list.size() == 0 && */_defaultLocale != null) {
             list.add(_defaultLocale);
         }
         return list;

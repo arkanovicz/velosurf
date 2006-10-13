@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.auth;
+package velosurf.web.auth;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -30,7 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import velosurf.util.*;
-import velosurf.i18n.Localizer;
+import velosurf.web.i18n.Localizer;
+import velosurf.web.i18n.Localizer;
 
 /**
  * <p>This class is a servlet filter used to protect web pages behind an authentication mechanism. When a
