@@ -22,8 +22,12 @@ CREATE TABLE book (
 	book_id INTEGER NOT NULL PRIMARY KEY,
 	title VARCHAR(255) NOT NULL,
 	isbn VARCHAR(24) NOT NULL,
-	publisher_id INTEGER NOT NULL REFERENCES publisher(publisher_id),
-	author_id INTEGER NOT NULL REFERENCES author(author_id)
+    publisher_id INTEGER NOT NULL,
+    author_id INTEGER NOT NULL,
+    FOREIGN KEY(publisher_id) REFERENCES publisher(publisher_id),
+    FOREIGN KEY(author_id) REFERENCES author(author_id)
+#	publisher_id INTEGER NOT NULL REFERENCES publisher(publisher_id),
+#	author_id INTEGER NOT NULL REFERENCES author(author_id)
 );
 
 INSERT INTO publisher (publisher_id,name) VALUES (1,'Addison Wesley Professional');
