@@ -25,7 +25,8 @@ import java.sql.SQLException;
 
 import velosurf.model.Entity;
 import velosurf.util.Logger;
-import velosurf.i18n.Localizer;
+import velosurf.util.UserContext;
+import velosurf.web.i18n.Localizer;
 
 // inherits AbstractList so that Velocity will call iterator() from within a #foreach directive
 /** Context wrapper for an entity.
@@ -40,16 +41,21 @@ public class EntityReference extends AbstractList
      */
     public EntityReference(Entity inEntity) {
         this(inEntity,null);
-        mEntity = inEntity;
     }
 
     /** Builds a new EntityReference.
      *
      * @param inEntity the wrapped entity
      */
-    public EntityReference(Entity inEntity,Localizer inLocalizer) {
+    public EntityReference(Entity inEntity,UserContext userContext) {
         mEntity = inEntity;
-        mLocalizer = inLocalizer;
+        mUserContext = userContext;
+    }
+
+    /** gets the name of the wrapped entity
+     */
+    public String getName() {
+        return mEntity.getName();
     }
 
     /** Insert a new row in this entity's table.
@@ -58,7 +64,15 @@ public class EntityReference extends AbstractList
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
      */
     public boolean insert(Map inValues) {
-        return mEntity.insert(inValues);
+        try {
+            return mEntity.insert(inValues);
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            if (mUserContext != null) {
+                mUserContext.setError(sqle.getMessage());
+            }
+            return false;
+        }
     }
 
     /** Returns the ID of the last inserted row (obfuscated if needed)
@@ -99,9 +113,19 @@ public class EntityReference extends AbstractList
      *     $db.lastError can be checked)
      */
     public Instance fetch(List inValues) {
-        Instance instance = mEntity.fetch(inValues);
-        if (mLocalizer != null) instance.setLocalizer(mLocalizer);
-        return instance;
+        try {
+            Instance instance = mEntity.fetch(inValues);
+            if (mUserContext != null) {
+                instance.setUserContext(mUserContext);
+            }
+            return instance;
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            if(mUserContext != null) {
+                mUserContext.setError(sqle.getMessage());
+            }
+            return null;
+        }
     }
 
     /** Fetch an Instance of this entity, specifying the values of its key columns in the map.
@@ -111,9 +135,19 @@ public class EntityReference extends AbstractList
      *     $db.lastError can be checked)
      */
     public Instance fetch(Map inValues) {
-        Instance instance = mEntity.fetch(inValues);
-        if (mLocalizer != null) instance.setLocalizer(mLocalizer);
-        return instance;
+        try {
+            Instance instance = mEntity.fetch(inValues);
+            if (mUserContext != null) {
+                instance.setUserContext(mUserContext);
+            }
+            return instance;
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            if(mUserContext != null) {
+                mUserContext.setError(sqle.getMessage());
+            }
+            return null;
+        }
     }
 
     /** Fetch an Instance of this entity, specifying the value of its unique key column as a string
@@ -123,21 +157,41 @@ public class EntityReference extends AbstractList
      *     $db.lastError can be checked)
      */
     public Instance fetch(String inKeyValue) {
-        Instance instance = mEntity.fetch(inKeyValue);
-        if (mLocalizer != null) instance.setLocalizer(mLocalizer);
-        return instance;
+        try {
+            Instance instance = mEntity.fetch(inKeyValue);
+            if (mUserContext != null) {
+                instance.setUserContext(mUserContext);
+            }
+            return instance;
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            if(mUserContext != null) {
+                mUserContext.setError(sqle.getMessage());
+            }
+            return null;
+        }
     }
 
     /** Fetch an Instance of this entity, specifying the value of its unique key column as an integer
      *
      * @param inKeyValue value of the key column
-b     * @return an Instance, or null if an error occured (in which case
+     * @return an Instance, or null if an error occured (in which case
      *     $db.lastError can be checked)
      */
     public Instance fetch(Number inKeyValue) {
-        Instance instance = mEntity.fetch(inKeyValue);
-        if (mLocalizer != null) instance.setLocalizer(mLocalizer);
-        return instance;
+        try {
+            Instance instance = mEntity.fetch(inKeyValue);
+            if (mUserContext != null) {
+                instance.setUserContext(mUserContext);
+            }
+            return instance;
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            if(mUserContext != null) {
+                mUserContext.setError(sqle.getMessage());
+            }
+            return null;
+        }
     }
 
     // called by the #foreach directive
@@ -147,19 +201,39 @@ b     * @return an Instance, or null if an error occured (in which case
      *      refined or ordered.
      */
     public Iterator iterator() {
-        RowIterator iterator =  mEntity.query(mRefineCriteria,mOrder);
-        if (mLocalizer != null) iterator.setLocalizer(mLocalizer);
-        return iterator;
+        try {
+            RowIterator iterator =  mEntity.query(mRefineCriteria,mOrder);
+            if (mUserContext != null) {
+                iterator.setUserContext(mUserContext);
+            }
+            return iterator;
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            if(mUserContext != null) {
+                mUserContext.setError(sqle.getMessage());
+            }
+            return null;
+        }
     }
 
     /** gets all the rows in a list of maps
      *
      * @return a list of all the rows
      */
-    public List getRows() throws SQLException {
-        RowIterator iterator = mEntity.query(mRefineCriteria,mOrder);
-        if (mLocalizer != null) iterator.setLocalizer(mLocalizer);
-        return iterator.getRows();
+    public List getRows() {
+        try {
+            RowIterator iterator = mEntity.query(mRefineCriteria,mOrder);
+            if (mUserContext != null) {
+                iterator.setUserContext(mUserContext);
+            }
+            return iterator.getRows();
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            if(mUserContext != null) {
+                mUserContext.setError(sqle.getMessage());
+            }
+            return null;
+        }
     }
 
     /** Refines this entity reference querying result: the provided criterium will be added to the 'where' clause (or a 'where' clause will be added).
@@ -210,7 +284,9 @@ b     * @return an Instance, or null if an error occured (in which case
      */
     public Instance newInstance() {
         Instance instance = mEntity.newInstance();
-        if (mLocalizer != null) instance.setLocalizer(mLocalizer);
+        if (mUserContext != null) {
+            instance.setUserContext(mUserContext);
+        }
         return instance;
     }
 
@@ -248,8 +324,8 @@ b     * @return an Instance, or null if an error occured (in which case
      */
     protected List mRefineCriteria = null;
 
-    /** localizer to give to created instances
+    /** user context to give to created instances
      *
      */
-    protected Localizer mLocalizer = null;
+    protected UserContext mUserContext = null;
 }

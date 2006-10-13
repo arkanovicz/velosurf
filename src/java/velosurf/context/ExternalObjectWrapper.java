@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 
 /**
  * <p>This wrapper allows one to specify custom mapping objects that don't inherit from Instance.</p>
- * <p>For now, the introspection is rather basic but may work for standard getters without ambiguïty.</p>
+ * <p>For now, the introspection is rather basic but may work for standard getters without ambiguity.</p>
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */

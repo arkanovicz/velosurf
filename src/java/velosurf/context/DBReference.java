@@ -27,7 +27,8 @@ import velosurf.model.Action;
 import velosurf.sql.Database;
 import velosurf.sql.DataAccessor;
 import velosurf.util.Logger;
-import velosurf.i18n.Localizer;
+import velosurf.util.UserContext;
+import velosurf.web.i18n.Localizer;
 
 /** A context wrapper for the main database connection object.<p>
  * The "$db" context variable is assigned a new instance of this class at each velocity parsing.
@@ -44,12 +45,20 @@ public class DBReference extends HashMap implements DataAccessor
     protected DBReference() {
     }
 
-    /** Constructs a new reference
+    /** Constructs a new database reference
      *
      * @param inDB the wrapped database connection
      */
     public DBReference(Database inDB) {
-        init(inDB);
+        init(inDB,null);
+    }
+
+    /** Constructs a new database reference
+     *
+     * @param inDB the wrapped database connection
+     */
+    public DBReference(Database inDB,UserContext inUserContext) {
+        init(inDB,inUserContext);
     }
 
     /** protected initialization method
@@ -57,17 +66,21 @@ public class DBReference extends HashMap implements DataAccessor
      * @param inDB database connection
      */
     protected void init(Database inDB) {
+        init(inDB,null);
+    }
+
+    /** protected initialization method
+     *
+     * @param inDB database connection
+     */
+    protected void init(Database inDB,UserContext inUserContext) {
         mDB = inDB;
         mCache = new HashMap();
         mExternalParams = new HashMap();
-    }
-
-    /** Get the last error message, or null if none occured.
-     *
-     * @return The last error message, or null
-     */
-    public String getError() {
-        return mDB.getError();
+        if(inUserContext == null) {
+            inUserContext = new UserContext();
+        }
+        mUserContext = inUserContext;
     }
 
     /** Generic getter, used to access entities or root attributes by their name.<p>
@@ -83,7 +96,6 @@ public class DBReference extends HashMap implements DataAccessor
      *     if not found. See  See above.
      */
     public Object get(Object inKey) {
-
         String inProperty = mDB.adaptCase((String) inKey);
 
         try {
@@ -99,15 +111,16 @@ public class DBReference extends HashMap implements DataAccessor
 //                attribute.setExternalParams(mExternalParams);
                 switch (attribute.getType()) {
                     case Attribute.ROWSET:
-                        result = new AttributeReference(this,attribute,mLocalizer);
-                        if (mLocalizer != null) ((RowIterator)result).setLocalizer(mLocalizer);
+                        result = new AttributeReference(this,attribute,mUserContext);
                         break;
                     case Attribute.SCALAR:
                         result = attribute.evaluate(this);
                         break;
                     case Attribute.ROW:
                         result = attribute.fetch(this);
-                        if (mLocalizer != null) ((Instance)result).setLocalizer(mLocalizer);
+                        if (result instanceof Instance) {
+                            ((Instance)result).setUserContext(mUserContext);
+                        }
                         break;
                     default:
                         Logger.error("Unknown attribute type encountered: db."+inProperty);
@@ -124,7 +137,7 @@ public class DBReference extends HashMap implements DataAccessor
             // 3) try to get an entity
             Entity entity = mDB.getEntity(inProperty);
             if (entity!=null) {
-                result = new EntityReference(entity,mLocalizer);
+                result = new EntityReference(entity,mUserContext);
                 mCache.put(inProperty,result);
                 return result;
             }
@@ -133,11 +146,14 @@ public class DBReference extends HashMap implements DataAccessor
             result = mExternalParams.get(inProperty);
             if (result != null) return result;
 
+            // 5) try with the user context
+            result = mUserContext.get(inProperty);
+
             // Sincerely, I don't see...
             return null;
         }
         catch (SQLException sqle) {
-            mDB.setError(sqle.getMessage());
+            mUserContext.setError(sqle.getMessage());
             Logger.log(sqle);
             return null;
         }
@@ -204,7 +220,7 @@ public class DBReference extends HashMap implements DataAccessor
       */
     protected Map mExternalParams = null;
 
-    /** The localizer object
+    /** a reference to the user context
      */
-    protected Localizer mLocalizer = null;
+    protected UserContext mUserContext = null;
 }

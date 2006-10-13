@@ -18,17 +18,16 @@ package velosurf.context;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.ResultSetMetaData;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
-import java.util.*;
-
-import velosurf.context.Instance;
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
 import velosurf.sql.DataAccessor;
 import velosurf.sql.Pooled;
 import velosurf.util.Logger;
-import velosurf.i18n.Localizer;
+import velosurf.util.UserContext;
 
 /** This class is a context wrapper for ResultSets, and provides an iteration mecanism for #foreach loops, as long as getters for values of the current row.
  *
@@ -78,7 +77,9 @@ public class RowIterator implements Iterator,DataAccessor {
         Instance row = null;
         if (mResultEntity != null) {
             row = mResultEntity.getInstance((DataAccessor)this);
-            if (mLocalizer != null) row.setLocalizer(mLocalizer);
+            if (mUserContext != null) {
+                row.setUserContext(mUserContext);
+            }
             return row;
         }
         else return this;
@@ -110,11 +111,15 @@ public class RowIterator implements Iterator,DataAccessor {
                         switch (attribute.getType()) {
                             case Attribute.ROWSET:
                                 result = attribute.query(this);
-                                if (mLocalizer != null) ((RowIterator)result).setLocalizer(mLocalizer);
+                                if (result != null && mUserContext != null && result instanceof RowIterator) {
+                                    ((RowIterator)result).setUserContext(mUserContext);
+                                }
                                 break;
                             case Attribute.ROW:
                                 result = attribute.fetch(this);
-                                if (mLocalizer != null) ((Instance)result).setLocalizer(mLocalizer);
+                                if (result != null && mUserContext != null && result instanceof Instance) {
+                                    ((Instance)result).setUserContext(mUserContext);
+                                }
                                 break;
                             case Attribute.SCALAR:
                                 result = attribute.evaluate(this);
@@ -198,12 +203,11 @@ public class RowIterator implements Iterator,DataAccessor {
     public List getRows() throws SQLException {
         List ret = new ArrayList();
         mPooledStatement.getConnection().enterBusyState();
-        ResultSetMetaData meta = mResultSet.getMetaData();
-        int cols = meta.getColumnCount();
-        boolean hasNext = false;
-        while (!mResultSet.isAfterLast() && (hasNext = (mResultSet.next()))) {
+        while (!mResultSet.isAfterLast() && mResultSet.next()) {
             Instance i = mResultEntity.getInstance((DataAccessor)this);
-            if (mResultEntity.hasLocalizedColumns() && mLocalizer != null) i.setLocalizer(mLocalizer);
+            if (i != null && mUserContext != null) {
+                i.setUserContext(mUserContext);
+            }
             ret.add(i);
         }
         mPooledStatement.getConnection().leaveBusyState();
@@ -238,8 +242,8 @@ public class RowIterator implements Iterator,DataAccessor {
     /** set the localizer to be used to build instances
      *
      */
-    public void setLocalizer(Localizer localizer) {
-        mLocalizer = localizer;
+    public void setUserContext(UserContext context) {
+        mUserContext = context;
     }
 
     /** the statement
@@ -256,8 +260,7 @@ public class RowIterator implements Iterator,DataAccessor {
      */
     protected List mColumnNames = null;
 
-    /** localizer to be used to construct instances
-     *
+    /** user context
      */
-    protected Localizer mLocalizer = null;
+    protected UserContext mUserContext = null;
 }
