@@ -51,9 +51,9 @@ public class Database {
      * @param inUser user name
      * @param inPassword password
      * @param inUrl database url
-²     * @exception SQLException thrown by the database engine
+     * @exception SQLException thrown by the database engine
      */
-    private Database(String inUser,String inPassword,String inUrl) throws SQLException {
+    public Database(String inUser,String inPassword,String inUrl) throws SQLException {
         open(inUser,inPassword,inUrl,null,null);
     }
 
@@ -65,7 +65,7 @@ public class Database {
      * @param inDriver driver java class name
      * @exception SQLException thrown by the database engine
      */
-    private Database(String inUser,String inPassword,String inUrl,String inDriver) throws SQLException {
+    public Database(String inUser,String inPassword,String inUrl,String inDriver) throws SQLException {
         open(inUser,inPassword,inUrl,inDriver,null);
     }
 
@@ -78,7 +78,7 @@ public class Database {
      * @param inSchema schema name to use
      * @exception SQLException thrown by the database engine
      */
-    private Database(String inUser,String inPassword,String inUrl,String inDriver,String inSchema) throws SQLException {
+    public Database(String inUser,String inPassword,String inUrl,String inDriver,String inSchema) throws SQLException {
         open(inUser,inPassword,inUrl,inDriver,inSchema);
     }
 
@@ -258,14 +258,16 @@ public class Database {
     /** loads the appropriate driver
      *
      */
-    protected void loadDriver() {
+    protected @SuppressWarnings("deprecation") void loadDriver() {
 
         if (mDriverLoaded) return;
         if (Logger.getLogLevel() == Logger.TRACE_ID)
         {
-            // Initialize log
-            //   DriverManager.setLogWriter(Logger.getWriter()); -> doesn't work with jdbc 1.0 drivers
-            //   so use the deprecated form
+            /* Initialize log
+             *   DriverManager.setLogWriter(Logger.getWriter()); -> doesn't work with jdbc 1.0 drivers
+             *   so use the deprecated form
+             *  TODO: detect driver jdbc conformance
+             */
             if(Logger.getLogLevel() <= Logger.DEBUG_ID) {
                 DriverManager.setLogStream(new PrintStream(new LineWriterOutputStream(Logger.getWriter())));
             }
@@ -273,6 +275,8 @@ public class Database {
 
         /* driver behaviour */
         mDriverInfo = DriverInfo.getDriverInfo(mUrl,mDriverClass);
+
+        mReverseEngineer.setDriverInfo(mDriverInfo);
 
         if (mDriverClass!=null) {
             try {
@@ -320,7 +324,7 @@ public class Database {
      * @param inQuery an SQL query
      * @return the resulting RowIterator
      */
-    public RowIterator query(String inQuery) {
+    public RowIterator query(String inQuery) throws SQLException {
         return query(inQuery,null);
     }
 
@@ -330,16 +334,10 @@ public class Database {
      * @param inEntity the resulting entity
      * @return return the resulting row iterator
      */
-    public RowIterator query(String inQuery,Entity inEntity) {
+    public RowIterator query(String inQuery,Entity inEntity) throws SQLException {
         PooledStatement statement = null;
-        try {
-            statement=mStatementPool.getStatement();
-            return statement.query(inQuery,inEntity);
-        }
-        catch (SQLException sqle) {
-            Logger.log(sqle);
-            return null;
-        }
+        statement=mStatementPool.getStatement();
+        return statement.query(inQuery,inEntity);
     }
 
     /** evaluate a query to a scalar
@@ -408,7 +406,6 @@ public class Database {
             return statement.update(inQuery);
         }
         catch (SQLException sqle) {
-            setError(sqle.getMessage());
             Logger.log(sqle);
             return -1;
         }
@@ -425,7 +422,6 @@ public class Database {
             return statement.update(inQuery);
         }
         catch (SQLException sqle) {
-            setError(sqle.getMessage());
             Logger.log(sqle);
             return -1;
         }
@@ -462,18 +458,20 @@ public class Database {
 
     /** get a jdbc connection
      *
-     * @return jdbc connection
+     * @return a jdbc connection wrapper (which extends java.sql.Connection)
      */
-    public Connection getConnection() throws SQLException {
+    public ConnectionWrapper getConnection() throws SQLException {
         return mConnectionPool.getConnection();
     }
 
-    /** get the underlying jdbc connection used for transactions
+    /** get the underlying jdbc connection used for transactions, and mark it right away as busy
      *
-     * @return jdbc connection
+     * @return a jdbc connection wrapper (which extends java.sql.Connection)
      */
-    public Connection getTransactionConnection() throws SQLException {
-        return mTransactionConnectionPool.getConnection();
+    public synchronized ConnectionWrapper getTransactionConnection() throws SQLException {
+        ConnectionWrapper ret = mTransactionConnectionPool.getConnection();
+        ret.enterBusyState();
+        return ret;
     }
 
     /** read the given config file
@@ -595,22 +593,6 @@ public class Database {
      */
     public Action getAction(String inName) {
         return mRootEntity.getAction(adaptCase(inName));
-    }
-
-    /** set the error string
-     *
-     * @param inError error string
-     */
-    public void setError(String inError) {
-        mError = inError;
-    }
-
-    /** get the error string
-     *
-     * @return error string
-     */
-    public String getError() {
-        return mError;
     }
 
     /** obfuscate the given value
@@ -740,10 +722,6 @@ public class Database {
     /** default caching mode
      */
     protected int mCaching = Cache.NO_CACHE;
-
-    /** error string for the last error
-     */
-    protected String mError = "no error";
 
     /** map name->entity
      */
