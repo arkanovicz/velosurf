@@ -18,6 +18,7 @@ package velosurf;
 
 import velosurf.context.DBReference;
 import velosurf.util.Logger;
+import velosurf.util.UserContext;
 import velosurf.sql.Database;
 
 import java.io.File;
@@ -97,6 +98,6 @@ public class Velosurf extends DBReference
     protected void init(InputStream configStream) throws SQLException,IOException {
         if (configStream == null) throw new IOException("Configuration InputStream is null!");
         Database db = Database.getInstance(configStream);
-        super.init(db);
+        super.init(db,new UserContext());
     }
 }
