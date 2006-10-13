@@ -38,6 +38,7 @@ public class ReverseEngineer {
     private Map<String,Entity> mEntityByTableName = new HashMap<String,Entity>();
 
     private Database mDatabase;
+    private DriverInfo mDriverInfo;
 
     private int mReverseMode = REVERSE_NONE;
 
@@ -51,6 +52,10 @@ public class ReverseEngineer {
      */
     public ReverseEngineer(Database database) {
         mDatabase = database;
+    }
+
+    protected void setDriverInfo(DriverInfo di) {
+        mDriverInfo = di;
     }
 
     protected void setReverseMode(int reverseMethod) {
@@ -79,7 +84,13 @@ public class ReverseEngineer {
                     tables = meta.getTables(null,mDatabase.getSchema(),null,null);
                     while (tables.next()) {
                         String tableName = mDatabase.adaptCase(tables.getString("TABLE_NAME"));
-                        if (tableName.indexOf('/')!=-1) continue; // skip special tables (Oracle)
+                        if (tableName.indexOf('/')!=-1) {
+                            /* Oracle system tables (hack) */
+                            continue; // skip special tables (Oracle)
+                        }
+                        if (tableName.startsWith(mDriverInfo.getIgnorePrefix())) {
+                            continue;
+                        }
                         Entity entity = (Entity)mEntityByTableName.get(tableName);
                         if (entity == null) entity = mDatabase.getEntityCreate(mDatabase.adaptCase(tableName));
                         else mEntityByTableName.remove(tableName);
