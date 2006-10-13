@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+
+   <access-log id='$app-dir/WEB-INF/log/access.log' rollover-period='1D' />
+   <log href='$app-dir/WEB-INF/log/error.log' rollover-period='1D' />
+   <classpath id='WEB-INF/classes' source='WEB-INF/src'/>
+
+  <!-- Listeners -->
+<!--
+  <listener>
+    <listener-class>SessionLogger</listener-class>
+  </listener>
+-->
+  <!-- Filters -->
+
+  <filter>
+    <filter-name>templatename</filter-name>
+    <filter-class>velosurf.util.TemplateNameFilter</filter-class>
+    <init-param>
+      <param-name>reset-method</param-name>
+      <param-value>manual</param-value>
+    </init-param>
+  </filter>
+
+  <filter>
+    <filter-name>localization</filter-name>
+    <filter-class>velosurf.web.i18n.LocalizationFilter</filter-class>
+    <init-param>
+      <param-name>supported-locales</param-name>
+      <param-value>en,fr</param-value>
+    </init-param>
+    <init-param>
+      <param-name>default-locale</param-name>
+      <param-value>en</param-value>
+    </init-param>
+    <init-param>
+      <param-name>localization-method</param-name>
+      <param-value>redirect</param-value>
+    </init-param>
+    <init-param>
+      <param-name>rewrite-uri</param-name>
+      <param-value>/localized/@/$1</param-value>
+    </init-param>
+    <init-param>
+      <param-name>inspect-uri</param-name>
+      <param-value>^/localized/(.+)(?:/|$)</param-value>
+    </init-param>
+  </filter>
+
+  <filter>
+    <filter-name>authentication</filter-name>
+    <filter-class>velosurf.web.auth.AuthenticationFilter</filter-class>
+    <init-param>
+      <param-name>index-page</param-name>
+      <param-value>/index.html</param-value>
+    </init-param>
+    <init-param>
+      <param-name>max-inactive</param-name>
+      <param-value>20</param-value>
+    </init-param>
+    <init-param>
+      <param-name>login-page</param-name>
+      <param-value>/login.html</param-value>
+    </init-param>
+    <init-param>
+      <param-name>authenticated-index-page</param-name>
+      <param-value>/auth/index.html</param-value>
+    </init-param>
+  </filter>
+
+  <filter>
+    <filter-name>localized-authentication</filter-name>
+    <filter-class>velosurf.web.auth.AuthenticationFilter</filter-class>
+    <init-param>
+      <param-name>index-page</param-name>
+      <param-value>/localized/@/index.html</param-value>
+    </init-param>
+    <init-param>
+      <param-name>max-inactive</param-name>
+      <param-value>20</param-value>
+    </init-param>
+    <init-param>
+      <param-name>login-page</param-name>
+      <param-value>/localized/@/login.html</param-value>
+    </init-param>
+    <init-param>
+      <param-name>authenticated-index-page</param-name>
+      <param-value>localized/@/auth/index.html</param-value>
+    </init-param>
+  </filter>
+
+  <!-- Filter Mapping -->
+
+  <filter-mapping>
+    <filter-name>templatename</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>localization</filter-name>
+    <url-pattern>/localized/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>authentication</filter-name>
+    <url-pattern>/auth/*</url-pattern>
+    <url-pattern>/auth/*.do</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>localized-authentication</filter-name>
+    <url-pattern>/localized/en/auth/*</url-pattern>
+    <url-pattern>/localized/fr/auth/*</url-pattern>
+    <url-pattern>/localized/*.do</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+  </filter-mapping>
+
+
+  <!-- Servlets -->
+
+  <context-param>
+    <param-name>org.apache.velocity.properties</param-name>
+    <param-value>/WEB-INF/velocity.properties</param-value>
+  </context-param>
+  <context-param>
+    <param-name>org.apache.velocity.toolbox</param-name>
+    <param-value>/WEB-INF/toolbox.xml</param-value>
+  </context-param>
+  <context-param>
+    <param-name>velosurf.config</param-name>
+    <param-value>/WEB-INF/model.xml</param-value>
+  </context-param>
+
+  <servlet>
+    <servlet-name>velocityview</servlet-name> 
+    <servlet-class>org.apache.velocity.tools.view.servlet.VelocityViewServlet</servlet-class>
+<!--    <servlet-class>DebugServlet</servlet-class> -->
+    <load-on-startup/>
+  </servlet>
+
+  <!-- Servlet Mapping -->
+
+<servlet-mapping>
+  <servlet-name>velocityview</servlet-name> 
+  <url-pattern>*.vtl</url-pattern> 
+</servlet-mapping>
+
+<welcome-file-list>
+  <welcome-file>index.html</welcome-file> 
+  <welcome-file>index.html.vtl</welcome-file> 
+</welcome-file-list>
+
+</web-app>

@@ -1,0 +1,28 @@
+<script type='text/javascript' src='bigint.js'></script>
+<script type="text/javascript" language="javascript">
+<!--
+	function hash(s) 
+	{
+		hash = 0;		
+		for(i=0; i<s.length; i++)
+			hash += s.charCodeAt(i) * Math.pow(31, (s.length)-(i+1));
+		return hash;
+	}
+
+    function generateAnswer(pwd)
+    {
+        var alpha = str2bigInt("$authent.challenge", 10, 0);
+        var h = str2bigInt(""+hash(pwd), 10, 0);
+        var beta = str2bigInt("$authent.prime", 10, 0);
+        var ret =  bigInt2str(powMod(alpha, h, beta), 10);
+        return ret;
+    }
+
+	function calcAnswer()
+	{
+		document.login.elements['answer'].value = generateAnswer(document.login.elements['password'].value);
+		document.login.elements['password'].value = "";
+		document.ident.submit();
+	}
+-->
+</script>
