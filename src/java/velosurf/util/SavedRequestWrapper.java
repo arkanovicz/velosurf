@@ -37,7 +37,7 @@ import java.security.Principal;
  * @author Andrey Grebnev <a href="mailto:andrey.grebnev@blandware.com">&lt;andrey.grebnev@blandware.com&gt;</a>
  */
 
-public class SavedRequestWrapper extends HttpServletRequestWrapper {
+public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpServletRequestWrapper {
 
     protected SavedRequest savedRequest = null;
 
@@ -314,19 +314,4 @@ public class SavedRequestWrapper extends HttpServletRequestWrapper {
             }
         }
     }
-
-    /**
-     * Returns the <code>Authentication</code> (which is a subclass of
-     * <code>Principal</code>), or <code>null</code> if unavailable.
-     *
-     * <p>We override this method in order to workaround the problem in Sun Java System Application Server 8.1 PE</p>
-     * <p>This approach is tottaly incorrect, but as noone use this method it is safe</p>
-     *
-     * @return the <code>Authentication</code>, or <code>null</code>
-     */
-    public Principal getUserPrincipal() {
-        //TODO remove this method at all when SJSAS bug will be fixed
-        return null;
-    }
-
 }
