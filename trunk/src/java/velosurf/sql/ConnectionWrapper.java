@@ -19,7 +19,7 @@ package velosurf.sql;
 /** Connection wrapper class - allows handling of a busy state
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
- */ 
+ */
 
 import velosurf.util.Logger;
 
@@ -325,16 +325,16 @@ public class ConnectionWrapper
 
     public void enterBusyState() {
         //Logger.trace("connection #"+toString()+": entering busy state.");
-        busy = true;
+        busy++;
     }
 
     public void leaveBusyState() {
-        busy = false;
+        busy--;
         //Logger.trace("connection #"+toString()+": leaving busy state.");
     }
 
     public boolean isBusy() {
-        return busy;
+        return busy>0;
     }
 
     public long getLastInsertId(Statement statement) {
@@ -367,7 +367,7 @@ public class ConnectionWrapper
 
     protected DriverInfo driver = null;
     protected Connection connection = null;
-    protected boolean busy = false;
+    protected int busy = 0;
     protected boolean closed = false;
 
     /** statement used to check connection ("select 1")
