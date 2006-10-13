@@ -25,7 +25,7 @@ import java.util.List;
 import velosurf.model.Attribute;
 import velosurf.sql.DataAccessor;
 import velosurf.util.Logger;
-import velosurf.i18n.Localizer;
+import velosurf.util.UserContext;
 
 /** Context wrapper for attributes
  *
@@ -48,10 +48,10 @@ public class AttributeReference extends AbstractList
      * @param inDataAccessor the data accessor this attribute reference applies to
      * @param inAttribute the wrapped attribute
      */
-    public AttributeReference(DataAccessor inDataAccessor,Attribute inAttribute,Localizer localizer) {
+    public AttributeReference(DataAccessor inDataAccessor,Attribute inAttribute,UserContext usrCtx) {
         mDataAccessor = inDataAccessor;
         mAttribute = inAttribute;
-        mLocalizer = localizer;
+        userContext = usrCtx;
     }
 
     /** Refines this attribute's reference result : the provided criterium will be added to the 'where' clause (or a 'where' clause will be added).
@@ -94,12 +94,14 @@ public class AttributeReference extends AbstractList
     public Iterator iterator() {
         try {
             RowIterator iterator = mAttribute.query(mDataAccessor,mRefineCriteria,mOrder);
-            if (mLocalizer != null) iterator.setLocalizer(mLocalizer);
+            if (userContext != null) iterator.setUserContext(userContext);
             return iterator;
         }
         catch (SQLException sqle) {
             Logger.log(sqle);
-            mAttribute.getDB().setError(sqle.getMessage());
+            if (userContext != null) {
+                userContext.setError(sqle.getMessage());
+            }
             return null;
         }
     }
@@ -110,7 +112,7 @@ public class AttributeReference extends AbstractList
      */
     public List getRows() throws SQLException {
         RowIterator iterator = mAttribute.query(mDataAccessor,mRefineCriteria,mOrder);
-        if (mLocalizer != null) iterator.setLocalizer(mLocalizer);
+        if (userContext != null) iterator.setUserContext(userContext);
         return iterator.getRows();
     }
 
@@ -150,8 +152,7 @@ public class AttributeReference extends AbstractList
      */
     protected Attribute mAttribute = null;
 
-    /** The localizer used to resolve localized values
-     *
-      */
-    protected Localizer mLocalizer = null;
+    /** user context
+     */
+    protected UserContext userContext = null;
 }

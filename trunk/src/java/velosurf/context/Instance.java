@@ -27,7 +27,8 @@ import velosurf.sql.DataAccessor;
 import velosurf.sql.PooledPreparedStatement;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
-import velosurf.i18n.Localizer;
+import velosurf.util.UserContext;
+import velosurf.web.i18n.Localizer;
 
 /** An Instance provides field values by their name.
  *
@@ -38,7 +39,6 @@ public class Instance extends TreeMap implements DataAccessor
     /** Build an empty instance for the given entity
      *
      * @param inEntity Entity this instance is a realisation of
-     * @deprecated As of Velosurf 1.4, please use the default constructor and call initialize(Entity) thereafter.
      */
     public Instance(Entity inEntity) {
         initialize(inEntity);
@@ -56,6 +56,7 @@ public class Instance extends TreeMap implements DataAccessor
      public void initialize(Entity inEntity) {
          mEntity = inEntity;
          mDB = mEntity.getDB();
+         mLocalized = mEntity.hasLocalizedColumns();
      }
 
     /** Get this Instance's Entity.
@@ -63,7 +64,7 @@ public class Instance extends TreeMap implements DataAccessor
      * @return this Instance's Entity.
      */
     public EntityReference getEntity() {
-        return new EntityReference(mEntity,mLocalizer.get());
+        return new EntityReference(mEntity,mUserContext.get());
     }
 
     /** Get the name of the table mapped by this Instance's Entity.
@@ -146,13 +147,12 @@ public class Instance extends TreeMap implements DataAccessor
                         if (action != null) result = Integer.valueOf(action.perform(this));
                     }
                 }
-            } else if (mLocalize && mEntity.isLocalized((String)inKey)) {
-
+            } else if (mLocalized && mEntity.isLocalized((String)inKey) && mUserContext.get() != null) {
+                result = mUserContext.get().localize(result.toString());
             }
         }
-        catch (SQLException e) {
-            mDB.setError(e.getMessage());
-            Logger.log(e);
+        catch (SQLException sqle) {
+            handleSQLException(sqle);
         }
         return result;
     }
@@ -231,7 +231,7 @@ public class Instance extends TreeMap implements DataAccessor
                 throw new SQLException("Cannot update an instance whose Entity is null.");
             }
             if (mEntity.isReadOnly()) {
-                throw new SQLException("Entity "+mEntity.getName()+" is read-only.");                
+                throw new SQLException("Entity "+mEntity.getName()+" is read-only.");
             }
             Map values = new HashMap();
             for(Iterator it = keySet().iterator();it.hasNext();) {
@@ -283,8 +283,7 @@ public class Instance extends TreeMap implements DataAccessor
             return true;
         }
         catch (SQLException sqle) {
-            mDB.setError(sqle.getMessage());
-            Logger.log(sqle);
+            handleSQLException(sqle);
             return false;
         }
     }
@@ -319,8 +318,7 @@ public class Instance extends TreeMap implements DataAccessor
             return true;
         }
         catch (SQLException sqle) {
-            mDB.setError(sqle.getMessage());
-            Logger.log(sqle);
+            handleSQLException(sqle);
             return false;
         }
     }
@@ -332,7 +330,14 @@ public class Instance extends TreeMap implements DataAccessor
      */
     public synchronized boolean insert() {
         try {
-            if (mEntity == null) throw new SQLException("Instance.insert: Error: Entity is null!");
+            if (mEntity == null) {
+                throw new SQLException("Instance.insert: Error: Entity is null!");
+            }
+
+            if (!mEntity.validate(this,mUserContext.get())) {
+                return false;
+            }
+
             List colsClause = new ArrayList();
             List valsClause = new ArrayList();
             List params = new ArrayList();
@@ -359,35 +364,54 @@ public class Instance extends TreeMap implements DataAccessor
             return true;
         }
         catch (SQLException sqle) {
-            mDB.setError(sqle.getMessage());
-            Logger.log(sqle);
+            handleSQLException(sqle);
             return false;
         }
     }
 
-    /** set this instance localizer (thread local)
+    /** validate this instance against declared contraints
+     */
+    public boolean validate() {
+        try {
+            return mEntity.validate(this,mUserContext.get());
+        } catch(SQLException sqle) {
+            handleSQLException(sqle);
+            return false;
+        }
+    }
+
+    /** handle an sql exception
      *
      */
-
-    public void setLocalizer(Localizer localizer) {
-        if (!mEntity.hasLocalizedColumns()) return;
-        mLocalize = true;
-        mLocalizer.set(localizer);
+    private void handleSQLException(SQLException sqle) {
+        Logger.log(sqle);
+        UserContext uc = mUserContext.get();
+        if (uc != null) {
+            uc.setError(sqle.getMessage());
+        }
     }
+
+    /** set this instance user context (thread local)
+     *
+     */
+    protected void setUserContext(UserContext userContext) {
+        mUserContext.set(userContext);
+    }
+
+    /** thread-local user context
+     */
+    protected ThreadLocal<UserContext> mUserContext = new ThreadLocal<UserContext>();
 
     /** this Instance's Entity
      */
     protected Entity mEntity = null;
+
+    /** is there a column to localize ?
+     */
+    protected boolean mLocalized = false;
+
     /** the main database connection
      */
     protected Database mDB = null;
 
-    /** whether to localize a column
-     *
-     */
-    protected boolean mLocalize = false;
-    /** the localizer object to be used to resolve localizer columns (thread local)
-     *
-     */
-    protected ThreadLocal<Localizer> mLocalizer = new ThreadLocal<Localizer>();
 }
