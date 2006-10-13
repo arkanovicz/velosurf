@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.i18n;
+package velosurf.web.i18n;
 
 import java.util.Locale;
 
@@ -25,6 +25,7 @@ import java.util.Locale;
  **/
 
 public interface Localizer {
+    public void setLocale(Locale locale);
     public Locale getLocale();
     public String get(Object id);
 //    public Object getId(String text);

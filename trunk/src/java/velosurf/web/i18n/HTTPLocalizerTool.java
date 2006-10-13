@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.i18n;
+package velosurf.web.i18n;
 
 import org.apache.velocity.tools.view.context.ViewContext;
 
@@ -46,10 +46,10 @@ public abstract class HTTPLocalizerTool implements Localizer {
         if (initData instanceof ViewContext) {
             HttpSession session = ((ViewContext)initData).getRequest().getSession();
             if (session != null) {
-                _locale = (Locale)session.getAttribute("velosurf.i18n.active-locale");
-            }
-            if (_locale == null) {
-                Logger.error("l10n: localizer tool cannot find locale... did you set up the localization filter?");
+                Locale locale = (Locale)session.getAttribute("velosurf.i18n.active-locale");
+                if (locale != null) {
+                    setLocale(locale);
+                }
             }
         }
         else {
@@ -58,6 +58,10 @@ public abstract class HTTPLocalizerTool implements Localizer {
         }
     }
 
+
+    public void setLocale(Locale locale) {
+        _locale = locale;
+    }
 
     public Locale getLocale() {
         return _locale;

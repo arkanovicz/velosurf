@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.auth;
+package velosurf.web.auth;
 
 import javax.servlet.http.HttpSession;
 import java.util.Random;
