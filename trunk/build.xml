@@ -46,6 +46,9 @@
   <property name="test.rst.dir"      value="${test.dir}/rst"/>
   <property name="test.cmp.dir"      value="${test.dir}/cmp"/>
   <property name="test.build.dir"    value="${test.dir}/class"/>
+  <property name="test.webapp.dir"    value="${test.dir}/webapp"/>
+
+  <property name="test.jetty.dir"        value="${test.dir}/jetty"/>
 
   <!-- DOWNLOAD PROPERTIES -->
   <property name="repo.url"          value="http://www.ibiblio.org/maven"/>
@@ -66,15 +69,17 @@
 
     <!-- test classpath -->
     <path id="test.classpath">
+      <path refid="classpath"/>
       <fileset dir="${test.lib.dir}">
         <include name="**/*.jar"/>
       </fileset>
+      <pathelement location="${test.build.dir}"/>
     </path>
   
 
   <!-- PATTERN SETS -->
   <patternset id="sources" >
-    <include name="velosurf/**/*.java" />
+    <include name="velosurf/**/*" />
   </patternset>
 
 <!-- targets section -->
@@ -102,6 +107,7 @@ Please specify a target among :
     <mkdir dir="${test.build.dir}" />
     <mkdir dir="${test.lib.dir}" />
     <mkdir dir="${test.rst.dir}" />
+    <mkdir dir="${test.jetty.dir}/logs" />
     <tstamp />
     <!-- DOWNLOAD LIBRARIES IF NEEDED -->
     <antcall target="build-download" />
@@ -114,8 +120,27 @@ Please specify a target among :
     <delete dir="${test.build.dir}"/>
     <delete dir="${test.rst.dir}"/>
     <delete dir="${test.lib.dir}"/>
+    <delete dir="$test.webapp.dir}/WEB-INF/lib"/>
+    <mkdir dir="${test.jetty.dir}/logs" />
   </target>
   
+  <target name="download-if-needed" unless="skip.jar.loading">
+    <condition property="jar.present">
+      <available file="${download.dir}/${download.jarname}-${download.jarversion}.jar"/>
+    </condition>
+    <antcall target="http-download"/>
+  </target>
+
+  <target name="http-download" unless="jar.present">
+    <property name="download.dirname" value="${download.jarname}"/> <!-- if not set previously -->
+    <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"/>
+    <get src="${repo.url}/${download.dirname}/jars/${download.jarname}-${download.jarversion}.jar"
+         dest="${download.dir}/${download.jarname}-${download.jarversion}.jar"
+         usetimestamp="true"
+         verbose="false"
+         ignoreerrors="false" />
+  </target>
+
   <target name="build-download">
    <property name="download.dir" value="${lib.dir}"/>
    
@@ -127,89 +152,145 @@ Please specify a target among :
    <antcall target="jdom-download"/>
    <antcall target="servletapi-download"/>
    <antcall target="velocity-download"/>
-   <antcall target="velocity-tools-download"/>
+<!-- repository version too old
+   <antcall target="velocity-tools-view-download"/>
+-->
   </target>
 
   <target name="commons-beanutils-download">
    <property name="download.jarname" value="commons-beanutils" />
    <property name="download.jarversion" value="${jar.commons-beanutils.version}" />
-   <antcall target="http-download"/>
+   <antcall target="download-if-needed"/>
   </target>
 
   <target name="commons-digester-download">
    <property name="download.jarname" value="commons-digester" />
    <property name="download.jarversion" value="${jar.commons-digester.version}" />
-   <antcall target="http-download"/>
+   <antcall target="download-if-needed"/>
   </target>
 
   <target name="commons-logging-download">
    <property name="download.jarname" value="commons-logging" />
    <property name="download.jarversion" value="${jar.commons-logging.version}" />
-   <antcall target="http-download"/>
+   <antcall target="download-if-needed"/>
   </target>
 
   <target name="crimson-download">
    <property name="download.jarname" value="crimson" />
    <property name="download.jarversion" value="${jar.crimson.version}" />
-   <antcall target="http-download"/>
+   <antcall target="download-if-needed"/>
   </target>
 
   <target name="dom4j-download">
    <property name="download.jarname" value="dom4j" />
    <property name="download.jarversion" value="${jar.dom4j.version}" />
-   <antcall target="http-download"/>
+   <antcall target="download-if-needed"/>
   </target>
 
   <target name="jdom-download">
    <property name="download.jarname" value="jdom" />
    <property name="download.jarversion" value="${jar.jdom.version}" />
-   <antcall target="http-download"/>
+   <antcall target="download-if-needed"/>
   </target>
 
   <target name="servletapi-download">
    <property name="download.jarname" value="servletapi" />
    <property name="download.jarversion" value="${jar.servletapi.version}" />
-   <antcall target="http-download"/>
+   <antcall target="download-if-needed"/>
   </target>
 
   <target name="velocity-download">
    <property name="download.jarname" value="velocity" />
    <property name="download.jarversion" value="${jar.velocity.version}" />
-   <antcall target="http-download"/>
+   <antcall target="download-if-needed"/>
   </target>
 
-  <target name="velocity-tools-download">
-   <property name="download.jarname" value="velocity-tools" />
-   <property name="download.jarversion" value="${jar.velocity-tools.version}" />
-   <antcall target="http-download"/>
+  <target name="velocity-tools-view-download">
+   <property name="download.dirname" value="velocity-tools"/>
+   <property name="download.jarname" value="velocity-tools-view"/>
+   <property name="download.jarversion" value="${jar.velocity-tools-view.version}" />
+   <antcall target="download-if-needed"/>
   </target>
+
+  <!-- test downloads --> 
 
   <target name="test-download">
    <property name="download.dir" value="${test.lib.dir}"/>
    <antcall target="hsqldb-download"/>
-   <antcall target="junit-download"/>
+   <antcall target="httpunit-download"/>
+   <antcall target="js-download"/>
+   <antcall target="nekohtml-download"/>
+<!-- repository version too old  <antcall target="junit-download"/> TODO include it and copy it to lib (or from ant-home/lib ? or include ant classpath for javac ?)... -->
+  </target>
+
+  <target name="jetty-main-download">
+   <property name="download.dir" value="${test.jetty.dir}/lib"/>  
+   <antcall target="jetty-download"/>
+   <antcall target="jetty-util-download"/>
+   <antcall target="servlet-api-2.5-download"/>
+   <antcall target="start-download"/>
   </target>
 
   <target name="hsqldb-download">
    <property name="download.jarname" value="hsqldb" />
    <property name="download.jarversion" value="${jar.hsqldb.version}" />
-   <antcall target="http-download"/>
+   <antcall target="download-if-needed"/>
   </target>
 
+  <target name="httpunit-download">
+   <property name="download.jarname" value="httpunit" />
+   <property name="download.jarversion" value="${jar.httpunit.version}" />
+   <antcall target="download-if-needed"/>
+  </target>
+
+  <target name="jetty-download">
+   <property name="download.jarname" value="jetty" />
+   <property name="download.jarversion" value="${jar.jetty.version}" />
+   <antcall target="download-if-needed"/>
+  </target>
+
+  <target name="jetty-util-download">
+   <property name="download.dirname" value="jetty"/>
+   <property name="download.jarname" value="jetty-util" />
+   <property name="download.jarversion" value="${jar.jetty.version}" />
+   <antcall target="download-if-needed"/>
+  </target>
+
+  <target name="js-download">
+   <property name="download.dirname" value="rhino"/>
+   <property name="download.jarname" value="js" />
+   <property name="download.jarversion" value="${jar.js.version}" />
+   <antcall target="download-if-needed"/>
+   <!-- httpunit wants a js.jar -->
+   <copy file="${download.dir}/${download.jarname}-${download.jarversion}.jar" tofile="${download.dir}/js.jar"/>
+  </target>
+
+  <target name="nekohtml-download">
+   <property name="download.jarname" value="nekohtml" />
+   <property name="download.jarversion" value="${jar.nekohtml.version}" />
+   <antcall target="download-if-needed"/>
+  </target>
+
+  <target name="servlet-api-2.5-download">
+   <property name="download.dirname" value="jetty"/>
+   <property name="download.jarname" value="servlet-api-2.5" />
+   <property name="download.jarversion" value="${jar.jetty.version}" />
+   <antcall target="download-if-needed"/>
+  </target>
+
+  <target name="start-download">
+   <property name="download.dirname" value="jetty"/>
+   <property name="download.jarname" value="start" />
+   <property name="download.jarversion" value="${jar.jetty.version}" />
+   <antcall target="download-if-needed"/>
+  </target>
+
+<!-- repository version too old
   <target name="junit-download">
    <property name="download.jarname" value="junit" />
    <property name="download.jarversion" value="${jar.junit.version}" />
-   <antcall target="http-download"/>
-  </target>
-
-  <target name="http-download" unless="skip.jar.loading">
-    <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"/>
-    <get src="${repo.url}/${download.jarname}/jars/${download.jarname}-${download.jarversion}.jar"
-         dest="${download.dir}/${download.jarname}-${download.jarversion}.jar"
-         usetimestamp="true"
-         verbose="false"
-         ignoreerrors="false" />
-  </target>
+   <antcall target="download-if-needed"/>
+  </target> -->
 
   <target name="jar" depends="prepare">
     <property name="myclasspath" refid="classpath"/>
@@ -232,10 +313,10 @@ Please specify a target among :
 	</jar>
   </target>
 
+
   <target name="compile-test" depends="prepare,jar">
-    <antcall target="test-download" />
-    <property name="myclasspath" refid="classpath"/>
-    <echo message="using classpath= ${myclasspath}"/>
+    <property name="testclasspath" refid="test.classpath"/>
+    <echo message="using classpath= ${testclasspath}"/>
     <javac srcdir="${test.src.dir}"
         destdir="${test.build.dir}"
         encoding="UTF-8"
@@ -246,43 +327,157 @@ Please specify a target among :
         source="1.5"
         target="1.5">
       <classpath>
-        <path refid="classpath"/>
-        <path refid="test.classpath"/>
-        <pathelement location="${test.build.dir}"/>
+        <path refid="classpath" />
+        <path refid="test.classpath" />
+        <filelist dir="${bin.dir}" files="velosurf-${version}.jar"/>
       </classpath>
     </javac>
+    <copy file="${lib.dir}/commons-logging-${jar.commons-logging.version}.jar" todir="${test.jetty.dir}/lib"/>
+    <javac srcdir="${test.jetty.dir}/src" destdir="${tmp.dir}" source="1.5" target="1.5">
+      <classpath>
+        <filelist dir="${test.jetty.dir}/lib" files="jetty-${jar.jetty.version}.jar,jetty-util-${jar.jetty.version}.jar"/>
+      </classpath>
+    </javac>
+    <jar jarfile="${test.jetty.dir}/lib/webapplogger.jar" basedir="${tmp.dir}" includes="WebappLogger.class"/>
   </target>
 
-  <target name="test" depends="prepare,compile-test">
+  <target name="stop-previous-jetty" if="${jetty-already-running}">
+    <echo>Found a previously running instance of Jetty. Closing it...</echo>
+    <antcall target="stop-jetty"/>
+<!--
+    <waitfor maxwait="2" maxwaitunit="minute" checkevery="500">
+      <not>
+        <http url="http://localhost:${test.webcontainer.port}/"/>
+      </not>
+    </waitfor>
+-->
+  </target>
+
+  <target name="start-jetty">
+     <condition property="jetty-already-running">
+       <socket server="127.0.0.1" port="${test.webcontainer.control.port}"/>
+     </condition>
+     <antcall target="stop-previous-jetty"/>
+     <java fork="true" spawn="true" jar="${test.jetty.dir}/lib/start-6.0.1.jar" dir="${test.jetty.dir}">
+       <arg value="etc/jetty.xml"/>
+       <sysproperty key="jetty.home" value="${test.jetty.dir}"/>
+       <sysproperty key="jetty.port" value="${test.webcontainer.port}"/>
+       <sysproperty key="STOP.PORT" value="${test.webcontainer.control.port}"/>
+       <sysproperty key="STOP.KEY" value="verysecret"/>
+       <sysproperty key="org.mortbay.log.class" value="WebappLogger"/>
+       <sysproperty key="velosurf.test.webapp.log.file" value="${test.webapp.dir}/WEB-INF/log/error.log"/>
+       <sysproperty key="velosurf.test.webapp.log.context" value="/"/>
+<!--       <sysproperty key="velosurf.test.webapp.log.debug" value="${debug}"/> -->
+       <sysproperty key="velosurf.test.webapp.log.debug" value="on"/>
+     </java>
+    <waitfor maxwait="2" maxwaitunit="minute" checkevery="500">
+      <http url="http://localhost:${test.webcontainer.port}/"/>
+    </waitfor>
+    <echo message="web server launched successfully."/>
+  </target>
+
+  <target name="stop-jetty">
+    <java fork="true" jar="${test.jetty.dir}/lib/start-6.0.1.jar" dir="${test.jetty.dir}">
+      <arg value="--stop"/>
+      <sysproperty key="STOP.PORT" value="${test.webcontainer.control.port}"/>
+      <sysproperty key="STOP.KEY" value="verysecret"/>
+    </java>
+  </target>
+
+  <target name="stop-previous-hsqldb" if="${hsqldb-already-running}">
+    <echo>Found a previously running instance of HSQLDB. Closing it...</echo>
+    <antcall target="stop-hsqldb"/>
+<!--
+    <waitfor maxwait="2" maxwaitunit="minute" checkevery="500">
+      <not>
+        <socket server="127.0.0.1" port="${test.database.port}"/>
+      </not>
+    </waitfor>
+-->
+  </target>
+
+  <target name="start-hsqldb">
+     <condition property="hsqldb-already-running">
+       <socket server="127.0.0.1" port="${test.database.port}"/>
+     </condition>
+     <antcall target="stop-previous-hsqldb"/>
+    <java fork="true" spawn="true" classname="org.hsqldb.Server">
+      <arg value="-address"/>
+      <arg value="127.0.0.1"/>
+      <arg value="-port"/>
+      <arg value="${test.database.port}"/>
+      <arg value="-database.0"/>
+      <arg value="mem:test"/>
+      <arg value="-dbname.0"/>
+      <arg value="test"/>
+      <classpath>
+        <filelist dir="${test.lib.dir}" files="hsqldb-${jar.hsqldb.version}.jar"/>
+      </classpath>
+    </java>
+    <waitfor maxwait="2" maxwaitunit="minute" checkevery="500">
+      <socket server="127.0.0.1" port="${test.database.port}"/>
+    </waitfor>
+    <echo message="database server launched successfully."/>
+    <sql driver="org.hsqldb.jdbcDriver" 
+         classpath="${test.lib.dir}/hsqldb-${jar.hsqldb.version}.jar"
+         url="jdbc:hsqldb:hsql://127.0.0.1:${test.database.port}/test" 
+         userid="sa" 
+         password=""
+         autocommit="true"
+         src="${test.dir}/sql/initial.sql"/>
+  </target>
+
+  <target name="stop-hsqldb">
+    <sql driver="org.hsqldb.jdbcDriver" 
+         classpath="${test.lib.dir}/hsqldb-${jar.hsqldb.version}.jar"
+         url="jdbc:hsqldb:hsql://127.0.0.1:${test.database.port}/test" 
+         userid="sa" 
+         password=""
+         autocommit="true">
+      SHUTDOWN;
+    </sql>
+  </target>
+
+  <target name="test" depends="prepare,compile-test,test-download,jetty-main-download">
+    <antcall target="test-download"/>
+    <antcall target="jetty-main-download" />
+    <copy todir="${test.webapp.dir}/WEB-INF/lib">
+      <fileset dir="${lib.dir}"/>
+    </copy>
+    <copy file="${bin.dir}/velosurf-${version}.jar" todir="${test.webapp.dir}/WEB-INF/lib"/>
+    <copy file="${test.lib.dir}/hsqldb-${jar.hsqldb.version}.jar" todir="${test.webapp.dir}/WEB-INF/lib"/>
+    <antcall target="start-hsqldb"/>
+    <antcall target="start-jetty"/>
+    <delete dir="${test.rst.dir}"/>
+    <mkdir dir="${test.rst.dir}"/>
     <junit dir="${test.dir}"
            fork="true"
-           printSummary="yes"
-           haltonerror="true"
-           haltonfailure="true">
-
+           printSummary="withOutAndErr"
+           haltonerror="false"
+           haltonfailure="false">
+<!--
+<sysproperty key="log4j.configuration"
+                   value="file:///tmp/log4j.properties"/>
+-->
       <classpath>
         <path refid="classpath" />
         <path refid="test.classpath" />
         <pathelement path="${test.build.dir}"/>
+        <filelist dir="${bin.dir}" files="velosurf-${version}.jar"/>
       </classpath>
 
       <batchtest todir="${test.rst.dir}">
-        <fileset dir="${test.src.dir}">
-<!--
-          <include name="**/*TestCase.java"></include>
-
-          <exclude name="**/BaseTestCase.java"></exclude>
-
-          <exclude name="**/TexenTestCase.java"></exclude>
-          <exclude name="**/TexenClasspathTestCase.java"></exclude>
-          <exclude name="**/AnakiaTestCase.java"></exclude>
-          <exclude name="**/MultiLoaderTestCase.java"></exclude>
-          <exclude name="**/ClasspathResourceTestCase.java"></exclude>
--->
-        </fileset>
+        <fileset dir="${test.src.dir}" includes="whitebox/**/*"/>
       </batchtest>
+
+      <batchtest todir="${test.rst.dir}">
+        <fileset dir="${test.src.dir}" includes="blackbox/*"/>
+      </batchtest>
+
       <formatter type="plain"/>
     </junit>
+    <antcall target="stop-jetty"/>
+    <antcall target="stop-hsqldb"/>
   </target>
 
   <target name="javadoc" depends="prepare">
@@ -345,6 +540,7 @@ Please specify a target among :
       </fileset>
     </copy>
 
+<!-- TODO correct jar names! Should I include them? -->
     <copy todir="${dist.dir}/lib" >
       <fileset dir="${basedir}/lib" >
         <include name="crimson.jar" />
