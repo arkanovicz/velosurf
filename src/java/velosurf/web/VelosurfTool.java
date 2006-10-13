@@ -30,7 +30,9 @@ import velosurf.sql.Database;
 import velosurf.util.Logger;
 import velosurf.util.ServletLogWriter;
 import velosurf.util.ToolFinder;
-import velosurf.i18n.Localizer;
+import velosurf.util.UserContext;
+import velosurf.web.i18n.Localizer;
+import velosurf.web.i18n.Localizer;
 
 /** <p>This class is a tool meant to be referenced in toolbox.xml</p>
  * <p>It can be used in any scope you want (application/session/request), depending on the behaviour you need for the refinement and ordering mechanisms (which will follow the same scope).
@@ -78,24 +80,22 @@ public class VelosurfTool extends DBReference
      */
     public void init(Object inViewContext) {
         // get servlet context
+        ViewContext viewctx = null;
         ServletContext ctx = null;
-        boolean hasViewContext;
         if (inViewContext instanceof ServletContext) {
             ctx = (ServletContext)inViewContext;
-            hasViewContext = false;
         }
         else if (inViewContext instanceof ViewContext) {
-            ctx = ((ViewContext)inViewContext).getServletContext();
-            hasViewContext = true;
+            viewctx = (ViewContext)inViewContext;
+            ctx = viewctx.getServletContext();
         }
         else {
             Logger.error("Initialization: no valid initialization data found!");
-            hasViewContext = false;
         }
 
         // get config file
         if (mConfigFile == null) { // if not already given by configure()
-            // look in the servlet parameters
+            // look in the servlet context parameters
             if (mConfigFile == null)
                 mConfigFile = ctx.getInitParameter(DATABASE_CONFIG_FILE_KEY);
 
@@ -109,11 +109,33 @@ public class VelosurfTool extends DBReference
             Logger.setWriter(new ServletLogWriter(ctx));
         }
 
-        /* fetch the localizer */
-        if (sFetchLocalizer && hasViewContext) fetchLocalizer((ViewContext)inViewContext);
+        UserContext userContext = null;
 
-        /* initialize with a new connection */
-        super.init(getConnection(mConfigFile,ctx));
+        /* user context */
+        if (viewctx != null) {
+            HttpSession session = viewctx.getRequest().getSession(false);
+            if (session != null) {
+                synchronized(session) {
+                    userContext = (UserContext)session.getAttribute(USER_CONTEXT_KEY);
+                    if (userContext == null) {
+                        userContext = new UserContext();
+                        session.setAttribute(USER_CONTEXT_KEY,userContext);
+                        if (sFetchLocalizer) {
+                            Localizer localizer = ToolFinder.findTool(session,Localizer.class);
+                            if (localizer != null) {
+                                userContext.setLocalizer(localizer);
+                            } else {
+                                // don't search for it again
+                                sFetchLocalizer = false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /* initialize with a new or existing connection */
+        super.init(getConnection(mConfigFile,ctx),userContext);
 
     }
 
@@ -133,6 +155,10 @@ public class VelosurfTool extends DBReference
             return null;
         }
     }
+
+    /** key used to store the user context in the http session
+     */
+    protected static final String USER_CONTEXT_KEY = "velosurf.user.context";
 
     /** key used in the deployment descriptor (web.xml) to set the name of the config file
      */
@@ -252,7 +278,9 @@ public class VelosurfTool extends DBReference
      */
     public static DBReference getDefaultInstance(ServletContext inServletContext)
     {
-        Database db = getConnection(DEFAULT_DATABASE_CONFIG_FILE,inServletContext);
+        /* check at least in the context params */
+        String configFile  = inServletContext.getInitParameter(DATABASE_CONFIG_FILE_KEY);
+        Database db = getConnection(configFile == null ? DEFAULT_DATABASE_CONFIG_FILE : configFile,inServletContext);
         return db == null ? null : new DBReference(db);
     }
 
@@ -263,17 +291,4 @@ public class VelosurfTool extends DBReference
      * True initially, false after one unsuccessful try.
      */
     protected static boolean sFetchLocalizer = true;
-
-    /**
-     * Utility method used to fetch the localizer from the toolbox.
-     */
-    protected void fetchLocalizer(ViewContext inViewContext) {
-        if (mLocalizer == null) {
-            mLocalizer = ToolFinder.findTool(inViewContext.getRequest().getSession(false),Localizer.class);
-            if (mLocalizer == null) {
-                // don't search for it again
-                sFetchLocalizer = false;
-            }
-        }
-    }
 }
