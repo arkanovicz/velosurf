@@ -334,7 +334,8 @@ public class ConfigLoader {
     private void defineEntities(Element database) throws Exception {
         for (Iterator entities = database.getChildren("entity").iterator();entities.hasNext();) {
             Element element = (Element)entities.next();
-            String name = adaptCase(element.getAttributeValue("name"));
+            String origName = element.getAttributeValue("name");
+            String name = adaptCase(origName);
             String table = adaptCase(element.getAttributeValue("table"));
 
             Entity entity = _database.getEntityCreate(adaptCase(name));
@@ -400,7 +401,7 @@ public class ConfigLoader {
             /* autofetching */
             String autofetch = element.getAttributeValue("autofetch");
             if (autofetch != null) {
-                String target = name;
+                String target = origName;
                 String param = autofetch;
                 boolean protect = false;
                 int n = autofetch.indexOf('=');
