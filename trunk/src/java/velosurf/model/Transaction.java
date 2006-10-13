@@ -17,9 +17,13 @@
 package velosurf.model;
 
 import java.sql.SQLException;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.List;
 
 import velosurf.sql.DataAccessor;
+import velosurf.sql.ConnectionWrapper;
+import velosurf.sql.PooledPreparedStatement;
 import velosurf.util.StringLists;
 
 /** This class is an action that gather several consecutive queries
@@ -53,32 +57,31 @@ public class Transaction extends Action
      * @return number of affected rows (addition of all the partial counts)
      */
     public int perform(DataAccessor inSource) throws SQLException {
-        // Since for now we only have one connection for transactions,
-        // we have to synchronize on it ! Otherwise commits and rollbacks
-        // could create a holy mess...
-        // Since transactionnal updates occur much less often than selects,
-        // it will be enough for this first version of transactions.
-        // FIXME : use a connection pool for transactions to avoid
-        // this synchronization.
-        synchronized(mDB.getTransactionConnection()) {
-            try {
-                int nb = mQueries.size();
-                int ret = 0;
-                for (int i=0; i<nb; i++) {
-                    // fool the buildArrayList method by using
-                    //  the super member mParamNames
-                    mParamNames = (List)mParamNamesList.get(i);
-                    List params = buildArrayList(inSource);
-                    ret += mDB.transactionPrepare((String)mQueries.get(i)).update(params);
-                }
-                mDB.getTransactionConnection().commit();
-                return ret;
+
+        ConnectionWrapper conn = mDB.getTransactionConnection();
+        try {
+            int nb = mQueries.size();
+            int ret = 0;
+            for (int i=0; i<nb; i++) {
+                // fool the buildArrayList method by using
+                //  the super member mParamNames
+                mParamNames = (List)mParamNamesList.get(i);
+                List params = buildArrayList(inSource);
+                /* TODO: pool transaction statements */
+                PooledPreparedStatement statement = new PooledPreparedStatement(conn,conn.prepareStatement(mQueries.get(i),ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY));
+                ret += statement.update(params);
+                statement.close();
             }
-            catch (SQLException sqle) {
-                mDB.getTransactionConnection().rollback();
-                throw sqle;
-            }
-        } // synchronized
+            conn.commit();
+            return ret;
+        }
+        catch (SQLException sqle) {
+            conn.rollback();
+            throw sqle;
+        }
+        finally {
+            conn.leaveBusyState();
+        }
     }
 
     /** debug method
