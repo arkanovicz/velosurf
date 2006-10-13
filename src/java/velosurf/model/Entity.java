@@ -31,6 +31,7 @@ import velosurf.sql.PooledPreparedStatement;
 import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
+import velosurf.util.UserContext;
 import velosurf.model.validation.FieldConstraint;
 
 import org.jdom.Element;
@@ -173,7 +174,6 @@ public class Entity
                 } catch (Exception e) {
                     Constructor instanceConstructor = mInstanceClass.getConstructor(new Class[] {Entity.class} );
                     result = (Instance)instanceConstructor.newInstance(new Object[] { this });
-                    Logger.warn("the constructor Instance::Instance(Entity) is deprecated, as it is for subclasses. Please provide an empty constructor.");
                 }
             } else {
                 result = new ExternalObjectWrapper(this,mInstanceClass.newInstance());
@@ -368,15 +368,8 @@ public class Entity
      * @param inValues the  Map object containing the values
      * @return success indicator
      */
-    public boolean insert(Map inValues) {
-        try {
-            return insert(new MapDataAccessor(inValues));
-        }
-        catch (SQLException sqle) {
-            mDB.setError(sqle.getMessage());
-            Logger.log(sqle);
-            return false;
-        }
+    public boolean insert(Map inValues) throws SQLException {
+        return insert(new MapDataAccessor(inValues));
     }
 
     /** insert a new row based on values of a map
@@ -447,31 +440,24 @@ public class Entity
      * @param inValues the List containing the key values
      * @return the fetched instance
      */
-    public Instance fetch(List inValues) {
-        try {
-            if (inValues.size() != mKeys.size()) throw new SQLException("Entity.fetch: Error: Wrong number of values for '"+mName+"' primary key!");
-            Instance instance = null;
-            // try in cache
-            if (mCachingMethod != Cache.NO_CACHE)
-                instance = (Instance)mCache.get(inValues.toArray());
-            if (instance == null) {
-                if (mFetchQuery == null) buildFetchQuery();
-                PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
-                if (mObfuscate) {
-                    inValues = new ArrayList(inValues);
-                    for(int col=0;col<mKeyColObfuscated.length;col++)
-                        if(mKeyColObfuscated[col])
-                            inValues.set(col,deobfuscate(inValues.get(col)));
-                }
-                instance = (Instance)statement.fetch(inValues,this);
+    public Instance fetch(List inValues) throws SQLException {
+        if (inValues.size() != mKeys.size()) throw new SQLException("Entity.fetch: Error: Wrong number of values for '"+mName+"' primary key!");
+        Instance instance = null;
+        // try in cache
+        if (mCachingMethod != Cache.NO_CACHE)
+            instance = (Instance)mCache.get(inValues.toArray());
+        if (instance == null) {
+            if (mFetchQuery == null) buildFetchQuery();
+            PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
+            if (mObfuscate) {
+                inValues = new ArrayList(inValues);
+                for(int col=0;col<mKeyColObfuscated.length;col++)
+                    if(mKeyColObfuscated[col])
+                        inValues.set(col,deobfuscate(inValues.get(col)));
             }
-            return instance;
+            instance = (Instance)statement.fetch(inValues,this);
         }
-        catch (SQLException sqle) {
-            mDB.setError(sqle.getMessage());
-            Logger.log(sqle);
-            return null;
-        }
+        return instance;
     }
 
     /** fetch an instance from key values stored in a Map
@@ -479,33 +465,26 @@ public class Entity
      * @param inValues the Map containing the key values
      * @return the fetched instance
      */
-    public Instance fetch(Map inValues) {
-        try {
-            Instance instance = null;
+    public Instance fetch(Map inValues) throws SQLException {
+        Instance instance = null;
+        // try in cache
+        if (mCachingMethod != Cache.NO_CACHE)
             // try in cache
-            if (mCachingMethod != Cache.NO_CACHE)
-                // try in cache
-                instance = (Instance)mCache.get(buildKey(inValues));
-            if (instance == null) {
-                if (mFetchQuery == null) buildFetchQuery();
-                PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
-                if (mObfuscate) {
-                    inValues = new HashMap(inValues);
-                    for(Map.Entry entry:(Set<Map.Entry>)inValues.entrySet()) {
-                        if (isObfuscated((String)entry.getKey())) {
-                            entry.setValue(deobfuscate(entry.getValue()));
-                        }
+            instance = (Instance)mCache.get(buildKey(inValues));
+        if (instance == null) {
+            if (mFetchQuery == null) buildFetchQuery();
+            PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
+            if (mObfuscate) {
+                inValues = new HashMap(inValues);
+                for(Map.Entry entry:(Set<Map.Entry>)inValues.entrySet()) {
+                    if (isObfuscated((String)entry.getKey())) {
+                        entry.setValue(deobfuscate(entry.getValue()));
                     }
                 }
-                instance = (Instance)statement.fetch(inValues,this);
             }
-            return instance;
+            instance = (Instance)statement.fetch(inValues,this);
         }
-        catch (SQLException sqle) {
-            mDB.setError(sqle.getMessage());
-            Logger.log(sqle);
-            return null;
-        }
+        return instance;
     }
 
     /** fetch an instance from its key value as a string
@@ -513,33 +492,27 @@ public class Entity
      * @param inKeyValue the key
      * @return the fetched instance
      */
-    public Instance fetch(String inKeyValue) {
-        try {
-            if (mKeys.size()!=1) {
-                if (mKeys.size()==0) throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has no primary key!");
-                else throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has a multi-column primary key!");
-            }
-            Instance instance = null;
+    public Instance fetch(String inKeyValue) throws SQLException {
+        if (mKeys.size()!=1) {
+            if (mKeys.size()==0) throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has no primary key!");
+            else throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has a multi-column primary key!");
+        }
+        Instance instance = null;
+        // try in cache
+        if (mCachingMethod != Cache.NO_CACHE)
             // try in cache
-            if (mCachingMethod != Cache.NO_CACHE)
-                // try in cache
-                instance = (Instance)mCache.get(new Object[] { inKeyValue });
-            if (instance == null) {
-                if (mFetchQuery == null) buildFetchQuery();
-                PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
-                if (mObfuscate && mKeyColObfuscated[0])
-                    inKeyValue = deobfuscate(inKeyValue);
-                ArrayList params = new ArrayList();
-                params.add(inKeyValue);
-                instance = (Instance)statement.fetch(params,this);
+            instance = (Instance)mCache.get(new Object[] { inKeyValue });
+        if (instance == null) {
+            if (mFetchQuery == null) buildFetchQuery();
+            PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
+            if (mObfuscate && mKeyColObfuscated[0]) {
+                inKeyValue = deobfuscate(inKeyValue);
             }
-            return instance;
+            ArrayList params = new ArrayList();
+            params.add(inKeyValue);
+            instance = (Instance)statement.fetch(params,this);
         }
-        catch (SQLException sqle) {
-            mDB.setError(sqle.getMessage());
-            Logger.log(sqle);
-            return null;
-        }
+        return instance;
     }
 
     /** fetch an instance from its key value specified as a Number
@@ -547,32 +520,28 @@ public class Entity
      * @param inKeyValue the key
      * @return the fetched instance
      */
-    public Instance fetch(Number inKeyValue) {
-        try {
-            if (mKeys.size()!=1) {
-                if (mKeys.size()==0) throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has no primary key!");
-                else throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has a multi-column primary key!");
-            }
-            Instance instance = null;
+    public Instance fetch(Number inKeyValue) throws SQLException {
+        if (mKeys.size()!=1) {
+            if (mKeys.size()==0) throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has no primary key!");
+            else throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has a multi-column primary key!");
+        }
+        Instance instance = null;
+        // try in cache
+        if (mCachingMethod != Cache.NO_CACHE)
             // try in cache
-            if (mCachingMethod != Cache.NO_CACHE)
-                // try in cache
-                instance = (Instance)mCache.get(new Object[] { inKeyValue });
-            if (instance == null) {
-                if (mFetchQuery == null) buildFetchQuery();
-                PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
-                ArrayList params = new ArrayList();
-                params.add(inKeyValue);
-                // do not check for obfuscation since obfuscated values are always string
-                instance = (Instance)statement.fetch(params,this);
+            instance = (Instance)mCache.get(new Object[] { inKeyValue });
+        if (instance == null) {
+            if (mFetchQuery == null) buildFetchQuery();
+            PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
+            ArrayList params = new ArrayList();
+            params.add(inKeyValue);
+            if(mObfuscate && mKeyColObfuscated[0]) {
+                Logger.warn("fetch: column '"+mColumns.get(0)+"' is obfuscated, please use $db."+mName+".fetch($db.obfuscate("+inKeyValue+"))");
+                return null;
             }
-            return instance;
+            instance = (Instance)statement.fetch(params,this);
         }
-        catch (SQLException sqle) {
-            mDB.setError(sqle.getMessage());
-            Logger.log(sqle);
-            return null;
-        }
+        return instance;
     }
 
     /** get the SQL query string used to fetch one instance of this query
@@ -597,7 +566,7 @@ public class Entity
      *
      * @return the resulting RowIterator
      */
-    public RowIterator query() {
+    public RowIterator query() throws SQLException {
         return query(null,null);
     }
 
@@ -608,7 +577,7 @@ public class Entity
      *     natural order
      * @return the resulting RowIterator
      */
-    public RowIterator query(List inRefineCriteria,String inOrder) {
+    public RowIterator query(List inRefineCriteria,String inOrder) throws SQLException {
         String query = "select * from "+mName;
         if (inRefineCriteria!=null) query = SqlUtil.refineQuery(query,inRefineCriteria);
         if (inOrder!=null && inOrder.length()>0) query = SqlUtil.orderQuery(query,inOrder);
@@ -717,6 +686,22 @@ public class Entity
      */
     public boolean hasLocalizedColumns() {
         return mLocalizedColumns != null && mLocalizedColumns.size() > 0;
+    }
+
+    /** validate a set of values
+     */
+    public boolean validate(DataAccessor row,UserContext userContext) throws SQLException {
+        boolean ret = true;
+        for(Map.Entry<String,FieldConstraint> entry:mConstraints.entrySet()) {
+            String col = entry.getKey();
+            FieldConstraint constraint = entry.getValue();
+            Object data = row.get(col);
+            if (!constraint.validate(data)) {
+                userContext.addValidationError(constraint.getMessage());
+                ret = false;
+            }
+        }
+        return ret;
     }
 
     /** name
