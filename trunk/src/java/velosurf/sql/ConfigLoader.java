@@ -413,7 +413,7 @@ public class ConfigLoader {
                         protect = true;
                     }
                 }
-                HttpQueryTool.autofetch(entity,param,target,protect);
+                HttpQueryTool.addAutofetch(entity,param,target,protect);
             }
 
             /* define entity attributes */
