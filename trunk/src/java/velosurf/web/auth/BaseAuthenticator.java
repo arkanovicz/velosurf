@@ -34,7 +34,7 @@ import velosurf.util.Logger;
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 
-public abstract class Authenticator {
+public abstract class BaseAuthenticator {
 
     protected abstract String getPassword(String login);
     protected abstract Object getUser(String login);

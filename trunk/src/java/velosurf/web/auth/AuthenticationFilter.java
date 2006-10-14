@@ -157,7 +157,6 @@ public class AuthenticationFilter implements Filter {
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
-
         HttpServletRequest request = (HttpServletRequest)servletRequest;
         HttpSession session = request.getSession(false);
         HttpServletResponse response = (HttpServletResponse)servletResponse;
@@ -169,12 +168,12 @@ public class AuthenticationFilter implements Filter {
            reuses session ids */
         boolean disconnected = false;
         String reqId = request.getRequestedSessionId();
-        Logger.trace("auth: session="+session.getId()+", requested="+reqId);
+        Logger.trace("auth: session="+(session==null?"null":session.getId())+", requested="+reqId);
         if (reqId != null && (session == null || !session.getId().equals(reqId))) {
             disconnected = true;
         }
 
-        String login=null,answer = null;
+        String login=null,password = null;
         Localizer localizer = null;
         String loginPage;
         String authenticatedIndexPage;
@@ -221,17 +220,13 @@ public class AuthenticationFilter implements Filter {
                 chain.doFilter(new SavedRequestWrapper(request),response);
             }
         } else {
-
             /* never protect the login page itself */
             if (uri.equals(loginPage)) {
                 chain.doFilter(request,response);
                 return;
             }
-
             if (session == null) {
-                // not loggued
                 session = request.getSession(true);
-
             } else {
                 /* clear any previous loginMessage */
                 session.removeAttribute("loginMessage");
@@ -240,17 +235,16 @@ public class AuthenticationFilter implements Filter {
                 localizer = ToolFinder.findTool(session,Localizer.class);
                 Logger.trace("auth: "+(localizer==null?"localizer not found.":" found a localizer with locale: "+localizer.getLocale()));
             }
-
             session.removeAttribute("velosurf.auth.user");
 
             if ( uri.endsWith("/login.do")
                     && (login = request.getParameter("login")) != null
-                    && (answer = request.getParameter("answer")) != null
+                    && (password = request.getParameter("password")) != null
                     && session.getId().equals(request.getRequestedSessionId())) {
                 // a user is trying to log in
 
                 // get a reference to the authenticator tool
-                Authenticator auth = ToolFinder.findTool(session,Authenticator.class);
+                BaseAuthenticator auth = ToolFinder.findTool(session,BaseAuthenticator.class);
 
                 if (auth == null) {
                     Logger.error("auth: cannot find any reference to the authenticator tool in the session!");
@@ -259,7 +253,7 @@ public class AuthenticationFilter implements Filter {
                     return;
                 }
                 // check answer
-                if (auth.checkLogin(login,answer)) {
+                if (auth.checkLogin(login,password)) {
                     // login ok
                     Logger.info("auth: user '"+login+"' successfully loggued in.");
                     session.setAttribute("velosurf.auth.user",auth.getUser(login));
@@ -291,8 +285,7 @@ public class AuthenticationFilter implements Filter {
                     response.sendRedirect(loginPage);
                 }
             } else {
-                // not loggued...
-                // save the original request
+                /* save the original request */
                 Logger.trace("auth: saving request towards "+uri);
                 session.setAttribute("velosurf.auth.saved-request",SavedRequest.saveRequest(request));
                 if(disconnected) {
