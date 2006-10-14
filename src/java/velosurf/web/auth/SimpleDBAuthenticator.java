@@ -21,7 +21,7 @@ import java.util.Map;
 import org.apache.velocity.tools.view.context.ViewContext;
 
 import velosurf.web.VelosurfTool;
-import velosurf.web.auth.Authenticator;
+import velosurf.web.auth.BaseAuthenticator;
 import velosurf.context.DBReference;
 import velosurf.context.Instance;
 
@@ -30,7 +30,7 @@ import velosurf.context.Instance;
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 
-public class SimpleDBAuthenticator extends Authenticator {
+public class SimpleDBAuthenticator extends BaseAuthenticator {
 
     private static DBReference sDb = null;
 
