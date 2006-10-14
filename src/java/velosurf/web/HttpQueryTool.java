@@ -22,113 +22,82 @@ import java.sql.SQLException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.velocity.tools.view.context.ViewContext;
+import org.apache.velocity.tools.view.tools.ParameterParser;
 
 import velosurf.util.Logger;
-import velosurf.util.StringLists;
 import velosurf.model.Entity;
 
-/** This class has about the same functionnalities as the tool org.apache.velocity.tools.view.tools.ParameterParser
- *  but it adds a generic setter, and the autofetching feature.
+/** This class extends the tool org.apache.velocity.tools.view.tools.ParameterParser,
+ *  adding a generic setter, and the autofetching feature.
  *
  * It is meant for the query scope.
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  **/
- public class HttpQueryTool extends HashMap
+ public class HttpQueryTool extends ParameterParser
 {
+
+    private ViewContext context = null;
+    private Map extraValues = new HashMap();
 
     public HttpQueryTool() {
     }
 
     public void init(Object inViewContext) {
 
+        super.init(inViewContext);
+
         if (!(inViewContext instanceof ViewContext)) {
             Logger.error("HttpQueryTool.init: can't initialize... bad scope ? (query scope expected)");
+            throw new IllegalArgumentException("expecting a ViewContext argument");
         }
 
-        request = ((ViewContext)inViewContext).getRequest();
+        context = (ViewContext)inViewContext;
+        HttpServletRequest request = context.getRequest();
 
-        // store query vars
-        Enumeration params = request.getParameterNames();
-        while (params.hasMoreElements()) {
-            String param = (String)params.nextElement();
-            String values[] = request.getParameterValues(param);
+        if(sAutofetchingEnabled) {
+            autofetch(request.getParameterMap(),context);
+        }
+    }
+
+    private void autofetch(Map parameters,ViewContext context) {
+        for(Map.Entry param:(Set<Map.Entry>)parameters.entrySet()) {
+            String[] values = (String[])param.getValue();
             if (values.length == 1) {
-                put(param,values[0]);
-                if (sAutofetchingEnabled && values[0].length()>0) {
-                    AutoFetchInfos infos = (AutoFetchInfos)sAutofetchMap.get(param);
-                    if (infos != null) {
-                        try {
-                            if (infos.mProtect) put(infos.mName,infos.mEntity.fetch(values[0]));
-                            else ((ViewContext)inViewContext).getVelocityContext().put(infos.mName,infos.mEntity.fetch(values[0]));
-                        } catch(SQLException sqle) {
-                            Logger.error("autofetch failed!");
-                            Logger.log(sqle);
-                        }
+                String value = values[0];
+                AutoFetchInfos infos = (AutoFetchInfos)sAutofetchMap.get(param.getKey());
+                if (infos != null) {
+                    try {
+                        if (infos.mProtect) put(infos.mName,infos.mEntity.fetch(value));
+                        else context.getVelocityContext().put(infos.mName,infos.mEntity.fetch(value));
+                    } catch(SQLException sqle) {
+                        Logger.error("autofetch failed!");
+                        Logger.log(sqle);
                     }
                 }
             }
-            else  put(param,Arrays.asList(values));
         }
     }
 
-    public int getInt(String inKey) {
-        String val = (String)get(inKey);
-        return val == null ? 0 : Integer.parseInt(val);
-    }
-
-    public boolean getBoolean(String inKey) {
-        String val = (String)get(inKey);
-        return val == null ? false : Boolean.valueOf(val).booleanValue();
-    }
-
-    public String[] getStrings(String inKey) {
-        String[] ret;
-        Object value = get(inKey);
-        if (value instanceof List) {
-            List list = (List)value;
-            ret = new String[list.size()];
-            int i=0;
-            for(Iterator it = list.iterator();it.hasNext();i++) {
-                ret[i] = (String)it.next();
-            }
+    public Object get(String key)
+    {
+        Object ret = extraValues.get(key);
+        if (ret == null) {
+            return super.get(key);
+        } else {
+            return ret;
         }
-        else {
-            ret = new String[1];
-            ret[0] = (String)value;
-        }
-        return ret;
     }
 
-    public int[] getInts(String inKey) {
-        int[] ret;
-        Object value = get(inKey);
-        if (value instanceof List) {
-            List list = (List)value;
-            ret = new int[list.size()];
-            int i=0;
-            for(Iterator it = list.iterator();it.hasNext();i++) {
-                ret[i] = Integer.parseInt((String)it.next());
-            }
-        }
-        else {
-            ret = new int[1];
-            ret[0] = Integer.parseInt((String)value);
-        }
-        return ret;
+    public Object put(String key, Object value) {
+        return extraValues.put(key,value);
     }
 
-    public String getUri() {
-        return request.getRequestURI();
-    }
-
-    public static void autofetch(Entity entity,String param,String name,boolean protect) {
+    public static void addAutofetch(Entity entity,String param,String name,boolean protect) {
         sAutofetchingEnabled = true;
         sAutofetchMap.put(param,new AutoFetchInfos(entity,name,protect));
     }
-
-    protected HttpServletRequest request = null;
 
     protected static class AutoFetchInfos {
         public AutoFetchInfos(Entity entity,String name,boolean protect) {
