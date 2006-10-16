@@ -24,13 +24,13 @@
     <key>local</key>
     <scope>session</scope>
     <class>velosurf.web.i18n.SimpleDBLocalizer</class>
-    <parameter name='default-language' value='fr'/>
   </tool>
 
   <tool>
-    <key>authent</key>
+    <key>auth</key>
     <scope>session</scope>
     <class>velosurf.web.auth.SimpleDBAuthenticator</class>
+    <parameter name='method' value='HmacMD5'/>
   </tool>
 
 </toolbox>
