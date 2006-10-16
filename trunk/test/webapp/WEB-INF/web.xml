@@ -109,7 +109,8 @@
   <filter-mapping>
     <filter-name>authentication</filter-name>
     <url-pattern>/auth/*</url-pattern>
-    <url-pattern>/auth/*.do</url-pattern>
+    <url-pattern>login.do</url-pattern>
+    <url-pattern>logout.do</url-pattern>
     <dispatcher>REQUEST</dispatcher>
     <dispatcher>FORWARD</dispatcher>
   </filter-mapping>
