@@ -1,5 +1,5 @@
 CREATE TABLE user (
-	user_id INTEGER NOT NULL PRIMARY KEY,
+	id INTEGER NOT NULL PRIMARY KEY,
 	login VARCHAR(50) NOT NULL,
 	password VARCHAR(50) NOT NULL
 );
@@ -26,10 +26,22 @@ CREATE TABLE book (
 );
 
 CREATE TABLE localized (
-  id varchar(100) NOT NULL,
-  locale varchar(50) NOT NULL,
-  string varchar(255) default NULL,
+  id VARCHAR(100) NOT NULL,
+  locale VARCHAR(50) NOT NULL,
+  string VARCHAR(255) default NULL,
   PRIMARY KEY  (id,locale)
+);
+
+
+CREATE TABLE validation (
+  id INTEGER NOT NULL,
+  string VARCHAR(255),
+  number INTEGER,
+  oneof VARCHAR(255),
+  book_id INTEGER,
+  oneof VARCHAR(50),
+  email VARCHAR(100),
+  FOREIGN KEY(book_id) REFERENCES book(book_id)
 );
 
 INSERT INTO publisher (publisher_id,name) VALUES (1,'Addison Wesley Professional');
@@ -49,4 +61,5 @@ INSERT INTO localized (id,locale,string) VALUES ('internalError','fr','Houston? 
 INSERT INTO localized (id,locale,string) VALUES ('badLogin','en','Bad login or password...');
 INSERT INTO localized (id,locale,string) VALUES ('badLogin','fr','Mauvais login ou mot de passe...');
 
+INSERT INTO user (id,login,password) VALUES (1,'foo','bar');
 
