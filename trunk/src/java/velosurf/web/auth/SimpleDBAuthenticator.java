@@ -24,6 +24,7 @@ import velosurf.web.VelosurfTool;
 import velosurf.web.auth.BaseAuthenticator;
 import velosurf.context.DBReference;
 import velosurf.context.Instance;
+import velosurf.util.Logger;
 
 /** Authenticator basic implementation.
  *
@@ -95,6 +96,7 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
     }
 
     public void configure(Map map) {
+        super.configure(map);
         config = map;
     }
 }
