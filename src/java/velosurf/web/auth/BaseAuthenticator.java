@@ -17,19 +17,30 @@
 package velosurf.web.auth;
 
 import javax.servlet.http.HttpSession;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import java.util.Random;
+import java.util.Map;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
+import java.security.Key;
+import java.security.InvalidKeyException;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.velocity.tools.view.context.ViewContext;
 
 import velosurf.util.Logger;
 
+import sun.misc.BASE64Encoder;
+import sun.misc.BASE64Decoder;
+
 /**
  * This abstract class implements an authentication mechanism. It is meant to be declared
  * in toolbox.xml as a session-scoped tool.
  *
- * You will need to implement the same password encryption on the client side using the provided
- * javascript files and the example login.html.vtl page.
+ * You will need to implement the same password encryption on the client side using the adequate
+ * javascript files.
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
@@ -39,52 +50,73 @@ public abstract class BaseAuthenticator {
     protected abstract String getPassword(String login);
     protected abstract Object getUser(String login);
 
+    private String method = null;
+    private String challenge = null;
+    private static Random _random = new Random(System.currentTimeMillis());
+
+    private static final int CHALLENGE_LENGTH = 256; // bits
+
     public void init(Object initData) {
-        if (initData instanceof ViewContext) {
-            _session = ((ViewContext)initData).getRequest().getSession();
-        } else {
-            Logger.error("Authentifier tool should be used in a session scope!");
+        if (!(initData instanceof ViewContext)) {
+            Logger.error("auth: authenticator tool should be used in a session scope!");
         }
     }
 
-    public BigInteger getChallenge() {
-        BigInteger challenge = new BigInteger(1024,_random);
-        _session.setAttribute("challenge",challenge);
+    public void configure(Map config) {
+        method = (String)config.get("method");
+        Logger.debug("auth: using method "+method);
+    }
+
+    /**
+     * This method generates a new challenge each time it is called.
+     *
+     * @return a new 1024-bit challenge in base64
+     */
+    public String getChallenge() {
+        BigInteger bigint = new BigInteger(CHALLENGE_LENGTH,_random);
+        challenge = new sun.misc.BASE64Encoder().encode(bigint.toByteArray());
+        challenge = challenge.replace("\n","");
+        Logger.trace("auth: challenge="+challenge);
         return challenge;
     }
 
     public boolean checkLogin(String login,String answer) {
         String password = getPassword(login);
-        /* TODO we may want an option to accept empty passwords */
-        if(password == null || password.length() == 0) {
+        if(password == null) {
+            /* password not found */
             return false;
         }
-        String correctAnswer = generateAnswer((BigInteger)_session.getAttribute("challenge"),hash(password)).toString();
+        String correctAnswer = generateAnswer(password);
         Logger.trace("auth: received="+answer);
         Logger.trace("auth: correct ="+correctAnswer);
-        return (correctAnswer.equals(answer));
+        return (correctAnswer != null && correctAnswer.equals(answer));
     }
 
-    // explicit hash calculation to remain the same with java & javascript versions
-    private long hash(String password) {
-        long hash = 0;
-        int len = password.length();
-        for(int i=0; i<len; i++)
-            hash += password.charAt(i) * (long)Math.pow(31,len-(i+1));
-        return hash;
+    private String generateAnswer(String password) {
+        if(method == null) {
+            return password;
+        } else {
+            try {
+                /* TODO: use utf8 (and find a way to convert an utf8 string into
+                   an array of bytes on the javascript counterpart) */
+                Mac mac = Mac.getInstance(method);
+                mac.init(new SecretKeySpec(password.getBytes("ISO-8859-1"),method));
+                byte[] hash = mac.doFinal(challenge.getBytes("ISO-8859-1"));
+                String encoded = new BASE64Encoder().encode(hash);
+                /* strips the last(s) '=' */
+                int i;
+                while((i=encoded.lastIndexOf('='))!=-1) {
+                    encoded = encoded.substring(0,i);
+                }
+                return encoded;
+            } catch(NoSuchAlgorithmException nsae) {
+                Logger.error("auth: could not find algorithm '"+method+"'");
+                Logger.log(nsae);
+            } catch(Exception e) {
+                Logger.error("auth: an unknown error occurred...");
+                Logger.log(e);
+            }
+        }
+        return null;
     }
-
-    private BigInteger generateAnswer(BigInteger challenge, long passwordHash) {
-        return challenge.modPow(new BigInteger(""+passwordHash),_strongPrime);
-    }
-
-    public BigInteger getPrime() {
-        return _strongPrime;
-    }
-
-    private static Random _random = new Random(System.currentTimeMillis());
-    private static BigInteger _strongPrime = new BigInteger("105247318603788819436722815711410650558788661449526175610519780753696201588701876008528752401364127206884634662808952196656409364008838765730690399648197844554531010991641365205678334474881184684846779693500798778111948351206589133108027732009643706433078079273746999639315426538479260254617064513576352532751");
-
-    protected HttpSession _session = null;
-
 }

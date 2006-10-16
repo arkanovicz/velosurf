@@ -168,7 +168,6 @@ public class AuthenticationFilter implements Filter {
            reuses session ids */
         boolean disconnected = false;
         String reqId = request.getRequestedSessionId();
-        Logger.trace("auth: session="+(session==null?"null":session.getId())+", requested="+reqId);
         if (reqId != null && (session == null || !session.getId().equals(reqId))) {
             disconnected = true;
         }
@@ -207,17 +206,18 @@ public class AuthenticationFilter implements Filter {
 
             /* if asked to logout, well, logout! */
             if (uri.endsWith("/logout.do")) {
+                Logger.trace("auth: user logged out");
                 session.removeAttribute("velosurf.auth.user");
                 response.sendRedirect(loginPage);
-            }
-
-            /* if the request is still pointing on /login.html, redirect to /auth/index.html */
-            if (uri.equals(loginPage)) {
-                Logger.trace("auth: redirecting loggued user to "+authenticatedIndexPage);
-                response.sendRedirect(authenticatedIndexPage);
             } else {
-                Logger.trace("auth: user is authenticated.");
-                chain.doFilter(new SavedRequestWrapper(request),response);
+                /* if the request is still pointing on /login.html, redirect to /auth/index.html */
+                if (uri.equals(loginPage)) {
+                    Logger.trace("auth: redirecting loggued user to "+authenticatedIndexPage);
+                    response.sendRedirect(authenticatedIndexPage);
+                } else {
+                    Logger.trace("auth: user is authenticated.");
+                    chain.doFilter(new SavedRequestWrapper(request),response);
+                }
             }
         } else {
             /* never protect the login page itself */
