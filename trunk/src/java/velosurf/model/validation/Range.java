@@ -17,17 +17,18 @@
 package velosurf.model.validation;
 
 import java.sql.SQLException;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
- * <p>A range constraint. Syntax is:</p>
+ * <p>A type and range constraint on numbers. Syntax is:</p>
  *  <pre>
- *    &lt;<i>column</i> min="<i>min</i>" max="<i>max</i>"/&gt;
+ *    &lt;<i>column</i> [type="integer"] [min="<i>min</i>"] [max="<i>max</i>"]/&gt;
  *  </pre>
  * <p>where you donnot need to specify both min and max.</p>
  * <p>Or:</p>
  * <pre>
- *     &lt;min value="<i>min-value</i>" [message="<i>error-message</i>"]&gt;
- *     &lt;max value="<i>max-value</i>" [message="<i>error-message</i>"]&gt;
+ *     &lt;integer|number [min="<i>min-value</i>"] [max="<i>max-value</i>"] [message="<i>error-message</i>"] /&gt;
  * </pre>
  * <p>Note: this constraint is not meant to replace an internal SQL constraint in the database,
  * since it cannot be made sure that complex updates will respect this constraint.</p>
@@ -36,18 +37,21 @@ import java.sql.SQLException;
  */
 public class Range extends FieldConstraint {
 
-    protected Number _min = null;
-    protected Number _max = null;
+    private Number _min = null;
+    private Number _max = null;
+    private boolean _integer = false;
+
+    private static Pattern _intPattern = Pattern.compile("(?:\\+|-)?\\d+");
 
     /**
      *  Constructor.
-     * @param min the minimum allowed (inclusive for natural numbers)
-     * @param max the maximum allowed (inclusive for natural numbers)
      */
-    public Range(Number min,Number max) {
-        _min = min;
-        _max = max;
-        setMessage("is not in the valid range");
+    public Range() {
+        setMessage("is not in the valid range"); /* TODO review... format message! */
+    }
+
+    public void setInteger(boolean integer) {
+        _integer = integer;
     }
 
     public void setMin(Number min) {
@@ -61,19 +65,30 @@ public class Range extends FieldConstraint {
     /**
      *
      * @param data the data to be validated
-     * @return true if data is in the expected range
+     * @return true if data is in the expected range and type
      */
     public boolean validate(Object data) throws SQLException {
         if (data == null) {
             return true;
         }
-        if (! (data instanceof Number)) {
-            throw new SQLException ("Range constraint: expecting a Number, got a "+data.getClass().getName());
+        Number number;
+        if (data instanceof Number) {
+            number = (Number)data;
+        } else {
+            try {
+                if(_integer) {
+                    number = Integer.parseInt(data.toString());
+                } else {
+                    number = Double.parseDouble(data.toString());
+                }
+            } catch(NumberFormatException nfe) {
+                return false;
+            }
         }
-        if (_min != null && _min.doubleValue() > ((Number)data).doubleValue()) {
+        if (_min != null && _min.doubleValue() > number.doubleValue()) {
             return false;
         }
-        if (_max != null && _max.doubleValue() < ((Number)data).doubleValue()) {
+        if (_max != null && _max.doubleValue() < number.doubleValue()) {
             return false;
         }
         return true;

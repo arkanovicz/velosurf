@@ -17,6 +17,7 @@
 package velosurf.model.validation;
 
 import java.sql.SQLException;
+import java.util.Locale;
 
 /**
  * <p>A string length constraint. Syntax is:</p>

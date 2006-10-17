@@ -18,6 +18,7 @@ package velosurf.model.validation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.sql.SQLException;
 
 import velosurf.sql.Database;
@@ -64,6 +65,7 @@ public class Reference extends FieldConstraint {
      * @return true if data respects the specified reference
      */
     public boolean validate(Object data) throws SQLException {
+        if (data == null) return true;
         List param = new ArrayList();
         param.add(data);
         /* TODO this kind of query may vary with dbms...

@@ -17,6 +17,7 @@
 package velosurf.model.validation;
 
 import java.sql.SQLException;
+import java.util.Locale;
 
 /**
  * <p>This class encapsulates a constraint on a column of an entity, used to validate data
@@ -29,9 +30,16 @@ public abstract class FieldConstraint {
     /**
      * used to validate data against this constraint
      * @param data to be validated
+     * @param locale
      * @return true if the data respects the constraint, false if not
      */
-    public abstract boolean validate(Object data) throws SQLException;
+    public boolean validate(Object data, Locale locale) throws SQLException {
+        return validate(data);
+    }
+
+    public boolean validate(Object data) throws SQLException {
+        return false;
+    }
 
     // TODO parametrization of the message with {0} {1}...
     protected String _message = null;
