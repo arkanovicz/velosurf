@@ -17,13 +17,14 @@
 package velosurf.sql;
 
 import java.sql.SQLException;
+import java.util.Set;
 
 /** This interface represents objects having read-only properties
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
-public interface DataAccessor
+public interface ReadOnlyMap
 {
     /** get the property named inKey
      *
@@ -32,4 +33,7 @@ public interface DataAccessor
      * @return the value of the property, or null if not found
      */
     public Object get(Object inKey) throws SQLException;
+
+    public Set keySet() throws SQLException;
+
 }
