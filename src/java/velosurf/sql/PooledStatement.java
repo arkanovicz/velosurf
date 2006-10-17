@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 import velosurf.context.RowIterator;
 import velosurf.model.Entity;
@@ -34,7 +36,7 @@ import velosurf.util.Logger;
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
-public class PooledStatement extends Pooled implements DataAccessor {
+public class PooledStatement extends Pooled implements ReadOnlyMap {
 
     /** builds a new PooledStatement
      *
@@ -118,6 +120,11 @@ public class PooledStatement extends Pooled implements DataAccessor {
         if (!(key instanceof String)) return null;
         return mRS.getObject((String)key);
     }
+
+    public Set keySet() throws SQLException {
+        return new HashSet(SqlUtil.getColumnNames(mRS));
+    }
+
 
     /** evaluates the SQL query as  a scalar
      *

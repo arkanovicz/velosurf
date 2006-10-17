@@ -26,6 +26,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
+
+import org.apache.velocity.tools.generic.ValueParser;
 
 import velosurf.context.RowIterator;
 import velosurf.model.Entity;
@@ -36,8 +40,11 @@ import velosurf.util.Logger;
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
-public class PooledPreparedStatement extends Pooled implements DataAccessor {
 
+public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
+
+
+    /* TODO: review the necessity of the synchronized accesses */
 
     /** builds a new PooledPreparedStatement
      *
@@ -98,7 +105,7 @@ public class PooledPreparedStatement extends Pooled implements DataAccessor {
      * @exception SQLException thrown by the database engine
      * @return the fetched Instance
      */
-    public synchronized Object fetch(Map inParams,Entity inResultEntity) throws SQLException {
+    public synchronized Object fetch(ReadOnlyMap inParams,Entity inResultEntity) throws SQLException {
         List values = new ArrayList();
         for (Iterator i = inResultEntity.getKeys().iterator();i.hasNext();) {
             String key = (String)i.next();
@@ -183,12 +190,17 @@ public class PooledPreparedStatement extends Pooled implements DataAccessor {
      * @exception SQLException thrown by the database engine
      * @return the object value returned by jdbc
      */
+
     public synchronized Object get(Object key) throws SQLException {
         if (!(key instanceof String)) return null;
         Object ret = mRS.getObject((String)key);
         if (mEntity != null && mEntity.isObfuscated((String)key))
             ret = mEntity.obfuscate((ret));
         return ret;
+    }
+
+    public Set keySet() throws SQLException {
+        return new HashSet(SqlUtil.getColumnNames(mRS));
     }
 
     /** get the last insert id - implemented only for mysql for now...
@@ -224,7 +236,11 @@ public class PooledPreparedStatement extends Pooled implements DataAccessor {
      */
     protected void setParams(List inParams) throws SQLException {
         for (int i=0;i<inParams.size();i++) {
-            mPreparedStatement.setObject(i+1,inParams.get(i));
+            Object param = inParams.get(i);
+            if (param instanceof ValueParser.ValueParserSub) {
+                param = param.toString();
+            }
+            mPreparedStatement.setObject(i+1,param);
         }
     }
 
