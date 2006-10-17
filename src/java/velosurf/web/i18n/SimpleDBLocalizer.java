@@ -47,10 +47,10 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
     private static final String LOCALE_FIELD_DEFAULT = "locale";
     private static final String STRING_FIELD_DEFAULT = "string";
 
-    private String localizedTable = LOCALIZED_TABLE_DEFAULT;
-    private String idField = ID_FIELD_DEFAULT;
-    private String localeField = LOCALE_FIELD_DEFAULT;
-    private String stringField = STRING_FIELD_DEFAULT;
+    private static String localizedTable = LOCALIZED_TABLE_DEFAULT;
+    private static String idField = ID_FIELD_DEFAULT;
+    private static String localeField = LOCALE_FIELD_DEFAULT;
+    private static String stringField = STRING_FIELD_DEFAULT;
 
     private static boolean _initialized = false;
 
@@ -63,7 +63,6 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
     public SimpleDBLocalizer() {}
 
     public void init(Object initData) {
-        super.init(initData);
         if (!_initialized) {
             if(config != null) {
                 String value;
@@ -90,6 +89,7 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
                 ((ViewContext)initData).getServletContext();
             readLocales(ctx);
         }
+        super.init(initData);
     }
 
     private static synchronized void readLocales(ServletContext ctx) {
@@ -99,21 +99,21 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
             if (db==null) {
                 throw new Exception("Cannot find database!");
             }
-            EntityReference entity = (EntityReference)db.get("localized");
+            EntityReference entity = (EntityReference)db.get(localizedTable);
             if (entity==null) {
                 throw new Exception("Cannot find 'localized' database entity!");
             }
             _localeStrings = new HashMap<Locale,Map<Object,String>>();
-            entity.setOrder("locale");
+            entity.setOrder(localeField);
             Iterator locales = entity.iterator(); // sorted by locale
             Map<Object,String> map = null;
             String current = null;
             Locale loc = null;
             while (locales.hasNext()) {
                 Instance row = (Instance)locales.next();
-                String key = (String)row.get("id");
-                String locale = (String)row.get("locale");
-                String string = (String)row.get("string");
+                String key = (String)row.get(idField);
+                String locale = (String)row.get(localeField);
+                String string = (String)row.get(stringField);
                 if (!locale.equals(current)) {
                     current = locale;
                     map = new HashMap<Object,String>();
@@ -143,13 +143,28 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
     }
 
     public String get(Object id) {
+        if (_currentStrings == null) {
+            Logger.warn("l10n: no current locale! (was getting string id '"+id+"')");
+            return null;
+        }
         String message = _currentStrings.get(id);
         Logger.trace("l10n: "+id+" -> "+message);
         return message;
     }
 
     public void configure(Map map) {
-        config = map;
+        String value;
+        if((value = (String)map.get(LOCALIZED_TABLE_KEY)) != null) {
+            localizedTable = value;
+        }
+        if((value = (String)map.get(ID_FIELD_KEY)) != null) {
+            idField = value;
+        }
+        if((value = (String)map.get(LOCALE_FIELD_KEY)) != null) {
+            localeField = value;
+        }
+        if((value = (String)map.get(STRING_FIELD_KEY)) != null) {
+            stringField = value;
+        }
     }
-
 }
