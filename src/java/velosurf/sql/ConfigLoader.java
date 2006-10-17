@@ -21,9 +21,12 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.regex.Pattern;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import org.jdom.Document;
 import org.jdom.Element;
@@ -46,6 +49,7 @@ import velosurf.model.validation.OneOf;
 import velosurf.model.validation.Reference;
 import velosurf.model.validation.Regex;
 import velosurf.model.validation.FieldConstraint;
+import velosurf.model.validation.DateRange;
 import velosurf.web.HttpQueryTool;
 
 /** A configuration loader for the Database object
@@ -428,9 +432,13 @@ public class ConfigLoader {
     }
 
     private void defineConstraints(Element element,Entity entity) throws Exception {
+        DateFormat format = new SimpleDateFormat("yyyyMMdd");
         for (Iterator columns = element.getChildren("column").iterator();columns.hasNext();) {
             Element colElement = (Element)columns.next();
             String column = colElement.getAttributeValue("name");
+
+            String type;
+            boolean hasType = ( (type = colElement.getAttributeValue("type")) != null);
 
             /* short-syntax length */
             int minLen = 0,maxLen = Integer.MAX_VALUE;
@@ -446,43 +454,67 @@ public class ConfigLoader {
                 entity.addConstraint(column,new Length(minLen,maxLen));
             }
             /* short-syntax range */
-            Number min = new Double(Double.MIN_VALUE),max = new Double(Double.MAX_VALUE);
             minstr = colElement.getAttributeValue("min");
             maxstr = colElement.getAttributeValue("max");
-            if (minstr != null || maxstr != null) {
+            if (minstr != null || maxstr != null || hasType && ("integer".equals(type) | "number".equals(type))) {
+                Range numberConstraint = null;
+                numberConstraint = new Range();
                 if (minstr != null) {
-                    min = Double.parseDouble(minstr);
+                    Number min = Double.parseDouble(minstr);
+                    numberConstraint.setMin(min);
                 }
                 if (maxstr != null) {
-                    max = Double.parseDouble(maxstr);
+                    Number max = Double.parseDouble(maxstr);
+                    numberConstraint.setMax(max);
                 }
-                entity.addConstraint(column,new Range(min,max));
+                if (hasType && "integer".equals(type)) {
+                    numberConstraint.setInteger(true);
+                }
+                entity.addConstraint(column,numberConstraint);
+            }
+            /* short-syntax date range - use yyyyMMdd date format */
+            String afterstr = colElement.getAttributeValue("after");
+            String beforestr = colElement.getAttributeValue("before");
+            if (afterstr != null || beforestr != null || hasType && "date".equals(type)) {
+                DateRange dateConstraint  = new DateRange();
+                if(afterstr != null) {
+                    Date after = format.parse(afterstr);
+                    dateConstraint.setAfterDate(after);
+                }
+                if(beforestr != null) {
+                    Date before = format.parse(beforestr);
+                    dateConstraint.setBeforeDate(before);
+                }
+                entity.addConstraint(column,dateConstraint);
+            }
+            /* short-syntax, email */
+            if(hasType && "email".equals(type)) {
+                entity.addConstraint(column,new Email());
             }
             /* short-syntax, others */
             for(Iterator atts = colElement.getAttributes().iterator();atts.hasNext();) {
                 org.jdom.Attribute attribute = (org.jdom.Attribute)atts.next();
                 String name = attribute.getName();
-                if (name.equals("email")) {
-                    entity.addConstraint(column,new Email());
-                } else if (name.equals("not-null")) {
+                String value = attribute.getValue();
+                if (name.equals("not-null")) {
                     if(attribute.getBooleanValue()) {
                         entity.addConstraint(column, new NotNull());
                     }
                 } else if (name.equals("one-of")) {
-                    String values = attribute.getValue();
-                    entity.addConstraint(column,new OneOf(Arrays.asList(values.split("|"))));
+                    entity.addConstraint(column,new OneOf(Arrays.asList(value.split(","))));
                 } else if (name.equals("references")) {
-                    String fk = attribute.getValue();
-                    int dot = fk.indexOf(".");
-                    if (dot == -1 || dot == fk.length()-1) {
+                    int dot = value.indexOf(".");
+                    if (dot == -1 || dot == value.length()-1) {
                         Logger.error("bad syntax for reference constraint (entity "+entity.getName()+", column "+column+"). Should be 'table.column'.");
                     } else {
-                        String table = fk.substring(0,dot);
-                        String col = fk.substring(dot+1);
+                        String table = value.substring(0,dot);
+                        String col = value.substring(dot+1);
                         entity.addConstraint(column,new Reference(_database,table,col));
                     }
                 } else if (name.equals("regex")) {
-                    entity.addConstraint(column,new Regex(Pattern.compile(attribute.getValue())));
+                    entity.addConstraint(column,new Regex(Pattern.compile(value)));
+                } else if (name.equals("type") && ("integer".equals(value) || "number".equals(value) || "email".equals(value))) {
+                    /* already taken into account */
                 } else {
                     if (!name.equals("name") && !name.equals("min-len") && !name.equals("max-len") && !name.equals("min")&& !name.equals("max")) {
                         Logger.error("ignoring unknown constraint '"+name+"="+attribute.getValue()+"' (entity "+entity.getName()+", column "+column+").");
@@ -490,59 +522,50 @@ public class ConfigLoader {
                 }
             }
             /* long syntax */
+            Length length = null;
             for (Iterator constraints = colElement.getChildren().iterator();constraints.hasNext();) {
                 Element constraintElement = (Element)constraints.next();
                 String name = constraintElement.getName();
                 FieldConstraint constraint = null;
-                FieldConstraint previous = entity.getConstraint(column);
                 if (name.equals("email")) {
                     boolean dnsCheck = Boolean.parseBoolean(constraintElement.getAttributeValue("dns-check"));
                     boolean smtpCheck = Boolean.parseBoolean(constraintElement.getAttributeValue("smtp-check"));
                     constraint = new Email(dnsCheck,smtpCheck);
                 } else if (name.equals("min-len")) {
-                    if(previous != null) {
-                        if(previous instanceof Length) {
-                            ((Length)previous).setMinLength(Integer.parseInt(constraintElement.getAttributeValue("value")));
-                        } else {
-                            Logger.error("columns can only have one field constraint! (entity \"+entity.getName()+\", column \"+column+\").");
-                        }
-                    }
-                    else {
-                        constraint = new Length(Integer.parseInt(constraintElement.getAttributeValue("value")),Integer.MAX_VALUE);
+                    if (length != null) {
+                        length.setMinLength(Integer.parseInt(constraintElement.getAttributeValue("value")));
+                    } else {
+                        constraint = length = new Length(Integer.parseInt(constraintElement.getAttributeValue("value")),Integer.MAX_VALUE);
                     }
                 } else if (name.equals("max-len")) {
-                    if(previous != null) {
-                        if(previous instanceof Length) {
-                            ((Length)previous).setMaxLength(Integer.parseInt(constraintElement.getAttributeValue("value")));
-                        } else {
-                            Logger.error("columns can only have one field constraint! (entity \"+entity.getName()+\", column \"+column+\").");
-                        }
+                    if (length != null) {
+                        length.setMaxLength(Integer.parseInt(constraintElement.getAttributeValue("value")));
+                    } else {
+                        constraint = length = new Length(0,Integer.parseInt(constraintElement.getAttributeValue("value")));
                     }
-                    else {
-                        constraint = new Length(0,Integer.parseInt(constraintElement.getAttributeValue("value")));
+                } else if (name.equals("integer") || name.equals("number")) {
+                    Range range = new Range();
+                    range.setInteger(name.equals("integer"));
+                    minstr = constraintElement.getAttributeValue("min");
+                    if (minstr != null) {
+                        range.setMin(Double.parseDouble(minstr));
                     }
-                } else if (name.equals("min")) {
-                    if(previous != null) {
-                        if(previous instanceof Range) {
-                            ((Range)previous).setMin(Integer.parseInt(constraintElement.getAttributeValue("value")));
-                        } else {
-                            Logger.error("columns can only have one field constraint! (entity \"+entity.getName()+\", column \"+column+\").");
-                        }
+                    maxstr = constraintElement.getAttributeValue("max");
+                    if (maxstr != null) {
+                        range.setMax(Double.parseDouble(maxstr));
                     }
-                    else {
-                        constraint = new Range(Double.parseDouble(constraintElement.getAttributeValue("value")),Double.MAX_VALUE);
+                    constraint = range;
+                } else if (name.equals("date")) {
+                    DateRange daterange = new DateRange();
+                    minstr = constraintElement.getAttributeValue("after");
+                    if (minstr != null) {
+                        daterange.setAfterDate(format.parse(minstr));
                     }
-                } else if (name.equals("max")) {
-                    if(previous != null) {
-                        if(previous instanceof Range) {
-                            ((Range)previous).setMax(Integer.parseInt(constraintElement.getAttributeValue("value")));
-                        } else {
-                            Logger.error("columns can only have one field constraint! (entity \"+entity.getName()+\", column \"+column+\").");
-                        }
+                    maxstr = constraintElement.getAttributeValue("before");
+                    if(maxstr != null) {
+                        daterange.setBeforeDate(format.parse(maxstr));
                     }
-                    else {
-                        constraint = new Range(Double.MIN_VALUE,Double.parseDouble(constraintElement.getAttributeValue("value")));
-                    }
+                    constraint = daterange;
                 } else if (name.equals("not-null")) {
                     constraint = new NotNull();
                 } else if (name.equals("one-of")) {
