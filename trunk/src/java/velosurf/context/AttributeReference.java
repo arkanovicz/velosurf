@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import velosurf.model.Attribute;
-import velosurf.sql.DataAccessor;
+import velosurf.sql.ReadOnlyMap;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;
 
@@ -36,20 +36,20 @@ public class AttributeReference extends AbstractList
 
     /** Constructor for attributes
      *
-     * @param inDataAccessor the data accessor this attribute reference applies to
+     * @param inReadOnlyMap the data accessor this attribute reference applies to
      * @param inAttribute the wrapped attribute
      */
-    public AttributeReference(DataAccessor inDataAccessor,Attribute inAttribute) {
-        this(inDataAccessor,inAttribute,null);
+    public AttributeReference(ReadOnlyMap inReadOnlyMap,Attribute inAttribute) {
+        this(inReadOnlyMap,inAttribute,null);
     }
 
     /** Constructor for attributes
      *
-     * @param inDataAccessor the data accessor this attribute reference applies to
+     * @param inReadOnlyMap the data accessor this attribute reference applies to
      * @param inAttribute the wrapped attribute
      */
-    public AttributeReference(DataAccessor inDataAccessor,Attribute inAttribute,UserContext usrCtx) {
-        mDataAccessor = inDataAccessor;
+    public AttributeReference(ReadOnlyMap inReadOnlyMap,Attribute inAttribute,UserContext usrCtx) {
+        mReadOnlyMap = inReadOnlyMap;
         mAttribute = inAttribute;
         userContext = usrCtx;
     }
@@ -93,7 +93,7 @@ public class AttributeReference extends AbstractList
      */
     public Iterator iterator() {
         try {
-            RowIterator iterator = mAttribute.query(mDataAccessor,mRefineCriteria,mOrder);
+            RowIterator iterator = mAttribute.query(mReadOnlyMap,mRefineCriteria,mOrder);
             if (userContext != null) iterator.setUserContext(userContext);
             return iterator;
         }
@@ -111,7 +111,7 @@ public class AttributeReference extends AbstractList
      * @return a list of all the rows
      */
     public List getRows() throws SQLException {
-        RowIterator iterator = mAttribute.query(mDataAccessor,mRefineCriteria,mOrder);
+        RowIterator iterator = mAttribute.query(mReadOnlyMap,mRefineCriteria,mOrder);
         if (userContext != null) iterator.setUserContext(userContext);
         return iterator.getRows();
     }
@@ -147,7 +147,7 @@ public class AttributeReference extends AbstractList
     protected String mOrder = null;
     /** The data accessor this attribute reference applies to.
      */
-    protected DataAccessor mDataAccessor = null;
+    protected ReadOnlyMap mReadOnlyMap = null;
     /** The wrapped attribute.
      */
     protected Attribute mAttribute = null;

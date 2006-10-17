@@ -27,6 +27,7 @@ import velosurf.model.Entity;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;
 import velosurf.web.i18n.Localizer;
+import velosurf.sql.ReadOnlyWrapper;
 
 // inherits AbstractList so that Velocity will call iterator() from within a #foreach directive
 /** Context wrapper for an entity.
@@ -65,7 +66,7 @@ public class EntityReference extends AbstractList
      */
     public boolean insert(Map inValues) {
         try {
-            return mEntity.insert(inValues);
+            return mEntity.insert(new ReadOnlyWrapper(inValues));
         } catch(SQLException sqle) {
             Logger.log(sqle);
             if (mUserContext != null) {
@@ -91,7 +92,7 @@ public class EntityReference extends AbstractList
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
      */
     public boolean update(Map inValues) {
-        return mEntity.update(inValues);
+        return mEntity.update(new ReadOnlyWrapper(inValues));
     }
 
     /** Detele a row from this entity's table.
@@ -103,7 +104,7 @@ public class EntityReference extends AbstractList
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
      */
     public boolean delete(Map inValues) {
-        return mEntity.delete(inValues);
+        return mEntity.delete(new ReadOnlyWrapper(inValues));
     }
 
     /** Fetch an Instance of this entity, specifying the values of its key columns in their natural order.
@@ -136,7 +137,7 @@ public class EntityReference extends AbstractList
      */
     public Instance fetch(Map inValues) {
         try {
-            Instance instance = mEntity.fetch(inValues);
+            Instance instance = mEntity.fetch(new ReadOnlyWrapper(inValues));
             if (mUserContext != null) {
                 instance.setUserContext(mUserContext);
             }
@@ -289,6 +290,18 @@ public class EntityReference extends AbstractList
         }
         return instance;
     }
+
+    public boolean validate(Map inValues) {
+        try {
+        return mEntity.validate(new ReadOnlyWrapper(inValues),mUserContext);
+        } catch(SQLException sqle) {
+            Logger.error("could not check data validity!");
+            mUserContext.addValidationError("internal errror");
+            Logger.log(sqle);
+            return false;
+        }
+    }
+
 
     /** getter for the list of column names
      *

@@ -23,7 +23,7 @@ import velosurf.model.Action;
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
 import velosurf.sql.Database;
-import velosurf.sql.DataAccessor;
+import velosurf.sql.ReadOnlyMap;
 import velosurf.sql.PooledPreparedStatement;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
@@ -34,7 +34,7 @@ import velosurf.web.i18n.Localizer;
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
-public class Instance extends TreeMap implements DataAccessor
+public class Instance extends TreeMap implements ReadOnlyMap
 {
     /** Build an empty instance for the given entity
      *

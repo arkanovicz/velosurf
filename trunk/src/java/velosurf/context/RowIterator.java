@@ -21,11 +21,14 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
-import velosurf.sql.DataAccessor;
+import velosurf.sql.ReadOnlyMap;
 import velosurf.sql.Pooled;
+import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;
 
@@ -33,7 +36,7 @@ import velosurf.util.UserContext;
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
-public class RowIterator implements Iterator,DataAccessor {
+public class RowIterator implements Iterator,ReadOnlyMap {
 
     /** Build a new RowIterator
      *
@@ -72,11 +75,11 @@ public class RowIterator implements Iterator,DataAccessor {
      *
      * @return an Instance if a resulting entity has been specified, or a
      *     reference to myself
-     */
+     */ /* TODO: review! getInstance checks the cache, plus we don't want any more to use the rowiterator as a data repository */
     public Object next() {
         Instance row = null;
         if (mResultEntity != null) {
-            row = mResultEntity.getInstance((DataAccessor)this);
+            row = mResultEntity.getInstance((ReadOnlyMap)this);
             if (mUserContext != null) {
                 row.setUserContext(mUserContext);
             }
@@ -200,18 +203,32 @@ public class RowIterator implements Iterator,DataAccessor {
      *
      * @return a list of all the rows
      */
-    public List getRows() throws SQLException {
-        List ret = new ArrayList();
-        mPooledStatement.getConnection().enterBusyState();
-        while (!mResultSet.isAfterLast() && mResultSet.next()) {
-            Instance i = mResultEntity.getInstance((DataAccessor)this);
-            if (i != null && mUserContext != null) {
-                i.setUserContext(mUserContext);
+    public List getRows() {
+        try {
+            List ret = new ArrayList();
+            mPooledStatement.getConnection().enterBusyState();
+            while (!mResultSet.isAfterLast() && mResultSet.next()) {
+                Instance i = mResultEntity.getInstance((ReadOnlyMap)this);
+                if (i != null && mUserContext != null) {
+                    i.setUserContext(mUserContext);
+                }
+                ret.add(i);
             }
-            ret.add(i);
+            mPooledStatement.getConnection().leaveBusyState();
+            return ret;
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            return null;
         }
-        mPooledStatement.getConnection().leaveBusyState();
-        return ret;
+    }
+
+    public Set keySet() {
+        try {
+            return  new HashSet(SqlUtil.getColumnNames(mResultSet));
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            return null;
+        }
     }
 
     /** check if some data is available
