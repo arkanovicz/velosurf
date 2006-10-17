@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import velosurf.sql.Database;
-import velosurf.sql.DataAccessor;
+import velosurf.sql.ReadOnlyMap;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
 
@@ -58,7 +58,7 @@ public class Action
      * @exception SQLException an SQL problem occurs
      * @return number of impacted rows
      */
-    public int perform(DataAccessor inSource) throws SQLException {
+    public int perform(ReadOnlyMap inSource) throws SQLException {
         // TODO: check type
         List params = buildArrayList(inSource);
         return mDB.prepare(mQuery).update(params);
@@ -71,7 +71,7 @@ public class Action
      * @exception SQLException thrown by the DataAccessor
      * @return the list of values
      */
-    public List buildArrayList(DataAccessor inSource) throws SQLException {
+    public List buildArrayList(ReadOnlyMap inSource) throws SQLException {
         ArrayList result = new ArrayList();
         if (inSource!=null)
             for (Iterator i = mParamNames.iterator();i.hasNext();) {

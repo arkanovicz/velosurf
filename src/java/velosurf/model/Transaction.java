@@ -21,7 +21,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.List;
 
-import velosurf.sql.DataAccessor;
+import velosurf.sql.ReadOnlyMap;
 import velosurf.sql.ConnectionWrapper;
 import velosurf.sql.PooledPreparedStatement;
 import velosurf.util.StringLists;
@@ -56,7 +56,7 @@ public class Transaction extends Action
      * @exception SQLException thrown from the database
      * @return number of affected rows (addition of all the partial counts)
      */
-    public int perform(DataAccessor inSource) throws SQLException {
+    public int perform(ReadOnlyMap inSource) throws SQLException {
 
         ConnectionWrapper conn = mDB.getTransactionConnection();
         try {

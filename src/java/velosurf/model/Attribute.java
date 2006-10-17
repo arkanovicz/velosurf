@@ -23,7 +23,7 @@ import java.util.List;
 
 import velosurf.context.RowIterator;
 import velosurf.sql.Database;
-import velosurf.sql.DataAccessor;
+import velosurf.sql.ReadOnlyMap;
 import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
@@ -85,7 +85,7 @@ public class Attribute
      * @exception SQLException when thrown by the database
      * @return instance fetched
      */
-    public Object fetch(DataAccessor inSource) throws SQLException {
+    public Object fetch(ReadOnlyMap inSource) throws SQLException {
         if (mType != ROW) throw new SQLException("cannot call fetch: result of attribute '"+mName+"' is not a row");
         return mDB.prepare(getQuery()).fetch(buildArrayList(inSource),mDB.getEntity(mResultEntity));
     }
@@ -96,7 +96,7 @@ public class Attribute
      * @exception SQLException when thrown from the database
      * @return the resulting row iterator
      */
-    public RowIterator query(DataAccessor inSource) throws SQLException {
+    public RowIterator query(ReadOnlyMap inSource) throws SQLException {
         return query(inSource,null,null);
     }
 
@@ -108,7 +108,7 @@ public class Attribute
      * @exception SQLException when thrown by the database
      * @return the resulting row iterator
      */
-    public RowIterator query(DataAccessor inSource,List inRefineCriteria,String inOrder) throws SQLException {
+    public RowIterator query(ReadOnlyMap inSource,List inRefineCriteria,String inOrder) throws SQLException {
         if (mType != ROWSET) throw new SQLException("cannot call query: result of attribute '"+mName+"' is not a rowset");
         String query = getQuery();
         if (inRefineCriteria != null) query = SqlUtil.refineQuery(query,inRefineCriteria);
@@ -123,7 +123,7 @@ public class Attribute
      * @exception SQLException when thrown from the database
      * @return the resulting scalar
      */
-    public Object evaluate(DataAccessor inSource) throws SQLException {
+    public Object evaluate(ReadOnlyMap inSource) throws SQLException {
         if (mType != SCALAR) throw new SQLException("cannot call evaluate: result of attribute '"+mName+"' is not a scalar");
         return mDB.prepare(getQuery()).evaluate(buildArrayList(inSource));
     }
@@ -134,7 +134,7 @@ public class Attribute
      * @exception SQLException when thrown from the database
      * @return the numer of affected rows
      */
-    public int update(DataAccessor inSource) throws SQLException {
+    public int update(ReadOnlyMap inSource) throws SQLException {
         if (mType != SCALAR) throw new SQLException("cannot call update: result of attribute '"+mName+"' is not a scalar");
         if (mForeignKey != null) throw new SQLException("cannot call update: attribute '"+mName+"' is a foreign key");
         return mDB.prepare(getQuery()).update(buildArrayList(inSource));
@@ -154,7 +154,7 @@ public class Attribute
      * @exception SQLException thrown by the database engine
      * @return the built list
      */
-    public List buildArrayList(DataAccessor inSource) throws SQLException {
+    public List buildArrayList(ReadOnlyMap inSource) throws SQLException {
         ArrayList result = new ArrayList();
         if (inSource!=null)
             for (Iterator i = mParamNames.iterator();i.hasNext();) {
