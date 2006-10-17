@@ -25,7 +25,7 @@ import velosurf.model.Attribute;
 import velosurf.model.Entity;
 import velosurf.model.Action;
 import velosurf.sql.Database;
-import velosurf.sql.DataAccessor;
+import velosurf.sql.ReadOnlyMap;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;
 import velosurf.web.i18n.Localizer;
@@ -38,7 +38,7 @@ import velosurf.web.i18n.Localizer;
 
  // FIXME : right now, extends HashMap bkoz velocity wants a HashMap for setters
 
-public class DBReference extends HashMap implements DataAccessor
+public class DBReference extends HashMap implements ReadOnlyMap
 {
     /** Default constructor for use by derived classes
      */
