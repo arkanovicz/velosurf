@@ -23,6 +23,19 @@
         <attribute name="author" result="row/author" foreign-key="author_id"/>
     </entity>
 
+    <entity name="validation">
+        <column name="string" min-len="6" max-len="20"/>
+        <column name="string2" regex="\d{3}-\d{3}" />
+        <column name="number" min="1" max="10"/>
+        <column name="oneof" one-of="test1,test2,test3"/>
+        <column name="mydate" after="20060802"/>
+        <column name="email" type="email"/>
+        <column name="email2" not-null="true">
+          <email dns-check="true" smtp-check="true"/>
+        </column>
+        <column name="book_id" references="book.id"/>
+    </entity>
+
     <!-- root attributes -->
 
     <attribute name="books_nb" result="scalar">

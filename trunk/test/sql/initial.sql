@@ -34,13 +34,16 @@ CREATE TABLE localized (
 
 
 CREATE TABLE validation (
-  id INTEGER NOT NULL,
+  id INTEGER IDENTITY,
   string VARCHAR(255),
+  string2 VARCHAR(255),
   number INTEGER,
   oneof VARCHAR(255),
-  book_id INTEGER,
-  oneof VARCHAR(50),
+  mydate DATE,
   email VARCHAR(100),
+  email2 VARCHAR(100),
+  book_id INTEGER,
+  PRIMARY KEY(id),
   FOREIGN KEY(book_id) REFERENCES book(book_id)
 );
 

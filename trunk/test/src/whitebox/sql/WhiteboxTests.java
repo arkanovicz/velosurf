@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 
 import velosurf.sql.Database;
 import velosurf.sql.PooledPreparedStatement;
-import velosurf.sql.MapDataAccessor;
+import velosurf.sql.ReadOnlyWrapper;
 import velosurf.context.RowIterator;
 import velosurf.context.Instance;
 import velosurf.model.Entity;
@@ -80,7 +80,7 @@ public class WhiteboxTests
         params.add(new ArrayList<String>());
         params.add(new ArrayList<String>());
         transaction.setParamNamesLists(params);
-        transaction.perform(new MapDataAccessor(new HashMap()));
+        transaction.perform(new ReadOnlyWrapper(new HashMap()));
     }
 
     public @Test(expected=SQLException.class) void testUnsuccessfullTransaction() throws SQLException {
@@ -99,7 +99,7 @@ public class WhiteboxTests
             params.add(new ArrayList<String>());
             params.add(new ArrayList<String>());
             transaction.setParamNamesLists(params);
-            transaction.perform(new MapDataAccessor(new HashMap()));
+            transaction.perform(new ReadOnlyWrapper(new HashMap()));
         } finally {
             Instance row = database.getEntity("publisher").fetch(201);
             assertNull(row);

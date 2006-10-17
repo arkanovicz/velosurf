@@ -1,5 +1,7 @@
 package blackbox;
 
+import java.io.PrintWriter;
+
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -39,5 +41,58 @@ public class BlackboxTests
         resp = wc.getResponse( req );
         checkText(resp,"publisher","Addison Wesley Professional");
         checkText(resp,"book","Effective Java");
+    }
+
+    public @Test void authentication() throws Exception {
+        /* try to reach a protected resource */
+        WebConversation wc = new WebConversation();
+        WebRequest req = new GetMethodWebRequest("http://localhost:"+SERVER_PORT+"/auth/protected.html");
+        WebResponse resp = wc.getResponse(req);
+        assertEquals("Login",resp.getTitle());
+        /* log in */
+        WebForm form = resp.getFormWithName("login");
+        form.setParameter("login","foo");
+        form.setParameter("password","bar");
+        resp = form.submit();
+        /* check we reach the initially requested resource */
+        assertEquals("protected",resp.getTitle());
+        /* log out */
+        WebLink logout = resp.getLinkWith("logout");
+        assertNotNull(logout);
+        resp = logout.click();
+        assertEquals("Login",resp.getTitle());
+        /* bad login */
+        form = resp.getFormWithName("login");
+        form.setParameter("login","foo");
+        form.setParameter("password","badpass");
+        resp = form.submit();
+        assertEquals("Login",resp.getTitle());
+        checkText(resp,"message","Bad login or password.");
+        /* log in again, check we reach the auth index */
+        form = resp.getFormWithName("login");
+        form.setParameter("login","foo");
+        form.setParameter("password","bar");
+        resp = form.submit();
+        assertEquals("Protected Index",resp.getTitle());
+    }
+
+    public @Test void validation() throws Exception {
+        WebConversation wc = new WebConversation();
+        WebRequest req = new GetMethodWebRequest("http://localhost:"+SERVER_PORT+"/input.html");
+        WebResponse resp = wc.getResponse(req);
+        assertEquals("Input form",resp.getTitle());
+        /* first try with bad values */
+        WebForm form = resp.getFormWithName("input");
+        form.setParameter("string","aa");
+        form.setParameter("string2","123-1234");
+        form.setParameter("number","0");
+        form.setParameter("oneof","test0");
+        form.setParameter("mydate","2-8-2006");
+        form.setParameter("email","toto@tata@titi");
+        //form.setParameter("email2",(String)null);
+        form.setParameter("book_id","0");
+        resp = form.submit();
+        assertEquals("Input form",resp.getTitle());
+
     }
 }

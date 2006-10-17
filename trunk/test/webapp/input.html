@@ -1,0 +1,27 @@
+<html>
+<head>
+<title>Input form</title>
+</head>
+<body>
+#if($db.validationErrors)
+  <font color='red'>Errors:
+  <ul>
+  #foreach($error in $db.validationErrors)
+    <li><div id="$velocityCount">$error</div>
+  #end
+  </ul>
+  </font>
+#end
+<form name='input' action='validate.do'>
+<input type="hidden" name="velosurf.entity" value="validation">
+<input type="text" name="string">
+<input type="text" name="string2">
+<input type="text" name="number">
+<input type="text" name="oneof">
+<input type="text" name="mydate">
+<input type="text" name="email">
+<input type="text" name="email2">
+<input type="text" name="book_id">
+</form>
+</body>
+</html>
