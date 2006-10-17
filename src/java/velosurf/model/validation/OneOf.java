@@ -18,11 +18,12 @@ package velosurf.model.validation;
 
 import java.util.regex.Pattern;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * <p>An enumeration constraint. Syntax is:</p>
  *  <pre>
- *    &lt;<i>column</i> one-of="<i>value1|value2|value3...</i>"/&gt;
+ *    &lt;<i>column</i> one-of="<i>value1,value2,value3...</i>"/&gt;
  *  </pre>
  *<p>Or:</p>
  *   <pre>
@@ -59,6 +60,6 @@ public class OneOf extends FieldConstraint {
      * @return true if data is among the expected values
      */
     public boolean validate(Object data) {
-        return data != null && _values.contains(data.toString());
+        return data == null || _values.contains(data.toString());
     }
 }

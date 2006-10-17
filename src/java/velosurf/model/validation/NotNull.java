@@ -16,6 +16,8 @@
 
 package velosurf.model.validation;
 
+import java.util.Locale;
+
 /**
  * <p>A "not null" constraint. Syntax is:</p>
  *  <pre>

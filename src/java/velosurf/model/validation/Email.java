@@ -19,6 +19,7 @@ package velosurf.model.validation;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.net.Socket;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -91,6 +92,7 @@ public class Email extends FieldConstraint {
      * @return true if data matches the regex pattern
      */
     public boolean validate(Object data) {
+        if (data == null) return true;
         Matcher matcher = _validEmail.matcher(data.toString());
         if (!matcher.matches()) {
             return false;

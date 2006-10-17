@@ -17,6 +17,7 @@
 package velosurf.model.validation;
 
 import java.util.regex.Pattern;
+import java.util.Locale;
 
 /**
  * <p>A regular expression pattern constraint. Syntax is:</p>
@@ -53,6 +54,6 @@ public class Regex extends FieldConstraint {
      * @return true if data matches the regex pattern
      */
     public boolean validate(Object data) {
-        return data != null && _pattern.matcher(data.toString()).matches();
+        return data == null || _pattern.matcher(data.toString()).matches();
     }
 }
