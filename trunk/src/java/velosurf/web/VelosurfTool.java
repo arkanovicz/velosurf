@@ -221,6 +221,7 @@ public class VelosurfTool extends DBReference
                 Logger.debug("Using config file '"+inConfigFile+"'");
                 InputStream is = inServletContext.getResourceAsStream(inConfigFile);
                 if (is == null) {
+                    Logger.error("Could not read config file "+inConfigFile);
                     return null;
                 }
                 db = Database.getInstance(is);
