@@ -90,6 +90,11 @@
     </init-param>
   </filter>
 
+  <filter>
+    <filter-name>validation</filter-name>
+    <filter-class>velosurf.validation.ValidationFilter</filter-class>
+  </filter>
+
   <!-- Filter Mapping -->
 
   <filter-mapping>
@@ -109,8 +114,8 @@
   <filter-mapping>
     <filter-name>authentication</filter-name>
     <url-pattern>/auth/*</url-pattern>
-    <url-pattern>login.do</url-pattern>
-    <url-pattern>logout.do</url-pattern>
+    <url-pattern>/login.do</url-pattern>
+    <url-pattern>/logout.do</url-pattern>
     <dispatcher>REQUEST</dispatcher>
     <dispatcher>FORWARD</dispatcher>
   </filter-mapping>
@@ -124,6 +129,10 @@
     <dispatcher>FORWARD</dispatcher>
   </filter-mapping>
 
+  <filter-mapping>
+    <filter-name>validation</filter-name>
+    <url-pattern>*.do</url-pattern>
+  </filter-mapping>
 
   <!-- Servlets -->
 
@@ -144,7 +153,7 @@
     <servlet-name>velocityview</servlet-name> 
     <servlet-class>org.apache.velocity.tools.view.servlet.VelocityViewServlet</servlet-class>
 <!--    <servlet-class>DebugServlet</servlet-class> -->
-    <load-on-startup/>
+    <load-on-startup>1</load-on-startup>
   </servlet>
 
   <!-- Servlet Mapping -->
