@@ -18,6 +18,7 @@ package velosurf.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import velosurf.web.i18n.Localizer;
 import velosurf.web.i18n.Localizer;
@@ -54,7 +55,8 @@ public class UserContext {
     }
 
     public List<String> getValidationErrors() {
-        return validationErrors;
+        /* returning null allows a test like "#if($db.validationErrors)" */
+        return validationErrors.size()>0 ? validationErrors : null;
     }
 
     /** generic getter
@@ -65,8 +67,18 @@ public class UserContext {
             return getError();
         } else if ("validationErrors".equalsIgnoreCase(key)) {
             return getValidationErrors();
+        } else if ("locale".equalsIgnoreCase(key)) {
+            return getLocale();
         }
         return null;
+    }
+
+    public Locale getLocale() {
+        if(localizer != null) {
+            return localizer.getLocale();
+        } else {
+            return Locale.getDefault();
+        }
     }
 
     private String error = "";
