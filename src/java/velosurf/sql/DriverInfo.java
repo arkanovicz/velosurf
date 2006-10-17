@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.PatternSyntaxException;
 import java.sql.Statement;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.lang.reflect.Method;
 
 import velosurf.util.Logger;
@@ -149,14 +150,22 @@ public class DriverInfo
     {
         long ret = -1;
         if ("mysql".equalsIgnoreCase(getJdbcTag()))
-        {  // MySql
+        {  /* MySql */
             try
             {
                 Method lastInsertId = statement.getClass().getMethod("getLastInsertID",new Class[0]);
                 ret = ((Long)lastInsertId.invoke(statement,new Object[0])).longValue();
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
+                Logger.log("Could not find last insert id: ",e);
+            }
+        } else if ("hsqldb".equalsIgnoreCase(getJdbcTag())) {
+            /* HSQLDB */
+            try  {
+                ResultSet rs = statement.executeQuery("IDENTITY()");
+                rs.next();
+                ret = rs.getLong(1);
+            } catch(Throwable e) {
                 Logger.log("Could not find last insert id: ",e);
             }
         }
@@ -164,8 +173,8 @@ public class DriverInfo
         return ret;
     }
 
-    public String getIgnorePrefix() {
-        return _ignorePrefix == null ? "" : _ignorePrefix;
+    public boolean ignoreTable(String name) {
+        return _ignorePrefix != null && name.startsWith(_ignorePrefix);
     }
 
     // sources :
@@ -179,7 +188,7 @@ public class DriverInfo
         addDriver("Derby", "derby", new String[] {"org.apache.derby.jdbc.EmbeddedDriver"}, "values 1", "uppercase", "set schema $schema", "autoincrement",null);
         addDriver("Easysoft","easysoft",new String[] {"easysoft.sql.jobDriver"},"select 1","TODO","TODO","TODO",null);
         addDriver("Frontbase","frontbase",new String[] {"jdbc.FrontBase.FBJDriver"},"select 1","TODO","TODO","TODO",null);
-        addDriver("HSQLDB","hsqldb",new String[] {"org.hsqldb.jdbcDriver","org.hsql.jdbcDriver"},null,"uppercase",null,"autoincrement","SYSTEM_");
+        addDriver("HSQLDB","hsqldb",new String[] {"org.hsqldb.jdbcDriver","org.hsql.jdbcDriver"},null,"uppercase","set schema $schema","autoincrement","SYSTEM_");
         addDriver("Hypersonic","hypersonic",new String[] {"org.hsql.jdbcDriver"},"select 1","TODO","TODO","autoincrement",null);
         addDriver("OpenBase","openbase",new String[] {"com.openbase.jdbc.ObDriver"},"select 1","TODO","TODO","TODO",null);
         addDriver("Informix","informix",new String[] {"com.informix.jdbc.IfxDriver"},"select 1","TODO","TODO","none",null);
