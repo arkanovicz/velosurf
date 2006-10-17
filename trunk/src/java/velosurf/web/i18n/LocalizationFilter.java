@@ -152,7 +152,7 @@ public class LocalizationFilter implements Filter {
 
         Logger.trace("l10n: URI ="+request.getRequestURI());
 
-        /* Guess #1 - deduce from URI (and, while looking at URI, fills the shouldAct vairable) */
+        /* Guess #1 - if using redirect method, deduce from URI (and, while looking at URI, fills the shouldAct vairable) */
         if (_l10nMethod == REDIRECT) {
             Matcher matcher = _inspectUri.matcher(request.getRequestURI());
             if (matcher.find()) {
@@ -170,7 +170,6 @@ public class LocalizationFilter implements Filter {
                 shouldAct = false;
             }
         }
-
 
         if (locale == null) {
             /* Guess #2 - is there an attribute in the session? */
@@ -198,9 +197,17 @@ public class LocalizationFilter implements Filter {
             }
         }
 
+        if (locale == null && _defaultLocale != null) {
+            locale = _defaultLocale;
+        }
+
         if (locale != null) {
             Localizer tool = ToolFinder.findTool(session,Localizer.class);
-            tool.setLocale(locale);
+            if (tool != null) {
+                tool.setLocale(locale);
+            } else {
+                Logger.warn("l10n: cannot find any Localizer tool!");
+            }
         }
 
         /* sets the session atribute and the cookies */
@@ -363,10 +370,10 @@ public class LocalizationFilter implements Filter {
             }
         }
         Logger.warn("l10n: did not find a matching locale for "+StringLists.join(requestedLocales,","));
-        /* then return the default locale, even if it doesn't match... */
+        /* then return the default locale, even if it doesn't match...
         if(_defaultLocale != null) {
             return _defaultLocale;
-        }
+        }*/
         /* Oh, well... */
         return null;
     }
