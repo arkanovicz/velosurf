@@ -308,13 +308,15 @@ Please specify a target among :
 	  <patternset refid="sources"/>
       <classpath refid="classpath"/>
 	</javac>
-    <jar jarfile="${bin.dir}/velosurf-${version}.jar" basedir="${build.dir}" >
+    <jar jarfile="${basedir}/velosurf-${version}.jar" basedir="${build.dir}" >
 	  <patternset refid="sources"/>
 	</jar>
   </target>
 
 
   <target name="compile-test" depends="prepare,jar">
+    <antcall target="test-download"/>
+    <antcall target="jetty-main-download"/>
     <property name="testclasspath" refid="test.classpath"/>
     <echo message="using classpath= ${testclasspath}"/>
     <javac srcdir="${test.src.dir}"
@@ -329,7 +331,7 @@ Please specify a target among :
       <classpath>
         <path refid="classpath" />
         <path refid="test.classpath" />
-        <filelist dir="${bin.dir}" files="velosurf-${version}.jar"/>
+        <filelist dir="${basedir}" files="velosurf-${version}.jar"/>
       </classpath>
     </javac>
     <copy file="${lib.dir}/commons-logging-${jar.commons-logging.version}.jar" todir="${test.jetty.dir}/lib"/>
@@ -354,6 +356,11 @@ Please specify a target among :
   </target>
 
   <target name="start-jetty">
+    <copy todir="${test.webapp.dir}/WEB-INF/lib">
+      <fileset dir="${lib.dir}"/>
+    </copy>
+    <copy file="${basedir}/velosurf-${version}.jar" todir="${test.webapp.dir}/WEB-INF/lib"/>
+    <copy file="${test.lib.dir}/hsqldb-${jar.hsqldb.version}.jar" todir="${test.webapp.dir}/WEB-INF/lib"/>
      <condition property="jetty-already-running">
        <socket server="127.0.0.1" port="${test.webcontainer.control.port}"/>
      </condition>
@@ -438,14 +445,7 @@ Please specify a target among :
     </sql>
   </target>
 
-  <target name="test" depends="prepare,compile-test,test-download,jetty-main-download">
-    <antcall target="test-download"/>
-    <antcall target="jetty-main-download" />
-    <copy todir="${test.webapp.dir}/WEB-INF/lib">
-      <fileset dir="${lib.dir}"/>
-    </copy>
-    <copy file="${bin.dir}/velosurf-${version}.jar" todir="${test.webapp.dir}/WEB-INF/lib"/>
-    <copy file="${test.lib.dir}/hsqldb-${jar.hsqldb.version}.jar" todir="${test.webapp.dir}/WEB-INF/lib"/>
+  <target name="test" depends="prepare,compile-test">
     <antcall target="start-hsqldb"/>
     <antcall target="start-jetty"/>
     <delete dir="${test.rst.dir}"/>
@@ -463,7 +463,7 @@ Please specify a target among :
         <path refid="classpath" />
         <path refid="test.classpath" />
         <pathelement path="${test.build.dir}"/>
-        <filelist dir="${bin.dir}" files="velosurf-${version}.jar"/>
+        <filelist dir="${basedir}" files="velosurf-${version}.jar"/>
       </classpath>
 
       <batchtest todir="${test.rst.dir}">

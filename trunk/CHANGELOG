@@ -1,7 +1,20 @@
 **** Changes ****
 
-v2.0 (September 2006)
+v2.0 (October 2006)
 ----
+ - HSQLDB infos updated in DriverInfo
+ - renamed DataAccessor to ReadOnlyMap and MapDataAccessor to ReadOnlyWrapper
+ - HttpQueryTool now inherits org.apache.velocity.tools.view.tools.ParameterParser
+ - bugfix: autofetching now uses original case of entity name
+ - bugfix: Entity.fetch(Number) no longer bypass obfuscation
+ - DriverInfo now has an ignorePrefix String per driver (should be generalized with a regex)
+ - added an EntityReference.getName() method which returns the name of the wrapped entity.
+ - bugfix: rewrote code for transactions which did not ensure a proper isolation
+ - the ConnectionWrapper busy state is now an integer, to allow imbriqued busy states
+ - created a UserContext map (that is stored in the session in a webapp context):
+   contains sql error messages, validation error messages and localizer.
+ - blackbox testcases using Jetty and HttpUnit
+ - whitebox testcases using JUnit
  - needed jar libraries are now automatically downloaded from the maven repository at build time
  - bugfix: instance.update() was possible on a read-only entity
  - replaced database attribute "default-access=rw|ro" with attribute "read-only=true|false"
@@ -17,6 +30,7 @@ v2.0 (September 2006)
  - marked the "full" caching method as deprecated.
  - replaced gnu regexps by jdk ones.
  - tolerate and eat a semi-colon at the end of queries.
+ - sources reorganization - got rid of the 'tools' package, web tools now are in a 'web' package
 
 v1.4.3 (May 2006)
 ------

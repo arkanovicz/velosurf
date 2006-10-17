@@ -1,5 +1,8 @@
 This is the README file for Velosurf.
-You should also have a look at the html doc in ./docs
+
+qsdfqsdf You should also have a look at the html docs in ./docs
+
+servlet container 2.3
 
 WHAT IS IT ? 
 ------------
@@ -8,7 +11,9 @@ Velosurf is a - thin but efficient - database access layer tool meant to be
 use with Velocity (http://jakarta.apache.org/velocity/index.html).
 
 The aim of Velosurf is to provide template writers a set of context variables
-that automatically map database tables and relationships.
+that automatically map database tables and relationships. In the context of
+a VelocityTools webapp, it also provides basic authentication and
+internalinalization.
 
 WHY VELOSURF ?
 --------------
@@ -17,8 +22,8 @@ Mainly, to avoid rewriting each time specific database mapping layers in each
 project involving velocity and database entities that template writers have to
 deal with.
 
-Velosurf comes from a design architecture paradigm called the Pull Model, or the Toolbox
-Model. It inherits the standard MVC (Model-View-Controller)
+Velosurf comes from a design architecture paradigm called the Pull Model, or
+the Toolbox Model. It inherits the standard MVC (Model-View-Controller)
 architecture paradigm, and its main idea is that the view layer should rely on
 a series of dedicated tools that designers use to create views.
 
@@ -30,18 +35,19 @@ Velosurf appears as such a tool.
 HOW TO INSTALL ?
 ----------------
 
-Velosurf can be used either from a standard Velocity application, or from a
-rendering web-app'ed servlet.
+Velosurf can be used either from a standard java application, or from a
+VelocityTools webapp.
 
-Steps to include Velosurf in a 'VelTools' webapp :
+Steps to include Velosurf in a VelocityTools webapp :
 
 1 - Put velosurf-x.y.jar (found in ./bin) and dependency libraries
-	(found in ./lib) in your classpath or in the /WEB-INF/lib directory of your
-	web-app.
+	(found in ./lib) in your classpath or in the /WEB-INF/lib directory of
+    your web-app.
 
 2 - Inherit your 'templating' servlets from
-    org.apache.velocity.tools.view.servlet.VelocityViewServlet (or VelocityLayoutServlet)
-    (see the doc of the velocity-tools subproject for more informations)
+    org.apache.velocity.tools.view.servlet.VelocityViewServlet
+    (or VelocityLayoutServlet).
+    See the doc of the velocity-tools subproject for more informations.
 
 3 - Add the following context-param to your web.xml file :
 
@@ -50,8 +56,8 @@ Steps to include Velosurf in a 'VelTools' webapp :
 		<param-value>/WEB-INF/toolbox.xml</param-value>
 	</context-param>
 
-4 - Create the /WEB-INF/toolbox.xml file, that defines the tools to be accessed
-	from templates :
+4 - Create the /WEB-INF/toolbox.xml file, that defines the tools to be
+    accessed from templates :
 
 	<?xml version="1.0"?>
 	<toolbox>
