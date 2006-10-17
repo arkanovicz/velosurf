@@ -77,7 +77,7 @@ public class ReverseEngineer {
 
         // perform the reverse enginering
         try    {
-
+            Logger.debug("reverse enginering: mode = "+(mReverseMode==REVERSE_NONE?"'none'":mReverseMode==REVERSE_PARTIAL?"'partial'":mReverseMode==REVERSE_FULL?"'full'":"unknown!"));
             switch(mReverseMode)
             {
                 case REVERSE_FULL:
@@ -88,7 +88,7 @@ public class ReverseEngineer {
                             /* Oracle system tables (hack) */
                             continue; // skip special tables (Oracle)
                         }
-                        if (tableName.startsWith(mDriverInfo.getIgnorePrefix())) {
+                        if (mDriverInfo.ignoreTable(tableName)) {
                             continue;
                         }
                         Entity entity = (Entity)mEntityByTableName.get(tableName);
