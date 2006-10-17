@@ -24,9 +24,9 @@ import velosurf.cache.Cache;
 import velosurf.context.Instance;
 import velosurf.context.RowIterator;
 import velosurf.context.ExternalObjectWrapper;
-import velosurf.sql.DataAccessor;
+import velosurf.sql.ReadOnlyMap;
 import velosurf.sql.Database;
-import velosurf.sql.MapDataAccessor;
+import velosurf.sql.ReadOnlyWrapper;
 import velosurf.sql.PooledPreparedStatement;
 import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
@@ -135,11 +135,7 @@ public class Entity
     }
 
     public void addConstraint(String column,FieldConstraint constraint) {
-        mConstraints.put(column,constraint);
-    }
-
-    public FieldConstraint getConstraint(String col) {
-        return mConstraints.get(col);
+        mConstraints.add(new FieldConstraintInfo(column,constraint));
     }
 
     /** Used by the framework to notify this entity that its reverse enginering is over
@@ -193,7 +189,7 @@ public class Entity
      * @return the newly created instance
      */
     public Instance newInstance(Map inValues) {
-        return newInstance(new MapDataAccessor(inValues));
+        return newInstance(new ReadOnlyWrapper(inValues));
     }
 
     /** build a new instance from a DataAccessor object
@@ -201,7 +197,7 @@ public class Entity
      * @param inValues the DataAccessor object containing the values
      * @return the newly created instance
      */
-    public Instance newInstance(DataAccessor inValues) {
+    public Instance newInstance(ReadOnlyMap inValues) {
         try {
             Instance result = newInstance();
             extractColumnValues(inValues,result);
@@ -221,7 +217,7 @@ public class Entity
      * @return the instance
      */
     public Instance getInstance(Map inValues) {
-        return getInstance(new MapDataAccessor(inValues),false);
+        return getInstance(new ReadOnlyWrapper(inValues),false);
     }
 
     /** get an instance whose values are in a map
@@ -232,7 +228,7 @@ public class Entity
      * @return the instance
      */
     public Instance getInstance(Map inValues,boolean inUpdateValues) {
-        return getInstance(new MapDataAccessor(inValues),inUpdateValues);
+        return getInstance(new ReadOnlyWrapper(inValues),inUpdateValues);
     }
 
     /** get an instance from its values contained in a DataAccessor object (by default, update all fields based on the values in the DataAccessor if the instance has been found in the cache)
@@ -240,7 +236,7 @@ public class Entity
      * @param inValues the DataAccessor object containing the values
      * @return the instance
      */
-    public Instance getInstance(DataAccessor inValues) {
+    public Instance getInstance(ReadOnlyMap inValues) {
         return getInstance(inValues,false);
     }
 
@@ -251,7 +247,7 @@ public class Entity
      *     DataAccessor if the instance has been found in the cache
      * @return the instance
      */
-    public Instance getInstance(DataAccessor inValues,boolean inUpdateValues) {
+    public Instance getInstance(ReadOnlyMap inValues,boolean inUpdateValues) {
         Instance ret = null;
         try {
             if (mCachingMethod != Cache.NO_CACHE)
@@ -267,7 +263,7 @@ public class Entity
         }
     }
 
-    public void invalidateInstance(DataAccessor instance) throws SQLException {
+    public void invalidateInstance(ReadOnlyMap instance) throws SQLException {
         if (mCachingMethod != Cache.NO_CACHE) {
             mCache.invalidate(buildKey(instance));
         }
@@ -278,14 +274,14 @@ public class Entity
      * @param inSource DataAccessor source object
      * @param inTarget Map target object
      */
-    protected void extractColumnValues(DataAccessor inSource,Map inTarget) throws SQLException {
+    protected void extractColumnValues(ReadOnlyMap inSource,Map inTarget) throws SQLException {
         for(Iterator i=mColumns.iterator();i.hasNext();) {
             String col = (String)i.next();
             Object val = inSource.get(col);
             if (val == null) {
                 switch(mDB.getCaseSensivity()) {
-                    // try with different letter case (it doesn't work with mixed case... every system has its limits !)
-                    // Hey dude, I'm doing a case on case... isn't it funny ?
+                    // try with different letter case
+                    /* TODO review */
                     case Database.UPPERCASE:
                         val = inSource.get(col.toLowerCase());
                         break;
@@ -308,7 +304,7 @@ public class Entity
      *     SQLException
      * @return an array containing all key values
      */
-    protected Object buildKey(DataAccessor inValues) throws SQLException {
+    protected Object buildKey(ReadOnlyMap inValues) throws SQLException {
 
         // build key
         Object [] key = new Object[mKeys.size()];
@@ -318,22 +314,6 @@ public class Entity
         return key;
     }
 
-    /** build the key for the Cache from a DataAccessor
-     *
-     * @param inValues the DataAccessor containing all values
-     * @exception SQLException the getter of the DataAccessor throws an
-     *     SQLException
-     * @return an array containing all key values
-     */
-    protected Object buildKey(Map inValues) throws SQLException {
-
-        // build key
-        Object [] key = new Object[mKeys.size()];
-        int c=0;
-        for(Iterator i = mKeys.iterator(); i.hasNext();)
-            key[c++] = inValues.get(i.next());
-        return key;
-    }
 
     /** getter for the name of this entity
      *
@@ -368,16 +348,7 @@ public class Entity
      * @param inValues the  Map object containing the values
      * @return success indicator
      */
-    public boolean insert(Map inValues) throws SQLException {
-        return insert(new MapDataAccessor(inValues));
-    }
-
-    /** insert a new row based on values of a map
-     *
-     * @param inValues the  Map object containing the values
-     * @return success indicator
-     */
-    public boolean insert(DataAccessor inValues) throws SQLException {
+    public boolean insert(ReadOnlyMap inValues) throws SQLException {
         if (mReadOnly) {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
@@ -407,12 +378,12 @@ public class Entity
         return Long.valueOf(mLastInsertID);
     }
 
-    /** update a row based on values of a Map
+    /** update a row based on a set of values that must contain kety values
      *
      * @param inValues the Map object containing the values
      * @return success indicator
      */
-    public boolean update(Map inValues) {
+    public boolean update(ReadOnlyMap inValues) {
         if (mReadOnly) {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
@@ -421,12 +392,12 @@ public class Entity
         return instance.update();
     }
 
-    /** delete a row based on (key) values in a Map
+    /** delete a row based on (key) values
      *
      * @param inValues the Map containing the values
      * @return success indicator
      */
-    public boolean delete(Map inValues) {
+    public boolean delete(ReadOnlyMap inValues) {
         if (mReadOnly) {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
@@ -465,7 +436,7 @@ public class Entity
      * @param inValues the Map containing the key values
      * @return the fetched instance
      */
-    public Instance fetch(Map inValues) throws SQLException {
+    public Instance fetch(ReadOnlyMap inValues) throws SQLException {
         Instance instance = null;
         // try in cache
         if (mCachingMethod != Cache.NO_CACHE)
@@ -475,12 +446,12 @@ public class Entity
             if (mFetchQuery == null) buildFetchQuery();
             PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
             if (mObfuscate) {
-                inValues = new HashMap(inValues);
-                for(Map.Entry entry:(Set<Map.Entry>)inValues.entrySet()) {
-                    if (isObfuscated((String)entry.getKey())) {
-                        entry.setValue(deobfuscate(entry.getValue()));
-                    }
+                Map map =  new HashMap();
+                for(Object key:inValues.keySet()) {
+                    Object value = inValues.get(key);
+                    map.put( key, isObfuscated((String)key) ? deobfuscate(value) : value );
                 }
+                inValues = new ReadOnlyWrapper(map);
             }
             instance = (Instance)statement.fetch(inValues,this);
         }
@@ -690,14 +661,12 @@ public class Entity
 
     /** validate a set of values
      */
-    public boolean validate(DataAccessor row,UserContext userContext) throws SQLException {
+    public boolean validate(ReadOnlyMap row,UserContext userContext) throws SQLException {
         boolean ret = true;
-        for(Map.Entry<String,FieldConstraint> entry:mConstraints.entrySet()) {
-            String col = entry.getKey();
-            FieldConstraint constraint = entry.getValue();
-            Object data = row.get(col);
-            if (!constraint.validate(data)) {
-                userContext.addValidationError(constraint.getMessage());
+        for(FieldConstraintInfo info:mConstraints) {
+            Object data = row.get(info.column);
+            if (!info.constraint.validate(data, userContext.getLocale())) {
+                userContext.addValidationError(data.toString()+" "+info.constraint.getMessage());
                 ret = false;
             }
         }
@@ -758,5 +727,15 @@ public class Entity
 
     /** constraints
      */
-    private Map<String,FieldConstraint> mConstraints = new HashMap<String,FieldConstraint>();
+
+    private class FieldConstraintInfo {
+        protected FieldConstraintInfo(String col,FieldConstraint constr) {
+            column = col;
+            constraint = constr;
+        }
+        protected String column;
+        protected FieldConstraint constraint;
+    }
+
+    private List<FieldConstraintInfo> mConstraints = new ArrayList<FieldConstraintInfo>();
 }
