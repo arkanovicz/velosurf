@@ -17,29 +17,35 @@
 package velosurf.sql;
 
 import java.util.Map;
+import java.util.Set;
+import java.sql.SQLException;
 
 /** This class encapsulates a Map as a DataAccessor
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
-public class MapDataAccessor implements DataAccessor {
+public class ReadOnlyWrapper implements ReadOnlyMap {
 
     /** builds a new MapDataAccessor
      *
      * @param inInnerMap the Map object to encapsulate
      */
-    public MapDataAccessor(Map inInnerMap){
+    public ReadOnlyWrapper(Map inInnerMap){
         mInnerMap = inInnerMap;
     }
     /** get the property named inKey in the wrapped Map
      *
      * @param inKey the name of the property
      * @return the property value or null if not found
-     * @see velosurf.sql.DataAccessor#get(java.lang.Object)
+     * @see velosurf.sql.ReadOnlyMap#get(java.lang.Object)
      */
     public Object get(Object inKey) {
         return mInnerMap.get(inKey);
+    }
+
+    public Set keySet() throws SQLException {
+        return mInnerMap.keySet();
     }
 
     /** the wrapped Map
