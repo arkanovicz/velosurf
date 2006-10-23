@@ -146,6 +146,7 @@ Please specify a target among :
    
    <antcall target="commons-beanutils-download"/>
    <antcall target="commons-digester-download"/>
+   <antcall target="commons-lang-download"/>
    <antcall target="commons-logging-download"/>
    <antcall target="crimson-download"/>
    <antcall target="dom4j-download"/>
@@ -166,6 +167,12 @@ Please specify a target among :
   <target name="commons-digester-download">
    <property name="download.jarname" value="commons-digester" />
    <property name="download.jarversion" value="${jar.commons-digester.version}" />
+   <antcall target="download-if-needed"/>
+  </target>
+
+  <target name="commons-lang-download">
+   <property name="download.jarname" value="commons-lang" />
+   <property name="download.jarversion" value="${jar.commons-lang.version}" />
    <antcall target="download-if-needed"/>
   </target>
 
