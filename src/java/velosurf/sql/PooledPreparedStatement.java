@@ -46,6 +46,14 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
 
     /* TODO: review the necessity of the synchronized accesses */
 
+    private static Class valueParserSubClass = null;
+
+    static {
+        try {
+            valueParserSubClass = Class.forName("org.apache.velocity.tools.generic.ValueParser$ValueParserSub");
+        } catch(ClassNotFoundException cnfe) {}
+    }
+
     /** builds a new PooledPreparedStatement
      *
      * @param inConnection database connection
@@ -158,7 +166,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
             mConnection.leaveBusyState();
             if (hasNext) {
                 value = rs.getObject(1);
-                if (rs.wasNull()) value = null;
+                if (rs.wasNull()) value = null; /* TODO review - useless, no? */
             }
         }
         finally {
@@ -237,7 +245,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
     protected void setParams(List inParams) throws SQLException {
         for (int i=0;i<inParams.size();i++) {
             Object param = inParams.get(i);
-            if (param instanceof ValueParser.ValueParserSub) {
+            if (valueParserSubClass != null && valueParserSubClass.isAssignableFrom(param.getClass())) {
                 param = param.toString();
             }
             mPreparedStatement.setObject(i+1,param);
