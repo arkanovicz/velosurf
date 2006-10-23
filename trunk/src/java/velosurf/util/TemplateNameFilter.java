@@ -195,7 +195,7 @@ public class TemplateNameFilter implements Filter {
 
         if(templates.contains(path)) {
             /* forward the request with extension added */
-            Logger.trace("vtl: forwarding towards "+path+templateExtension);
+            Logger.trace("vtl: forwarding request towards "+path+templateExtension);
             RequestDispatcher dispatcher = servletContext.getRequestDispatcher(path+templateExtension);
             dispatcher.forward(request,servletResponse);
         } else {
