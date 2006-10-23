@@ -43,6 +43,8 @@ public class ToolFinder  {
                         return (T)t;
                     }
                 }
+            } else {
+                Logger.warn("findtool: no tools map found in session!");
             }
         }
         return null;
