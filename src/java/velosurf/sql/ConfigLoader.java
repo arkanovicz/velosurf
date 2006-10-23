@@ -36,20 +36,22 @@ import org.jdom.input.SAXBuilder;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
 import velosurf.util.Strings;
+import velosurf.util.XIncludeResolver;
 import velosurf.cache.Cache;
 import velosurf.model.Entity;
 import velosurf.model.Action;
 import velosurf.model.Attribute;
 import velosurf.model.Transaction;
-import velosurf.model.validation.Email;
-import velosurf.model.validation.Length;
-import velosurf.model.validation.Range;
-import velosurf.model.validation.NotNull;
-import velosurf.model.validation.OneOf;
-import velosurf.model.validation.Reference;
-import velosurf.model.validation.Regex;
-import velosurf.model.validation.FieldConstraint;
-import velosurf.model.validation.DateRange;
+import velosurf.validation.Email;
+import velosurf.validation.Length;
+import velosurf.validation.Range;
+import velosurf.validation.NotNull;
+import velosurf.validation.OneOf;
+import velosurf.validation.Reference;
+import velosurf.validation.Regex;
+import velosurf.validation.FieldConstraint;
+import velosurf.validation.DateRange;
+import velosurf.validation.NotEmpty;
 import velosurf.web.HttpQueryTool;
 
 /** A configuration loader for the Database object
@@ -59,15 +61,23 @@ import velosurf.web.HttpQueryTool;
 
 public class ConfigLoader {
 
-    private Database _database;
+    private Database _database = null;
+
+    private XIncludeResolver _xincludeResolver = null;
 
     private boolean _needObfuscator = false;
 
     private static final Pattern attributeResultSyntax = Pattern.compile("^scalar|(?:(?:row|rowset)(?:/.+)?)$");
 
     public ConfigLoader(Database db) {
-        _database = db;
+        this(db,null);
     }
+
+    public ConfigLoader(Database db,XIncludeResolver xincludeResolver) {
+        _database = db;
+        _xincludeResolver = xincludeResolver;
+    }
+
 
     public void loadConfig(InputStream config) throws Exception {
 
@@ -75,6 +85,9 @@ public class ConfigLoader {
 
         /* build JDOM tree */
         Document document = new SAXBuilder().build(config);
+        if (_xincludeResolver != null) {
+            document = _xincludeResolver.resolve(document);
+        }
         Element database = document.getRootElement();
 
         setDatabaseAttributes(database);
@@ -445,6 +458,8 @@ public class ConfigLoader {
             String minstr = colElement.getAttributeValue("min-len");
             String maxstr = colElement.getAttributeValue("max-len");
             if (minstr != null || maxstr != null) {
+                colElement.removeAttribute("min-len");
+                colElement.removeAttribute("max-len");
                 if (minstr != null) {
                     minLen = Integer.parseInt(minstr);
                 }
@@ -457,6 +472,8 @@ public class ConfigLoader {
             minstr = colElement.getAttributeValue("min");
             maxstr = colElement.getAttributeValue("max");
             if (minstr != null || maxstr != null || hasType && ("integer".equals(type) | "number".equals(type))) {
+                colElement.removeAttribute("min");
+                colElement.removeAttribute("max");
                 Range numberConstraint = null;
                 numberConstraint = new Range();
                 if (minstr != null) {
@@ -469,6 +486,7 @@ public class ConfigLoader {
                 }
                 if (hasType && "integer".equals(type)) {
                     numberConstraint.setInteger(true);
+                    colElement.removeAttribute("type");
                 }
                 entity.addConstraint(column,numberConstraint);
             }
@@ -476,6 +494,8 @@ public class ConfigLoader {
             String afterstr = colElement.getAttributeValue("after");
             String beforestr = colElement.getAttributeValue("before");
             if (afterstr != null || beforestr != null || hasType && "date".equals(type)) {
+                colElement.removeAttribute("after");
+                colElement.removeAttribute("before");
                 DateRange dateConstraint  = new DateRange();
                 if(afterstr != null) {
                     Date after = format.parse(afterstr);
@@ -485,11 +505,15 @@ public class ConfigLoader {
                     Date before = format.parse(beforestr);
                     dateConstraint.setBeforeDate(before);
                 }
+                if(hasType && "date".equals(type)) {
+                    colElement.removeAttribute("type");
+                }
                 entity.addConstraint(column,dateConstraint);
             }
             /* short-syntax, email */
             if(hasType && "email".equals(type)) {
                 entity.addConstraint(column,new Email());
+                colElement.removeAttribute("type");
             }
             /* short-syntax, others */
             for(Iterator atts = colElement.getAttributes().iterator();atts.hasNext();) {
@@ -499,6 +523,10 @@ public class ConfigLoader {
                 if (name.equals("not-null")) {
                     if(attribute.getBooleanValue()) {
                         entity.addConstraint(column, new NotNull());
+                    }
+                } if (name.equals("not-empty")) {
+                    if(attribute.getBooleanValue()) {
+                        entity.addConstraint(column, new NotEmpty());
                     }
                 } else if (name.equals("one-of")) {
                     entity.addConstraint(column,new OneOf(Arrays.asList(value.split(","))));
@@ -513,10 +541,8 @@ public class ConfigLoader {
                     }
                 } else if (name.equals("regex")) {
                     entity.addConstraint(column,new Regex(Pattern.compile(value)));
-                } else if (name.equals("type") && ("integer".equals(value) || "number".equals(value) || "email".equals(value))) {
-                    /* already taken into account */
                 } else {
-                    if (!name.equals("name") && !name.equals("min-len") && !name.equals("max-len") && !name.equals("min")&& !name.equals("max")) {
+                    if (!name.equals("name")) {
                         Logger.error("ignoring unknown constraint '"+name+"="+attribute.getValue()+"' (entity "+entity.getName()+", column "+column+").");
                     }
                 }
@@ -568,6 +594,8 @@ public class ConfigLoader {
                     constraint = daterange;
                 } else if (name.equals("not-null")) {
                     constraint = new NotNull();
+                }  else if (name.equals("not-empty")) {
+                    constraint = new NotEmpty();
                 } else if (name.equals("one-of")) {
                     List<String> values = new ArrayList<String>();
                     for(Iterator it = constraintElement.getChildren("value").iterator();it.hasNext();) {

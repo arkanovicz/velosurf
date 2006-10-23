@@ -30,6 +30,7 @@ import velosurf.model.Action;
 import velosurf.util.Logger;
 import velosurf.util.LineWriterOutputStream;
 import velosurf.util.Cryptograph;
+import velosurf.util.XIncludeResolver;
 
 /** This class encapsulates  a connection to the database and contains all the stuff relative to it.
  *
@@ -137,7 +138,15 @@ public class Database {
         Integer hash = Integer.valueOf(inConfigFilename.hashCode());
         Database instance = (Database)sConnectionsByConfigFile.get(hash);
         if (instance == null) {
-            instance = getInstance(new FileInputStream(inConfigFilename));
+            String base = null;
+            inConfigFilename = inConfigFilename.replace('\\','/');
+            int i = inConfigFilename.lastIndexOf('/');
+            if (i == -1) {
+                base = ".";
+            } else {
+                base = inConfigFilename.substring(0,i);
+            }
+            instance = getInstance(new FileInputStream(inConfigFilename),new XIncludeResolver(base));
             sConnectionsByConfigFile.put(hash,instance);
         }
         return instance;
@@ -149,8 +158,17 @@ public class Database {
      * @return a new connection
      */
     public static Database getInstance(InputStream inConfig) throws SQLException,IOException {
+        return Database.getInstance(inConfig,null);
+    }
+
+    /** get a new connection
+     * @param inConfig config filename
+     * @exception SQLException thrown by the database engine
+     * @return a new connection
+     */
+    public static Database getInstance(InputStream inConfig,XIncludeResolver xincludeResolver) throws SQLException,IOException {
         Database instance = new Database();
-        instance.readConfigFile(inConfig);
+        instance.readConfigFile(inConfig,xincludeResolver);
         instance.connect();
         instance.getReverseEngineer().readMetaData();
         return instance;
@@ -357,10 +375,6 @@ public class Database {
         }
     }
 
-/*    public RowIterator query(String inEntity,String inAttribute,List inParams) throws SQLException {
-
-    }*/
-
     /** prepare a query
      *
      * @param inQuery an sql query
@@ -474,29 +488,14 @@ public class Database {
         return ret;
     }
 
-    /** read the given config file
-     *
-     * @param inConfigFile config file pathname
-     * @exception SQLException thrown by the database engine
-     */
-    public void readConfigFile(String inConfigFile) throws SQLException,IOException {
-        try {
-            Logger.info("reading properties from file "+inConfigFile+"...");
-            readConfigFile(new FileInputStream(inConfigFile));
-        }
-        catch (FileNotFoundException fnfe) {
-            Logger.log(fnfe);
-        }
-    }
-
     /** read configuration from the given input stream
      *
      * @param inConfig input stream on the config file
      * @exception SQLException thrown by the database engine
      */
-    public void readConfigFile(InputStream inConfig) throws SQLException,IOException {
+    private void readConfigFile(InputStream inConfig,XIncludeResolver xincludeResolver) throws SQLException,IOException {
         try {
-            new ConfigLoader(this).loadConfig(inConfig);
+            new ConfigLoader(this,xincludeResolver).loadConfig(inConfig);
 
         } catch (Exception e) {
             Logger.error("could not load configuration!");
