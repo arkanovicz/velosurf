@@ -60,7 +60,8 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
 
     private Map config;
 
-    public SimpleDBLocalizer() {}
+    public SimpleDBLocalizer() {
+    }
 
     public void init(Object initData) {
         if (!_initialized) {

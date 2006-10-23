@@ -47,9 +47,12 @@ public abstract class HTTPLocalizerTool implements Localizer {
             HttpSession session = ((ViewContext)initData).getRequest().getSession();
             if (session != null) {
                 Locale locale = (Locale)session.getAttribute("velosurf.i18n.active-locale");
-                if (locale != null) {
-                    setLocale(locale);
+                if (locale == null) {
+                    /* means the localization filter did not intercept this query */
+                    Logger.trace("l10n: unlocalized page - using locale "+locale);
+                    locale = ((ViewContext)initData).getRequest().getLocale();
                 }
+                setLocale(locale);
             }
         }
         else {
