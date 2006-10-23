@@ -53,7 +53,16 @@ public class WebappLogger implements Logger {
 
             logString("logger "+name+" initialized.");
         } /* else out remains null */
-        else {  }
+/*
+        else if (name==null) {
+            try {
+                out = new PrintWriter("/tmp/jetty.log");
+            } catch (Exception e) {
+                System.err.println("could not log to file: "+filename);
+            }
+            logString("logger "+name+" initialized.");
+        }
+*/
     }
 
     /*
@@ -71,6 +80,10 @@ public class WebappLogger implements Logger {
     public void info(String msg,Object arg0, Object arg1)
     {
         if (out == null) return;
+/* a bit of filtering */
+if (msg.startsWith("loaded class") || msg.startsWith("loaded interface")) {
+    return;
+}
         logString(_dateCache.now()+" "+format(msg,arg0,arg1));
     }
 
@@ -79,10 +92,10 @@ public class WebappLogger implements Logger {
         if (debug)
         {
             if (out == null) return;
-            /* a bit of filtering */
-            if (msg.startsWith("loaded class") || msg.startsWith("loaded interface")) {
-                return;
-            }
+/* a bit of filtering */
+if (msg.startsWith("loaded class") || msg.startsWith("loaded interface")) {
+    return;
+}
             logString(_dateCache.now()+" "+msg);
             logStackTrace(th);
         }
@@ -93,6 +106,10 @@ public class WebappLogger implements Logger {
         if (debug)
         {
             if (out == null) return;
+/* a bit of filtering */
+if (msg.startsWith("loaded class") || msg.startsWith("loaded interface")) {
+    return;
+}
             logString(_dateCache.now()+" "+format(msg,arg0,arg1));
         }
     }
