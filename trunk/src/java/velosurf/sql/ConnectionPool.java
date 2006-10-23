@@ -73,8 +73,6 @@ public class ConnectionPool {
         Logger.info("Creating a new connection.");
         Connection connection = DriverManager.getConnection(_url,_user,_password);
 
-//Logger.debug("#### before setting schema : "+getSchema(connection)+" ; schema to be set : "+_schema);
-
         // schema
         if (_schema != null) {
             String schemaQuery = _driver.getSchemaQuery();
@@ -85,8 +83,6 @@ public class ConnectionPool {
                 stmt.close();
             }
         }
-
-//Logger.debug("#### after setting schema : "+getSchema(connection));
 
         // autocommit
         connection.setAutoCommit(_autocommit);
