@@ -57,7 +57,7 @@
     </init-param>
     <init-param>
       <param-name>max-inactive</param-name>
-      <param-value>20</param-value>
+      <param-value>300</param-value>
     </init-param>
     <init-param>
       <param-name>login-page</param-name>
@@ -124,15 +124,18 @@
     <filter-name>localized-authentication</filter-name>
     <url-pattern>/localized/en/auth/*</url-pattern>
     <url-pattern>/localized/fr/auth/*</url-pattern>
-    <url-pattern>/localized/*.do</url-pattern>
+<!--    <url-pattern>/localized/*.do</url-pattern> -->
     <dispatcher>REQUEST</dispatcher>
     <dispatcher>FORWARD</dispatcher>
   </filter-mapping>
 
   <filter-mapping>
     <filter-name>validation</filter-name>
-    <url-pattern>*.do</url-pattern>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
   </filter-mapping>
+
 
   <!-- Servlets -->
 
