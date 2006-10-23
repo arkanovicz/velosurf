@@ -87,12 +87,44 @@ public class BlackboxTests
         form.setParameter("string2","123-1234");
         form.setParameter("number","0");
         form.setParameter("oneof","test0");
-        form.setParameter("mydate","2-8-2006");
+        form.setParameter("mydate","2-7-2006");
         form.setParameter("email","toto@tata@titi");
         //form.setParameter("email2",(String)null);
         form.setParameter("book_id","0");
         resp = form.submit();
         assertEquals("Input form",resp.getTitle());
-
+        /* check error messages */
+        checkText(resp,"1","field string: 'aa' is not of the proper length");
+        checkText(resp,"2","field string2: '123-1234' is not valid");
+        checkText(resp,"3","field number: '0' is not in the valid range");
+        checkText(resp,"4","field oneof: 'test0' is not valid");
+        checkText(resp,"5","field email: 'toto@tata@titi' is not an email");
+        checkText(resp,"6","field email2: 'empty value' cannot be empty");
+        checkText(resp,"7","ield book_id: '0' is not valid");
+        /* check that the form retained the values */
+        form = resp.getFormWithName("input");
+        assertEquals("aa",form.getParameterValue("string"));
+        assertEquals("123-1234",form.getParameterValue("string2"));
+        assertEquals("0",form.getParameterValue("number"));
+        assertEquals("test0",form.getParameterValue("oneof"));
+        assertEquals("toto@tata@titi",form.getParameterValue("email"));
+        assertEquals("",form.getParameterValue("email2"));
+        assertEquals("0",form.getParameterValue("book_id"));
+        /* resubmit with good values */
+        form.setParameter("string","aaaaaa");
+        form.setParameter("string2","123-123");
+        form.setParameter("number","1");
+        form.setParameter("oneof","test1");
+        form.setParameter("mydate","8-2-2006");
+        form.setParameter("email","toto@tata@titi");
     }
+
+    public @Test void xinclude() throws Exception {
+        WebConversation wc = new WebConversation();
+        WebRequest req = new GetMethodWebRequest("http://localhost:"+SERVER_PORT+"/xinclude.html");
+        WebResponse resp = wc.getResponse(req);
+        assertEquals("XInclude",resp.getTitle());
+        checkText(resp,"result","1");
+    }
+
 }

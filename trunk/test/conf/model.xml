@@ -12,4 +12,6 @@
 	</attribute>
   </entity>
 
+  <xi:include href="included.xml"/>
+
 </database>
