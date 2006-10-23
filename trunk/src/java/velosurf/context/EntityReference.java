@@ -293,7 +293,7 @@ public class EntityReference extends AbstractList
 
     public boolean validate(Map inValues) {
         try {
-        return mEntity.validate(new ReadOnlyWrapper(inValues),mUserContext);
+            return mEntity.validate(new ReadOnlyWrapper(inValues),mUserContext);
         } catch(SQLException sqle) {
             Logger.error("could not check data validity!");
             mUserContext.addValidationError("internal errror");

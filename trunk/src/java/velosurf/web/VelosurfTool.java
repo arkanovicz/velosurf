@@ -19,6 +19,8 @@ package velosurf.web;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.HashMap;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
@@ -31,6 +33,7 @@ import velosurf.util.Logger;
 import velosurf.util.ServletLogWriter;
 import velosurf.util.ToolFinder;
 import velosurf.util.UserContext;
+import velosurf.util.XIncludeResolver;
 import velosurf.web.i18n.Localizer;
 import velosurf.web.i18n.Localizer;
 
@@ -78,7 +81,7 @@ public class VelosurfTool extends DBReference
      *
      * @param inViewContext initialization data
      */
-    public void init(Object inViewContext) {
+    public void init(Object inViewContext) throws Exception {
         // get servlet context
         ViewContext viewctx = null;
         ServletContext ctx = null;
@@ -90,7 +93,12 @@ public class VelosurfTool extends DBReference
             ctx = viewctx.getServletContext();
         }
         else {
-            Logger.error("Initialization: no valid initialization data found!");
+            Logger.error("Error: Initialization: no valid initialization data found!");
+            System.err.println("Error: Initialization: no valid initialization data found!");
+        }
+
+        if (!Logger.isInitialized() && ctx != null) {
+            Logger.setWriter(new ServletLogWriter(ctx));
         }
 
         // get config file
@@ -101,12 +109,18 @@ public class VelosurfTool extends DBReference
 
             // else try default
             if (mConfigFile == null) {
-                mConfigFile = DEFAULT_DATABASE_CONFIG_FILE;
+                URL check = ctx.getResource(DEFAULT_DATABASE_CONFIG_FILE);
+                if (check == null) {
+                    check = ctx.getResource(OLD_DEFAULT_DATABASE_CONFIG_FILE);
+                    if (check == null) {
+                        throw new RuntimeException("Velosurf config file not found! Please specify it using the servlet context or the toolbox parameters.");
+                    } else {
+                        mConfigFile = OLD_DEFAULT_DATABASE_CONFIG_FILE;
+                    }
+                } else {
+                    mConfigFile = DEFAULT_DATABASE_CONFIG_FILE;
+                }
             }
-        }
-
-        if (!Logger.isInitialized() && ctx != null) {
-            Logger.setWriter(new ServletLogWriter(ctx));
         }
 
         UserContext userContext = null;
@@ -116,10 +130,10 @@ public class VelosurfTool extends DBReference
             HttpSession session = viewctx.getRequest().getSession(false);
             if (session != null) {
                 synchronized(session) {
-                    userContext = (UserContext)session.getAttribute(USER_CONTEXT_KEY);
+                    userContext = (UserContext)session.getAttribute(UserContext.USER_CONTEXT_KEY);
                     if (userContext == null) {
                         userContext = new UserContext();
-                        session.setAttribute(USER_CONTEXT_KEY,userContext);
+                        session.setAttribute(UserContext.USER_CONTEXT_KEY,userContext);
                         if (sFetchLocalizer) {
                             Localizer localizer = ToolFinder.findTool(session,Localizer.class);
                             if (localizer != null) {
@@ -127,7 +141,10 @@ public class VelosurfTool extends DBReference
                             } else {
                                 // don't search for it again
                                 sFetchLocalizer = false;
+                                userContext.setLocale(viewctx.getRequest().getLocale());
                             }
+                        } else {
+                            userContext.setLocale(viewctx.getRequest().getLocale());
                         }
                     }
                 }
@@ -139,27 +156,6 @@ public class VelosurfTool extends DBReference
 
     }
 
-    /** initialization
-     *
-     * @param inServletContext servlet context
-     * @return database connection
-     */
-    protected Database initDB(ServletContext inServletContext) {
-        try {
-            Logger.info("Velosurf tool initialization...");
-
-            return getConnection(mConfigFile);
-        }
-        catch (Exception e) {
-            Logger.log(e);
-            return null;
-        }
-    }
-
-    /** key used to store the user context in the http session
-     */
-    protected static final String USER_CONTEXT_KEY = "velosurf.user.context";
-
     /** key used in the deployment descriptor (web.xml) to set the name of the config file
      */
     protected static final String DATABASE_CONFIG_FILE_KEY = "velosurf.config";
@@ -167,6 +163,10 @@ public class VelosurfTool extends DBReference
     /** default database config file
      */
     protected static final String DEFAULT_DATABASE_CONFIG_FILE = "/WEB-INF/model.xml";
+
+    /** old default database config file
+     */
+    protected static final String OLD_DEFAULT_DATABASE_CONFIG_FILE = "/WEB-INF/velosurf.xml";
 
     /** path to the config file
      */
@@ -199,10 +199,19 @@ public class VelosurfTool extends DBReference
      * @param inConfigFile
      * @return a DBReference
      */
-    public static DBReference getInstance(String inConfigFile) {
+    public static DBReference getInstance(String inConfigFile,UserContext userContext) {
         if (!inConfigFile.startsWith("/")) inConfigFile = "/"+inConfigFile;
         Database db = sDBMap.get(inConfigFile);
-        return db == null ? null : new DBReference(db);
+        return db == null ? null : new DBReference(db,userContext);
+    }
+
+    /** returns a db reference on the existing Database for the specified config file, or null
+     * if it isn't already open.
+     * @param inConfigFile
+     * @return a DBReference
+     */
+    public static DBReference getInstance(String inConfigFile) {
+        return getInstance(inConfigFile,(UserContext)null);
     }
 
 
@@ -224,7 +233,17 @@ public class VelosurfTool extends DBReference
                     Logger.error("Could not read config file "+inConfigFile);
                     return null;
                 }
-                db = Database.getInstance(is);
+                /* calculate the base directory, for XInclude */
+                /* Velosurf won't like '/' in windows names or '\' in linux ones... Does Java? */
+                String base = null;
+                inConfigFile = inConfigFile.replace('\\','/');
+                int i = inConfigFile.lastIndexOf('/');
+                if (i == -1) {
+                    base = ".";
+                } else {
+                    base = inConfigFile.substring(0,i);
+                }
+                db = Database.getInstance(is,new XIncludeResolver(base,inServletContext));
                 sDBMap.put(inConfigFile,db);
             }
             catch(Exception e) {
@@ -240,9 +259,18 @@ public class VelosurfTool extends DBReference
      * @param inConfigFile
      * @return a DBReference
      */
-    public static DBReference getInstance(String inConfigFile,ServletContext inServletContext) {
+    public static DBReference getInstance(String inConfigFile,ServletContext inServletContext,UserContext userContext) {
         Database db = getConnection(inConfigFile,inServletContext);
-        return db == null ? null : new DBReference(db);
+        return db == null ? null : new DBReference(db,userContext);
+    }
+
+    /** returns a db reference on the existing Database for the specified config file and servlet context,
+     * or null if an error occurs.
+     * @param inConfigFile
+     * @return a DBReference
+     */
+    public static DBReference getInstance(String inConfigFile,ServletContext inServletContext) {
+        return getInstance(inConfigFile,inServletContext,null);
     }
 
 
@@ -259,9 +287,17 @@ public class VelosurfTool extends DBReference
      * if it does not already exist.
      * @return a DBReference
      */
-    public static DBReference getDefaultInstance() {
+    public static DBReference getDefaultInstance(UserContext userContext) {
         Database db = getDefaultConnection();
-        return db == null ? null : new DBReference(db);
+        return db == null ? null : new DBReference(db,userContext);
+    }
+
+    /** returns a db reference the existing Database for the default config file, or null
+     * if it does not already exist.
+     * @return a DBReference
+     */
+    public static DBReference getDefaultInstance() {
+        return getDefaultInstance((UserContext)null);
     }
 
     /** returns the existing Database for the default config file and servlet context,
@@ -277,15 +313,18 @@ public class VelosurfTool extends DBReference
      * or null if an error occurs.
      * @return a Database
      */
-    public static DBReference getDefaultInstance(ServletContext inServletContext)
+    public static DBReference getDefaultInstance(ServletContext inServletContext,UserContext userContext)
     {
         /* check at least in the context params */
         String configFile  = inServletContext.getInitParameter(DATABASE_CONFIG_FILE_KEY);
         Database db = getConnection(configFile == null ? DEFAULT_DATABASE_CONFIG_FILE : configFile,inServletContext);
-        return db == null ? null : new DBReference(db);
+        return db == null ? null : new DBReference(db,userContext);
     }
 
-    protected static boolean sLoggerInitialized = false;
+    public static DBReference getDefaultInstance(ServletContext inServletContext)
+    {
+        return getDefaultInstance(inServletContext,(UserContext)null);
+    }
 
     /**
      * do we need to try to fetch the localizer object ?
