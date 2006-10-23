@@ -1,6 +1,14 @@
 TODO
 ----
- - vpp example
+ - bug: read-only="true" and Archego managed to write to the database! (updates are blocked but inserts work)
+ - bug: if result="ROW/...", the attribute definition fails without any log and the attribute is not found (was a raw attribute... probably not important)
+ - put last insert id in userContext
+ - rollback
+ - dbref start/stop transaction => 2.0
+ - xdocs VTL => 2.0
+ - parametrized error messages => 2.0
+ - parse order and refinement to avoid query injections => 2.0
+ - vpp example (implies a Velosurf.setConfigFile)
  - a good disseration about HTTP authentication to place somewhere http://www.artima.com/weblogs/viewpost.jsp?thread=155252
  - auth: logout
  - i18n: flags
@@ -56,4 +64,4 @@ In the context of a velocity-tools web application, Velosurf also provides handy
  - allow setters by foreign-key (eg. $book.author = $author instead of $book.author_id = $author.id) => 2.0
  - XML databases access via IBM XML Data Mediator?
  - inclusion mechanism for the config file => 2.0
- - autofetching via cookies (session attributes ?) => 2.0
+ - autofetching via cookies

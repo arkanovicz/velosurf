@@ -2,6 +2,10 @@
 
 v2.0 (October 2006)
 ----
+ - removed unused method vel.sql.Database.readConfigFile(String file)
+ - XInclude basic inclusion mechanism
+ - new method velosurf.Velosurf.setConfigFile to facilitate VPP inclusion
+   the velosurf.Velosurf class now does a late initialization.
  - HSQLDB infos updated in DriverInfo
  - renamed DataAccessor to ReadOnlyMap and MapDataAccessor to ReadOnlyWrapper
  - HttpQueryTool now inherits org.apache.velocity.tools.view.tools.ParameterParser
