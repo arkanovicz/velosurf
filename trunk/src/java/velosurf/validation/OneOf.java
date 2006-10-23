@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.model.validation;
+package velosurf.validation;
 
 import java.util.regex.Pattern;
 import java.util.List;

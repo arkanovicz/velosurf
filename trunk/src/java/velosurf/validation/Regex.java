@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.model.validation;
+package velosurf.validation;
 
 import java.util.regex.Pattern;
 import java.util.Locale;
@@ -54,6 +54,6 @@ public class Regex extends FieldConstraint {
      * @return true if data matches the regex pattern
      */
     public boolean validate(Object data) {
-        return data == null || _pattern.matcher(data.toString()).matches();
+        return data == null ||  data.toString().length() == 0 || _pattern.matcher(data.toString()).matches();
     }
 }
