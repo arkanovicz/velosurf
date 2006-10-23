@@ -24,9 +24,16 @@ import velosurf.web.i18n.Localizer;
 import velosurf.web.i18n.Localizer;
 
 /**
- * Used to store some values
+ * Used to store contextual values relatives to the user (in a web context, there is one UserContext per http session) 
+ *
+ * @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 public class UserContext {
+
+    /** key used to store the user context in the http session
+     */
+    public static final String USER_CONTEXT_KEY = "velosurf.util.UserContext:session-key";
+
     public UserContext() {
 
     }
@@ -43,11 +50,19 @@ public class UserContext {
         localizer = loc;
     }
 
+    public void setLocale(Locale loc) {
+        locale = loc;
+    }
+
     public String localize(String str) {
         if (localizer == null) {
             return str;
         }
         return localizer.get(str);
+    }
+
+    public void clearValidationErrors() {
+        validationErrors.clear();
     }
 
     public void addValidationError(String err) {
@@ -76,6 +91,8 @@ public class UserContext {
     public Locale getLocale() {
         if(localizer != null) {
             return localizer.getLocale();
+        } else if (locale != null) {
+            return locale;
         } else {
             return Locale.getDefault();
         }
@@ -84,4 +101,5 @@ public class UserContext {
     private String error = "";
     private List<String> validationErrors = new ArrayList<String>();
     private Localizer localizer = null;
+    private Locale locale = null;
 }
