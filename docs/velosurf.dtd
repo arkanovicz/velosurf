@@ -1,0 +1,42 @@
+<!ENTITY database (entity*,attribute*,action*)>
+
+<!ATTLIST database
+	user #REQUIRED
+	password #REQUIRED
+	url #REQUIRED
+	driver #IMPLIED
+	schema #IMPLIED
+	read-only #IMPLIED
+	default-caching #IMPLIED
+	reverse #IMPLIED
+	case #IMPLIED
+	reverse #IMPLIED
+	loglevel #IMPLIED
+	min-connections #IMPLIED
+	max-connections #IMPLIED
+
+<!ENTITY entity (attribute*,column*)>
+
+<!ATTLIST entity
+	name #REQUIRED
+	table #IMPLIED
+	read-only #IMPLIED
+	class #IMPLIED
+	caching #IMPLIED
+	obfuscate #IMPLIED
+	autofetch #IMPLIED>
+
+<!ENTITY attribute #PCDATA> <!-- where #PCDATA is an SQL query with column tags -->
+
+<!ATTLIST attribute
+	name #REQUIRED
+	result #IMPLIED
+	foreign-key #IMPLIED>
+
+<!ENTITY action #PCDATA> <!-- where #PCDATA is an SQL query with column tags -->
+
+<!ATTLIST action
+	name #REQUIRED>
+
+<!ENTITY column (date
+
