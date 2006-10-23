@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.model.validation;
+package velosurf.validation;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -92,7 +92,7 @@ public class Email extends FieldConstraint {
      * @return true if data matches the regex pattern
      */
     public boolean validate(Object data) {
-        if (data == null) return true;
+        if (data == null || data.toString().length() == 0) return true;
         Matcher matcher = _validEmail.matcher(data.toString());
         if (!matcher.matches()) {
             return false;
@@ -112,13 +112,20 @@ public class Email extends FieldConstraint {
 
     private boolean checkDNS(String hostname) {
         try {
+            Logger.trace("email validation: checking DNS");
             Hashtable env = new Hashtable();
             env.put("java.naming.factory.initial",
                     "com.sun.jndi.dns.DnsContextFactory");
             DirContext ictx = new InitialDirContext( env );
             Attributes attrs = ictx.getAttributes(hostname, new String[] { "MX" });
             Attribute attr = attrs.get( "MX" );
-            return attr != null && attr.size() > 0 ;
+            if (attr != null && attr.size() > 0) {
+                Logger.trace("email validation: checking DNS: success");
+                return true;
+            } else {
+                Logger.trace("email validation: checking DNS: failure");
+                return false;
+            }
         } catch(NamingException ne) {
             Logger.log(ne);
             return false;
@@ -129,18 +136,19 @@ public class Email extends FieldConstraint {
         Socket sock = null;
         String response;
         try {
+            Logger.trace("email validation: checking SMTP");
             sock = new Socket(hostname,25);
             BufferedReader is = new BufferedReader(new InputStreamReader(sock.getInputStream()));
             PrintStream os = new PrintStream(sock.getOutputStream());
             response = is.readLine();
             if(!response.startsWith("220 ")) {
-                Logger.trace("checkSMTP: failed after connection: response="+response);
+                Logger.trace("email validation: checking SMTP: failed after connection: response="+response);
                 return false;
             };
             os.println("HELO email-checker@localhost.foo");
             response = is.readLine();
             if(!response.startsWith("250 ")) {
-                Logger.trace("checkSMTP: failed after HELO: response="+response);
+                Logger.trace("email validation: checking SMTP: failed after HELO: response="+response);
                 return false;
             };
             /* note that if the mail server issues a premature DNS check, the process may fail
@@ -148,13 +156,13 @@ public class Email extends FieldConstraint {
             os.println("MAIL FROM:<email-checker@localhost.foo>");
             response = is.readLine();
             if(!response.startsWith("250 ")) {
-                Logger.trace("checkSMTP: failed after MAIL FROM: response="+response);
+                Logger.trace("email validation: checking SMTP: failed after MAIL FROM: response="+response);
                 return false;
             };
             os.println("RCPT TO:<"+user+"@"+hostname+">");
             response = is.readLine();
             if(!response.startsWith("250 ")) {
-                Logger.trace("checkSMTP: failed after RCPT TO: response="+response);
+                Logger.trace("email validation: checking SMTP: failed after RCPT TO: response="+response);
                 return false;
             };
             try {

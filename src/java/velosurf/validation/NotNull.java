@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.model.validation;
+package velosurf.validation;
 
 import java.util.Locale;
 
@@ -27,6 +27,8 @@ import java.util.Locale;
  *   &lt;<i>column</i>&gt;
  *     &lt;not-null [message="<i>error-message</i>"]/&gt;
  *   &lt;/<i>column</i>&gt;
+ * <p>To validate data coming from an HTML form, you should rather use the not-empty constraint since there cannot
+ * be any null value.</p>
  * <p>Note: this constraint is not meant to replace an internal SQL "not-null" clause in the database,
  * since it cannot be made sure that complex updates will respect this constraint.</p>
  *

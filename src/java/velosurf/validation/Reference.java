@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.model.validation;
+package velosurf.validation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,7 @@ import java.sql.SQLException;
 
 import velosurf.sql.Database;
 import velosurf.sql.PooledPreparedStatement;
+import velosurf.util.Logger;
 
 /**
  * <p>A foreign key constraint. Syntax is:</p>
@@ -65,14 +66,19 @@ public class Reference extends FieldConstraint {
      * @return true if data respects the specified reference
      */
     public boolean validate(Object data) throws SQLException {
-        if (data == null) return true;
+        if (data == null || data.toString().length() == 0) return true;
         List param = new ArrayList();
         param.add(data);
         /* TODO this kind of query may vary with dbms...
            - under Oracle, we need to add "from dual"
            - does it return "1" or "true"?
-          So, need to add some stuff to DriverInfo. */
-        PooledPreparedStatement stmt = _db.prepare("select ? in (select * from "+_table+"."+_column+")");
-        return stmt.evaluate(param).equals(Integer.valueOf(1));
+          So, need to add some stuff to DriverInfo.
+          For now, tweak the ping query.*/
+
+        String query = _db.getDriverInfo().getPingQuery();
+        query = query.replace("1","? in (select distinct "+_column+" from "+_table+")");
+        PooledPreparedStatement stmt = _db.prepare(query);
+        Object ret = stmt.evaluate(param);
+        return ret.equals(Integer.valueOf(1));
     }
 }

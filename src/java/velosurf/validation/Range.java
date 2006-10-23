@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.model.validation;
+package velosurf.validation;
 
 import java.sql.SQLException;
 import java.util.Locale;
@@ -68,7 +68,7 @@ public class Range extends FieldConstraint {
      * @return true if data is in the expected range and type
      */
     public boolean validate(Object data) throws SQLException {
-        if (data == null) {
+        if (data == null || data.toString().length() == 0) {
             return true;
         }
         Number number;

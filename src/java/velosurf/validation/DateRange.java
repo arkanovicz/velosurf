@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package velosurf.model.validation;
+package velosurf.validation;
 
 import java.util.Locale;
 import java.util.Date;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+import velosurf.util.Logger;
 
 /**
  * <p>A type and range constraint on dates. Syntax is:</p>
@@ -57,19 +62,80 @@ public class DateRange extends FieldConstraint {
     }
 
     public boolean validate(Object data,Locale locale) {
+        SimpleDateFormat format = null;
         try {
-            if (data == null) return true;
-            DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT,locale);
-            Date date = format.parse((String)data);
+            if (data == null || data.toString().length() == 0) return true;
+            if (locale == null) {
+                Logger.error("date range validation: locale is null!");
+                return true;
+            }
+            format = (SimpleDateFormat)SimpleDateFormat.getDateInstance(DateFormat.SHORT,locale);
+            String reformatted = reformat(format.toPattern(), data.toString());
+Logger.debug("## DateRange:   data = "+data.toString() + " format = "+format.toPattern() + " reformatted = "+reformatted);
+            Date date = format.parse(reformatted);
+Logger.debug("## DateRange:   data = "+data.toString() + " format = "+format.toPattern() + " reformatted = "+reformatted+" date = "+date);
+            if(_after != null && date.before(_after)) {
+                return false;
+            }
             if(_before != null &&  date.after(_before)) {
                 return false;
             }
-            if(_after != null && date.before(_after)) {
-
-            }
             return true;
         } catch(ParseException pe) {
+            Logger.warn("date validation: could not parse date '"+data.toString()+"' with format: "+format.toPattern());
+            Logger.log(pe);
             return false;
         }
+    }
+
+    private static final Pattern y4 = Pattern.compile("\\d{4}");
+
+    private static String reformat(String pattern,String date) {
+        /* tries to reformat the date to match pattern conventions */
+        int patternLength = pattern.length();
+        int dateLength = date.length();
+        char patternSep,dateSep;
+        boolean warn = false;
+        patternSep = pattern.indexOf('/') != -1 ?
+               '/' : pattern.indexOf('-') != -1 ?
+               '-' : '?';
+        dateSep = date.indexOf('/') != -1 ?
+               '/' : date.indexOf('-') != -1 ?
+               '-' : '?';
+        if(patternSep == '?') {
+            if (dateSep == '?') {
+                warn = (patternLength != dateLength);
+            } else {
+                date = date.replace(""+dateSep,"");
+                warn = (patternLength != date.length());
+            }
+        } else {
+            if (dateSep == '?') {
+                if(dateLength == 6) {
+                    /* not ABSOLUTELY sure that six chars without - or / are one of ddMMyy, MMddyy, yyMMdd and the like... but quite. */
+                    date = date.substring(0,2)+patternSep+date.substring(2,4)+patternSep+date.substring(4,6);
+                    warn = (patternLength != 8);
+                } else {
+                    /* too complex */
+                    warn = true;
+                }
+            } else {
+                if(patternSep != dateSep) {
+                    date = date.replace(dateSep,patternSep);
+                }
+                if(patternLength <= dateLength - 2) {
+                    Matcher m = y4.matcher(date);
+                    if(m.find()) {
+                        date = date.substring(0,m.start()) + date.substring(m.start()+2);
+                    } else {
+                        warn = true;
+                    }
+                }
+            }
+        }
+        if(warn) {
+            Logger.warn("date range validation: could not match date '"+date+"' with format '"+pattern+"'");
+        }
+        return date;
     }
 }
