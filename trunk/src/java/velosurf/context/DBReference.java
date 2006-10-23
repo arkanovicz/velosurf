@@ -148,6 +148,7 @@ public class DBReference extends HashMap implements ReadOnlyMap
 
             // 5) try with the user context
             result = mUserContext.get(inProperty);
+            if (result != null) return result;
 
             // Sincerely, I don't see...
             return null;
@@ -184,7 +185,7 @@ public class DBReference extends HashMap implements ReadOnlyMap
     /** get the schema
      * @return the schema
      */
-    String getSchema() {
+    public String getSchema() {
         return mDB.getSchema();
     }
 
