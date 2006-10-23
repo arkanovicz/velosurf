@@ -17,6 +17,7 @@ import velosurf.context.RowIterator;
 import velosurf.context.Instance;
 import velosurf.model.Entity;
 import velosurf.model.Transaction;
+import velosurf.model.Attribute;
 import velosurf.util.Logger;
 
 public class WhiteboxTests
@@ -104,6 +105,14 @@ public class WhiteboxTests
             Instance row = database.getEntity("publisher").fetch(201);
             assertNull(row);
         }
+    }
+
+    public @Test void testXInclude() throws SQLException {
+        /* testing the included attribute */
+        Attribute attribute = database.getRootEntity().getAttribute("count_users");
+        Object result = attribute.evaluate(null);
+        assertEquals("java.lang.Long",result.getClass().getName());
+        assertEquals(1,result);
     }
 
     public static @AfterClass void closeDatabase() throws SQLException {

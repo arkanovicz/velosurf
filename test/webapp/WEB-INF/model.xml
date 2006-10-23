@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE velosurf>
 <database user="sa" password="" url="jdbc:hsqldb:hsql://127.0.0.1/test" read-only="false" loglevel="trace" reverse="full">
-
     <!-- entities -->
 
     <entity name="publisher" obfuscate="publisher_id" autofetch="publisher_id">
@@ -30,10 +30,10 @@
         <column name="oneof" one-of="test1,test2,test3"/>
         <column name="mydate" after="20060802"/>
         <column name="email" type="email"/>
-        <column name="email2" not-null="true">
+        <column name="email2" not-empty="true">
           <email dns-check="true" smtp-check="true"/>
         </column>
-        <column name="book_id" references="book.id"/>
+        <column name="book_id" references="book.book_id"/>
     </entity>
 
     <!-- root attributes -->
@@ -45,5 +45,7 @@
     <attribute name="user_by_login" result="row/user" xml:space="preserve">
         select * from user where login=<login/>
     </attribute>
+
+    <xi:include href="included.xml"/>
 
 </database>
