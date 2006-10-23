@@ -32,9 +32,10 @@ import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
 import velosurf.util.UserContext;
-import velosurf.model.validation.FieldConstraint;
+import velosurf.validation.FieldConstraint;
 
 import org.jdom.Element;
+import org.apache.commons.lang.StringEscapeUtils;
 
 /** The Entity class represents an entity in the data model. It should not be constructed directly.
  *
@@ -663,10 +664,26 @@ public class Entity
      */
     public boolean validate(ReadOnlyMap row,UserContext userContext) throws SQLException {
         boolean ret = true;
+        if(userContext != null) {
+            /* Is it a good choice to clear it now?
+               We may want to validate several entities
+               before displaying errors to the user.
+               */
+            userContext.clearValidationErrors();
+        }
         for(FieldConstraintInfo info:mConstraints) {
             Object data = row.get(info.column);
             if (!info.constraint.validate(data, userContext.getLocale())) {
-                userContext.addValidationError(data.toString()+" "+info.constraint.getMessage());
+                if(userContext != null) {
+                    /* TODO: parametrized localization */
+                    /* TODO: move formatting elsewhere! Define 30 in a constant! donnot call toString() twice on data!*/
+                    String formatted = (data==null || data.toString().length() == 0 ? "empty value" : data.toString());
+                    if (formatted.length()>30) {
+                        formatted = formatted.substring(0,30)+"...";
+                    }
+                    formatted = StringEscapeUtils.escapeHtml(formatted);
+                    userContext.addValidationError("field "+info.column+": '"+formatted+"' "+info.constraint.getMessage());
+                }
                 ret = false;
             }
         }
