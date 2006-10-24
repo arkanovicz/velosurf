@@ -71,9 +71,7 @@ public class DateRange extends FieldConstraint {
             }
             format = (SimpleDateFormat)SimpleDateFormat.getDateInstance(DateFormat.SHORT,locale);
             String reformatted = reformat(format.toPattern(), data.toString());
-Logger.debug("## DateRange:   data = "+data.toString() + " format = "+format.toPattern() + " reformatted = "+reformatted);
             Date date = format.parse(reformatted);
-Logger.debug("## DateRange:   data = "+data.toString() + " format = "+format.toPattern() + " reformatted = "+reformatted+" date = "+date);
             if(_after != null && date.before(_after)) {
                 return false;
             }
