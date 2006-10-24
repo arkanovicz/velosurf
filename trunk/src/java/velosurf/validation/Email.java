@@ -136,11 +136,9 @@ public class Email extends FieldConstraint {
                 NamingEnumeration e = attr.getAll();
                 while(e.hasMore()) {
                     String mx = (String)e.next();
-Logger.debug("#### mx="+mx);
                     String f[] = mx.split( "\\s+" );
                     for (int i=0;i<f.length;i++) {
                         if (f[i].endsWith(".")) {
-Logger.debug("####    found "+f[i].substring(0,f[i].length()-1));
                             result.add(f[i].substring(0,f[i].length()-1));
                         }
                     }
@@ -237,7 +235,6 @@ Logger.debug("####    found "+f[i].substring(0,f[i].length()-1));
                 Logger.trace("email validation: checking SMTP: failure with exception: "+e.getMessage());
             }
             finally {
-Logger.debug("#### CLOSING SOCK "+sock);
                 if (sock != null && !sock.isClosed()) {
                     try {
                         sock.close();
