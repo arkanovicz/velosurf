@@ -20,7 +20,10 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Hashtable;
 import java.util.Locale;
+import java.util.List;
+import java.util.ArrayList;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.BufferedReader;
@@ -31,6 +34,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.DirContext;
 import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
 
 import velosurf.util.Logger;
 
@@ -111,82 +115,188 @@ public class Email extends FieldConstraint {
     }
 
     private boolean checkDNS(String hostname) {
+        List<String> mxs = resolveMXDNS(hostname);
+        return mxs != null && mxs.size() > 0;
+    }
+
+    /* TODO: move it in a helper class in velosurf.util "*/
+    private List<String> resolveMXDNS(String hostname) {
         try {
-            Logger.trace("email validation: checking DNS");
+            Logger.trace("email validation: resolving MX DNS for "+hostname);
             Hashtable env = new Hashtable();
             env.put("java.naming.factory.initial",
                     "com.sun.jndi.dns.DnsContextFactory");
+            env.put("com.sun.jndi.dns.timeout.initial", "3000"); /* quite short... too short? */
+            env.put("com.sun.jndi.dns.timeout.retries", "1");
             DirContext ictx = new InitialDirContext( env );
             Attributes attrs = ictx.getAttributes(hostname, new String[] { "MX" });
             Attribute attr = attrs.get( "MX" );
             if (attr != null && attr.size() > 0) {
-                Logger.trace("email validation: checking DNS: success");
-                return true;
+                List<String> result = new ArrayList<String>();
+                NamingEnumeration e = attr.getAll();
+                while(e.hasMore()) {
+                    String mx = (String)e.next();
+Logger.debug("#### mx="+mx);
+                    String f[] = mx.split( "\\s+" );
+                    for (int i=0;i<f.length;i++) {
+                        if (f[i].endsWith(".")) {
+Logger.debug("####    found "+f[i].substring(0,f[i].length()-1));
+                            result.add(f[i].substring(0,f[i].length()-1));
+                        }
+                    }
+                }
+                return result;
             } else {
-                Logger.trace("email validation: checking DNS: failure");
-                return false;
+                Logger.trace("email validation: DNS MX query failed");
+                return null;
             }
         } catch(NamingException ne) {
-            Logger.trace("email validation: checking DNS: failure");
-            if(Logger.getLogLevel() <= Logger.TRACE_ID) {
-                Logger.log(ne);
-            }
-            return false;
+            Logger.trace("email validation: DNS MX query failed: "+ne.getMessage());
+            return null;
         }
+
     }
 
     private boolean checkSMTP(String user,String hostname) {
-        Socket sock = null;
         String response;
-        try {
-            Logger.trace("email validation: checking SMTP");
-            sock = new Socket(hostname,25);
-            sock.setSoTimeout(3000);
-            BufferedReader is = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-            PrintStream os = new PrintStream(sock.getOutputStream());
-            response = is.readLine();
-            Logger.trace("  "+response);
-            if(!response.startsWith("220 ")) {
-                Logger.trace("email validation: checking SMTP: failed after connection: response="+response);
-                return false;
-            };
-            os.println("HELO email-checker@localhost.foo");
-            response = is.readLine();
-            Logger.trace("  "+response);
-            if(!response.startsWith("250 ")) {
-                Logger.trace("email validation: checking SMTP: failed after HELO: response="+response);
-                return false;
-            };
-            /* note that if the mail server issues a premature DNS check, the process may fail
-               for valid emails */
-            os.println("MAIL FROM:<email-checker@localhost.foo>");
-            response = is.readLine();
-            Logger.trace("  "+response);
-            if(!response.startsWith("250 ")) {
-                Logger.trace("email validation: checking SMTP: failed after MAIL FROM: response="+response);
-                return false;
-            };
-            os.println("RCPT TO:<"+user+"@"+hostname+">");
-            response = is.readLine();
-            Logger.trace("  "+response);
-            if(!response.startsWith("250 ")) {
-                Logger.trace("email validation: checking SMTP: failed after RCPT TO: response="+response);
-                return false;
-            };
-            try {
-                os.println("QUIT");
-            } catch(Exception e) {}
-
-        } catch(Exception e) {
+        Socket sock = null;
+        Logger.trace("email validation: checking SMTP for <"+user+"@"+hostname+">");
+        List<String> mxs = resolveMXDNS(hostname);
+        if (mxs == null || mxs.size() == 0) {
             return false;
         }
-        finally {
-            if (sock != null && !sock.isClosed()) {
+        for(String mx:mxs) {
+            try {
+                Logger.trace("email validation: checking SMTP: trying with MX server "+mx);
+                sock = new FastTimeoutConnect(mx,25,3000).connect();
+                if (sock == null) {
+                    Logger.trace("email validation: checking SMTP: timeout");
+                    continue;
+                }
+                BufferedReader is = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+                PrintStream os = new PrintStream(sock.getOutputStream());
+                response = is.readLine();
+                Logger.trace("  "+response);
+                if(!response.startsWith("220 ")) {
+                    Logger.trace("email validation: checking SMTP: failed after connection");
+                    if(response.startsWith("4")) {
+                        /* server has problems */
+                        continue;
+                    }
+                    else {
+                        return false;
+                    }
+                };
+                os.println("HELO email-checker@localhost.foo");
+                response = is.readLine();
+                Logger.trace("  "+response);
+                if(!response.startsWith("250 ")) {
+                    Logger.trace("email validation: checking SMTP: failed after HELO");
+                    if(response.startsWith("4")) {
+                        /* server has problems */
+                        continue;
+                    }
+                    else {
+                        return false;
+                    }
+                };
+                /* note that if the mail server issues a premature DNS check, the process may fail
+                   for valid emails */
+                os.println("MAIL FROM:<email-checker@localhost.foo>");
+                response = is.readLine();
+                Logger.trace("  "+response);
+                if(!response.startsWith("250 ")) {
+                    Logger.trace("email validation: checking SMTP: failed after MAIL FROM");
+                    if(response.startsWith("4")) {
+                        /* server has problems */
+                        continue;
+                    }
+                    else {
+                        return false;
+                    }
+                };
+                os.println("RCPT TO:<"+user+"@"+hostname+">");
+                response = is.readLine();
+                Logger.trace("  "+response);
+                if(!response.startsWith("250 ")) {
+                    Logger.trace("email validation: checking SMTP: failed after RCPT TO");
+                    if(response.startsWith("4")) {
+                        /* server has problems */
+                        continue;
+                    }
+                    else {
+                        return false;
+                    }
+                };
                 try {
-                    sock.close();
-                } catch (IOException ioe) {}
+                    os.println("QUIT");
+                } catch(Exception e) {}
+                Logger.trace("email validation: checking SMTP: success");
+                return true;
+            } catch(Exception e) {
+                Logger.trace("email validation: checking SMTP: failure with exception: "+e.getMessage());
+            }
+            finally {
+Logger.debug("#### CLOSING SOCK "+sock);
+                if (sock != null && !sock.isClosed()) {
+                    try {
+                        sock.close();
+                    } catch (IOException ioe) {}
+                }
             }
         }
-        return true;
+        Logger.trace("email validation: checking SMTP: failure for all MXs");
+        return false;
+    }
+
+    class FastTimeoutConnect implements Runnable {
+
+        private String host;
+        private int port;
+        private boolean done = false;
+        private int timeout;
+        private Socket socket = null;
+        private IOException ioe;
+        private UnknownHostException uhe;
+
+        public FastTimeoutConnect(String h,int p,int t) {
+            host = h;
+            port = p;
+            timeout = t;
+        }
+
+        public Socket connect() throws IOException, UnknownHostException {
+            int waited=0;
+            Thread thread = new Thread(this);
+            thread.start();
+            while(!done && waited < timeout) {
+                    try {
+                            Thread.sleep(100);
+                            waited+=100;
+                    } catch(InterruptedException e) {
+                            throw new IOException("sleep interrupted");
+                    }
+            }
+            if (!done)
+                    thread.interrupt();
+            if (ioe != null)
+                    throw ioe;
+            if (uhe != null)
+                    throw uhe;
+            return socket;
+        }
+
+
+        public void run() {
+            try {
+                socket = new Socket(host, port);
+            } catch(UnknownHostException uhe) {
+                this.uhe = uhe;
+            } catch(IOException ioe) {
+                this.ioe = ioe;
+            } finally {
+                done = true;
+            }
+        }
     }
 }
