@@ -160,6 +160,7 @@ public class Attribute
             for (Iterator i = mParamNames.iterator();i.hasNext();) {
                 String paramName = (String)i.next();
                 Object value = inSource.get(paramName);
+Logger.debug("### buildArrayList: "+paramName+" -> "+value);                
                 if (mEntity.isObfuscated(paramName)) value = mDB.deobfuscate(value);
                 if (value == null) Logger.warn("Query "+mQuery+": param "+paramName+" is null!");
                 result.add(value);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <database user="sa" password="" url="jdbc:hsqldb:hsql://127.0.0.1/test"
-	read-only="false" loglevel="trace" reverse="full">
+	read-only="false" loglevel="trace" reverse="full" xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <attribute name="user_by_login" result="row/user" xml:space="preserve">
     select * from user where login=<login/>

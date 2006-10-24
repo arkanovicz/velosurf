@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 
 import javax.servlet.ServletContext;
 
@@ -30,6 +31,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Content;
 import org.jdom.Text;
+import org.jdom.output.XMLOutputter;
 import org.jdom.input.SAXBuilder;
 
 /** <p>A basic JDOM XInclude resolver that will also work with a document base inside WEB-INF
@@ -40,30 +42,16 @@ import org.jdom.input.SAXBuilder;
 
 public class XIncludeResolver {
 
-    private static XIncludeResolver instance = null;
-
     private String base = null;
     private ServletContext context = null;
 
     public XIncludeResolver(String base,ServletContext ctx) {
-        if(instance != null) {
-            throw new RuntimeException("XIncludeResolver: constructor called twice!");
-        }
         this.base = base;
         this.context = ctx;
-        instance = this;
     }
 
     public XIncludeResolver(String base) {
-        if(instance != null) {
-            throw new RuntimeException("XIncludeResolver: constructor called twice!");
-        }
         this.base = base;
-        instance = this;
-    }
-
-    public static XIncludeResolver getInstance() {
-        return instance;
     }
 
     public Document resolve(Document doc) throws Exception {
@@ -72,6 +60,7 @@ public class XIncludeResolver {
         if (isXIncludeElement(root)) {
             int pos = doc.indexOf(root);
             List<Content> resolved = include(root);
+            /* doc.detachRootElement(); */
             doc.setContent(pos,resolved);
         } else {
             resolveChildren(root);
@@ -84,11 +73,15 @@ public class XIncludeResolver {
     }
 
     private void resolveChildren(Element parent) throws Exception {
-        for(Element child:(List<Element>)parent.getChildren()) {
-            if (isXIncludeElement(child)) {
+        List<Element> children = parent.getChildren();
+        for(int i=0;i<children.size();i++) {
+            Element child = (Element)children.get(i);
+            if (isXIncludeElement((Element)child)) {
                 int pos = parent.indexOf(child);
-                List<Content> resolved = include(child);
+                List<Content> resolved = include((Element)child);
                 parent.setContent(pos,resolved);
+            } else {
+                resolveChildren(child);
             }
         }
     }
@@ -110,10 +103,9 @@ public class XIncludeResolver {
             content = readStream(new URL(href).openStream());
         } else {
             if (!href.startsWith("/")) {
-                if (!base.startsWith("/")) {
-                    base = "/" + base;
-                }
-                if (!base.endsWith("/")) {
+                if(base.length() == 0) {
+                    base = "./";
+                } else if (!base.endsWith("/")) {
                     base += "/";
                 }
                 href = base + href;
@@ -121,9 +113,9 @@ public class XIncludeResolver {
             content = (context == null ? readStream(new FileInputStream(href)) : readStream(context.getResourceAsStream(href)));
         }
         if (parse) {
-            content = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><root>"+content+"</root>";
-            Document parsed = resolve(new SAXBuilder().build(content)); /* TODO yet to prevent cyclic inclusions...*/
-            result = (List<Content>)parsed.getRootElement().getChildren();
+            content = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><root xmlns:xi=\"http://www.w3.org/2001/XInclude\">"+content+"</root>";
+            Document parsed = resolve(new SAXBuilder().build(new StringReader(content))); /* TODO yet to prevent cyclic inclusions...*/
+            result = (List<Content>)parsed.getRootElement().removeContent();
         } else {
             result = new ArrayList<Content>();
             result.add(new Text(content));
