@@ -60,10 +60,10 @@ public class Email extends FieldConstraint {
     static {
         /* Do we really want to allow all those strange characters in emails?
            Well, that's what the RFC2822 seems to allow... */
-        String atom = "[-a-z0-9!#$%&\\'*+\\\\/=?^_`{|}~]";
+        String atom = "[a-z0-9!#$%&'*+-/=?^_`{|}~]";
         String domain = "(?:[a-z0-9](?:[-a-z0-9]*[a-z0-9]+)?)";
         _validEmail = Pattern.compile(
-                "(/^" + atom + "+" + "(?:\\."+atom+")*)" +
+                "(^" + atom + "+" + "(?:\\."+atom+")*)" +
                 "@((?:" + domain + "{1,63}\\.)+" + domain + "{2,63})$",Pattern.CASE_INSENSITIVE
         );
     }
@@ -127,7 +127,10 @@ public class Email extends FieldConstraint {
                 return false;
             }
         } catch(NamingException ne) {
-            Logger.log(ne);
+            Logger.trace("email validation: checking DNS: failure");
+            if(Logger.getLogLevel() <= Logger.TRACE_ID) {
+                Logger.log(ne);
+            }
             return false;
         }
     }
@@ -138,15 +141,18 @@ public class Email extends FieldConstraint {
         try {
             Logger.trace("email validation: checking SMTP");
             sock = new Socket(hostname,25);
+            sock.setSoTimeout(3000);
             BufferedReader is = new BufferedReader(new InputStreamReader(sock.getInputStream()));
             PrintStream os = new PrintStream(sock.getOutputStream());
             response = is.readLine();
+            Logger.trace("  "+response);
             if(!response.startsWith("220 ")) {
                 Logger.trace("email validation: checking SMTP: failed after connection: response="+response);
                 return false;
             };
             os.println("HELO email-checker@localhost.foo");
             response = is.readLine();
+            Logger.trace("  "+response);
             if(!response.startsWith("250 ")) {
                 Logger.trace("email validation: checking SMTP: failed after HELO: response="+response);
                 return false;
@@ -155,12 +161,14 @@ public class Email extends FieldConstraint {
                for valid emails */
             os.println("MAIL FROM:<email-checker@localhost.foo>");
             response = is.readLine();
+            Logger.trace("  "+response);
             if(!response.startsWith("250 ")) {
                 Logger.trace("email validation: checking SMTP: failed after MAIL FROM: response="+response);
                 return false;
             };
             os.println("RCPT TO:<"+user+"@"+hostname+">");
             response = is.readLine();
+            Logger.trace("  "+response);
             if(!response.startsWith("250 ")) {
                 Logger.trace("email validation: checking SMTP: failed after RCPT TO: response="+response);
                 return false;

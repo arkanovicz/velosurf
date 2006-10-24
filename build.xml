@@ -44,7 +44,7 @@
   <property name="test.src.dir"      value="${test.dir}/src"/>
   <property name="test.lib.dir"      value="${test.dir}/lib"/>
   <property name="test.rst.dir"      value="${test.dir}/rst"/>
-  <property name="test.cmp.dir"      value="${test.dir}/cmp"/>
+  <property name="test.log.dir"      value="${test.dir}/log"/>
   <property name="test.build.dir"    value="${test.dir}/class"/>
   <property name="test.webapp.dir"    value="${test.dir}/webapp"/>
 
@@ -106,7 +106,8 @@ Please specify a target among :
     <mkdir dir="${tmp.dir}" />
     <mkdir dir="${test.build.dir}" />
     <mkdir dir="${test.lib.dir}" />
-    <mkdir dir="${test.rst.dir}" />
+    <mkdir dir="${test.log.dir}" />
+    <mkdir dir="${test.log.dir}" />
     <mkdir dir="${test.jetty.dir}/logs" />
     <tstamp />
     <!-- DOWNLOAD LIBRARIES IF NEEDED -->

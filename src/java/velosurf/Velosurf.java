@@ -104,7 +104,13 @@ public class Velosurf extends DBReference
         return null;
     }
 
-    protected void init()  throws SQLException,IOException {
+    protected void init(InputStream config)  throws SQLException,IOException {
+        Database db = Database.getInstance(config);
+        super.init(db,new UserContext());
+        initialized = true;
+    }
+
+    protected void init() throws SQLException,IOException {
         if(configFile == null) {
             configFile = findConfig();
         }

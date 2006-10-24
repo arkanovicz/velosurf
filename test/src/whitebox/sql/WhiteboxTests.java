@@ -1,11 +1,11 @@
 package whitebox.sql;
 
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.io.PrintWriter;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -27,6 +27,7 @@ public class WhiteboxTests
     protected static Database database = null;
 
 	public static @BeforeClass void openDatabase() throws Exception {
+        Logger.setWriter(new PrintWriter("log/velosurf.log"));
         database = Database.getInstance(MODEL_FILE);
     }
 
@@ -111,7 +112,7 @@ public class WhiteboxTests
         /* testing the included attribute */
         Attribute attribute = database.getRootEntity().getAttribute("count_users");
         Object result = attribute.evaluate(null);
-        assertEquals("java.lang.Long",result.getClass().getName());
+        assertEquals("java.lang.Integer",result.getClass().getName());
         assertEquals(1,result);
     }
 

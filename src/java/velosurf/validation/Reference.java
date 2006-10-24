@@ -79,6 +79,6 @@ public class Reference extends FieldConstraint {
         query = query.replace("1","? in (select distinct "+_column+" from "+_table+")");
         PooledPreparedStatement stmt = _db.prepare(query);
         Object ret = stmt.evaluate(param);
-        return ret.equals(Integer.valueOf(1));
+        return ret != null && ret.equals(Boolean.valueOf(true));
     }
 }
