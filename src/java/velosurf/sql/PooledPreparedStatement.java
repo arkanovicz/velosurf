@@ -140,7 +140,9 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
      */
     public synchronized RowIterator query(List inParams,Entity inResultEntity) throws SQLException {
         notifyInUse();
-        setParams(inParams);
+        if (inParams != null) {
+            setParams(inParams);
+        }
         mConnection.enterBusyState();
         RowIterator result = new RowIterator(this,mPreparedStatement.executeQuery(),inResultEntity);
         mConnection.leaveBusyState();
@@ -159,7 +161,9 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         ResultSet rs = null;
         notifyInUse();
         try {
-            setParams(inParams);
+            if (inParams != null) {
+                setParams(inParams);
+            }
             mConnection.enterBusyState();
             rs = mPreparedStatement.executeQuery();
             boolean hasNext = rs.next();
