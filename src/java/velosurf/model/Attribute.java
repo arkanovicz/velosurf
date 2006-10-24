@@ -128,18 +128,6 @@ public class Attribute
         return mDB.prepare(getQuery()).evaluate(buildArrayList(inSource));
     }
 
-    /** do an update via this attribute: deprecated, prefer to use an action instead
-     *
-     * @param inSource source object
-     * @exception SQLException when thrown from the database
-     * @return the numer of affected rows
-     */
-    public int update(ReadOnlyMap inSource) throws SQLException {
-        if (mType != SCALAR) throw new SQLException("cannot call update: result of attribute '"+mName+"' is not a scalar");
-        if (mForeignKey != null) throw new SQLException("cannot call update: attribute '"+mName+"' is a foreign key");
-        return mDB.prepare(getQuery()).update(buildArrayList(inSource));
-    }
-
     /** gets the type of this attribute
      *
      * @return this attribute's type
@@ -160,7 +148,6 @@ public class Attribute
             for (Iterator i = mParamNames.iterator();i.hasNext();) {
                 String paramName = (String)i.next();
                 Object value = inSource.get(paramName);
-Logger.debug("### buildArrayList: "+paramName+" -> "+value);                
                 if (mEntity.isObfuscated(paramName)) value = mDB.deobfuscate(value);
                 if (value == null) Logger.warn("Query "+mQuery+": param "+paramName+" is null!");
                 result.add(value);
