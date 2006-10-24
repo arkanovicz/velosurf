@@ -27,7 +27,6 @@ public class DriverInfo
 {
     static DriverInfo getDriverInfo(String inUrl,String inDriverClass)
     {
-Logger.debug("### getDriverInfo("+inUrl+","+inDriverClass+")");        
         /* always try to use both infos to check for validity */
         String vendor = null;
         try {
