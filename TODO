@@ -1,7 +1,9 @@
 TODO
 ----
- - bug: read-only="true" and Archego managed to write to the database! (updates are blocked but inserts work)
- - bug: if result="ROW/...", the attribute definition fails without any log and the attribute is not found (was a raw attribute... probably not important)
+ - manual definition of imported and exported keys
+ - use DatabaseMetaData.storeXXXCaseIdentifiers() to determine case sensivity
+ - bug: read-only="true" and Archego managed to write to the database! (updates are blocked but inserts work) => 2.0
+ - bug: if result="ROW/...", the attribute definition fails without any log and the attribute is not found (was a raw attribute... probably not important) => 2.0
  - put last insert id in userContext
  - rollback
  - dbref start/stop transaction => 2.0
@@ -9,15 +11,14 @@ TODO
  - parametrized error messages => 2.0
  - parse order and refinement to avoid query injections => 2.0
  - vpp example (implies a Velosurf.setConfigFile)
- - a good disseration about HTTP authentication to place somewhere http://www.artima.com/weblogs/viewpost.jsp?thread=155252
- - auth: logout
+ - a good dissertation about HTTP authentication to place somewhere http://www.artima.com/weblogs/viewpost.jsp?thread=155252
  - i18n: flags
  - obfuscation should be specific to entities
  - generalize ignorePrefix with a regex
  - update README => 2.0
  - a page about dependencies => 2.0
  - RowIterator.next() returns itself... really dirty... => 2.0
- - split build.xml into build,download,test... and move it in a build directory
+ - split build.xml into build,download,test... and move it in a build directory => 2.0
  - prefetching?
  - graphic reporting => 2.0
  - docfix: a drivers.html page about DriverInfo
@@ -27,40 +28,30 @@ TODO
  - docfix: add doc for constraints
  - docfix: replace DTD with an XML Schema definition (and move it to a separate page) => 2.0
  - docfix: remove anxiogen remarks full of acronyms like "easy VTL language" (or explain acronyms) => 2.0
- - allow the database connection to be configured via a jndi resource?
+ - allow the database connection to be configured via a jndi resource
  - rewrite description: an extensive set of independant tools that provide automagic database mapping, 
      forms validation, authentication and internationalization to the velocity-tools architecture. => 2.0
 Should be somehting like this :
 Velosurf is a database access layer library for the Apache Velocity template engine. It provides an automagic database
 mapping without any code generation.
 In the context of a velocity-tools web application, Velosurf also provides handy tools for authentication, internationalization and forms validation.
- - flatten properties ? Person.address.street = person.AdressStreet? May be slow!
+ - flatten properties ? Person.address.street = person.AdressStreet? May be very slow!
  - update class diagram
- - way of specifying a pair (entity/key parameter name) that will mark the corresponding cached entry as dirty
- - in case of an autoincrement unique id, could Instance.insert() set the new id value in itself ? Yes, if metadata knows about autoincrements.
- - generics for java interface (in a new package) - impossible without recompilation
- - descending order option for entities and multivalued attributes => 2.0
- - Spring integration => nothing to do but some doc => 2.0
  - inheritance of entities in velosurf.xml?
  - shared catalog: what to use as magic number?
  - correct the behaviour of the RowIterator : hasNext() has to be called only once by loop iteration... => 2.0
- - issue a warning if the query of an attribute does not have any reference to the entity row => 2.0
- - make HttpQueryTool inherit from ParameterParser => 2.0
- - reinforce some syntax constraints on the config file (ex : attribute without 'result' argument) => 2.0
- - ability to query current schema (ex : under Oracle :  select sys_context('userenv','current_schema') from dual)
+ - issue a warning if the query of an attribute does not have any reference to the entity row
+ - ability to query current schema (ex : under Oracle :  select sys_context('userenv','current_schema') from dual) [done by caching the known schema for now]
  - add EntityReference.insert(List(columns in natural order))?
  - SQL enums?
  - doc : a page on relationships
  - automatic doc generation?
  - id broker?
  - automatic reload when the configuration file is changed (=> 2.0 - but depends upon container!)
- - 'size' attribute on multivalued attributes? (approx size? exact size?)
- - positionned updates and deletes (how?)
+ - 'size' attribute on multivalued attributes? (approx JDBC size? exact size?)
+ - positionned updates and deletes (via UserContext)
  - paging via AbstractSearchTool?
  - database metadata informations and operations
- - an easy way to associate columns to html form field types ? => VTL macros library
- - reverse engeenering of foreign keys, if used dbms allows it (but they must be aproprietely named explicitely in the SQL declaration!)
-     name can be the name of the distant table for only one fk => 2.0
- - allow setters by foreign-key (eg. $book.author = $author instead of $book.author_id = $author.id) => 2.0
+ - allow setters by foreign-key (eg. $book.author = $author instead of $book.author_id = $author.id) ?
  - XML databases access via IBM XML Data Mediator?
  - autofetching via cookies
