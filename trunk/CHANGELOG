@@ -2,6 +2,7 @@
 
 v2.0 (October 2006)
 ----
+ - reverse enginering of imported and exported keys, new reverse level ("tables")
  - removed unused method vel.sql.Database.readConfigFile(String file)
  - XInclude basic inclusion mechanism
  - new method velosurf.Velosurf.setConfigFile to facilitate VPP inclusion
@@ -22,6 +23,7 @@ v2.0 (October 2006)
  - needed jar libraries are now automatically downloaded from the maven repository at build time
  - bugfix: instance.update() was possible on a read-only entity
  - replaced database attribute "default-access=rw|ro" with attribute "read-only=true|false"
+ - added validation constraints and a ValidationFilter
  - added a ReverseEngineer class and moved corresponding code out of Database
  - added a ConfigLoader class and moved corresponding code out of Database
  - added a TemplateNameFilter which adds ".vtl" to template URIs
