@@ -1,207 +1,361 @@
-<html>
-
-	<head>
-		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
-		<meta name="generator" content="Adobe GoLive 4">
-		<title>Velosurf Overview</title>
-		<link rel="stylesheet" href="velosurf.css" type="text/css">
-	</head>
-
-	<body>
-		<table width="100%">
-			<tr>
-				<td width="100" valign="top"><a href="http://jakarta.apache.org/velocity/index.html"><img src="powered-by-logo.gif" width="77" height="32"></a><br>
-					<br>
-					<b>Overview</b><br>
-					<a href="installation.html">Installation</a><br>
-					<a href="template.html">VTL&nbsp;reference</a><br>
-					<a href="configuration.html">Configuration</a><br>
-					<a href="architecture.html">Architecture</a><br>
-					<a href="java.html">Java&nbsp;reference<br>
-					</a><a href="faq.html">Velosurf&nbsp;FAQ</a></td>
-				<td align="left">
-					<center>
-						<h1><font size="4">Velosurf Overview</font></h1>
-					</center>
-					<p>Content of this page:</p>
-					<ul>
-						<p>&nbsp;<a href="#whatis">What is Velosurf?</a><br>
-							&nbsp;<a href="#why">Why Velosurf?</a><br>
-							&nbsp;<a href="#principles">Velosurf principles</a><br>
-							&nbsp;<a href="#entities">Entities, Instances, Attributes and Actions</a><br>
-							&nbsp;<a href="#syntax">What does the syntax look like?</a><br>
-							&nbsp;<a href="#example">A simple example</a><br>
-							&nbsp;<a href="#features">Detailed features</a></p>
-					</ul>
-					<h2><a name="whatis"></a>What is Velosurf?</h2>
-					<p>Velosurf is a java database mapping layer, for <a href="http://jakarta.apache.org/velocity">the Velocity template engine</a>. It is meant for 
-					ease-of-use, genericity and efficiency. </p>
-					<p>
-						Velosurf main features are:<br>
-					</p>
-					<ul>
-						<li>easy VTL grammar
-						<li>SQL queries are gathered in one place and appear as standard VTL properties <li>dynamic mapping: no need to recompile on any database change<li>automatic connection recovery
-						<li>statements and connections pooling
-						<li>automatic reverse engeenering of database schema
-						<li>natural type mapping
-						<li>concurrent accesses
-						<li>transactions
-						<li>soft caching
-						<li>default mapping Java objects, that you can override when needed<li>integration with HTTP parameters: ID obfuscation and 'autofetching'
-						<li>configurable case-handling policy
-					</ul>
-					<p>Velosurf can be used as a standard Velocity tool (check the <a href="http://jakarta.apache.org/velocity/toolsubproject.html">Velocity Tools</a> subproject, a great architectural component allowing re-usable tools to be easily plugged in Web applications) as well as a generic java database abstraction layer.</p>
-					<h2><a name="why"></a>Why Velosurf?</h2>
-					<p>The main goal of Velosurf is to spare template writers the pain of rewriting specific database mapping layers in Java for each project involving Velocity and database entities. It is also meant to have a clean separation between SQL, Java and VTL.</p>
-					<p>Persistence layers are hard to design and maintain, and have been made obsolete by database caching technology. So why not have a thin and generic mapping engine that will fetch values directly from the database when you need them? With Velosurf, object properties can represent, not just column values, but also complex queries, something difficult to do with a persistence framework.</p>
-					<p>Last but not least: developers often try to protect users from many concepts that may appear too complex or too weird to them. But even if a 
-					data model is complex, its complexity has nothing or little to do with technical constraints, and everything to do with logic and modeling. The 
-					spirit of Velosurf is that those constraints should be shared and exposed to all people involved in a project - like designers - who should be as 
-					competent as developers are (who said more?) to deal with business logic.</p>
-					<p>In a nutshell, Velosurf allows developers to expose a data model where properties are table fields or SQL queries and designers
-					to easily traverse this data model by means of the 'dot' operator.</p>
-					<h2><a name="principles"></a>Velosurf principles</h2>
-					<p>Velosurf provides an 'out-of-the-box' automatized mapping to database tables and fields, along with the ability to easily define custom entities, queries and actions in SQL. Velosurf also allows the overloading of the mapping Java objects.</p>
-					<p>Terminology: Using the Velocity variable that references the Velosurf tool in the Velocity context, template writers can access all (or a subset of) the tables of a database, that are called Velosurf <b>entities</b>.&nbsp;Entities properties are <b>attributes</b> (that can be table columns as long as customized queries). Entities methods that trigger database update/delete/insert queries are <b>actions</b>. Each realisation of an entity is an <b>instance</b>.</p>
-					<p>Velosurf uses an XML configuration file that:</p>
-					<ul>
-						<li>contains all necessary parameters to connect to the database.
-						<li>contains the definition of all needed custom SQL entities, attributes and actions.
-						<li>defines the access rights to entities.
-					</ul>
-					<p>All queries are done via a pool of prepared statements automatically handled by Velosurf. Concurrent accesses are taken into account.</p>
-					<h2><a name="entities"></a>Entities, Instances, Attributes and Actions</h2>
-					<ul>
-						<li><b>Entities</b> are the objects that map database tables. By default, Velosurf defines an entity for each table. Entities are used to access Instances, either by the mean of #foreach loops or via one of the <i>fetch</i> methods.<br>
-							<br>
-						<li><b>Instances</b> map rows of a table (or of the result set of a customized query): they are a realization of their corresponding entity. Instances are used to access specific fields, attributes or actions.<br>
-							<br>
-						<li><b>Attributes</b> belong either to the database itself ('root' attributes) or to specific entities, in which case they can be accessed from the corresponding instances. Attributes have a result type which is one of 'scalar', 'row', or 'rowset'. One can specify the resulting entity of row or rowset attributes, to access nested properties on them. By default, Velosurf defines a scalar attribute for each table column.<br>
-							<br>
-						<li><b>Actions</b> are like attributes, except their SQL query is a modification query (insert/update/delete), or even a succession of such modification queries. They return the number of affected rows. If present, the root action named 'startup' is executed at startup.
-					</ul>
-					<h2><a name="syntax"></a>What does the syntax look like?</h2>
-					<p><b>Task: fetch a single value of the database and display it:</b></p>
-					<p>Assuming that you've got the following table in your database:</p>
-					<table border="4" cellpadding="0" cellspacing="2" width="283">
-						<tr>
-							<td colspan="2" align="center"><b>message</b></td>
-						</tr>
-						<tr>
-							<td align="center">msg_id</td>
-							<td align="center">int autoincrement primary key</td>
-						</tr>
-						<tr>
-							<td align="center">msg_text</td>
-							<td align="center">varchar</td>
-						</tr>
-					</table>
-					<p>and that it contains the value (1,'Hello, World!')</p>
-					<p>then you can write the following VTL expression:</p>
-					<ul>
-						<code>$db.message.fetch(1).msg_text</code>
-					</ul>
-					<p>Or, to be more explicit:</p>
-					<ul>
-						<code>#set( $hello = $db.message.fetch(1) )<br>
-							$hello.msg_text</code>
-					</ul>
-					<p>and this would of course produce:</p>
-					<ul>
-						<code>Hello World!</code>
-					</ul>
-					<p><b>Task: fetch multiple rows of a single column and display them in sequential order:</b></p>
-					<p>Still with the same table:</p>
-					<ul>
-						<code>#foreach($message in $db.messages)<br>
-							$message.text<br>
-							#end</code>
-					</ul>
-					<p><b>Task: insert a value in the database:</b></p>
-					<p>Assuming that $values is an empty map:</p>
-					<ul>
-						<code>#set( $values.msg_text = 'How do you do?' )<br>
-							#set( $success = $db.message.insert($values) )<br>
-							<br>
-							#if ($success)<br>
-							&nbsp;&nbsp;&nbsp;&nbsp;New row inserted: id = $db.message.lastInsertID<br>
-							#else<br>
-							&nbsp;&nbsp;&nbsp;&nbsp;Error: $db.error<br>
-							#end</code>
-					</ul>
-					<p>If you are using the velosurf.tool.HttpQueryTool tool to parse HTTP query parameters, you can pass it directly to an insert or an update method. However, please note that you should not modify database values from within templates if you want your Webapp to follow the MVC paradigm.</p>
-					<h2><a name="example"></a>A simple example</h2>
-					<p>The code in sample.vm allows the user to view the content of the 'my_strings' table (key-value pairs), and to add or remove values. Then, it gives an example of a 1-n join between tables 'user' and 'message'.<br>
-						<br>
-						First, the toolbox.xml (that references all Velocity tools) defines the needed tools:</p>
-					<ul>
-						<li>'db' will be the key to access the database
-						<li>'query' will be the key to access http parameters
-					</ul>
-					<p>
-						<iframe width="100%" height="250" style="position:relative;" src="toolbox.xml"></iframe>
-						<br>
-						<br>
-						Then, the velosurf.xml configuration file, which gives connection parameters and defines entities, along with an example of a 1-n bidirectionnal join between tables user and message:<br>
-						<br>
-						<a name="config"></a>
-						<iframe width="100%" height="300" style="position:relative;" src="velosurf.xml"></iframe>
-						<br>
-						<br>
-						Now, the template itself:<br>
-						<br>
-						<iframe width="100%" height="750" style="position:relative;" src="sample.vm"></iframe>
-						<br>
-						<br>
-						which would give something like:<br>
-						<br>
-						<iframe width="100%" height="470" style="position:relative;" src="sample.html"></iframe>
-					</p>
-					<p>A more complex example is given in the <code>./samples</code> directory, in the form of a simple bookstore Webapp.</p>
-					<h2><a name="features"></a>Detailed features</h2>
-					<p>You can start using Velosurf right out-the-box just relying on the reverse-engeenering it provides.</p>
-					<p>Next, by explicitely declaring entities in velosurf.xml, you can extend its functionnalities:</p>
-					<ul>
-						<li>Add attributes to entities in the form of custom SQL queries. They will appear as standard properties from within templates.
-						<li>Decide to map it with your own Java class if you need more complexity here and there. You just have to inherit <code>velosurf.context.Instance</code> and the attributes you've already defined in velosurf.xml will still be valid.</ul>
-					<p><b>Inside a Veltools Webapp</b>, Velosurf provides the following additionnal features:</p>
-					<ul>
-						<li><b>IDs obfuscation</b>: transparent obfuscation of primary key ids, so that they can appear as HTTP parameters. The idea of this feature 
-						is to 
-						let Velosurf obfuscate and deobfuscate IDs at a 'low-level' in a transparent way. For this to work, you must make sure you obfuscate all 
-						foreign keys relative to the primaty key you are obfuscating (by mean of the <code>obfuscate</code> XML attribute in target entities).<br>You 
-						can use the <code>$db.obfuscate(<i>value</i>)</code> and <code>$db.deobfuscate(<i>value</i>)</code> methods if you need to manually control 
-						obfuscation.<br><br>
-						<li><b>Autofetching</b>: This option populates the Velocity context by automatically fetching instances that have their primary key specified 
-						as an 
-						HTTP parameter. For instance, the clause <code>autofetch='foo_id'</code> in the <code>foo</code> entity can replace 
-						<br><br><code>#if($query.foo_id) #set($foo=$db.foo.fetch($query.foo_id)) #end</code><br><br> in all the templates that want a 
-						<code>foo_id</code> 
-						HTTP parameter.<br>
-						More complex autofetch clauses include:
-						<ul>
-						<li><code>autofetch='my_foo=foo_id'</code> wich corresponds to <code>#if($query.foo_id) #set($my_foo=$db.foo.fetch($query.foo_id)) 
-						#end</code>
-						<li><code>autofetch='query.my_foo=foo_id'</code> wich corresponds to <code>#if($query.foo_id) 
-						#set($query.my_foo=$db.foo.fetch($query.foo_id)) 
-						#end</code>
-						</ul>
-					</ul>
-					<p>The syntax for those two last features is detailed in the <a href="configuration.html">Configuration</a> section. Check also the bookstore sample.</p>
-					<p><b>Caching</b>: If an entity in your application is very often fetched, you can decide to cache it (by adding caching=&quot;soft&quot; to its declaration). For instance, it could be a good choice if you've got a framed Webapp (which of course one should try to avoid, frames are bad ;o) and that each frame request will have to fetch the current user based on an id stored as a cookie.</p>
-					<p><b>Working with several schemas</b>: two options here.</p>
-					<ul>
-						<li>the 'light' solution: you can specify tables with schema qualifiers in the config file. That's handy if you've got only few external 
-						entities to handle.<li>the 'clean' solution: use one VelosurfTool instance per schema, each with a distinct config file (see the <a href='./api/velosurf/tools/VelosurfTool.html'>VelosurfTool javadoc</a> for how to do this). You can refer to entities across config files, using schema qualifiers, as long as the instances use the same database login.
-					</ul>
-					<p><b>Connection pool</b>: Velosurf starts with <code>min-connections</code> initial connections (default is only one connection). New
-					connections are created on the fly (up to <code>max-connections</code>) only when needed (Velosurf tries to reuse existing connections first) and 
-					then kept in the pool, which means that Velosurf 
-					will adapt itself to the load of the [web-]application.
-				</td>
-			</tr></tr>
-		</table>
-	</body>
-
-</html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>Velosurf Overview</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Linux)">
+	<META NAME="CREATED" CONTENT="20061025;11080000">
+	<META NAME="CHANGED" CONTENT="20061025;11234900">
+	<STYLE TYPE="text/css">
+	<!--
+		TD P { font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 9pt }
+		H1 { background: #cccccc; color: #000000; font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 10pt }
+		P { font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 9pt }
+		H2 { background: #aaaaff; color: #000000; font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 10pt }
+		A:link { color: #0000ff }
+		A:visited { color: #0000ff }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="fr-FR" LINK="#0000ff" VLINK="#0000ff" DIR="LTR">
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=2 CELLSPACING=3 FRAME=VOID RULES=GROUPS STYLE="page-break-before: always">
+	<COLGROUP>
+		<COL WIDTH=18*>
+		<COL WIDTH=1*>
+	</COLGROUP>
+	<COLGROUP>
+		<COL WIDTH=13*>
+	</COLGROUP>
+	<COLGROUP>
+		<COL WIDTH=38*>
+	</COLGROUP>
+	<COLGROUP>
+		<COL WIDTH=186*>
+	</COLGROUP>
+	<TBODY>
+		<TR>
+			<TD ROWSPAN=5 WIDTH=7% VALIGN=TOP>
+				<P><A HREF="http://jakarta.apache.org/velocity/index.html"><FONT COLOR="#0000ff"><IMG SRC="powered-by-logo.gif" NAME="Image1" ALIGN=BOTTOM WIDTH=77 HEIGHT=32 BORDER=1></FONT></A><BR><BR><B>Overview</B><BR><A HREF="installation.html">Installation</A><BR><A HREF="template.html">VTL&nbsp;reference</A><BR><A HREF="configuration.html">Configuration</A><BR><A HREF="architecture.html">Architecture</A><BR><A HREF="java.html">Java&nbsp;reference<BR></A><A HREF="faq.html">Velosurf&nbsp;FAQ</A></P>
+			</TD>
+			<TD COLSPAN=4 WIDTH=93%>
+				<H1 ALIGN=CENTER><FONT SIZE=4>Velosurf Overview</FONT></H1>
+				<P ALIGN=LEFT>Content of this page:</P>
+				<UL>
+					<P ALIGN=LEFT>&nbsp;<A HREF="#whatis">What is Velosurf?</A><BR>&nbsp;<A HREF="#why">Why
+					Velosurf?</A><BR>&nbsp;<A HREF="#principles">Velosurf
+					principles</A><BR>&nbsp;<A HREF="#entities">Entities, Instances,
+					Attributes and Actions</A><BR>&nbsp;<A HREF="#syntax">What does
+					the syntax look like?</A><BR>&nbsp;<A HREF="#example">A simple
+					example</A><BR>&nbsp;<A HREF="#features">Detailed features</A></P>
+				</UL>
+				<H2 ALIGN=LEFT><A NAME="whatis"></A>What is Velosurf?</H2>
+				<P ALIGN=LEFT>Velosurf is a java database mapping layer, for <A HREF="http://jakarta.apache.org/velocity">the
+				Velocity template engine</A>. It is meant for ease-of-use,
+				genericity and efficiency. Velosurf provides an 'out-of-the-box'
+				automatized mapping to database tables and fields, along with the
+				ability to easily define custom entities, queries and actions in
+				SQL.</P>
+				<P ALIGN=LEFT>Velosurf main features are:</P>
+				<UL>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">easy template
+					grammar 
+					</P>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">code isolation: SQL
+					queries are gathered in one place and appear as standard objects
+					properties</P>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">dynamic mapping: no
+					need to recompile on any database change</P>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">automatic
+					connection recovery 
+					</P>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">statements and
+					connections pooling 
+					</P>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">automatic reverse
+					engeenering of database schema, including foreign keys 
+					</P>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">natural type
+					mapping 
+					</P>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">concurrent accesses
+										</P>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">transactions 
+					</P>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">soft caching
+					mechanism to speed up frequent queries</P>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">default mapping
+					Java objects, that you can override when needed</P>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">IDs obfuscation</P>
+					<P ALIGN=LEFT STYLE="margin-bottom: 0cm"></P>
+				</UL>
+				<P ALIGN=LEFT>Velosurf can be used as a standard Velocity tool
+				(and as such easily integrated in every Web framework that
+				supports the <A HREF="http://jakarta.apache.org/velocity/toolsubproject.html">Velocity
+				Tools</A> rendering layer), as well as a generic java database
+				abstraction layer.</P>
+				<H2 ALIGN=LEFT><A NAME="why"></A>Why Velosurf?</H2>
+				<P ALIGN=LEFT>The main goal of Velosurf is to spare template
+				writers the pain of rewriting specific database mapping layers in
+				Java for each project involving Velocity and database entities.
+				It is also meant to have a clean separation between SQL, Java and
+				VTL.</P>
+				<P ALIGN=LEFT>Persistence layers are hard to design and maintain,
+				and have been made obsolete by database caching technology. So
+				why not have a thin and generic mapping engine that will fetch
+				values directly from the database when you need them? With
+				Velosurf, object properties can represent, not just column
+				values, but also complex queries, something difficult to do with
+				a persistence framework.</P>
+				<P ALIGN=LEFT>Last but not least: developers often try to protect
+				users from many concepts that may appear too complex or too weird
+				to them. But even if a data model is complex, its complexity has
+				nothing or little to do with technical constraints, and
+				everything to do with logic and modeling. The spirit of Velosurf
+				is that those constraints should be shared and exposed to all
+				people involved in a project - like designers - who should be as
+				competent as developers are (who said more?) to deal with
+				business logic.</P>
+				<P ALIGN=LEFT>In a nutshell, Velosurf allows developers to expose
+				a data model where properties are table fields or SQL queries and
+				designers to easily traverse this data model by means of the
+				'dot' operator.</P>
+				<H2 ALIGN=LEFT>Teminology</H2>
+				<P ALIGN=LEFT>Using the Velocity variable that references the
+				Velosurf tool in the Velocity context, template writers can
+				access all (or a subset of) the tables of a database, that are
+				called Velosurf <B>entities</B>.&nbsp;Entities properties are
+				<B>attributes</B> (that can be table columns as long as
+				customized queries). Entities methods that trigger database
+				update/delete/insert queries are <B>actions</B>. Each realisation
+				of an entity is an <B>instance</B>.</P>
+				<P ALIGN=LEFT>Velosurf uses an XML configuration file that:</P>
+				<UL>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">contains all
+					necessary parameters to connect to the database. 
+					</P>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">contains the
+					definition of all needed custom SQL entities, attributes and
+					actions. 
+					</P>
+					<LI><P ALIGN=LEFT>defines the access rights to entities. 
+					</P>
+				</UL>
+				<P ALIGN=LEFT>All queries are done via a pool of prepared
+				statements automatically handled by Velosurf. Concurrent accesses
+				are taken into account.</P>
+				<H2 ALIGN=LEFT><A NAME="entities"></A>Entities, Instances,
+				Attributes and Actions</H2>
+				<UL>
+					<LI><P ALIGN=LEFT><B>Entities</B> are the objects that map
+					database tables. By default, Velosurf defines an entity for each
+					table. Entities are used to access Instances, either by the mean
+					of #foreach loops or via one of the <I>fetch</I> methods.</P>
+					<LI><P ALIGN=LEFT><B>Instances</B> map rows of a table (or of
+					the result set of a customized query): they are a realization of
+					their corresponding entity. Instances are used to access
+					specific fields, attributes or actions.</P>
+					<LI><P ALIGN=LEFT><B>Attributes</B> belong either to the
+					database itself ('root' attributes) or to specific entities, in
+					which case they can be accessed from the corresponding
+					instances. Attributes have a result type which is one of
+					'scalar', 'row', or 'rowset'. One can specify the resulting
+					entity of row or rowset attributes, to access nested properties
+					on them. By default, Velosurf defines a scalar attribute for
+					each table column.</P>
+					<LI><P ALIGN=LEFT><B>Actions</B> are like attributes, except
+					their SQL query is a modification query (insert/update/delete),
+					or even a succession of such modification queries. They return
+					the number of affected rows. If present, the root action named
+					'startup' is executed at startup. 
+					</P>
+				</UL>
+				<H2 ALIGN=LEFT><A NAME="syntax"></A>What does the syntax look
+				like?</H2>
+				<P ALIGN=LEFT><B>Exampe task: fetch a single value of the
+				database and display it:</B></P>
+				<P ALIGN=LEFT>Assuming that you've got the following table in
+				your database:</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD ROWSPAN=3 WIDTH=0% VALIGN=TOP></TD>
+			<TD COLSPAN=2 WIDTH=20%>
+				<P ALIGN=CENTER><B>message</B></P>
+			</TD>
+			<TD ROWSPAN=3 WIDTH=73% VALIGN=TOP></TD>
+		</TR>
+	</TBODY>
+	<TBODY>
+		<TR>
+			<TD WIDTH=5%>
+				<P ALIGN=CENTER>msg_id</P>
+			</TD>
+			<TD WIDTH=15%>
+				<P ALIGN=CENTER>int autoincrement primary key</P>
+			</TD>
+		</TR>
+	</TBODY>
+	<TBODY>
+		<TR>
+			<TD WIDTH=5%>
+				<P ALIGN=CENTER>msg_text</P>
+			</TD>
+			<TD WIDTH=15%>
+				<P ALIGN=CENTER>varchar</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD COLSPAN=4 WIDTH=93%>
+				<P ALIGN=LEFT>and that it contains the value (1,'Hello, World!')</P>
+				<P ALIGN=LEFT>then you can write the following VTL expression:</P>
+				<UL>
+					<P ALIGN=LEFT><CODE>$db.message.fetch(1).msg_text</CODE> 
+					</P>
+				</UL>
+				<P ALIGN=LEFT>Or, to be more explicit:</P>
+				<UL>
+					<P ALIGN=LEFT><CODE>#set( $hello = $db.message.fetch(1)
+					)<BR>$hello.msg_text</CODE> 
+					</P>
+				</UL>
+				<P ALIGN=LEFT>and this would produce:</P>
+				<UL>
+					<P ALIGN=LEFT><CODE>Hello World!</CODE> 
+					</P>
+				</UL>
+				<P ALIGN=LEFT><B>Example task: fetch multiple rows of a single
+				column and display them in sequential order:</B></P>
+				<P ALIGN=LEFT>Still with the same table:</P>
+				<UL>
+					<P ALIGN=LEFT><CODE>#foreach($message in
+					$db.messages)<BR>$message.text<BR>#end</CODE> 
+					</P>
+				</UL>
+				<P ALIGN=LEFT><B>Example task: insert a value in the database:</B></P>
+				<P ALIGN=LEFT>Assuming that $values is an empty map:</P>
+				<UL>
+					<P ALIGN=LEFT><CODE>#set( $values.msg_text = 'How do you do?'
+					)<BR>#set( $success = $db.message.insert($values) )<BR><BR>#if
+					($success)<BR>&nbsp;&nbsp;&nbsp;&nbsp;New row inserted: id =
+					$db.message.lastInsertID<BR>#else<BR>&nbsp;&nbsp;&nbsp;&nbsp;Error:
+					$db.error<BR>#end</CODE> 
+					</P>
+				</UL>
+				<P ALIGN=LEFT>If you are using the velosurf.tool.HttpQueryTool
+				tool to parse HTTP query parameters, you can pass it directly to
+				an insert or an update method. However, please note that you
+				should not modify database values from within templates if you
+				want your Webapp to follow the MVC paradigm.</P>
+				<H2 ALIGN=LEFT><A NAME="example"></A>A simple example</H2>
+				<P ALIGN=LEFT>The code in sample.vm allows the user to view the
+				content of the 'my_strings' table (key-value pairs), and to add
+				or remove values. Then, it gives an example of a 1-n join between
+				tables 'user' and 'message'.<BR><BR>First, the toolbox.xml (that
+				references all Velocity tools) defines the needed tools:</P>
+				<UL>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">'db' will be the
+					key to access the database 
+					</P>
+					<LI><P ALIGN=LEFT>'query' will be the key to access http
+					parameters 
+					</P>
+				</UL>
+				<P ALIGN=LEFT><A NAME="config"></A><IMG SRC="" NAME="Objet1" ALIGN=BOTTOM WIDTH=100% HEIGHT=250>
+				<BR><BR>Then, the velosurf.xml configuration file, which gives
+				connection parameters and defines entities, along with an example
+				of a 1-n bidirectionnal join between tables user and message:<BR><BR><IMG SRC="" NAME="Objet2" ALIGN=BOTTOM WIDTH=100% HEIGHT=300>
+				<BR><BR>Now, the template itself:<BR><BR><IMG SRC="" NAME="Objet3" ALIGN=BOTTOM WIDTH=100% HEIGHT=750>
+				<BR><BR>which would give something like:<BR><BR><IMG SRC="" NAME="Objet4" ALIGN=BOTTOM WIDTH=100% HEIGHT=470>
+								</P>
+				<P ALIGN=LEFT>More complex examples are given in the <CODE>./examples</CODE>
+				directory.</P>
+				<H2 ALIGN=LEFT><A NAME="features"></A>Detailed features</H2>
+				<P ALIGN=LEFT>You can start using Velosurf right out-the-box just
+				relying on the reverse-engeenering it provides.</P>
+				<P ALIGN=LEFT>Next, by explicitely declaring entities in
+				velosurf.xml, you can extend its functionnalities:</P>
+				<UL>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Add attributes to
+					entities in the form of custom SQL queries. They will appear as
+					standard properties from within templates. 
+					</P>
+					<LI><P ALIGN=LEFT>Decide to map it with your own Java objects
+					(which can be plain old java objects) if you need more
+					complexity here and there. The attributes you've already defined
+					in velosurf.xml will still be valid.</P>
+				</UL>
+				<P ALIGN=LEFT><B>Inside a Veltools Webapp</B>, Velosurf provides
+				the following additionnal features:</P>
+				<UL>
+					<LI><P ALIGN=LEFT><B>IDs obfuscation</B>: transparent
+					obfuscation of primary key ids, so that they can appear as HTTP
+					parameters. The idea of this feature is to let Velosurf
+					obfuscate and deobfuscate IDs at a 'low-level' in a transparent
+					way. For this to work, you must make sure you obfuscate all
+					foreign keys relative to the primaty key you are obfuscating (by
+					mean of the <CODE>obfuscate</CODE> XML attribute in target
+					entities).<BR>You can use the <CODE>$db.obfuscate(<I>value</I>)</CODE>
+					and <CODE>$db.deobfuscate(<I>value</I>)</CODE> methods if you
+					need to manually control obfuscation.</P>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm"><B>Autofetching</B>:
+					This option populates the Velocity context by automatically
+					fetching instances that have their primary key specified as an
+					HTTP parameter. For instance, the clause <CODE>autofetch='foo_id'</CODE>
+					in the <CODE>foo</CODE> entity can replace <BR><BR><CODE>#if($query.foo_id)
+					#set($foo=$db.foo.fetch($query.foo_id)) #end</CODE><BR><BR>in
+					all the templates that want a <CODE>foo_id</CODE> HTTP
+					parameter.<BR>More complex autofetch clauses include: 
+					</P>
+					<UL>
+						<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm"><CODE>autofetch='my_foo=foo_id'</CODE>
+						wich corresponds to <CODE>#if($query.foo_id)
+						#set($my_foo=$db.foo.fetch($query.foo_id)) #end</CODE> 
+						</P>
+						<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm"><CODE>autofetch='query.my_foo=foo_id'</CODE>
+						wich corresponds to <CODE>#if($query.foo_id)
+						#set($query.my_foo=$db.foo.fetch($query.foo_id)) #end</CODE>
+						More complex autofetch clauses include: 
+						</P>
+					</UL>
+				</UL>
+				<P ALIGN=LEFT>The syntax for those two last features is detailed
+				in the <A HREF="configuration.html">Configuration</A> section.
+				Check also the bookstore sample.</P>
+				<P ALIGN=LEFT><B>Caching</B>: If an entity in your application is
+				very often fetched, you can decide to cache it (by adding
+				'caching=&quot;soft&quot;' or 'caching=&quot;full&quot;' to its
+				declaration). For instance, it could be a good choice if you've
+				got a framed Webapp (which of course one should try to avoid,
+				frames are bad ;o) and that each frame request will have to fetch
+				the current user based on an id stored as a cookie.</P>
+				<P ALIGN=LEFT><B>Working with several schemas</B>: two options
+				here.</P>
+				<UL>
+					<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">the 'light'
+					solution: you can specify tables with schema qualifiers in the
+					config file. That's handy if you've got only few external
+					entities to handle.</P>
+					<LI><P ALIGN=LEFT>the 'clean' solution: use one VelosurfTool
+					instance per schema, each with a distinct config file (see the
+					<A HREF="api/velosurf/tools/VelosurfTool.html">VelosurfTool
+					javadoc</A> for how to do this). You can refer to entities
+					across config files, using schema qualifiers, as long as the
+					instances use the same database login. 
+					</P>
+				</UL>
+				<P ALIGN=LEFT><B>Connection pool</B>: Velosurf starts with
+				<CODE>min-connections</CODE> initial connections (default is only
+				one connection). New connections are created on the fly (up to
+				<CODE>max-connections</CODE>) only when needed (Velosurf tries to
+				reuse existing connections first) and then kept in the pool,
+				which means that Velosurf will adapt itself to the load of the
+				[web-]application. 
+				</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><BR><BR>
+</P>
+</BODY>
+</HTML>
