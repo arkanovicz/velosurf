@@ -155,11 +155,20 @@ public class ConfigLoader {
         }
 
         String reverseMode = database.getAttributeValue("reverse");
-        if (checkSyntax("reverse",reverseMode,new String[]{"none","partial","full"})) {
+        if (checkSyntax("reverse",reverseMode,new String[]{"none","partial","tables","full"})) {
             int mode = -1;
-            if ("full".equalsIgnoreCase(reverseMode) || reverseMode == null) mode = ReverseEngineer.REVERSE_FULL;
-            else if ("partial".equalsIgnoreCase(reverseMode)) mode = ReverseEngineer.REVERSE_PARTIAL;
-            else if ("none".equalsIgnoreCase(reverseMode)) mode = ReverseEngineer.REVERSE_NONE;
+            if ("full".equalsIgnoreCase(reverseMode) || reverseMode == null) {
+                mode = ReverseEngineer.REVERSE_FULL;
+            }
+            else if ("partial".equalsIgnoreCase(reverseMode)) {
+                mode = ReverseEngineer.REVERSE_PARTIAL;
+            }
+            else if ("tables".equalsIgnoreCase(reverseMode)) {
+                mode = ReverseEngineer.REVERSE_TABLES;
+            }
+            else if ("none".equalsIgnoreCase(reverseMode)) {
+                mode = ReverseEngineer.REVERSE_NONE;
+            }
             _database.getReverseEngineer().setReverseMode(mode);
         }
 
@@ -262,7 +271,7 @@ public class ConfigLoader {
 
             /* attribute parameters and query */
             if (foreignKey != null) {
-                attribute.addParamName(foreignKey);
+                attribute.addParamName(adaptCase(foreignKey));
             } else {
                 String query = "";
                 Iterator queryElements = element.getContent().iterator();
@@ -272,7 +281,7 @@ public class ConfigLoader {
                     else if (content instanceof Element) {
                         query+=" ? ";
                         Element elem = (Element)content;
-                        attribute.addParamName(elem.getName());
+                        attribute.addParamName(adaptCase(elem.getName()));
                     }
                     else{
                         Logger.error("Try upgrading your jdom library!");

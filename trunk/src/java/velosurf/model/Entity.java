@@ -82,8 +82,12 @@ public class Entity
      */
     public void addAttribute(Attribute attribute) {
         String name = attribute.getName();
-        mAttributeMap.put(mDB.adaptCase(name),attribute);
-        Logger.debug("attribute "+mName+"."+name+" = "+attribute);
+        if(mAttributeMap.containsKey(name)) {
+            Logger.warn("Ignoring second definition for attribute "+name+"!");
+        } else {
+            mAttributeMap.put(mDB.adaptCase(name),attribute);
+            Logger.debug("defined attribute "+mName+"."+name+" = "+attribute);
+        }
     }
 
     /** Get a named attribute of this entity
