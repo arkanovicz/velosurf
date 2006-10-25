@@ -1,48 +1,114 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-
-<html>
-
-	<head>
-		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
-		<link rel="stylesheet" href="velosurf.css" type="text/css">
-		<title>Velosurf FAQ</title>
-	</head>
-
-	<body bgcolor="#ffffff">
-		<table>
-			<tr>
-				<td width="100" valign="top"><a href="http://jakarta.apache.org/velocity/index.html"><img src="powered-by-logo.gif" width="77" height="32"></a><br>
-					<br>
-					<a href="index.html">Overview</a><br>
-					<a href="installation.html">Installation</a><br>
-					<a href="template.html">VTL&nbsp;reference</a><br>
-					<a href="configuration.html">Configuration</a><br>
-					 <a href="architecture.html">Architecture</a><br>
-					<a href="java.html">Java&nbsp;reference</a><br>
-					<b>Velosurf&nbsp;FAQ</b></td>
-				<td>
-
-		<h1>Velosurf FAQ</h1>
-					<p><b><font size="+1">1. General Questions</font></b></p>
-					<p><b>1.1 What is Velosurf?</b> Velosurf is a light and flexible Java library meant to expose a relational database to <a href="http://jakarta.apache.org/velocity">Jakarta Velocity</a> templates. Velosurf does an automatic reverse enginering of a database source and provides a default mapping that can then be extended and customized in many ways.</p>
-		<p><b>1.2 How do I use it?</b> Velosurf provides the Velocity context with a <code>$db</code> tool object that is a starting point to access database tables and queries. An XML configuration file allows you to gather all SQL code in one place: Table columns and SQL queries are seen as standard properties from within the templates.</p>
-		<p><b>1.3 How does it work? </b>At start, Velosurf reads the configuration file - that must at least contain database connection parameters - plus all SQL queries that define custom properties. Then it performs a reverse enginering of the database. Roughly speaking, tables and result sets are used as iterators in #foreach loops, and rows are seen as associative maps (that map a column / a query / a query field to their values).</p>
-		<p><b><font size="+1">2. Installation and configuration</font></b></p>
-		<p><b>2.1 How do I use Velosurf within my Webapp?</b> The easiest way is to use the VelocityViewServlet class (or a subclass), provided with the <a href="http://jakarta.apache.org/velocity/tools/index.html">velocity-tools</a> subproject: it provides a generic plugin mechanism enabling external tools to be automatically plugged into Velocity contexts, with scope considerations. Refer to the Installation page for more.</p>
-		<p><b>2.2 How do I use Velosurf within my application?</b> First, you must ensure that Velosurf will find its config file, as explained <a href="api/velosurf/standalone/Velosurf.html">here</a>. Then you just have to put an instance of <code>velosurf.standalone.Velosurf</code> in the Velocity context.</p>
-		<p><b>2.3 How do I use Velosurf with DVSL?</b> Check the DVSL doc on how to create a toolbox. Then, include the line &quot;<code>toolbox.tool.db=velosurf.standalone.Velosurf</code>&quot; in your toolbox.props file, and have Velosurf find its velosurf.xml configuration file, as explained <a href="api/velosurf/standalone/Velosurf.html">here</a>.</p>
-		<p><b>2.4 How do I use Velosurf with Texen?</b> Put the line &quot;<code>context.objects.db=velosurf.standalone.Velosurf</code>&quot; in your <code>texen.properties</code> file, and have Velosurf find the velosurf.xml configuration file as explained <a href="api/velosurf/standalone/Velosurf.html">here</a>.</p>
-		<p><b><font size="+1">3. SQL Questions</font></b></p>
-		<p><b>3.1&nbsp;What about primary and foreign keys?</b> Primary keys are reverse enginered and used by Velosurf in all the <code>fetch</code> methods. For now, foreign keys are not reverse enginered but they can easily be specified in the configuration file, so that they appear as properties. You can then traverse foreign keys back and forth using the dot operator.</p>
-		<p><b><font size="+1">4. Velosurf and the MVC Design Pattern</font></b></p>
-		<p><b>4.1&nbsp;What does MVC stand for?</b> In brief, MVC stands for Model-View-Controller. It is an architecture design pattern that states that applications should be structured in three distinct layers, the Model (what your application modelizes), the View (typically Velocity) and the Controller (typically an ActionServlet or the like).</p>
-		<p><b>4.2&nbsp;Is Velosurf MVC-compliant?</b> Certainly! It implements the data model part , leaving you with the business logic part of the model. However, you must keep in mind that you should not modify data objects from within Velocity templates (you can use the Velosurf Java API or standard JDBC calls to achieve modifications, either from within your controller or from custom mapping classes).</p>
-					<p><b><font size="+1">5. Troubleshooting</font></b></p>
-					<p><b>5.1&nbsp;It doesn't work!</b> The first thing to do is to check the log. Chances are you'll find an exception and/or a message indicating the cause or the problem.</p>
-					<p><b>5.2&nbsp;Velosurf connects to the database, but hangs right after, with no message.</b> Have you provided a schema name ? Under Oracle for instance, there are so many system tables (several thousands) that the reverse enginering can be very long. You can also choose the &quot;manual&quot; reverse enginering option so that only the entities listed in velosurf.xml are processed.</p>
-					<p><font size="+1">Got another question not listed here? <a href="http://sourceforge.net/mail/?group_id=51604">Ask the mailing list</a>!</font></p>
-					<p></p>
-				</td></tr></table>
-	</body>
-
-</html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>Velosurf FAQ</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Linux)">
+	<META NAME="CREATED" CONTENT="20061025;10595300">
+	<META NAME="CHANGED" CONTENT="20061025;11033900">
+	<STYLE TYPE="text/css">
+	<!--
+		TD P { font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 9pt }
+		H1 { background: #cccccc; color: #000000; font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 10pt }
+		P { font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 9pt }
+		A:link { color: #0000ff }
+		A:visited { color: #0000ff }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="fr-FR" LINK="#0000ff" VLINK="#0000ff" BGCOLOR="#ffffff" DIR="LTR">
+<TABLE CELLPADDING=2 CELLSPACING=2 STYLE="page-break-before: always">
+	<TR>
+		<TD WIDTH=100 VALIGN=TOP>
+			<P><A HREF="http://jakarta.apache.org/velocity/index.html"><FONT COLOR="#0000ff"><IMG SRC="powered-by-logo.gif" NAME="Image1" ALIGN=BOTTOM WIDTH=77 HEIGHT=32 BORDER=1></FONT></A><BR><BR><A HREF="index.html">Overview</A><BR><A HREF="installation.html">Installation</A><BR><A HREF="template.html">VTL&nbsp;reference</A><BR><A HREF="configuration.html">Configuration</A><BR><A HREF="architecture.html">Architecture</A><BR><A HREF="java.html">Java&nbsp;reference</A><BR><B>Velosurf&nbsp;FAQ</B></P>
+		</TD>
+		<TD>
+			<H1>Velosurf FAQ</H1>
+			<P><FONT SIZE=4><B>1. General Questions</B></FONT></P>
+			<P><B>1.1 What is Velosurf?</B> Velosurf is a light and flexible
+			Java library meant to expose a relational database to <A HREF="http://jakarta.apache.org/velocity">Jakarta
+			Velocity</A> templates. Velosurf does an automatic reverse
+			enginering of a database source and provides a default mapping
+			that can then be extended and customized in many ways.</P>
+			<P><B>1.2 How do I use it?</B> Velosurf provides the Velocity
+			context with a <CODE>$db</CODE> tool object that is a starting
+			point to access database tables and queries. An XML configuration
+			file allows you to gather all SQL code in one place: Table columns
+			and SQL queries are seen as standard properties from within the
+			templates.</P>
+			<P><B>1.3 How does it work? </B>At start, Velosurf reads the
+			configuration file - that must at least contain database
+			connection parameters - plus all SQL queries that define custom
+			properties. Then it performs a reverse enginering of the database.
+			Roughly speaking, tables and result sets are used as iterators in
+			#foreach loops, and rows are seen as associative maps (that map a
+			column / a query / a query field to their values).</P>
+			<P><FONT SIZE=4><B>2. Installation and configuration</B></FONT></P>
+			<P><B>2.1 How do I use Velosurf within my Webapp?</B> The easiest
+			way is to use the VelocityViewServlet class (or a subclass),
+			provided with the <A HREF="http://jakarta.apache.org/velocity/tools/index.html">velocity-tools</A>
+			subproject: it provides a generic plugin mechanism enabling
+			external tools to be automatically plugged into Velocity contexts,
+			with scope considerations. Refer to the Installation page for
+			more.</P>
+			<P><B>2.2 How do I use Velosurf within my application?</B> First,
+			you must ensure that Velosurf will find its config file, as
+			explained <A HREF="api/velosurf/standalone/Velosurf.html">here</A>.
+			Then you just have to put an instance of
+			<CODE>velosurf.standalone.Velosurf</CODE> in the Velocity context.</P>
+			<P><B>2.3 How do I use Velosurf with DVSL?</B> Check the DVSL doc
+			on how to create a toolbox. Then, include the line
+			&quot;<CODE>toolbox.tool.db=velosurf.standalone.Velosurf</CODE>&quot;
+			in your toolbox.props file, and have Velosurf find its
+			velosurf.xml configuration file, as explained <A HREF="api/velosurf/standalone/Velosurf.html">here</A>.</P>
+			<P><B>2.4 How do I use Velosurf with Texen?</B> Put the line
+			&quot;<CODE>context.objects.db=velosurf.standalone.Velosurf</CODE>&quot;
+			in your <CODE>texen.properties</CODE> file, and have Velosurf find
+			the velosurf.xml configuration file as explained <A HREF="api/velosurf/standalone/Velosurf.html">here</A>.</P>
+			<P><B>2.5 How do I use Velosurf with Spring?</B> Just define a
+			velocity-tools toollbox containing a velosurf.web.VelosurfTool
+			tool, and integrate this toolbox into Spring (see
+			<A HREF="http://wiki.apache.org/jakarta-velocity/VelocityAndSpringTips">VelocityAndSpringTips</A>).</P>
+			<P><B>2.6 How do I use Velosurf within VPP?</B><SPAN STYLE="font-weight: medium">
+			TODO</SPAN></P>
+			<P><FONT SIZE=4><B>3. SQL Questions</B></FONT></P>
+			<P><B>3.1&nbsp;What about primary and foreign keys?</B> Primary
+			keys are reverse enginered and used by Velosurf in all the <CODE>fetch</CODE>
+			methods. For now, foreign keys are not reverse enginered but they
+			can easily be specified in the configuration file, so that they
+			appear as properties. You can then traverse foreign keys back and
+			forth using the dot operator.</P>
+			<P><FONT SIZE=4><B>4. Velosurf and the MVC Design Pattern</B></FONT></P>
+			<P><B>4.1&nbsp;What does MVC stand for?</B> In brief, MVC stands
+			for Model-View-Controller. It is an architecture design pattern
+			that states that applications should be structured in three
+			distinct layers, the Model (what your application modelizes), the
+			View (typically Velocity) and the Controller (typically an
+			ActionServlet or the like).</P>
+			<P><B>4.2&nbsp;Is Velosurf MVC-compliant?</B> Certainly! It
+			implements the data model part , leaving you with the business
+			logic part of the model. However, you must keep in mind that you
+			should not modify data objects from within Velocity templates (you
+			can use the Velosurf Java API or standard JDBC calls to achieve
+			modifications, either from within your controller or from custom
+			mapping classes).</P>
+			<P><FONT SIZE=4><B>5. Troubleshooting</B></FONT></P>
+			<P><B>5.1&nbsp;It doesn't work!</B> The first thing to do is to
+			check the log. Chances are you'll find an exception and/or a
+			message indicating the cause or the problem.</P>
+			<P><B>5.2&nbsp;Velosurf connects to the database, but hangs right
+			after, with no message.</B> Have you provided a schema name ?
+			Under Oracle for instance, there are so many system tables
+			(several thousands) that the reverse enginering can be very long.
+			You can also choose the &quot;manual&quot; reverse enginering
+			option so that only the entities listed in velosurf.xml are
+			processed.</P>
+			<P><FONT SIZE=4>Got another question not listed here? <A HREF="http://sourceforge.net/mail/?group_id=51604">Ask
+			the mailing list</A>!</FONT></P>
+		</TD>
+	</TR>
+</TABLE>
+<P><BR><BR>
+</P>
+</BODY>
+</HTML>
