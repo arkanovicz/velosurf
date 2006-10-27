@@ -34,7 +34,6 @@
   <property name="src.dir"           value="${basedir}/src/java"/>
   <property name="build.dir" 	     value="${basedir}/class"/>
   <property name="lib.dir"           value="${basedir}/lib"/>
-  <property name="bin.dir"           value="${basedir}/bin"/>
   <property name="test.dir"          value="${basedir}/test"/>
   <property name="tmp.dir"           value="${basedir}/tmp"/>
   <property name="javadoc.destdir"   value="${basedir}/docs/api"/>
@@ -587,10 +586,7 @@ Please specify a target among :
         <include name="**"/>
       </fileset>
     </copy>
-
-	<mkdir dir="${dist.dir}/bin"/>
-    <copy file="${basedir}/bin/${project}-${version}.jar" tofile="${dist.dir}/bin/${project}-${version}.jar"/>
-
+    <copy file="${basedir}/${project}-${version}.jar" tofile="${dist.dir}/${project}-${version}.jar"/>
       <delete file="${basedir}/${final.name}.tar" quiet="true"/>
       <delete file="${basedir}/${final.name}.tgz" quiet="true"/>
       <tar tarfile="${basedir}/${final.name}.tar" basedir="${dist.root}" 
