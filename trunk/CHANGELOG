@@ -2,6 +2,10 @@
 
 v2.0 (October 2006)
 ----
+ - suppressed the autofetching feature (can be implemented by a custom filter)
+ - last inserted ID is now hold by the user context
+ - localized messages can now have arguments
+ - build files moved under the /build/ directory
  - reverse enginering of imported and exported keys, new reverse level ("tables")
  - removed unused method vel.sql.Database.readConfigFile(String file)
  - XInclude basic inclusion mechanism
