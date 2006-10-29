@@ -43,13 +43,15 @@ public class ReverseEngineer {
     private Database mDatabase;
     private DriverInfo mDriverInfo;
 
-    private int mReverseMode = REVERSE_NONE;
+    private int mReverseMode = DEFAULT_REVERSE_MODE;
 
     /** reverse-enginering modes */
     public static final int REVERSE_NONE = 0;
     public static final int REVERSE_PARTIAL = 1;
     public static final int REVERSE_TABLES = 2;
     public static final int REVERSE_FULL = 3;
+
+    public static final int DEFAULT_REVERSE_MODE = REVERSE_FULL;
 
     public static String[] sReverseModeName = {
         "none",
