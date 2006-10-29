@@ -19,12 +19,16 @@ package velosurf.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.HashMap;
 
 import velosurf.web.i18n.Localizer;
 import velosurf.web.i18n.Localizer;
+import velosurf.model.Entity;
 
 /**
- * Used to store contextual values relatives to the user (in a web context, there is one UserContext per http session) 
+ * Used to store contextual values relatives to the user (in a web context, there is one UserContext per http session)
  *
  * @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
@@ -54,11 +58,23 @@ public class UserContext {
         locale = loc;
     }
 
-    public String localize(String str) {
+    public String localize(String str,Object ... params) {
         if (localizer == null) {
+            if(params.length > 0) {
+                Logger.warn("user context localization: localizer not found, ignoring arguments "+StringLists.join(Arrays.asList(params),",")+" for message "+str);
+            }
             return str;
         }
-        return localizer.get(str);
+        switch(params.length) {
+            case 0: return localizer.get(str);
+            case 1: return localizer.get(str,params[0]);
+            case 2: return localizer.get(str,params[0],params[1]);
+            case 3: return localizer.get(str,params[0],params[1],params[2]);
+            default:
+                Logger.error("user context localization: too many parameters for message "+str);
+                return localizer.get(str,params[0],params[1],params[2]);
+        }
+
     }
 
     public void clearValidationErrors() {
@@ -98,8 +114,23 @@ public class UserContext {
         }
     }
 
+    public void setLastInsertedID(Entity entity,long id) {
+        lastInsertedIDs.put(entity,id);
+    }
+
+    public long getLastInsertedID(Entity entity) {
+        Long id = lastInsertedIDs.get(entity);
+        if(id != null) {
+            return id.longValue();
+        } else {
+            Logger.error("getLastInsertID called for entity '"+entity+"' which doesn't have any");
+            return -1;
+        }
+    }
+
     private String error = "";
     private List<String> validationErrors = new ArrayList<String>();
     private Localizer localizer = null;
     private Locale locale = null;
+    private Map<Entity,Long> lastInsertedIDs = new HashMap<Entity,Long>();
 }
