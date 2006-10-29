@@ -28,7 +28,8 @@ import velosurf.util.Logger;
 import velosurf.model.Entity;
 
 /** This class extends the tool org.apache.velocity.tools.view.tools.ParameterParser,
- *  adding a generic setter, and the autofetching feature.
+ *  adding a generic setter. Values that are set manually hide any previous values that
+ *  are present in the query under the same key.
  *
  * It is meant for the query scope.
  *
@@ -55,29 +56,6 @@ import velosurf.model.Entity;
 
         context = (ViewContext)inViewContext;
         HttpServletRequest request = context.getRequest();
-
-        if(sAutofetchingEnabled) {
-            autofetch(request.getParameterMap(),context);
-        }
-    }
-
-    private void autofetch(Map parameters,ViewContext context) {
-        for(Map.Entry param:(Set<Map.Entry>)parameters.entrySet()) {
-            String[] values = (String[])param.getValue();
-            if (values.length == 1) {
-                String value = values[0];
-                AutoFetchInfos infos = (AutoFetchInfos)sAutofetchMap.get(param.getKey());
-                if (infos != null) {
-                    try {
-                        if (infos.mProtect) put(infos.mName,infos.mEntity.fetch(value));
-                        else context.getVelocityContext().put(infos.mName,infos.mEntity.fetch(value));
-                    } catch(SQLException sqle) {
-                        Logger.error("autofetch failed!");
-                        Logger.log(sqle);
-                    }
-                }
-            }
-        }
     }
 
     public Object get(Object key)
@@ -92,11 +70,6 @@ import velosurf.model.Entity;
 
     public Object put(Object key, Object value) {
         return extraValues.put(key,value);
-    }
-
-    public static void addAutofetch(Entity entity,String param,String name,boolean protect) {
-        sAutofetchingEnabled = true;
-        sAutofetchMap.put(param,new AutoFetchInfos(entity,name,protect));
     }
 
     public int size() {
@@ -152,18 +125,4 @@ import velosurf.model.Entity;
         ret.addAll(extraValues.entrySet());
         return ret;
     }
-
-    protected static class AutoFetchInfos {
-        public AutoFetchInfos(Entity entity,String name,boolean protect) {
-            mEntity = entity;
-            mName = name;
-            mProtect = protect;
-        }
-        Entity mEntity;
-        String mName;
-        boolean mProtect;
-    }
-
-    private static boolean sAutofetchingEnabled = false;
-    private static Map sAutofetchMap = new HashMap();
 }

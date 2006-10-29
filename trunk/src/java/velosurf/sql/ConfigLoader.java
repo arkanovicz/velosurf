@@ -424,24 +424,6 @@ public class ConfigLoader {
                 entity.setLocalized(localizedCols);
             }
 
-            /* autofetching */
-            String autofetch = element.getAttributeValue("autofetch");
-            if (autofetch != null) {
-                String target = origName;
-                String param = autofetch;
-                boolean protect = false;
-                int n = autofetch.indexOf('=');
-                if (n != -1) {
-                    target = autofetch.substring(0,n).trim();
-                    param = autofetch.substring(n+1).trim();
-                    if (target.startsWith("query.")) {
-                        target = target.substring(6);
-                        protect = true;
-                    }
-                }
-                HttpQueryTool.addAutofetch(entity,param,target,protect);
-            }
-
             /* define entity attributes */
             defineAttributes(element,entity);
 
