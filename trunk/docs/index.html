@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>Velosurf</title>
+
+
+  <link rel="stylesheet" href="file:///home/claude/projects/velosurf/docs/velosurf.css" type="text/css">
+
+</head>
+
+
+<body>
+
+<div id="container">
+<div id="header">
+<div id="logo1"><img style="width: 80px; height: 60px;" alt="Velosurf logo" src="logo.png" border="0"></div>
+
+<div id="logo3"><img alt="Velosurf title" src="title.png" border="0"></div>
+
+<div id="logo2"><a href="http://jakarta.apache.org/velocity/"><img style="width: 80px;" src="powered-by-logo.gif" alt="Velocity" border="0"></a></div>
+
+</div>
+
+<div id="menu">
+<div class="menusection"><span class="menuheader">Velosurf</span>
+<ul>
+
+  <li><b>Home</b></li>
+
+  <li> <a href="./overview.html">Overview</a>
+  </li>
+
+  <li><a href="./download.html">Download</a>
+  </li>
+
+  <li> <a href="./faq.html">FAQ</a> </li>
+
+  <li> <a href="http://lists.sourceforge.net/lists/listinfo/velosurf-devel">Mailing list</a> </li>
+
+</ul>
+
+</div>
+
+<div class="menusection">
+<span class="menuheader">Docs</span>
+<ul>
+
+  <li><a href="./installation.html">Installation</a></li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/developer-guide.html">Configuration</a></li>
+
+  <li>Cookbook</li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/vtl-reference-guide.html">VTL
+Reference</a> </li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/api/index.html">Javadoc</a>
+  </li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/changes.html">Change
+Log</a> </li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/license.html">License</a></li>
+
+</ul>
+
+</div>
+
+</div>
+
+<div id="body">
+
+<h1>What is Velosurf?</h1>
+
+<div class="subsection">
+<p align="left">Velosurf is a java database mapping layer
+for&nbsp;<a href="http://jakarta.apache.org/velocity">Apache
+Velocity</a>.</p>
+
+<p> Velosurf provides an 'out-of-the-box' automatized
+mapping of database tables and fields, along with the ability to easily
+define custom entities, queries and actions in SQL.&nbsp;</p>
+
+<p align="left">Velosurf main features are:</p>
+
+<ul>
+
+  <li>easy template grammar</li>
+
+  <li>code isolation: SQL queries are gathered in one place and
+appear as standard
+objects properties</li>
+
+  <li>dynamic mapping: no need to recompile on any database change</li>
+
+  <li>automatic connection recovery, statements and connections
+pooling</li>
+
+  <li>reverse engeenering of database schema</li>
+
+  <li>natural type mapping</li>
+
+  <li>transactions</li>
+
+  <li>default Java mapping objects that you can override when
+needed</li>
+
+  <li>basic tools to include authentication, internationalization
+and data validation in your&nbsp;app</li>
+
+</ul>
+
+<p>Velosurf can be used as a standard Velocity tool (and as such
+easily integrated in every Web framework that supports the Velocity
+Tools rendering layer), as well as a generic java database abstraction
+layer.</p>
+</div>
+<h1 align="left">Why Velosurf?</h1>
+<div class="subsection">
+<p align="left">The main goal of Velosurf is to spare
+template writers the pain of rewriting specific database mapping layers
+in Java for each project involving Velocity and database entities. It
+is also meant to have a clean separation between SQL, Java and VTL.</p>
+
+<p align="left">Persistence layers are hard to design and
+maintain, and have been made obsolete by database caching technology.
+So why not have a thin and generic mapping engine that will fetch
+values directly from the database when you need them? With Velosurf,
+object properties can represent, not just column values, but also
+complex queries, something difficult to do with a persistence framework.</p>
+
+<p align="left">Last but not least: developers often try
+to protect users from many concepts that may appear too complex or too
+weird to them. But even if a data model is complex, its complexity has
+nothing or little to do with technical constraints, and everything to
+do with logic and modeling. The spirit of Velosurf is that those
+constraints should be shared and exposed to all people involved in a
+project - like designers - who should be as competent as developers are
+(who said more?) to deal with business logic.</p>
+
+<p align="left">In a nutshell, Velosurf allows developers
+to expose a data model where properties are table fields or SQL queries
+and designers to easily traverse this data model by means of the 'dot'
+operator.</p>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>
