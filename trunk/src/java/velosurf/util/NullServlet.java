@@ -58,6 +58,7 @@ public class NullServlet extends HttpServlet
                              HttpServletResponse response)
          throws ServletException, IOException
     {
+        Logger.log("null servlet got hit: "+request.getRequestURI());
         if (_forbiddenUri == null) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
