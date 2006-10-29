@@ -28,5 +28,5 @@ public interface Localizer {
     public void setLocale(Locale locale);
     public Locale getLocale();
     public String get(Object id);
-//    public Object getId(String text);
+    public String get(Object id,Object ... param);
 }
