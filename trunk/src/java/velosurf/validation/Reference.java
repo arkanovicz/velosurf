@@ -57,7 +57,7 @@ public class Reference extends FieldConstraint {
         _db = db;
         _table = table;
         _column = column;
-        setMessage("is not valid");
+        setMessage("field {0}: value '{1}' not found in "+table+"."+column);
     }
 
     /**
@@ -65,20 +65,25 @@ public class Reference extends FieldConstraint {
      * @param data the data to be validated
      * @return true if data respects the specified reference
      */
-    public boolean validate(Object data) throws SQLException {
-        if (data == null || data.toString().length() == 0) return true;
-        List param = new ArrayList();
-        param.add(data);
-        /* TODO this kind of query may vary with dbms...
-           - under Oracle, we need to add "from dual"
-           - does it return "1" or "true"?
-          So, need to add some stuff to DriverInfo.
-          For now, tweak the ping query.*/
+    public boolean validate(Object data) {
+        try {
+            if (data == null || data.toString().length() == 0) return true;
+            List param = new ArrayList();
+            param.add(data);
+            /* TODO this kind of query may vary with dbms...
+               - under Oracle, we need to add "from dual"
+               - does it return "1" or "true"?
+              So, need to add some stuff to DriverInfo.
+              For now, tweak the ping query.*/
 
-        String query = _db.getDriverInfo().getPingQuery();
-        query = query.replace("1","? in (select distinct "+_column+" from "+_table+")");
-        PooledPreparedStatement stmt = _db.prepare(query);
-        Object ret = stmt.evaluate(param);
-        return ret != null && ret.equals(Boolean.valueOf(true));
+            String query = _db.getDriverInfo().getPingQuery();
+            query = query.replace("1","? in (select distinct "+_column+" from "+_table+")");
+            PooledPreparedStatement stmt = _db.prepare(query);
+            Object ret = stmt.evaluate(param);
+            return ret != null && ret.equals(Boolean.valueOf(true));
+        } catch(SQLException sqle) {
+            Logger.warn("reference constraint validation threw an exception: "+sqle.getMessage());
+            return false;
+        }
     }
 }

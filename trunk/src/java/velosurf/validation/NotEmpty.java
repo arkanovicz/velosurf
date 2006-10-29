@@ -38,7 +38,7 @@ public class NotEmpty extends FieldConstraint {
      * Default constructor.
      */
     public NotEmpty() {
-        setMessage("cannot be empty");
+        setMessage("field {0} cannot be empty");
     }
 
     /**

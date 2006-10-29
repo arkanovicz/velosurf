@@ -76,7 +76,7 @@ public class Email extends FieldConstraint {
      * Default constructor.
      */
     public Email() {
-        setMessage("is not an email");
+        this(false,false);
     }
 
     /**
@@ -87,7 +87,7 @@ public class Email extends FieldConstraint {
     public Email(boolean dnsCheck,boolean smtpCheck) {
         _dnsCheck = dnsCheck;
         _smtpCheck = smtpCheck;
-        setMessage("is not an email");
+        setMessage("field {0}: '{1}' is not a valid email");
     }
 
     /**

@@ -50,7 +50,7 @@ public class DateRange extends FieldConstraint {
     private Date _after = null;
 
     public DateRange() {
-        setMessage("is not a valid date");
+        setMessage("field {0}: '{1}' is not a valid date or is outside range");
     }
 
     public void setBeforeDate(Date before) {
@@ -81,7 +81,7 @@ public class DateRange extends FieldConstraint {
             return true;
         } catch(ParseException pe) {
             Logger.warn("date validation: could not parse date '"+data.toString()+"' with format: "+format.toPattern());
-            Logger.log(pe);
+//            Logger.log(pe);
             return false;
         }
     }

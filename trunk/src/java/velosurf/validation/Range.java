@@ -47,7 +47,7 @@ public class Range extends FieldConstraint {
      *  Constructor.
      */
     public Range() {
-        setMessage("is not in the valid range"); /* TODO review... format message! */
+        setMessage("field {0}: '{1}' is not in the valid range"); /* TODO review... format message! */
     }
 
     public void setInteger(boolean integer) {

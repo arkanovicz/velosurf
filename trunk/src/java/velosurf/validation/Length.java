@@ -51,7 +51,7 @@ public class Length extends FieldConstraint {
     public Length(int minLen,int maxLen) {
         _minLen = minLen;
         _maxLen = maxLen;
-        setMessage("is not of the proper length");
+        setMessage("field {0}: string '{1}' is not of the proper length");
     }
 
     /**
