@@ -58,28 +58,32 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
 
     private Map<Object,String> _currentStrings = null;
 
-    private Map config;
+    private Map _config;
 
     public SimpleDBLocalizer() {
     }
 
+    public void configure(Map config) {
+        _config = config;
+    }
+
     public void init(Object initData) {
         if (!_initialized) {
-            if(config != null) {
+            if(_config != null) {
                 String value;
-                value = (String)config.get(LOCALIZED_TABLE_KEY);
+                value = (String)_config.get(LOCALIZED_TABLE_KEY);
                 if (value != null) {
                     localizedTable = value;
                 }
-                value = (String)config.get(ID_FIELD_KEY);
+                value = (String)_config.get(ID_FIELD_KEY);
                 if (value != null) {
                     idField = value;
                 }
-                value = (String)config.get(LOCALE_FIELD_KEY);
+                value = (String)_config.get(LOCALE_FIELD_KEY);
                 if (value != null) {
                     localeField = value;
                 }
-                value = (String)config.get(STRING_FIELD_KEY);
+                value = (String)_config.get(STRING_FIELD_KEY);
                 if (value != null) {
                     stringField = value;
                 }
@@ -117,6 +121,7 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
                 String string = (String)row.get(stringField);
                 if (!locale.equals(current)) {
                     current = locale;
+                    Logger.trace("Found new locale in db: "+locale);
                     map = new HashMap<Object,String>();
                     /* for now, take language and country into account... TODO: take variant into account */
                     int sep = locale.indexOf('_');
@@ -131,6 +136,10 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
         }
     }
 
+    public boolean hasLocale(Locale locale) {
+        return _localeStrings.containsKey(locale);
+    }
+
     public void setLocale(Locale locale) {
         if (locale == null && getLocale() == null || locale != null && locale.equals(getLocale())) {
             /* no change */
@@ -139,33 +148,17 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
         super.setLocale(locale);
         _currentStrings = _localeStrings.get(getLocale());
         if (_currentStrings == null) {
-            Logger.error("l10n: no strings found for locale "+getLocale());
+            Logger.warn("l10n: no strings found for locale "+getLocale());
         }
     }
 
     public String get(Object id) {
         if (_currentStrings == null) {
             Logger.warn("l10n: no current locale! (was getting string id '"+id+"')");
-            return null;
+            return id.toString();
         }
         String message = _currentStrings.get(id);
-        Logger.trace("l10n: "+id+" -> "+message);
-        return message;
-    }
-
-    public void configure(Map map) {
-        String value;
-        if((value = (String)map.get(LOCALIZED_TABLE_KEY)) != null) {
-            localizedTable = value;
-        }
-        if((value = (String)map.get(ID_FIELD_KEY)) != null) {
-            idField = value;
-        }
-        if((value = (String)map.get(LOCALE_FIELD_KEY)) != null) {
-            localeField = value;
-        }
-        if((value = (String)map.get(STRING_FIELD_KEY)) != null) {
-            stringField = value;
-        }
+        //Logger.trace("l10n: "+id+" -> "+message);
+        return message == null ? id.toString() : message;
     }
 }

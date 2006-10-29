@@ -21,6 +21,7 @@ import org.apache.velocity.tools.view.context.ViewContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.*;
+import java.text.MessageFormat;
 
 import velosurf.util.Logger;
 
@@ -49,18 +50,46 @@ public abstract class HTTPLocalizerTool implements Localizer {
                 Locale locale = (Locale)session.getAttribute("velosurf.i18n.active-locale");
                 if (locale == null) {
                     /* means the localization filter did not intercept this query */
+                    locale = getBestLocale(listFromEnum(((ViewContext)initData).getRequest().getLocales()));
                     Logger.trace("l10n: unlocalized page - using locale "+locale);
-                    locale = ((ViewContext)initData).getRequest().getLocale();
                 }
                 setLocale(locale);
             }
         }
         else {
-            Logger.error("Localizer tool should be used in a session scope!");
+            Logger.error("l10n: Localizer tool should be used in a session scope!");
             return;
         }
     }
 
+    private static List<Locale> listFromEnum(Enumeration e) {
+        List<Locale> list = new ArrayList<Locale>();
+        while(e.hasMoreElements()) {
+            list.add((Locale)e.nextElement());
+        }
+        return list;
+    }
+
+    public Locale getBestLocale(List<Locale> locales) {
+        for(Locale locale:locales) {
+            if (hasLocale(locale)) {
+                return locale;
+            }
+        }
+        /* second pass without the country code */
+        for(Locale locale:locales) {
+            String country = locale.getCountry();
+            if(country != null && country.length() > 0) {
+                Locale l = new Locale(locale.getLanguage());
+                if (hasLocale(l)) {
+                    return l;
+                }
+            }
+        }
+        return null;
+    }
+
+    public abstract boolean hasLocale(Locale locale);
 
     public void setLocale(Locale locale) {
         _locale = locale;
@@ -71,6 +100,21 @@ public abstract class HTTPLocalizerTool implements Localizer {
     }
 
     public abstract String get(Object id);
+
+    public String get(Object id,Object ... params) {
+        String message = get(id).replaceAll("'","''");
+        return MessageFormat.format(message,params);
+    }
+
+    public String get(Object id,Object arg1,Object arg2) {
+        String message = get(id).replaceAll("'","''");
+        return MessageFormat.format(message,arg1,arg2);
+    }
+
+    public String get(Object id,Object arg1,Object arg2,Object arg3) {
+        String message = get(id).replaceAll("'","''");
+        return MessageFormat.format(message,arg1,arg2,arg3);
+    }
 
     protected Locale _locale = null;
 }
