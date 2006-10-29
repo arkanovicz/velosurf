@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>Velosurf - Download</title>
+
+
+  <link rel="stylesheet" href="file:///home/claude/projects/velosurf/docs/velosurf.css" type="text/css">
+
+</head>
+
+
+<body>
+
+<div id="container">
+<div id="header">
+<div id="logo1"><img style="width: 80px; height: 60px;" alt="Velosurf logo" src="logo.png" border="0"></div>
+
+<div id="logo3"><img alt="Velosurf title" src="title.png" border="0"></div>
+
+<div id="logo2"><a href="http://jakarta.apache.org/velocity/"><img style="width: 80px;" src="powered-by-logo.gif" alt="Velocity" border="0"></a></div>
+
+</div>
+
+<div id="menu">
+<div class="menusection"><span class="menuheader">Velosurf</span>
+<ul>
+
+  <li><a href="./index.html">Home</a> </li>
+
+  <li> <a href="./overview.html">Overview</a>
+  </li>
+
+  <li><b>Download</b>
+  </li>
+
+  <li> <a href="./faq.html">FAQ</a> </li>
+
+  <li> <a href="http://lists.sourceforge.net/lists/listinfo/velosurf-devel">Mailing list</a> </li>
+
+</ul>
+
+</div>
+
+<div class="menusection">
+<span class="menuheader">Docs</span>
+<ul>
+
+  <li><a href="./installation.html">Installation</a></li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/developer-guide.html">Configuration</a></li>
+
+  <li>Cookbook</li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/vtl-reference-guide.html">VTL
+Reference</a> </li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/api/index.html">Javadoc</a>
+  </li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/changes.html">Change
+Log</a> </li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/license.html">License</a></li>
+
+</ul>
+
+</div>
+</div>
+<div id="body">
+<h1>Velosurf 2.x</h1>
+<p>The latest release is Velosurf 2.0 (gzipped tar archive). It contains both the binary and the sources.</p>
+<p>Velosurf 2.x need Java 1.5. If you're still using an older Java version, consider
+using a Velosurf 1.4.x release.</p>
+<p>The dependancy jars are not included in the archive. To automatically download them,
+if you have <a href="http://ant.apache.org/">Apache Ant</a> installed, go into the <code>build/</code>
+directory of the extracted archive and type <code>ant download</code>. This will download all dependency jars
+into the <code>lib/</code> directory. You can also manually <a href="todo">download all dependencies</a>
+(gzipped tar archive) or fetch them individually:
+<ul>
+<li><a href="http://www.ibiblio.org/maven/commons-beanutils/jars/commons-beanutils-1.7.0.jar">commons-beanutils-1.7.0.jar</a></li>
+<li><a href="http://www.ibiblio.org/maven/commons-collections/jars/commons-collections-3.2.jar">commons-collections-3.2.jar</a></li>
+<li><a href="http://www.ibiblio.org/maven/commons-lang/jars/commons-lang-2.2.jar">commons-lang-2.2.jar</a></li>
+<li><a href="http://www.ibiblio.org/maven/commons-logging/jars/commons-logging-1.1.jar">commons-logging-1.1.jar</a></li>
+<li><a href="http://www.ibiblio.org/maven/crimson/jars/crimson-1.1.3.jar">crimson-1.1.3.jar</a></li>
+<li><a href="http://www.ibiblio.org/maven/jdom/jars/jdom-1.0.jar">jdom-1.0.jar</a></li>
+<li><a href="http://www.ibiblio.org/maven/servletapi/jars/servletapi-2.4.jar">servletapi-2.4.jar</a></li>
+<li><a href="http://www.ibiblio.org/maven/velocity/jars/velocity-1.4.jar">velocity-1.4.jar</a></li>
+<li><a href="http://www.ibiblio.org/maven/velocity/jars/velocity-tools-view-1.3.jar">velocity-tools-view-1.3.jar</a></li>
+</ul>
+</p>
+<p>You can also checkout the last sources from the Sourceforge subversion repository with the following command:</p>
+<p><code> svn co https://svn.sourceforge.net/svnroot/velosurf/trunk velosurf</code></p>
+<h1>Velosurf 1.4.x</h1>
+<p>The Velosurf 1.4.x releases are still maintained for bugs but not for functionnal upgrades.</p>
+<p>The latest release is Velosurf 1.4.4. (gzipped tar archive). It contains both the binary and the sources,
+plus all dependency jars in the <code>lib/</code> directory. The binary is in the <code>bin/</code> directory of the extracted archive.</p>
+<p>You can also checkout the last 1.4.x sources from the Sourceforge CVS repository with the following commands:</p>
+<p><small><code>cvs -d:pserver:anonymous@velosurf.cvs.sf.net:/cvsroot/velosurf login<br><br>
+ cvs -z3 -d:pserver:anonymous@velosurf.cvs.sf.net:/cvsroot/velosurf co -P velosurf</code></small></p>
+</div>
+</body>
+</html>

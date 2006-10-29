@@ -1,0 +1,443 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+<title>Velosurf - Overview</title>
+<link rel="stylesheet" href="file:///home/claude/projects/velosurf/docs/velosurf.css" type="text/css"/>
+</head>
+
+<body>
+
+<div id="container">
+<div id="header">
+<div id="logo1"><img style="width: 80px; height: 60px;" alt="Velosurf logo" src="logo.png" border="0"></div>
+
+<div id="logo3"><img alt="Velosurf title" src="title.png" border="0"></div>
+
+<div id="logo2"><a href="http://jakarta.apache.org/velocity/"><img style="width: 80px;" src="powered-by-logo.gif" alt="Velocity" border="0"></a></div>
+
+</div>
+
+<div id="menu">
+<div class="menusection"><span class="menuheader">Velosurf</span>
+<ul>
+
+  <li><a href="./index.html">Home</a> </li>
+
+  <li><b>Overview</b>
+  </li>
+
+  <li><a href="./download.html">Download</a>
+  </li>
+
+  <li> <a href="./faq.html">FAQ</a> </li>
+
+  <li> <a href="http://lists.sourceforge.net/lists/listinfo/velosurf-devel">Mailing list</a> </li>
+
+</ul>
+
+</div>
+
+<div class="menusection">
+<span class="menuheader">Docs</span>
+<ul>
+
+  <li><a href="./installation.html">Installation</a></li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/developer-guide.html">Configuration</a></li>
+
+  <li>Cookbook</li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/vtl-reference-guide.html">VTL
+Reference</a> </li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/api/index.html">Javadoc</a>
+  </li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/changes.html">Change
+Log</a> </li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/license.html">License</a></li>
+
+</ul>
+
+</div>
+
+</div>
+
+<div id="body">
+<a name="WhatisVelocity?"></a>
+<h2 align="left">Principles</h2>
+
+<p align="left">Using the Velocity variable that
+references the Velosurf tool in the Velocity context, template writers
+can access all (or a subset of) the tables of a database, that are
+called Velosurf <b>entities</b>.&nbsp;Entities
+properties are <b>attributes</b> (that can be table
+columns as long as customized queries). Entities methods that trigger
+database update/delete/insert queries are <b>actions</b>.
+Each realisation of an entity is an <b>instance</b>.</p>
+
+<p align="left">Velosurf uses an XML configuration file
+that:</p>
+
+<ul>
+
+  <li>
+    <p style="margin-bottom: 0cm;" align="left">contains
+all necessary parameters to connect to the database. </p>
+
+  </li>
+
+  <li>
+    <p style="margin-bottom: 0cm;" align="left">contains
+the definition of all needed custom SQL entities, attributes and
+actions. </p>
+
+  </li>
+
+  <li>
+    <p align="left">defines the access rights to entities.
+    </p>
+
+  </li>
+
+</ul>
+
+All queries are done via a pool of prepared statements automatically
+handled by Velosurf.<br>
+
+<h2 align="left">Entities, Instances, Attributes and
+Actions</h2>
+
+<ul>
+
+  <li>
+    <p align="left"><b>Entities</b> are the
+objects that map database tables. By default, Velosurf defines an
+entity for each table. Entities are used to access Instances, either by
+the mean of #foreach loops or via one of the <i>fetch</i>
+methods.</p>
+
+  </li>
+
+  <li>
+    <p align="left"><b>Instances</b> map rows
+of a table (or of the result set of a customized query): they are a
+realization of their corresponding entity. Instances are used to access
+specific fields, attributes or actions.</p>
+
+  </li>
+
+  <li>
+    <p align="left"><b>Attributes</b> belong
+either to the database itself ('root' attributes) or to specific
+entities, in which case they can be accessed from the corresponding
+instances. Attributes have a result type which is one of 'scalar',
+'row', or 'rowset'. One can specify the resulting entity of row or
+rowset attributes, to access nested properties on them. By default,
+Velosurf defines a scalar attribute for each table column.</p>
+
+  </li>
+
+  <li>
+    <p align="left"><b>Actions</b> are like
+attributes, except their SQL query is a modification query
+(insert/update/delete), or even a succession of such modification
+queries (a transaction that will rollback as a whole in case of
+failure). They return the number of affected rows. If present, the root
+action named 'startup' is executed at startup. </p>
+
+  </li>
+
+</ul>
+
+<h2 align="left"><a name="syntax"></a>What
+does the syntax look like?</h2>
+
+<p align="left"><b>Exampe #1: fetch a single value
+of the database and display it</b></p>
+
+<p align="left">Assuming that you've got the following
+table, called "message", in your database:</p>
+
+<table style="width: 145px; height: 61px;" border="1" cellpadding="2" cellspacing="2">
+
+  <tbody>
+
+    <tr>
+
+      <td align="center"><b>id</b></td>
+
+      <td align="center"><b>text</b></td>
+
+    </tr>
+
+    <tr>
+
+      <td align="center">1</td>
+
+      <td align="center">"Hello World!"</td>
+
+    </tr>
+
+    <tr>
+
+      <td>2</td>
+
+      <td>"How are you?"</td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<br>
+
+<p align="left">then you can write the following VTL
+expression:</p>
+
+<ul>
+
+  <p align="left"><code>$db.message.fetch(1).text</code>
+  </p>
+
+</ul>
+
+<p align="left">Or, to be more explicit:</p>
+
+<ul>
+
+  <p align="left"><code>#set( $hello =
+$db.message.fetch(1) )<br>
+
+$hello.text</code> </p>
+
+</ul>
+
+<p align="left">and this would produce:</p>
+
+<ul>
+
+  <p align="left"><code>Hello World!</code></p>
+
+</ul>
+
+<p align="left"><b>Example #2: fetch multiple rows
+of a single column and display them in sequential order</b></p>
+
+<p align="left">Still with the same table:</p>
+
+<ul>
+
+  <p align="left"><code>#foreach( $message in
+$db.message )<br>
+
+&nbsp;&nbsp;&nbsp; $message.text<br>
+
+#end</code> </p>
+
+</ul>
+
+<p align="left">and this would produce:</p>
+
+<ul>
+
+  <p align="left"><code>Hello World!<br>
+
+How are you?</code></p>
+
+</ul>
+
+<p align="left"><b>Example #3: update or insert a
+value</b></p>
+
+<p align="left">Note: it's not advised to issue updates
+and inserts from inside templates, since it breaks the MVC paradigm.
+You should rather achieve this kind of stuff from your controller.</p>
+
+<ul>
+
+  <p align="left"><code>## update a value<br>
+
+#set( $message =
+$db.message.fetch(1) )<br>
+
+#set( $message.text = "Hello everybody!" )<br>
+
+#set( $success = $message.update() )<br>
+
+#if(!$success)<br>
+
+&nbsp; An error occured: $db.error<br>
+
+#end<br>
+
+  <br>
+
+## insert a value<br>
+
+#set( $newMessage = { id:3; text:'Fine, thank you.'})<br>
+
+#set( $success = $db.message.insert($newMessage) )<br>
+
+#if(!$success)<br>
+
+&nbsp; An error occured: $db.error<br>
+
+#end<br>
+
+  </code></p>
+
+</ul>
+
+<p>If you are using the velosurf.tool.HttpQueryTool tool to
+parse HTTP query parameters, you can pass it directly to an insert or
+an update method:</p>
+
+<ul>
+
+  <p><code>#set( $success = $db.message.insert($query) )<br>
+
+  </code><code>#if(!$success)<br>
+
+&nbsp; An error occured: $db.error<br>
+
+#end<br>
+
+  </code></p>
+
+</ul>
+
+<h2 align="left">A simple example</h2>
+
+<p align="left">Suppose we've got two joined tables <code>user (id integer primary key, name varchar(50))</code>
+and <code>message(id integer primary key autoincrement, userid integer references user(id),txt varchar(255))</code>.
+</p><p>We want to list the messages per user, and to be able to add or delete messages. We'll rely on the Velosurf reverse enginering
+to define the <code>$db.user</code> and <code>$db.message</code> entities, as well as the <code>$message.user</code>
+and <code>$user.messages</code> attributes.</p>
+<p>First, the toolbox.xml (that references all Velocity tools) defines the
+needed tools:</p>
+<ul>
+  <li><code>db</code> will be the key to access the
+database</li>
+  <li><code>query</code> will be the key to access
+http
+parameters
+  </li>
+</ul>
+<p align="left"></p>
+<div class="source"><xmp><?xml version="1.0"?>
+<toolbox>
+  <!-- http query parameters -->
+  <tool>
+    <key>query</key>
+    <class>velosurf.web.HttpQueryTool</class>
+    <scope>query</scope>
+  </tool>
+  <!-- database -->
+  <tool>
+    <key>db</key>
+    <class>velosurf.web.VelosurfTool</class>
+    <scope>query</scope>
+  </tool>
+</toolbox></xmp></div>
+<p>Then, the velosurf.xml configuration file, which gives connection parameters. Nothing more to put here than
+connection parameters, since we use reverse enginering.</p>
+<div class="source"><xmp><?xml version="1.0" encoding="UTF-8"?>
+<database user="foo" password="bar" url="jdbc:mysql://127.0.0.1/messageboard" driver="org.gjt.mm.mysql.Driver" read-only="false" reverse="full">
+<!-- without reverse enginering, we would need the following definitions:
+  <entity name="user">
+    <attribute name="messages" result="rowset/message">select * from message where msg_user=<user_id/></attribute>
+  </entity>
+  <entity name="message">
+    <attribute name="user" result="row/user">select * from user where id=<userid/></attribute>
+  </entity>
+Note that when using reverse enginering, you can still list entities here if you want to customize them
+-->
+</database></xmp></div>
+<p>Now, the template itself:</p>
+<div class="source"><xmp><body>
+<h3Very Simple Message Board</h3>
+
+#if ($query.action == "insert")
+  #set( $success = $db.message.insert($query) )
+#elseif ($query.action == "delete")
+  #set( $test = $db.message.fetch($query.id) )
+  #set( $success = $test.delete() )
+#end
+#if( !$success ) Error : $db.error #end
+
+<b>Messages for user:</b>
+<form>
+  <select name="userid">
+    #foreach($u in $db.user)
+      <option value="$u.id" #if($u.id == $query.userid)selected#end>$u.name</option>
+    #end
+  </select>
+  <input type="submit" value="Display">
+</form>
+
+#if($query.userid)
+  #set($user = $db.user.fetch($query.userid))
+  <ul>
+    #foreach ($message in $user.messages)
+      <li>$message.txt
+        <form>
+          <input type="hidden" name="id" value="$message.id">
+          <input type="hidden" name="action" value="delete">
+          <input type="submit" value="Delete">
+        </form>
+      </li>
+    #end
+  </ul>
+#end
+
+<b>New message:</b>
+<blockquote>
+<form>
+  <input type="hidden" name="action" value="insert">
+  User: <select name="userid">
+    #foreach($u in $db.user)
+      <option value="$u.id" #if($u.id == $query.userid)selected#end>$u.name</option>
+    #end
+  </select><br>
+  Text: <input type="text" name="txt"><br>
+  <input type="submit" value="Insert">
+</form>
+</blockquote>
+</body>
+</html></xmp></div>
+<p>Of course, there is no data validation, no html escaping, no authentication (each user can see the messages of others),
+so we'd need some more work towards a real-life message board, but we already have something functionnal with few lines of code.</p>
+<p>The output would be something like this:</p>
+<div class="frame">
+<h3>Very Simple Message Board</h3>
+<b>Messages for user:</b>
+  <select name="userid">
+      <option value="1" selected>Bart</option>
+      <option value="2">Omer</option>
+  </select>
+  <input type="button" value="Display">
+  <ul>
+      <li>D'oh<input type="button" value="Delete"></li>
+      <li>Huuummmph<input type="button" value="Delete"></li>
+  </ul>
+
+<b>New message:</b>
+<blockquote>
+  User:   <select name="userid">
+      <option value="1">Bart</option>
+      <option value="2" selected>Omer</option>
+  </select>
+<br>
+  Text: <input type="text" name="txt"><br>
+  <input type="submit" value="Insert">
+</form>
+</blockquote>
+</div>
+</div>
+</div>
+
+</body>
+</html>
