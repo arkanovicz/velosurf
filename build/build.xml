@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<project name="velosurf" default="usage" basedir=".">
+<project name="velosurf" default="usage" basedir="..">
   
   
   <!-- NAMES -->
@@ -31,8 +31,9 @@
   <property name="debug" value="on"/>
 
   <!-- DIRECTORIES -->		
+  <property name="build.dir"         value="${basedir}/build"/>
   <property name="src.dir"           value="${basedir}/src/java"/>
-  <property name="build.dir" 	     value="${basedir}/class"/>
+  <property name="output.dir" 	     value="${basedir}/class"/>
   <property name="lib.dir"           value="${basedir}/lib"/>
   <property name="test.dir"          value="${basedir}/test"/>
   <property name="tmp.dir"           value="${basedir}/tmp"/>
@@ -44,7 +45,7 @@
   <property name="test.lib.dir"      value="${test.dir}/lib"/>
   <property name="test.rst.dir"      value="${test.dir}/rst"/>
   <property name="test.log.dir"      value="${test.dir}/log"/>
-  <property name="test.build.dir"    value="${test.dir}/class"/>
+  <property name="test.output.dir"    value="${test.dir}/class"/>
   <property name="test.webapp.dir"    value="${test.dir}/webapp"/>
 
   <property name="test.jetty.dir"        value="${test.dir}/jetty"/>
@@ -55,7 +56,7 @@
   <property name="proxy.port"        value="80"/>
 
   <!-- BUILD PROPERTIES -->
-  <property file="build.properties"/>                <!-- Component local   -->
+  <property file="${build.dir}/build.properties"/>                <!-- Component local   -->
   <property file="${user.home}/.ant.properties"/>   <!-- User local        -->
   <property file="${user.home}/build.properties"/>   <!-- User local        -->
 
@@ -72,7 +73,7 @@
       <fileset dir="${test.lib.dir}">
         <include name="**/*.jar"/>
       </fileset>
-      <pathelement location="${test.build.dir}"/>
+      <pathelement location="${test.output.dir}"/>
     </path>
   
 
@@ -98,30 +99,33 @@ Please specify a target among :
   <target name="prepare">
     <!-- MAKE THE DIRECTORIES IF NEEDED -->
     <mkdir dir="${lib.dir}"/>
-    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${output.dir}"/>
     <mkdir dir="${dist.dir}" />
-    <mkdir dir="${bin.dir}" />
     <delete dir="${tmp.dir}" />
     <mkdir dir="${tmp.dir}" />
-    <mkdir dir="${test.build.dir}" />
+    <mkdir dir="${test.output.dir}" />
     <mkdir dir="${test.lib.dir}" />
     <mkdir dir="${test.log.dir}" />
     <mkdir dir="${test.log.dir}" />
     <mkdir dir="${test.jetty.dir}/logs" />
     <tstamp />
     <!-- DOWNLOAD LIBRARIES IF NEEDED -->
-    <antcall target="build-download" />
+    <antcall target="download" />
   </target>
 
   <target name="clean">
-    <delete dir="${build.dir}"/>
+    <delete dir="${output.dir}"/>
     <delete dir="${tmp.dir}"/>
-    <delete dir="${lib.dir}"/>
-    <delete dir="${test.build.dir}"/>
+    <delete dir="${test.output.dir}"/>
     <delete dir="${test.rst.dir}"/>
-    <delete dir="${test.lib.dir}"/>
     <delete dir="$test.webapp.dir}/WEB-INF/lib"/>
+    <delete dir="$test.webapp.dir}/WEB-INF/log"/>
     <mkdir dir="${test.jetty.dir}/logs" />
+  </target>
+
+  <target name="clean-all" depends="clean">
+    <delete dir="${lib.dir}"/>    
+    <delete dir="${test.lib.dir}"/>
   </target>
   
   <target name="download-if-needed" unless="skip.jar.loading">
@@ -141,15 +145,13 @@ Please specify a target among :
          ignoreerrors="false" />
   </target>
 
-  <target name="build-download">
+  <target name="download">
    <property name="download.dir" value="${lib.dir}"/>
    
    <antcall target="commons-beanutils-download"/>
-   <antcall target="commons-digester-download"/>
    <antcall target="commons-lang-download"/>
    <antcall target="commons-logging-download"/>
    <antcall target="crimson-download"/>
-   <antcall target="dom4j-download"/>
    <antcall target="jdom-download"/>
    <antcall target="servletapi-download"/>
    <antcall target="velocity-download"/>
@@ -223,6 +225,7 @@ Please specify a target among :
 
   <target name="test-download">
    <property name="download.dir" value="${test.lib.dir}"/>
+   <antcall target="commons-digester-download"/>
    <antcall target="hsqldb-download"/>
    <antcall target="httpunit-download"/>
    <antcall target="js-download"/>
@@ -304,7 +307,7 @@ Please specify a target among :
     <echo message="using classpath= ${myclasspath}"/>
     <javac 
         srcdir="${src.dir}"
-        destdir="${build.dir}"
+        destdir="${output.dir}"
         debug="${debug}"
         debuglevel="lines,vars,source"
         deprecation="on"
@@ -315,7 +318,7 @@ Please specify a target among :
 	  <patternset refid="sources"/>
       <classpath refid="classpath"/>
 	</javac>
-    <jar jarfile="${basedir}/velosurf-${version}.jar" basedir="${build.dir}" >
+    <jar jarfile="${basedir}/velosurf-${version}.jar" basedir="${output.dir}" >
 	  <patternset refid="sources"/>
 	</jar>
   </target>
@@ -327,7 +330,7 @@ Please specify a target among :
     <property name="testclasspath" refid="test.classpath"/>
     <echo message="using classpath= ${testclasspath}"/>
     <javac srcdir="${test.src.dir}"
-        destdir="${test.build.dir}"
+        destdir="${test.output.dir}"
         encoding="UTF-8"
         debug="${debug}"
         debuglevel="lines,vars,source"
@@ -469,7 +472,7 @@ Please specify a target among :
       <classpath>
         <path refid="classpath" />
         <path refid="test.classpath" />
-        <pathelement path="${test.build.dir}"/>
+        <pathelement path="${test.output.dir}"/>
         <filelist dir="${basedir}" files="velosurf-${version}.jar"/>
       </classpath>
 
