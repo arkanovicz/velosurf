@@ -1,6 +1,7 @@
 package blackbox;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -73,7 +74,9 @@ public class BlackboxTests
         form.setParameter("password","badpass");
         resp = form.submit();
         assertEquals("Login",resp.getTitle());
-        checkText(resp,"message","Bad login or password.");
+        String msg = resp.getElementWithID("message").getText();
+        /* in english or french, may depend of the system */
+        assertTrue(Arrays.asList(new String[]{"Bad login or password.","Mauvais login ou mot de passe...","badLogin"}).contains(msg));
         /* log in again, check we reach the auth index */
         form = resp.getFormWithName("login");
         form.setParameter("login","foo");
@@ -100,14 +103,14 @@ public class BlackboxTests
         resp = form.submit();
         assertEquals("Input form",resp.getTitle());
         /* check error messages */
-        checkText(resp,"1","field string: 'aa' is not of the proper length");
-        checkText(resp,"2","field string2: '123-1234' is not valid");
+        checkText(resp,"1","field string: string 'aa' is not of the proper length");
+        checkText(resp,"2","field string2: value '123-1234' is not valid");
         checkText(resp,"3","field number: '0' is not in the valid range");
-        checkText(resp,"4","field oneof: 'test0' is not valid");
-        checkText(resp,"5","field mydate: '2-7-2006' is not a valid date");
-        checkText(resp,"6","field email: 'toto@tata@titi' is not an email");
-        checkText(resp,"7","field email2: 'empty value' cannot be empty");
-        checkText(resp,"8","field book_id: '0' is not valid");
+        checkText(resp,"4","field oneof: value 'test0' must be one of: test1, test2, test3");
+        checkText(resp,"5","field mydate: '2-7-2006' is not a valid date or is outside range");
+        checkText(resp,"6","field email: 'toto@tata@titi' is not a valid email");
+        checkText(resp,"7","field email2 cannot be empty");
+        checkText(resp,"8","field book_id: value '0' not found in book.book_id");
         assertNull(resp.getElementWithID("9"));
         /* check that the form retained the values */
         form = resp.getFormWithName("input");
@@ -131,14 +134,14 @@ public class BlackboxTests
         form.setParameter("email2","toto@azerty.blabla");
         resp = form.submit();
         assertEquals("Input form",resp.getTitle());
-        checkText(resp,"1","field email2: 'toto@azerty.blabla' is not an email");
+        checkText(resp,"1","field email2: 'toto@azerty.blabla' is not a valid email");
         assertNull(resp.getElementWithID("2"));
         /* test SMTP email checking */
         form = resp.getFormWithName("input");
         form.setParameter("email2","azerty@renegat.net");
         resp = form.submit();
         assertEquals("Input form",resp.getTitle());
-        checkText(resp,"1","field email2: 'azerty@renegat.net' is not an email");
+        checkText(resp,"1","field email2: 'azerty@renegat.net' is not a valid email");
         assertNull(resp.getElementWithID("2"));
         /* now with a valid email... */
         form = resp.getFormWithName("input");
