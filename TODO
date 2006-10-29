@@ -1,12 +1,12 @@
 TODO
 ----
+ - task 'clean' should keep libs, need a new 'clean-all' task
  - bug: hsqldb: when no schema specified, imported or exported keys reverse queries sometimes give the 'PUBLIC' schema
  - bug: schema name is included in attribute name when reverse enginering imported/exported keys
  - manual definition of imported and exported keys
  - use DatabaseMetaData.storeXXXCaseIdentifiers() to determine case sensivity
  - bug: read-only="true" and Archego managed to write to the database! (updates are blocked but inserts work) => 2.0
  - bug: if result="ROW/...", the attribute definition fails without any log and the attribute is not found (was a raw attribute... probably not important) => 2.0
- - put last insert id in userContext
  - rollback
  - xdocs VTL => 2.0
  - parametrized error messages => 2.0
