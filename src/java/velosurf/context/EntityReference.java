@@ -81,7 +81,8 @@ public class EntityReference extends AbstractList
      * @return last insert ID
      */
     public Object getLastInsertID() {
-        return mEntity.getLastInsertID();
+        long id = mUserContext.getLastInsertedID(mEntity);
+        return mEntity.filterID(id);
     }
 
     /** Update a row in this entity's table.

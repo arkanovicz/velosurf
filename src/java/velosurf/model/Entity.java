@@ -364,25 +364,6 @@ public class Entity
         return instance.insert();
     }
 
-
-    // used only by Instance (=> not the same package, hence not protected... Damn it !)
-    /** Used by the framework to set the last insert id (do not use directly !)
-     *
-     * @param inLastInsertID the last insert id
-     */
-    public void setLastInsertID(long inLastInsertID) {
-        mLastInsertID = inLastInsertID;
-    }
-
-    /** get the last insert id (obfuscatd if needed)
-     *
-     * @return the last insert id
-     */
-    public Object getLastInsertID() {
-        if (mKeys.size() == 1 && isObfuscated((String)mKeys.get(0))) return obfuscate(Long.valueOf(mLastInsertID));
-        return Long.valueOf(mLastInsertID);
-    }
-
     /** update a row based on a set of values that must contain kety values
      *
      * @param inValues the Map object containing the values
@@ -631,6 +612,16 @@ public class Entity
         return mDB.obfuscate(value);
     }
 
+    /** obfuscate this id value if needed
+     *
+     */
+    public Object filterID(Long id) {
+        if (mKeys.size() == 1 && isObfuscated((String)mKeys.get(0))) return obfuscate(Long.valueOf(id));
+        return Long.valueOf(id);
+    }
+
+
+
     /** de-obfuscate given value
      * @param value value to de-obfuscate
      *
@@ -686,7 +677,7 @@ public class Entity
                         formatted = formatted.substring(0,30)+"...";
                     }
                     formatted = StringEscapeUtils.escapeHtml(formatted);
-                    userContext.addValidationError("field "+info.column+": '"+formatted+"' "+info.constraint.getMessage());
+                    userContext.addValidationError(userContext.localize(info.constraint.getMessage(),info.column,formatted));
                 }
                 ret = false;
             }
@@ -702,16 +693,16 @@ public class Entity
     protected String mTable = null;
     /** column names in natural order
      */
-    protected List mColumns = new ArrayList(); // list<String>
+    protected List<String> mColumns = new ArrayList(); // list<String>
     /** key column names in natural order
      */
-    protected List mKeys = new ArrayList();
+    protected List<String> mKeys = new ArrayList();
     /** whether to obfuscate something
      */
     protected boolean mObfuscate = false;
     /** names of obfuscated columns
      */
-    protected List mObfuscatedColumns = null;
+    protected List<String> mObfuscatedColumns = null;
     /** obfuscation status of key columns
      */
     protected boolean mKeyColObfuscated[] = null;
@@ -736,9 +727,6 @@ public class Entity
     /** the database connection
      */
     protected Database mDB = null;
-    /** the last insert id
-     */
-    protected long mLastInsertID = -1;
     /** the caching method
      */
     protected int mCachingMethod = 0;
