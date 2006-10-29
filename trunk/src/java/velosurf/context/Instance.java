@@ -357,8 +357,8 @@ public class Instance extends TreeMap implements ReadOnlyMap
             statement.update(params);
             List keys = mEntity.getKeys();
             if (keys.size() == 1) {
-                // is this call valid if the id is not autoincremented ?
-                mEntity.setLastInsertID(statement.getLastInsertID());
+                /* What if the ID is not autoincremented? TODO check it */
+                mUserContext.get().setLastInsertedID(mEntity,statement.getLastInsertID());
                 //... how to check for autoincrements ? => metadata!
             }
             return true;
