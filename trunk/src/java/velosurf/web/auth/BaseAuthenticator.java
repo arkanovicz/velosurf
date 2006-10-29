@@ -64,7 +64,6 @@ public abstract class BaseAuthenticator {
 
     public void configure(Map config) {
         method = (String)config.get("method");
-        Logger.debug("auth: using method "+method);
     }
 
     /**
@@ -96,6 +95,7 @@ public abstract class BaseAuthenticator {
         if(method == null) {
             return password;
         } else {
+            Logger.debug("auth: using method "+method);            
             try {
                 /* TODO: use utf8 (and find a way to convert an utf8 string into
                    an array of bytes on the javascript counterpart) */
