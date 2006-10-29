@@ -20,6 +20,8 @@ import java.util.regex.Pattern;
 import java.util.List;
 import java.util.Locale;
 
+import velosurf.util.StringLists;
+
 /**
  * <p>An enumeration constraint. Syntax is:</p>
  *  <pre>
@@ -51,7 +53,7 @@ public class OneOf extends FieldConstraint {
      */
     public OneOf(List values) {
         _values = values;
-        setMessage("is not valid");
+        setMessage("field {0}: value '{1}' must be one of: "+StringLists.join(_values,", "));
     }
 
     /**

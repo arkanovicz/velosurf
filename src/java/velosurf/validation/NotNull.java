@@ -40,7 +40,7 @@ public class NotNull extends FieldConstraint {
      * Default constructor.
      */
     public NotNull() {
-        setMessage("cannot be null");
+        setMessage("field {0} cannot be null");
     }
 
     /**
