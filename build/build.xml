@@ -241,7 +241,7 @@ Please specify a target among :
    <antcall target="junit-download"/>
    <antcall target="nekohtml-download"/>
    <antcall target="xerces-download"/>
-   <antcall target="xmlparserapi"/>
+   <antcall target="xmlparserapis"/>
   </target>
 
   <target name="jetty-main-download">
