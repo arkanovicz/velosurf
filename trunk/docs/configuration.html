@@ -1,0 +1,604 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>Velosurf - Configuration</title>
+
+  <link rel="stylesheet" href="file:///home/claude/projects/velosurf/docs/velosurf.css" type="text/css">
+
+</head>
+
+
+<body>
+
+<div id="container">
+<div id="header">
+<div id="logo1"><img style="width: 80px; height: 60px;" alt="Velosurf logo" src="logo.png" border="0"></div>
+
+<div id="logo3"><img alt="Velosurf title" src="title.png" border="0"></div>
+
+<div id="logo2"><a href="http://jakarta.apache.org/velocity/"><img style="width: 80px;" src="powered-by-logo.gif" alt="Velocity" border="0"></a></div>
+
+</div>
+
+<div id="menu">
+<div class="menusection"><span class="menuheader">Velosurf</span>
+<ul>
+
+  <li><a href="./index.html">Home</a> </li>
+
+  <li> <a href="./overview.html">Overview</a>
+  </li>
+
+  <li><a href="./download.html">Download</a>
+  </li>
+
+  <li> <a href="./faq.html">FAQ</a> </li>
+
+  <li> <a href="http://lists.sourceforge.net/lists/listinfo/velosurf-devel">Mailing list</a> </li>
+
+</ul>
+
+</div>
+
+<div class="menusection">
+<span class="menuheader">Docs</span>
+<ul>
+
+  <li><a href="./installation.html">Installation</a></li>
+
+  <li><b>Configuration</b></li>
+
+  <li><a href="./user-guide.html">User Guide</a></li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/vtl-reference-guide.html">VTL
+Reference</a> </li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/api/index.html">Javadoc</a>
+  </li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/changes.html">Change
+Log</a> </li>
+
+  <li> <a href="http://jakarta.apache.org/velocity/docs/license.html">License</a></li>
+
+</ul>
+
+</div>
+</div>
+<div id="body">
+<h1>Configuration Reference</h1>
+<p>This page gives the reference of the Velosurf config file syntax.</p>
+<p><i>Don't be confused here, 'entity' and 'attribute' are both used as XML concepts and velosurf concepts... The velosurf entity has a corresponding XML entity, the velosurf attribute has a corresponding XML entity, and both have XML attributes.
+</i></p>
+<p>The configuration file follows <a href="./dtd.html">this DTD</a>.</p>
+<p>In brief:</p>
+<p><ul>
+<li>the &lt;database&gt; tag is the root element and must provide connection credentials and an optionnal schema name. It can contains any number of &lt;entity&gt;, &lt;attribute&gt; and &lt;action&gt; tags. Attributes and actions defined at this level are qualified as <i>root</i> attributes and actions.</li>
+<li>&lt;entity&gt; tags usually correspond to a table (but not necessarily). They can contain any number of &lt;attribute&gt;, &lt;action&gt; and &lt;constraint&gt; tags.</li>
+<li>&lt;attribute&gt; tags describe a custom entity attribute. Their content is an SQL query where entity columns and other <i>external parameters</i> appear as embedded tags. Their <code>result</code> XML attribute describes their result</li>
+<li>&lt;action&gt; tags contain one or several SQL queries where entity columns and other <i>external parameters</i> appear as embedded tags.  They return the number of affected rows.</li>
+<li>&lt;constraint&gt; tags gather all the constraints applying to one column input value. Each constraint has a short syntax form (an XML attribute of the &lt;constraint&gt; tag) and an equivalent long syntax form (a child tag) that allows one to customize the error message of the constraint.</li>
+</ul></p>
+<p>The following table describes the meaning of all XML attributes per XML entity.</p>
+<table>
+<tbody>
+<tr align="center">
+							<td><b>XML entity</b></td>
+
+							<td><b>XML attribute</b></td>
+							<td><b>syntax</b></td>
+							<td><b>default value</b></td>
+							<td><b>meaning</b></td>
+						</tr>
+						<tr align="center">
+							<td>database</td>
+
+							<td>user</td>
+							<td><i>string</i>&nbsp;</td>
+							<td><b>(required)</b></td>
+							<td>database account login</td>
+						</tr>
+						<tr align="center">
+							<td>database</td>
+
+							<td>password</td>
+							<td><i>string</i></td>
+							<td><b>(required)</b></td>
+							<td>database account password</td>
+						</tr>
+						<tr align="center">
+							<td>database</td>
+
+							<td>url</td>
+							<td><i>string</i></td>
+							<td><b>(required)</b></td>
+							<td>database url</td>
+						</tr>
+						<tr align="center">
+							<td>database</td>
+
+							<td>driver</td>
+							<td><i> java_class_name</i></td>
+							<td>(none)</td>
+							<td>database driver class - if not specified, Velosurf will try to deduce it from the database url</td>
+						</tr>
+						<tr align="center">
+
+							<td>database</td>
+							<td>schema</td>
+							<td><i>string</i></td>
+							<td>(none)</td>
+							<td>schema used, if any</td>
+						</tr>
+
+						<tr align="center">
+							<td>database</td>
+							<td>read-only</td>
+							<td>yes | no</td>
+							<td>yes</td>
+
+							<td>entities default access mode, read-only or read-write</td>
+						</tr>
+						<tr align="center">
+							<td>database</td>
+							<td>caching</td>
+							<td>none | soft | full</td>
+
+							<td>none</td>
+							<td>default caching method</td>
+						</tr>
+						<tr align="center">
+							<td>database</td>
+							<td>case</td>
+							<td>sensitive | uppercase | lowercase</td>
+							<td>(driver-dependant)</td>
+							<td>case-sensivity: sensitive, uppercase or lowercase - see remarks</td>
+						</tr>
+
+						<tr align="center">
+							<td>database</td>
+							<td>reverse</td>
+							<td>none | partial | tables | full</td>
+
+							<td>full</td>
+							<td>degree of reverse-enginering: in 'partial' mode, only the tables corresponding to entities listed in the config file are reverse-enginered - in 'full' mode, all tables and foreign keys are reverse enginered</td>
+						</tr>
+						<tr align="center">
+							<td>database</td>
+							<td>loglevel</td>
+							<td>trace | debug | info | warn | error</td>
+
+							<td>info</td>
+							<td>logging level, from the most verbose to the less verbose</td>
+						</tr>
+						<tr align="center">
+							<td>database</td>
+							<td>min-connections</td>
+							<td><i>integer</i></td>
+
+							<td>1</td>
+							<td>the initial number of connections in the connection pool</td>							
+						</tr>
+						<tr align="center">
+							<td>database</td>
+							<td>max-connections</td>
+							<td><i>integer</i></td>
+
+							<td>50</td>
+							<td>the maximum number of connections in the connection pool</td>							
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr align="center">
+							<td>entity</td>
+							<td>name</td>
+							<td><i>string&nbsp;</i></td>
+
+							<td><b>(required)</b></td>
+							<td>entity name; if it is the name of an existing table, the columns of the table will automatically become attributes of this entity</td>
+						</tr>
+						<tr align="center">
+							<td>entity</td>
+							<td>table</td>
+							<td><i>string&nbsp;</i></td>
+
+							<td>entity name</td>
+							<td>use this attribute if the table name and the entity name are to be different</td>
+						</tr>
+						<tr align="center">
+							<td>entity</td>
+							<td>read-only</td>
+							<td>yes | no</td>
+							<td>yes</td>
+							<td>access mode, read-only or read-write</td>
+						</tr>
+						<tr align="center">
+							<td>entity</td>
+							<td>class</td>
+							<td><i>java_class_name</i></td>
+
+							<td>velosurf.context.Instance</td>
+							<td>java class used to map an instance of this entity</td>
+						</tr>
+						<tr align="center">
+							<td>entity</td>
+							<td>caching</td>
+							<td>none | soft | full</td>
+							<td>(none)</td>
+							<td>caching method: none, soft (automatic with respect to memory) or full (only cleared on <i>Entity.clearCache()</i> calls)</td>
+						</tr>
+						<tr align="center">
+							<td>entity</td>
+							<td>obfuscate</td>
+							<td><i>column </i>[,<i>column</i>...]</td>
+							<td>(none)</td>
+							<td>columns that will be obfuscated</td>
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr align="center">
+							<td>attribute</td>
+							<td>name</td>
+							<td>&nbsp;<i>string</i></td>
+							<td><b>(required)</b></td>
+							<td>attribute name, can overload an existing column</td>
+						</tr>
+						<tr align="center">
+							<td>attribute</td>
+
+							<td>result</td>
+							<td>scalar | row[/<i>entity</i>] | rowset[/<i>entity</i>]</td>
+							<td>(none)</td>
+							<td>result type: scalar, single row or rowset ; in the last two cases,
+							the resulting entity can be specified, so that other attributes can be called on the result;
+							in the first case (scalar), the engine will return the value found in the first
+							column of the first row.</td>							
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr align="center">
+							<td>action</td>
+							<td>name</td>
+							<td><i>string</i></td>
+							<td><b>(required)</b></td>
+							<td>action name</td>
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr>
+						  <td>constraint</td>
+						  <td>column</td>
+						  <td><i>string</i></td>
+						  <td><b>(required)</b></td>
+						  <td>name of this entity's column the constraint is to be applied to</td>
+						</tr>
+						<tr>
+						  <td>constraint</td>
+						  <td>type</td>
+						  <td>integer | number | date | email</td>
+						  <td>(none)</td>
+						  <td>expected data type - short syntax</td>
+						</tr>
+						<tr>
+						  <td>constraint</td>
+						  <td>min-len</td>
+						  <td><i>positive integer</i></td>
+						  <td>(none)</td>
+						  <td>minimum length - short syntax</td>
+						</tr>
+						<tr>
+						  <td>constraint</td>
+						  <td>max-len</td>
+						  <td><i>positive integer</i></td>
+						  <td>(none)</td>
+						  <td>maximum length - short syntax</td>
+						</tr>
+						<tr>
+						  <td>constraint</td>
+						  <td>min</td>
+						  <td><i>integer</i></td>
+						  <td>(none)</td>
+						  <td>minimum value (implies 'number' data type if none specified) - short syntax</td>
+						</tr>
+						<tr>
+						  <td>constraint</td>
+						  <td>max</td>
+						  <td><i>integer</i></td>
+						  <td>(none)</td>
+						  <td>maximum value (implies 'number' data type if none specified) - short syntax</td>
+						</tr>
+						<tr>
+						  <td>constraint</td>
+						  <td>after</td>
+						  <td><i>YYYYMMDD</i></td>
+						  <td>(none)</td>
+						  <td>data must be a date >= this value (implies 'date' type if none specified) - short syntax</td>
+						</tr>
+						<tr>
+						  <td>constraint</td>
+						  <td>before</td>
+						  <td><i>YYYYMMDD</i></td>
+						  <td>(none)</td>
+						  <td>data must be a date <= this value (implies 'date' type if none specified) - short syntax</td>
+						</tr>
+						<tr>
+						  <td>constraint</td>
+						  <td>not-empty</td>
+						  <td>true | false</td>
+						  <td>false</td>
+						  <td>data must not be null or empty - short syntax</td>
+						</tr>
+						<tr>
+						  <td>constraint</td>
+						  <td>not-null</td>
+						  <td>true | false</td>
+						  <td>false</td>
+						  <td>data must not be null - short syntax</td>
+						</tr>
+						<tr>
+						  <td>constraint</td>
+						  <td>one-of</td>
+						  <td><i>value</i>[,<i>value</i>...]</td>
+						  <td>false</td>
+						  <td>data must be one of the supplied values - short syntax</td>
+						</tr>
+						<tr>
+						  <td>constraint</td>
+						  <td>reference</td>
+						  <td><i>table.column</i></td>
+						  <td>(none)</td>
+						  <td>data must be present in <i>table.column</i> - short syntax</td>
+						</tr>
+						<tr>
+						  <td>constraint</td>
+						  <td>regex</td>
+						  <td><i>pattern</i></td>
+						  <td>(none)</td>
+						  <td>data must follow the provided pattern - short syntax</td>
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr>
+						  <td>integer</td>
+						  <td>min</td>
+						  <td><i>integer</i></td>
+						  <td>(none)</td>
+						  <td>minimum value - long syntax</td>
+						</tr>
+						<tr>
+						  <td>integer</td>
+						  <td>max</td>
+						  <td><i>integer</i></td>
+						  <td>(none)</td>
+						  <td>maximum value - long syntax</td>
+						</tr>
+						<tr>
+						  <td>integer</td>
+						  <td>message</td>
+						  <td><i>string</i></td>
+						  <td>field {0}: '{1}' is not in the valid range</td>
+						  <td>message to display when constraint fails</td>
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr>
+						  <td>number</td>
+						  <td>min</td>
+						  <td><i>number</i></td>
+						  <td>(none)</td>
+						  <td>minimum value - long syntax</td>
+						</tr>
+						<tr>
+						  <td>number</td>
+						  <td>max</td>
+						  <td><i>number</i></td>
+						  <td>(none)</td>
+						  <td>maximum value - long syntax</td>
+						</tr>
+						<tr>
+						  <td>number</td>
+						  <td>message</td>
+						  <td><i>string</i></td>
+						  <td>field {0}: '{1}' is not in the valid range</td>
+						  <td>message to display when constraint fails</td>
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr>
+						  <td>min-len</td>
+						  <td>value</td>
+						  <td><i>positive integer</i></td>
+						  <td><b>(required)</b></td>
+						  <td>minimum length - long syntax</td>
+						</tr>
+						<tr>
+						  <td>min-len</td>
+						  <td>message</td>
+						  <td><i>string</i></td>
+						  <td>field {0}: '{1}' is not in the valid range</td>
+						  <td>message to display when constraint fails</td>
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr>
+						  <td>max-len</td>
+						  <td>value</td>
+						  <td><i>positive integer</i></td>
+						  <td><b>(required)</b></td>
+						  <td>maximum length - long syntax</td>
+						</tr>
+						<tr>
+						  <td>max-len</td>
+						  <td>message</td>
+						  <td><i>string</i></td>
+						  <td>field {0}: '{1}' is not in the valid range</td>
+						  <td>message to display when constraint fails</td>
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr>
+						  <td>date</td>
+						  <td>after</td>
+						  <td><i>YYYYMMDD</i></td>
+						  <td>(none)</td>
+						  <td>data must be a date >= this value - long syntax</td>
+						</tr>
+						<tr>
+						  <td>date</td>
+						  <td>before</td>
+						  <td><i>YYYYMMDD</i></td>
+						  <td>(none)</td>
+						  <td>data must be a date <= this value - long syntax</td>
+						</tr>
+						<tr>
+						  <td>date</td>
+						  <td>message</td>
+						  <td><i>string</i></td>
+						  <td>field {0}: '{1}' is not a valid date or is outside range</td>
+						  <td>message to display when constraint fails</td>
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr>
+						  <td>email</td>
+						  <td>check-dns</td>
+						  <td>true | false</td>
+						  <td>false</td>
+						  <td>whether to issue a DNS lookup query to check the validity of the email</td>
+						</tr>
+						<tr>
+						  <td>email</td>
+						  <td>check-smtp</td>
+						  <td>true | false</td>
+						  <td>false</td>
+						  <td>whether to issue an SMTP login to check the validity of the email</td>
+						</tr>
+						<tr>
+						  <td>email</td>
+						  <td>message</td>
+						  <td><i>string</i></td>
+						  <td>field {0}: '{1}' is not a valid email</td>
+						  <td>message to display when constraint fails</td>
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr>
+						  <td>not-null</td>
+						  <td>message</td>
+						  <td><i>string</i></td>
+						  <td>field {0} cannot be null</td>
+						  <td>message to display when constraint fails</td>
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr>
+						  <td>not-empty</td>
+						  <td>message</td>
+						  <td><i>string</i></td>
+						  <td>field {0} cannot be empty</td>
+						  <td>message to display when constraint fails</td>
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr>
+						  <td>one-of</td>
+						  <td>message</td>
+						  <td><i>string</i></td>
+						  <td>field {0}: value '{1}' must be one of: <i>value</i>,...</td>
+						  <td>message to display when constraint fails</td>
+						</tr>
+						<tr>
+						  <td>value</td>
+						  <td>&nbsp;</td>
+						  <td>&nbsp;</td>
+						  <td>&nbsp;</td>
+						  <td>specifies a value for the long syntax form of the &lt;one-of&gt; constraint (text content)</td>
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr>
+						  <td>reference</td>
+						  <td>foreign-key</td>
+						  <td><i>table.column</i></td>
+						  <td><b>(required)</b></td>
+						  <td>data must be present in <i>table.column</i> - long syntax</td>
+						</tr>
+						<tr>
+						  <td>reference</td>
+						  <td>message</td>
+						  <td><i>string</i></td>
+						  <td>field {0}: value '{1}' not found in <i>table.column</i></td>
+						  <td>message to display when constraint fails</td>
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+						<tr>
+						  <td>regex</td>
+						  <td>pattern</td>
+						  <td><i>string</i></td>
+						  <td><b>(required)</b></td>
+						  <td>data must follow the provided pattern - long syntax</td>
+						</tr>
+						<tr>
+						  <td>regex</td>
+						  <td>message</td>
+						  <td><i>string</i></td>
+						  <td>field {0}: value '{1}' is not valid</td>
+						  <td>message to display when constraint fails</td>
+						</tr>
+</tbody>
+</table>
+					<p>And some important remarks on this config file:</p>
+					<ul>
+						<li><b>root attributes and actions</b>: Along with attributes and actions declared inside an entity (that become properties of this entity), 
+						attributes and actions can be declared directly under <nobr>&lt;database&gt;</nobr>: they become root attributes and root actions, direct 
+						properties of $db.<br>
+							If specified, the root action named <code>startup</code> is executed at startup.<br>
+
+							<br>
+						
+						<li><b>using current instance values</b>: SQL queries of attributes and actions may (and often have to) reference columns of the current instance, by simply inserting XML tags at the right place.<br>
+						<br>For instance, assuming 'owner_id' is a field of the 'event' table:<pre>&lt;entity name=&quot;event&quot;&gt;
+	&lt;attribute name=&quot;owner&quot; result=&quot;row/user&quot;&gt;
+
+		select * from user where user_id = <font color="red">&lt;owner_id/&gt;</font>
+	&lt;/attribute&gt;
+&lt;/entity&gt;</pre>
+						<p>Then, in VTL, if <code>$event</code> contains an event, then <code>$event.owner</code> will return the user that owns the event.<br>
+
+						<br>
+						</p>
+						<li><b>external parameters</b>: sometimes there is the need for an external parameter to appear in an SQL query. In that case, it can be named as an XML tag inside the query, and later used by setting its value on the surrounding entity (or on $db for root actions/attributes).<br>
+						<br>For instance, here is the definition of a root attribute that lists all events of a month:<pre>&lt;attribute name=&quot;month_events&quot; result=&quot;rowset/event&quot;&gt;
+	select * from event where month(event_date) = <font color="red">&lt;selected_month/&gt;</font>
+
+&lt;/attribute&gt;</pre>
+						<p>In VTL, you can then write:</p>
+						<pre>#set($db.selected_month = 3)
+
+#foreach($event in $db.month_events)
+ ... display the event ...
+#end</pre>
+						<p>Note that the name <code>selected_month</code> does not correspond to anything in the database: it is only a label that can be used as a prepared statement parameter.</p>
+							<p>Note also that external parameters only retain their value within the scope of one VelosurfTool instance (which is the request scope by default).<br>
+
+								<br>
+							</p>
+						
+						<li><b>XML parsing of queries</b>: Since XML parsers may add spaces here and there inside #PCDATA, and since that may sometimes break the syntax of SQL queries, it is a good idea to specify <code>xml-space=&quot;preserve&quot;</code> as an XML attribute of any XML entity containing a SQL query.<br>
+						<br>
+						<li><b>escaping of XML&nbsp;special characters</b>: be sure to escapes characters &lt; &gt; &amp; and ' with their XML equivalent whenever they appear inside your queries.<br>
+
+							<br>
+						
+						
+						<li><b>IDs obfuscation</b>: When you obfuscate a key column, be sure to also obfuscate all foreign-keys that reference this column. If you want to specify an explicit value to an obfuscated column (via an update or an insert), you have to obfuscate it first since it will always be deobfuscated - you can do so with the <code>entity.obfuscate(value)</code> method. Please note that this feature requires some <code>javax.crypto</code> classes that are not included by default in the jdk for versions prior to 1.4 ; in this case, you'll have to download the <a href="(EmptyReference!)" target="http://java.sun.com/products/jce/index.jsp">Java Cryptographic Extension</a> (jce1_2_2.jar and sunjce_provider.jar) from java.sun.com.<br>
+							<br>
+
+						<li><b>Case-sensivity</b>: Indicates the policy that Velosurf must follow with SQL keywords (tables and columns). It should mimic the behaviour the database engine has with its metadata tables, and the default is choosen depending on the database vendor (see DriverInfo.java). It is one of:
+							<ul>
+								<li><code>sensitive</code>: It does not necessarily mean that the database is case-sensitive, only that Velosurf won't issue any conversion.
+								<li><code>uppercase</code>: Entities and attributes are case-insensitive; all identifiers will be stored internally and passed to the JDBC driver as uppercase strings (references in templates and names in the configuration file are then case-insensitive).<li><code>lowercase</code>: Same as above, lowercase.
+							</ul>
+							<br>
+						<li><b>Connection pooling</b>: Velosurf uses two connection pools. One with connections having the autocommit flag set to true for all 
+						standard queries, and one with connections having the autocommit flag set to false for transactionnal queries (i.e. composite queries made of 
+						a sequence of several atomic queries, and on wich a rollback must be issued when something goes wrong during the processing). Since such 
+						queries are 
+						usually less frequent and less heavy than standard ones, the latter pool is initialized with only one connection. The
+						<code>min-connections</code> parameter only applies to the former pool.
+					</ul>
+
+
+</div>
+</div>					
+	</body>
+
+</html>
