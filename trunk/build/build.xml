@@ -238,8 +238,10 @@ Please specify a target among :
    <antcall target="hsqldb-download"/>
    <antcall target="httpunit-download"/>
    <antcall target="js-download"/>
-   <antcall target="nekohtml-download"/>
    <antcall target="junit-download"/>
+   <antcall target="nekohtml-download"/>
+   <antcall target="xerces-download"/>
+   <antcall target="xmlparserapi"/>
   </target>
 
   <target name="jetty-main-download">
@@ -287,6 +289,19 @@ Please specify a target among :
   <target name="nekohtml-download">
    <property name="download.jarname" value="nekohtml" />
    <property name="download.jarversion" value="${jar.nekohtml.version}" />
+   <antcall target="download-if-needed"/>
+  </target>
+
+  <target name="xerces-download">
+   <property name="download.dirname" value="xerces" />
+   <property name="download.jarname" value="xercesImpl" />
+   <property name="download.jarversion" value="${jar.xercesimpl.version}" />
+   <antcall target="download-if-needed"/>
+  </target>
+
+  <target name="xmlparserapis-download">
+   <property name="download.jarname" value="xerces" />
+   <property name="download.jarversion" value="${jar.xmlparserapis.version}" />
    <antcall target="download-if-needed"/>
   </target>
 
