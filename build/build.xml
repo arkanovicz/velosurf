@@ -108,6 +108,7 @@ Please specify a target among :
     <mkdir dir="${test.log.dir}" />
     <mkdir dir="${test.log.dir}" />
     <mkdir dir="${test.jetty.dir}/logs" />
+    <mkdir dir="${test.jetty.dir}/lib" />
     <tstamp />
     <!-- DOWNLOAD LIBRARIES IF NEEDED -->
     <antcall target="download" />
