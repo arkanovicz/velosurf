@@ -109,8 +109,8 @@ Please specify a target among :
     <mkdir dir="${test.log.dir}" />
     <mkdir dir="${test.jetty.dir}/logs" />
     <mkdir dir="${test.jetty.dir}/lib" />
-    <mkdir dir="$test.webapp.dir}/WEB-INF/lib"/>
-    <mkdir dir="$test.webapp.dir}/WEB-INF/log"/>
+    <mkdir dir="${test.webapp.dir}/WEB-INF/lib"/>
+    <mkdir dir="${test.webapp.dir}/WEB-INF/log"/>
     <tstamp />
     <!-- DOWNLOAD LIBRARIES IF NEEDED -->
     <antcall target="download" />
