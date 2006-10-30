@@ -180,6 +180,12 @@ Please specify a target among :
    <antcall target="download-if-needed"/>
   </target>
 
+  <target name="commons-collections-download">
+   <property name="download.jarname" value="commons-collections" />
+   <property name="download.jarversion" value="${jar.commons-lang.version}" />
+   <antcall target="download-if-needed"/>
+  </target>
+
   <target name="commons-logging-download">
    <property name="download.jarname" value="commons-logging" />
    <property name="download.jarversion" value="${jar.commons-logging.version}" />
@@ -228,6 +234,7 @@ Please specify a target among :
   <target name="test-download">
    <property name="download.dir" value="${test.lib.dir}"/>
    <antcall target="commons-digester-download"/>
+   <antcall target="commons-collections-download"/>
    <antcall target="hsqldb-download"/>
    <antcall target="httpunit-download"/>
    <antcall target="js-download"/>
