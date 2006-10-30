@@ -182,7 +182,7 @@ Please specify a target among :
 
   <target name="commons-collections-download">
    <property name="download.jarname" value="commons-collections" />
-   <property name="download.jarversion" value="${jar.commons-lang.version}" />
+   <property name="download.jarversion" value="${jar.commons-collections.version}" />
    <antcall target="download-if-needed"/>
   </target>
 
