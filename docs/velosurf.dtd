@@ -1,0 +1,107 @@
+<!ELEMENT database (entity*,attribute*,action*)>
+
+<!ATTLIST database user CDATA #REQUIRED>
+<!ATTLIST database password CDATA #REQUIRED>
+<!ATTLIST database url CDATA #REQUIRED>
+<!ATTLIST database driver CDATA #IMPLIED>
+<!ATTLIST database schema CDATA #IMPLIED>
+<!ATTLIST database read-only ( yes | no ) "yes">
+<!ATTLIST database caching ( none | soft | full ) "none">
+<!ATTLIST database reverse ( none | partial | full ) "full">
+<!ATTLIST database case ( sensitive | uppercase | lowercase ) #IMPLIED>
+<!ATTLIST database loglevel ( trace | debug | info | warn | error ) "info">
+<!ATTLIST database min-connections CDATA #IMPLIED>
+<!ATTLIST database max-connections CDATA #IMPLIED>
+<!ATTLIST database seed CDATA #IMPLIED>
+
+<!ELEMENT entity (attribute*,action*,constraint*)>
+
+<!ATTLIST entity name CDATA #REQUIRED>
+<!ATTLIST entity table CDATA #IMPLIED>
+<!ATTLIST entity read-only ( yes | no ) "yes">
+<!ATTLIST entity class CDATA #IMPLIED>
+<!ATTLIST entity caching ( none | soft | full) "none">
+<!ATTLIST entity obfuscate CDATA #IMPLIED>
+
+<!ELEMENT attribute (#PCDATA)> <!-- where #PCDATA is an SQL query with column tags -->
+
+<!ATTLIST attribute name CDATA #REQUIRED>
+<!ATTLIST attribute result CDATA #IMPLIED>
+
+<!ELEMENT action (#PCDATA)> <!-- where #PCDATA is an SQL query (or a set of queries) with column tags -->
+
+<!ATTLIST action name CDATA #REQUIRED>
+
+<!ELEMENT constraint (email?,min-len?,max-len?,integer?,number?,date?,not-null?,not-empty?,one-of?,reference?,regex?)>
+ 
+<!ATTLIST constraint column CDATA #REQUIRED>
+<!ATTLIST constraint type ( integer | number | date | email ) #IMPLIED>
+<!ATTLIST constraint min-len CDATA #IMPLIED>
+<!ATTLIST constraint max-men CDATA #IMPLIED>
+<!ATTLIST constraint min CDATA #IMPLIED>
+<!ATTLIST constraint max CDATA #IMPLIED>
+<!ATTLIST constraint after CDATA #IMPLIED>
+<!ATTLIST constraint before CDATA #IMPLIED>
+<!ATTLIST constraint not-empty CDATA #IMPLIED>
+<!ATTLIST constraint not-null CDATA #IMPLIED>
+<!ATTLIST constraint one-of CDATA #IMPLIED>
+<!ATTLIST constraint reference CDATA #IMPLIED>
+<!ATTLIST constraint regex CDATA #IMPLIED>
+
+<!ELEMENT email>
+
+<!ATTLIST email dns-check ( yes | no ) "no">
+<!ATTLIST email sptm-check ( yes | no ) "no">
+<!ATTLIST email message CDATA #IMPLIED>
+
+<!ELEMENT min-len>
+
+<!ATTLIST min-len value CDATA #REQUIRED>
+<!ATTLIST min-len message CDATA #IMPLIED>
+
+<!ELEMENT max-len>
+
+<!ATTLIST max-len value CDATA #REQUIRED>
+<!ATTLIST max-len message CDATA #IMPLIED>
+
+<!ELEMENT integer>
+
+<!ATTLIST integer min CDATA #IMPLIED>
+<!ATTLIST integer max CDATA #IMPLIED>
+<!ATTLIST integer message CDATA #IMPLIED>
+
+<!ELEMENT number>
+
+<!ATTLIST number min CDATA #IMPLIED>
+<!ATTLIST number max CDATA #IMPLIED>
+<!ATTLIST number message CDATA #IMPLIED>
+
+<!ELEMENT date>
+
+<!ATTLIST date before CDATA #IMPLIED>
+<!ATTLIST date after CDATA #IMPLIED>
+<!ATTLIST date message CDATA #IMPLIED>
+
+<!ELEMENT not-null>
+
+<!ATTLIST not-null message CDATA #IMPLIED>
+
+<!ELEMENT not-empty>
+
+<!ATTLIST not-empty message CDATA #IMPLIED>
+
+<!ELEMENT one-of (value+)>
+
+<!ATTLIST one-of message CDATA #IMPLIED>
+
+<!ELEMENT value (#PCDATA)>
+
+<!ELEMENT reference>
+
+<!ATTLIST reference foreign-key CDATA #REQUIRED>
+<!ATTLIST reference message CDATA #IMPLIED>
+
+<!ELEMENT regex>
+
+<!ATTLIST regex pattern CDATA #REQUIRED>
+<!ATTLIST regex message CDATA #IMPLIED>
