@@ -231,7 +231,7 @@ Please specify a target among :
    <antcall target="httpunit-download"/>
    <antcall target="js-download"/>
    <antcall target="nekohtml-download"/>
-<!-- repository version too old  <antcall target="junit-download"/> TODO include it and copy it to lib (or from ant-home/lib ? or include ant classpath for javac ?)... -->
+   <antcall target="junit-download"/>
   </target>
 
   <target name="jetty-main-download">
@@ -296,12 +296,11 @@ Please specify a target among :
    <antcall target="download-if-needed"/>
   </target>
 
-<!-- repository version too old
   <target name="junit-download">
    <property name="download.jarname" value="junit" />
    <property name="download.jarversion" value="${jar.junit.version}" />
    <antcall target="download-if-needed"/>
-  </target> -->
+  </target>
 
   <target name="jar" depends="prepare">
     <property name="myclasspath" refid="classpath"/>
