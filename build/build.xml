@@ -300,7 +300,7 @@ Please specify a target among :
   </target>
 
   <target name="xmlparserapis-download">
-   <property name="download.jarname" value="xerces" />
+   <property name="download.jarname" value="xmlParserAPIs" />
    <property name="download.jarversion" value="${jar.xmlparserapis.version}" />
    <antcall target="download-if-needed"/>
   </target>
