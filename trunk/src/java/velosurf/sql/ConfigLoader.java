@@ -378,7 +378,7 @@ public class ConfigLoader {
             /* access (deprecated) */
             String access = element.getAttributeValue("access");
             if (access != null) {
-                Logger.warn("The syntax <entity default-access=\"rw|ro\"> is deprecated.");
+                Logger.warn("The syntax <entity access=\"rw|ro\"> is deprecated.");
                 Logger.warn("Please use <entity read-only=\"true|false\"> instead.");
                 if (checkSyntax(name+".access",access,new String[]{"ro","rw"})) {
                     access = access.toLowerCase();
@@ -437,9 +437,15 @@ public class ConfigLoader {
 
     private void defineConstraints(Element element,Entity entity) throws Exception {
         DateFormat format = new SimpleDateFormat("yyyyMMdd");
-        for (Iterator columns = element.getChildren("column").iterator();columns.hasNext();) {
+        String str;
+        for (Iterator columns = element.getChildren("constraint").iterator();columns.hasNext();) {
             Element colElement = (Element)columns.next();
-            String column = colElement.getAttributeValue("name");
+            String column = colElement.getAttributeValue("column");
+            if(column == null) {
+                Logger.error("constraint tag needs a 'column' attribute");
+                continue;
+            }
+            colElement.removeAttribute("column");
 
             String type;
             boolean hasType = ( (type = colElement.getAttributeValue("type")) != null);
@@ -521,7 +527,7 @@ public class ConfigLoader {
                     }
                 } else if (name.equals("one-of")) {
                     entity.addConstraint(column,new OneOf(Arrays.asList(value.split(","))));
-                } else if (name.equals("references")) {
+                } else if (name.equals("reference")) {
                     int dot = value.indexOf(".");
                     if (dot == -1 || dot == value.length()-1) {
                         Logger.error("bad syntax for reference constraint (entity "+entity.getName()+", column "+column+"). Should be 'table.column'.");
@@ -545,8 +551,16 @@ public class ConfigLoader {
                 String name = constraintElement.getName();
                 FieldConstraint constraint = null;
                 if (name.equals("email")) {
-                    boolean dnsCheck = Boolean.parseBoolean(constraintElement.getAttributeValue("dns-check"));
-                    boolean smtpCheck = Boolean.parseBoolean(constraintElement.getAttributeValue("smtp-check"));
+                    boolean dnsCheck = false;
+                    boolean smtpCheck = false;
+                    str = constraintElement.getAttributeValue("dns-check");
+                    if (checkSyntax("dns-check",str,new String[]{"yes","no"})) {
+                        dnsCheck = (str.equalsIgnoreCase("yes"));
+                    }
+                    str = constraintElement.getAttributeValue("smtp-check");
+                    if (checkSyntax("smtp-check",str,new String[]{"yes","no"})) {
+                        smtpCheck = (str.equalsIgnoreCase("yes"));
+                    }
                     constraint = new Email(dnsCheck,smtpCheck);
                 } else if (name.equals("min-len")) {
                     if (length != null) {
@@ -593,8 +607,11 @@ public class ConfigLoader {
                         values.add((String)((Element)it.next()).getText());
                     }
                     constraint = new OneOf(values);
-                } else if (name.equals("references")) {
+                } else if (name.equals("reference")) {
                     String fk = constraintElement.getAttributeValue("foreign-key");
+                    if(fk == null) {
+                        Logger.error("reference constraint needs a 'foreign-key' attribute");
+                    }
                     int dot = fk.indexOf(".");
                     if (dot == -1 || dot == fk.length()-1) {
                         Logger.error("bad syntax for reference constraint (entity "+entity.getName()+", column "+column+"). Should be 'table.column'.");
@@ -604,7 +621,7 @@ public class ConfigLoader {
                         constraint = new Reference(_database,table,col);
                     }
                 } else if (name.equals("regex")) {
-                    constraint = new Regex(Pattern.compile(constraintElement.getAttributeValue("patter")));
+                    constraint = new Regex(Pattern.compile(constraintElement.getAttributeValue("pattern")));
                 } else {
                     Logger.error("ignoring unknown constraint '"+name+"' (entity \"+entity.getName()+\", column \"+column+\").");
                 }

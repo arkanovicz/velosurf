@@ -139,7 +139,8 @@ public class Entity
         }
     }
 
-    public void addConstraint(String column,FieldConstraint constraint) {
+    public void addConstraint(String column,FieldConstraint constraint) {;
+        Logger.trace("adding constraint on column "+Database.adaptContextCase(getName())+"."+column+": "+constraint);
         mConstraints.add(new FieldConstraintInfo(column,constraint));
     }
 
@@ -435,7 +436,7 @@ public class Entity
                 Map map =  new HashMap();
                 for(Object key:inValues.keySet()) {
                     Object value = inValues.get(key);
-                    map.put( key, isObfuscated((String)key) ? deobfuscate(value) : value );
+                    map.put( Database.adaptContextCase((String)key), isObfuscated((String)key) ? deobfuscate(value) : value );
                 }
                 inValues = new ReadOnlyWrapper(map);
             }

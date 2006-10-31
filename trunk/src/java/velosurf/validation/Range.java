@@ -93,4 +93,8 @@ public class Range extends FieldConstraint {
         }
         return true;
     }
+
+    public String toString() {
+        return (_integer?"type integer":"type number") + (_min != null && _max != null?", between "+_min+" and "+_max:_min != null?", >= "+_min:", <="+_max);
+    }
 }

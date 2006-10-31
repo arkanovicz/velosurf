@@ -51,4 +51,8 @@ public class NotNull extends FieldConstraint {
     public boolean validate(Object data) {
         return data != null;
     }
+
+    public String toString() {
+        return "not-null";
+    }
 }

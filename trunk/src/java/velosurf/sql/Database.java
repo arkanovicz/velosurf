@@ -751,6 +751,41 @@ public class Database {
     /** case-sensivity */
     protected int mCaseSensivity = CASE_UNKNOWN;
 
+    /** case-sensivity for context
+     */
+    private static int sContextCase = LOWERCASE;
+
+    /* context case implemented as a system property for now...
+     *TODO: check also other configuration realms or use model.xml
+     */
+    static {
+        String contextCase = System.getProperty("velosurf.case");
+        if (contextCase != null) {
+            if ("uppercase".equals(contextCase)) {
+                sContextCase = UPPERCASE;
+            } else if ("lowercase".equals(contextCase)) {
+                sContextCase = LOWERCASE;
+            } else {
+                Logger.error("system property 'velosurf.case' should be 'lowercase' or 'uppercase'");
+            }
+        }
+    }
+
+    public static String adaptContextCase(String str) {
+        if(str == null) {
+            return null;
+        }
+        switch(sContextCase) {
+            case LOWERCASE:
+                return str.toLowerCase();
+            case UPPERCASE:
+                return str.toUpperCase();
+            default:
+                Logger.error("unknown context case policy!");
+                return str;
+        }
+    }
+
     /** map parameters -> instances */
     private static Map sConnectionsByParams = new HashMap();
 

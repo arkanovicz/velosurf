@@ -44,12 +44,16 @@ public class Instance extends TreeMap implements ReadOnlyMap
         initialize(inEntity);
     }
 
-    /** Build an empty instance that must be latter initialized via the initialize(Entity) method.
-     *
-     */
-    public Instance() {
+    public Instance(ReadOnlyMap values) {
+        try {
+            for(Object key:values.keySet()) {
+                put(Database.adaptContextCase((String)key),values.get(key));
+            }
+        } catch(SQLException sqle) {
+            Logger.error("Instance constructor: SQLException!");
+            Logger.log(sqle);
+        }
     }
-
 
      /** Meant to be overloaded if needed
       */
@@ -119,13 +123,15 @@ public class Instance extends TreeMap implements ReadOnlyMap
      *      occurs
      */
     public Object get(Object inKey) {
-        String property = mDB.adaptCase((String)inKey);
+        if (mDB != null) {
+            inKey = mDB.adaptCase((String)inKey);
+        }
         Object result = null;
         try {
-            result = super.get(property);
+            result = super.get(inKey);
             if (result == null) {
                 if (mEntity!=null) {
-                    Attribute attribute = mEntity.getAttribute(property);
+                    Attribute attribute = mEntity.getAttribute((String)inKey);
                     if (attribute != null)
                         switch (attribute.getType()) {
                             case Attribute.ROWSET:
@@ -143,7 +149,7 @@ public class Instance extends TreeMap implements ReadOnlyMap
                                 Logger.error("Unknown attribute type for "+mEntity.getName()+"."+inKey+"!");
                         }
                     else {
-                        Action action = mEntity.getAction(property);
+                        Action action = mEntity.getAction((String)inKey);
                         if (action != null) result = Integer.valueOf(action.perform(this));
                     }
                 }
@@ -165,8 +171,10 @@ public class Instance extends TreeMap implements ReadOnlyMap
      */
     public synchronized Object put(Object key, Object value)
     {
-        String property = mDB.adaptCase((String)key);
-        return super.put(property,value);
+        if(mDB != null) {
+            key = mDB.adaptCase((String)key);
+        }
+        return super.put(key,value);
     }
 
     /** Internal getter: first tries on the external object then on the Map interface
@@ -192,19 +200,21 @@ public class Instance extends TreeMap implements ReadOnlyMap
     }
 
     public boolean equals(Object o) {
-        if (o != null && o.getClass() == getClass()) {
-            // compare keys
-            List keys = mEntity.getKeys();
-            Instance other = (Instance)o;
-            if (keys.size() > 0) {
-                for(Iterator i = keys.iterator();i.hasNext();) {
-                    if (getInternal(i.next()) != other.getInternal(i.next()))
-                        return false;
-                }
-                return true;
-            }
-        }
         return super.equals(o);
+/*
+            if (mEntity != null) {
+                // compare only keys
+                List keys = mEntity.getKeys();
+                Instance other = (Instance)o;
+                if (keys.size() > 0) {
+                    for(Iterator i = keys.iterator();i.hasNext();) {
+                        if (getInternal(i.next()) != other.getInternal(i.next()))
+                            return false;
+                    }
+                    return true;
+                }
+            }
+*/
     }
 
     /** Update the row associated with this Instance from passed values<p>

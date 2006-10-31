@@ -296,4 +296,10 @@ public class Email extends FieldConstraint {
             }
         }
     }
+
+    public String toString() {
+        return "type email, check-dns="+_dnsCheck+", check-smtp="+_smtpCheck;
+
+    }
+
 }
