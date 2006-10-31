@@ -1,0 +1,9 @@
+#set($publisher = $db.publisher.fetch("$query.publisher_id"))
+#set($book = $db.book.fetch("$query.book_id"))
+<html>
+<body>
+<div id="publisher">$publisher.name</div>
+<div id="book">$book.title</div>
+</body>
+</html>
+
