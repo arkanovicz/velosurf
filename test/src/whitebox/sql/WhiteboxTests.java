@@ -36,10 +36,11 @@ public class WhiteboxTests
         assertTrue(iterator.hasNext());
         Object row = iterator.next();
         assertNotNull(row);
-        assertTrue(row instanceof RowIterator);
-        RowIterator r = (RowIterator)row;
-        assertTrue(r.get("publisher_id") != null);
-        assertTrue(r.get("name") != null);
+        assertTrue(row instanceof Instance);
+        Instance i = (Instance)row;
+for(Object k:i.keySet()){Logger.debug("### "+k+" -> "+i.get(k));}        
+        assertTrue(i.get("publisher_id") != null);
+        assertTrue(i.get("name") != null);
     }
 
     public @Test void testQuery2() throws SQLException {

@@ -39,12 +39,12 @@ public class BlackboxTests
         checkText(resp,"test4","Joshua Bloch");
     }
 
-    public @Test void autofetching() throws Exception {
+    public @Test void paramfetching() throws Exception {
         WebConversation wc = new WebConversation();
         WebRequest     req = new GetMethodWebRequest( "http://localhost:"+SERVER_PORT+"/obfuscate.html?id=1" );
         WebResponse   resp = wc.getResponse( req );
         String obfId = resp.getElementWithID("obfuscated").getText();
-        req = new GetMethodWebRequest( "http://localhost:"+SERVER_PORT+"/autofetch.html?publisher_id="+obfId+"&book_id="+obfId);
+        req = new GetMethodWebRequest( "http://localhost:"+SERVER_PORT+"/fetch.html?publisher_id="+obfId+"&book_id="+obfId);
         resp = wc.getResponse( req );
         checkText(resp,"publisher","Addison Wesley Professional");
         checkText(resp,"book","Effective Java");
@@ -103,7 +103,7 @@ public class BlackboxTests
         resp = form.submit();
         assertEquals("Input form",resp.getTitle());
         /* check error messages */
-        checkText(resp,"1","field string: string 'aa' is not of the proper length");
+        checkText(resp,"1","field string: value 'aa' is not of the proper length");
         checkText(resp,"2","field string2: value '123-1234' is not valid");
         checkText(resp,"3","field number: '0' is not in the valid range");
         checkText(resp,"4","field oneof: value 'test0' must be one of: test1, test2, test3");
