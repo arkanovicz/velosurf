@@ -24,16 +24,16 @@
     </entity>
 
     <entity name="validation">
-        <column name="string" min-len="6" max-len="20"/>
-        <column name="string2" regex="\d{3}-\d{3}" />
-        <column name="number" min="1" max="10"/>
-        <column name="oneof" one-of="test1,test2,test3"/>
-        <column name="mydate" after="20060802"/>
-        <column name="email" type="email"/>
-        <column name="email2" not-empty="true">
-          <email dns-check="true" smtp-check="true"/>
-        </column>
-        <column name="book_id" references="book.book_id"/>
+        <constraint column="string" min-len="6" max-len="20"/>
+        <constraint column="string2" regex="\d{3}-\d{3}" />
+        <constraint column="number" min="1" max="10"/>
+        <constraint column="oneof" one-of="test1,test2,test3"/>
+        <constraint column="mydate" after="20060802"/>
+        <constraint column="email" type="email"/>
+        <constraint column="email2" not-empty="yes">
+          <email dns-check="true" smtp-check="yes"/>
+        </constraint>
+        <constraint column="book_id" reference="book.book_id"/>
     </entity>
 
     <!-- root attributes -->
