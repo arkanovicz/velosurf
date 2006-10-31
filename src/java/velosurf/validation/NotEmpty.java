@@ -49,4 +49,8 @@ public class NotEmpty extends FieldConstraint {
     public boolean validate(Object data) {
         return data != null && data.toString().length() > 0;
     }
+
+    public String toString() {
+        return "not-empty";
+    }
 }

@@ -64,4 +64,8 @@ public class OneOf extends FieldConstraint {
     public boolean validate(Object data) {
         return data == null || _values.contains(data.toString());
     }
+
+    public String toString() {
+        return "one of "+StringLists.join(_values,", ");
+    }
 }

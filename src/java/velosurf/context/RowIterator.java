@@ -31,6 +31,7 @@ import velosurf.sql.Pooled;
 import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;
+import velosurf.util.StringLists;
 
 /** This class is a context wrapper for ResultSets, and provides an iteration mecanism for #foreach loops, as long as getters for values of the current row.
  *
@@ -50,9 +51,6 @@ public class RowIterator implements Iterator,ReadOnlyMap {
         mResultEntity = inResultEntity;
     }
 
-    // iterator interface
-    // WARNING : Big assumption here : hasNext() is called only once by loop iteration...
-    // TODO: correct this!
     /** Returns true if the iteration has more elements.
      *
      * @return <code>true</code> if the iterator has more elements.
@@ -60,7 +58,7 @@ public class RowIterator implements Iterator,ReadOnlyMap {
     public boolean hasNext() {
         try {
             mPooledStatement.getConnection().enterBusyState();
-            boolean ret = (!mResultSet.isLast() && mResultSet.next());
+            boolean ret = !mResultSet.isLast();
             mPooledStatement.getConnection().leaveBusyState();
             if (!ret) mPooledStatement.notifyOver();
             return ret;
@@ -75,23 +73,33 @@ public class RowIterator implements Iterator,ReadOnlyMap {
      *
      * @return an Instance if a resulting entity has been specified, or a
      *     reference to myself
-     */ /* TODO: review! getInstance checks the cache, plus we don't want any more to use the rowiterator as a data repository */
+     */
     public Object next() {
-        Instance row = null;
-        if (mResultEntity != null) {
-            row = mResultEntity.getInstance((ReadOnlyMap)this);
-            if (mUserContext != null) {
-                row.setUserContext(mUserContext);
+        try {
+            if(!mResultSet.next()) {
+                return null;
             }
-            return row;
+            if (mResultEntity != null) {
+                Instance row = null;
+                row = mResultEntity.getInstance((ReadOnlyMap)this);
+                if (mUserContext != null) {
+                    row.setUserContext(mUserContext);
+                }
+                return row;
+            }
+            else return new Instance(this);
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            mPooledStatement.notifyOver();
+            return null;
         }
-        else return this;
     }
 
-    // for Iterator interface, but RO (why? -> TODO)
+    // for Iterator interface, but RO (why? -> positionned updates and deletes => TODO)
     /** not implemented.
      */
     public void remove() {
+        Logger.warn("'remove' not implemented");
     }
 
     // generic getter
@@ -207,12 +215,22 @@ public class RowIterator implements Iterator,ReadOnlyMap {
         try {
             List ret = new ArrayList();
             mPooledStatement.getConnection().enterBusyState();
-            while (!mResultSet.isAfterLast() && mResultSet.next()) {
-                Instance i = mResultEntity.getInstance((ReadOnlyMap)this);
-                if (i != null && mUserContext != null) {
-                    i.setUserContext(mUserContext);
+            if(mResultEntity != null) {
+                while (!mResultSet.isAfterLast() && mResultSet.next()) {
+                    Instance i = mResultEntity.getInstance((ReadOnlyMap)this);
+                    if (/* i != null && */mUserContext != null) {
+                        i.setUserContext(mUserContext);
+                    }
+                    ret.add(i);
                 }
-                ret.add(i);
+            } else {
+                while (!mResultSet.isAfterLast() && mResultSet.next()) {
+                    Instance i = new Instance(this);
+                    if (mUserContext != null) {
+                        i.setUserContext(mUserContext);
+                    }
+                    ret.add(i);
+                }
             }
             mPooledStatement.getConnection().leaveBusyState();
             return ret;

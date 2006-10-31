@@ -56,4 +56,8 @@ public class Regex extends FieldConstraint {
     public boolean validate(Object data) {
         return data == null ||  data.toString().length() == 0 || _pattern.matcher(data.toString()).matches();
     }
+
+    public String toString() {
+        return "regular expression "+_pattern;
+    }
 }

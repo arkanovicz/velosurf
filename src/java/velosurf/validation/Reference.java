@@ -86,4 +86,9 @@ public class Reference extends FieldConstraint {
             return false;
         }
     }
+
+    public String toString() {
+        return "references "+_table+"."+_column;
+    }
+
 }

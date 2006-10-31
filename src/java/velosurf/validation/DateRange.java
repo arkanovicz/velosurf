@@ -136,4 +136,17 @@ public class DateRange extends FieldConstraint {
         }
         return date;
     }
+
+    private static DateFormat ymd = new SimpleDateFormat("yyyyMMdd");
+
+    public String toString() {
+        String ret = "type date";
+        if(_after != null) {
+            ret += ", after "+ymd.format(_after);
+        }
+        if(_before != null) {
+            ret += ", before "+ymd.format(_before);
+        }
+        return ret;
+    }    
 }

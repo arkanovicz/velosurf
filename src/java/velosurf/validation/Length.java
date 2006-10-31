@@ -51,7 +51,7 @@ public class Length extends FieldConstraint {
     public Length(int minLen,int maxLen) {
         _minLen = minLen;
         _maxLen = maxLen;
-        setMessage("field {0}: string '{1}' is not of the proper length");
+        setMessage("field {0}: value '{1}' is not of the proper length");
     }
 
     /**
@@ -85,5 +85,9 @@ public class Length extends FieldConstraint {
         }
         int len = data.toString().length();
         return len >= _minLen && len <= _maxLen;
+    }
+
+    public String toString() {
+        return "length "+(_minLen>0 && _maxLen<Integer.MAX_VALUE?"between "+_minLen+" and "+_maxLen:_minLen>0?">= "+_minLen:"<="+_maxLen);
     }
 }

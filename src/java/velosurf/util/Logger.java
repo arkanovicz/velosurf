@@ -65,7 +65,7 @@ public class Logger
     /**
      * Current log level
      */
-    private static int mLogLevel = TRACE_ID; //INFO_ID; TODO put back INFO_ID after debugging
+    private static int mLogLevel = INFO_ID;
 
     /**
      * whether to display timestamps
