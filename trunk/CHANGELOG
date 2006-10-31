@@ -2,6 +2,9 @@
 
 v2.0 (October 2006)
 ----
+ - case used in context can now be set using the system property velosurf.case
+ - cleaned behaviour of RowIterator: hasNext() can now be called sereval times per iteration
+ - Velosurf now has a functional DTD - thenks to Mike Kienenberger
  - suppressed the autofetching feature (can be implemented by a custom filter)
  - last inserted ID is now hold by the user context
  - localized messages can now have arguments

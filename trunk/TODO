@@ -1,15 +1,12 @@
 TODO
 ----
- - task 'clean' should keep libs, need a new 'clean-all' task
- - bug: hsqldb: when no schema specified, imported or exported keys reverse queries sometimes give the 'PUBLIC' schema
- - bug: schema name is included in attribute name when reverse enginering imported/exported keys
+ - review code for Logger.debug/trace strings calculation (avoid them!)
+ - bug: hsqldb: when no schema specified, imported or exported keys reverse queries sometimes give the 'PUBLIC' schema => 2.0
+ - bug: schema name is sometimes included in attribute name when reverse enginering imported/exported keys => 2.0
  - manual definition of imported and exported keys
  - use DatabaseMetaData.storeXXXCaseIdentifiers() to determine case sensivity
  - bug: read-only="true" and Archego managed to write to the database! (updates are blocked but inserts work) => 2.0
  - bug: if result="ROW/...", the attribute definition fails without any log and the attribute is not found (was a raw attribute... probably not important) => 2.0
- - rollback
- - xdocs VTL => 2.0
- - parametrized error messages => 2.0
  - parse order and refinement to avoid query injections => 2.0
  - vpp example (implies a Velosurf.setConfigFile)
  - a good dissertation about HTTP authentication to place somewhere http://www.artima.com/weblogs/viewpost.jsp?thread=155252
@@ -18,17 +15,11 @@ TODO
  - generalize ignorePrefix with a regex
  - update README => 2.0
  - a page about dependencies => 2.0
- - RowIterator.next() returns itself... really dirty... => 2.0
- - split build.xml into build,download,test... and move it in a build directory => 2.0
  - prefetching?
  - graphic reporting => 2.0
  - docfix: a drivers.html page about DriverInfo
  - make a whole sourcecode review about members access (public/protected/private) => 2.0
  - docfix: add "seed" database attribute to config description => 2.0
- - docfix: split main mage => 2.0
- - docfix: add doc for constraints
- - docfix: replace DTD with an XML Schema definition (and move it to a separate page) => 2.0
- - docfix: remove anxiogen remarks full of acronyms like "easy VTL language" (or explain acronyms) => 2.0
  - allow the database connection to be configured via a jndi resource
  - rewrite description: an extensive set of independant tools that provide automagic database mapping, 
      forms validation, authentication and internationalization to the velocity-tools architecture. => 2.0
@@ -40,19 +31,16 @@ In the context of a velocity-tools web application, Velosurf also provides handy
  - update class diagram
  - inheritance of entities in velosurf.xml?
  - shared catalog: what to use as magic number?
- - correct the behaviour of the RowIterator : hasNext() has to be called only once by loop iteration... => 2.0
  - issue a warning if the query of an attribute does not have any reference to the entity row
- - ability to query current schema (ex : under Oracle :  select sys_context('userenv','current_schema') from dual) [done by caching the known schema for now]
+ - ability to query current schema (ex : under Oracle :  select sys_context('userenv','current_schema') from dual) [done by caching the given schema for now]
  - add EntityReference.insert(List(columns in natural order))?
  - SQL enums?
  - doc : a page on relationships
- - automatic doc generation?
  - id broker?
- - automatic reload when the configuration file is changed (=> 2.0 - but depends upon container!)
+ - automatic reload when the configuration file is changed (but depends upon container!)
  - 'size' attribute on multivalued attributes? (approx JDBC size? exact size?)
  - positionned updates and deletes (via UserContext)
  - paging via AbstractSearchTool?
  - database metadata informations and operations
  - allow setters by foreign-key (eg. $book.author = $author instead of $book.author_id = $author.id) ?
  - XML databases access via IBM XML Data Mediator?
- - autofetching via cookies
