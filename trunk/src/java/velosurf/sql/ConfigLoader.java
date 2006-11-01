@@ -263,6 +263,7 @@ public class ConfigLoader {
 
             String foreignKey = element.getAttributeValue("foreign-key");
             if(foreignKey != null) {
+                Logger.warn("use of the foreign-key attribute for the <attribute> tag is deprecated. Please use <import-key>");
                 if(attribute.getResultEntity() == null) {
                     throw new SQLException("Attribute '"+name+"' is a foreign key, Velosurf needs to know its result entity!");
                 }
