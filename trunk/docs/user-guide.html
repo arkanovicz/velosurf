@@ -53,16 +53,13 @@
 
   <li><b>User Guide</b></li>
 
-  <li> <a href="http://jakarta.apache.org/velocity/docs/vtl-reference-guide.html">VTL
-Reference</a> </li>
+  <li> <a href="./vtl-reference.html">VTL Reference</a> </li>
 
-  <li> <a href="http://jakarta.apache.org/velocity/docs/api/index.html">Javadoc</a>
-  </li>
+  <li><a href="./api/index.html">Javadoc</a></li>
 
-  <li> <a href="http://jakarta.apache.org/velocity/docs/changes.html">Change
-Log</a> </li>
+  <li> <a href="./CHANGELOG">Change Log</a> </li>
 
-  <li> <a href="http://jakarta.apache.org/velocity/docs/license.html">License</a></li>
+  <li> <a href="./license.html">License</a></li>
 
 </ul>
 
@@ -72,9 +69,55 @@ Log</a> </li>
 
 <div id="body">
 
-<h1>User Guide</h1>
-<h2></h2>
-<h2></h2>
+<h1>Table of Contents</h1>
+
+<p>
+<ul>
+
+</ul>
+</p>
+
+<h1>Setting up and configuring Velosurf</h1> 
+<p>Please refer to the <a href="./installation.html">Installation</a> page for how to set up Velosurf in you <a href="">Velocity-Tools</a> webapp or in your Java application.</p>
+<p>It is possible to use several instances of Velosurf at the same time, each having its own configuration file, for instance
+if you want to use different context keys to refer to different schemas. Provided that the different configuration files use the same database login
+(apart from the schema name), you can cross-reference entities between config files.</p>
+<p>It is also possible to split the configuration file into several pieces using the <a href="http://www.w3.org/TR/2004/PR-xinclude-20040930/">XML Include</a> syntax:
+the root <code>&lt;database&gt;</code> tag must have the following attribute set: <code>xmlns:xi="http://www.w3.org/2001/XInclude"</code>.
+You can set include files using the syntax: <code>&lt;xi:include href="<i>included_file.xml</i>"/&gt;</code>.
+</p>
+
+
+connections, pools: min/max, statements, recovery
+several schemas
+xi:include
+$db.entity, foreach
+entities
+pojo mapping
+attributes, types of results, #foreach natural type mapping
+actions, transactions
+reverse, schema
+foreign-keys, import/export
+ordering
+refinment
+examples
+localization
+validation, validationfilter
+$query
+mvc
+insert, lastinsertid
+update, delete
+authentication
+templatenamefilter
+external parameters
+constraints
+caching, dirty
+case-sensivity
+context case
+obfuscation
+jdbc drivers, specificities, ignored tables... 
+
+
 </div>
 
 </div>
