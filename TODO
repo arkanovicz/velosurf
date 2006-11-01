@@ -1,5 +1,7 @@
 TODO
 ----
+ - testcases for POJO mapping
+ - deprecate servlet context param
  - review code for Logger.debug/trace strings calculation (avoid them!)
  - bug: hsqldb: when no schema specified, imported or exported keys reverse queries sometimes give the 'PUBLIC' schema => 2.0
  - bug: schema name is sometimes included in attribute name when reverse enginering imported/exported keys => 2.0
