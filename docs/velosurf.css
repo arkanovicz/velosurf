@@ -21,6 +21,9 @@
     padding-left: 2px;
     }
 
+  p { text-align:justify;
+    }
+
   table { border: medium none ;
     border-collapse: collapse;
     }
