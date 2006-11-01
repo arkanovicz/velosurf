@@ -102,7 +102,7 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
                 for (Iterator it=mColumnNames.iterator();it.hasNext();) {
                     String column = (String)it.next();
                     Object value = mRS.getObject(column);
-                    row.put(column,value);
+                    row.put(Database.adaptContextCase(column),value);
                 }
             }
         }
