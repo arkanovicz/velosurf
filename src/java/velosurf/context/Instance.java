@@ -104,7 +104,7 @@ public class Instance extends TreeMap implements ReadOnlyMap
     public List getPrimaryKey() {
         List result = new ArrayList();
         if (mEntity!=null) {
-            for (Iterator i=mEntity.getKeys().iterator();i.hasNext();) {
+            for (Iterator i=mEntity.getPKCols().iterator();i.hasNext();) {
                 String key = (String)i.next();
                 HashMap map = new HashMap();
                 map.put("name",key);
@@ -257,7 +257,7 @@ public class Instance extends TreeMap implements ReadOnlyMap
             List whereClause = new ArrayList();
             List params = new ArrayList();
             ArrayList cols = new ArrayList(mEntity.getColumns());
-            cols.removeAll(mEntity.getKeys());
+            cols.removeAll(mEntity.getPKCols());
             for (Iterator i=cols.iterator();i.hasNext();) {
                 String col = (String)i.next();
                 Object value = values.get(col);
@@ -267,7 +267,7 @@ public class Instance extends TreeMap implements ReadOnlyMap
                     params.add(value);
                 }
             }
-            for (Iterator i = mEntity.getKeys().iterator();i.hasNext();) {
+            for (Iterator i = mEntity.getPKCols().iterator();i.hasNext();) {
                 String col = (String)i.next();
                 Object value = values.get(col);
                 if (value == null) throw new SQLException("field '"+col+"' belongs to primary key and cannot be null!");
@@ -309,7 +309,7 @@ public class Instance extends TreeMap implements ReadOnlyMap
             if (mEntity == null) throw new SQLException("Instance.delete: Error: Entity is null!");
             List whereClause = new ArrayList();
             List params = new ArrayList();
-            for (Iterator i = mEntity.getKeys().iterator();i.hasNext();) {
+            for (Iterator i = mEntity.getPKCols().iterator();i.hasNext();) {
                 String col = (String)i.next();
                 Object value = getInternal(col);
                 if (value == null) throw new SQLException("Instance.delete: Error: field '"+col+"' belongs to primary key and cannot be null!");
@@ -365,7 +365,7 @@ public class Instance extends TreeMap implements ReadOnlyMap
             String query = "insert into "+getTable()+" ("+StringLists.join(colsClause,",")+") values ("+StringLists.join(valsClause,",")+")";
             PooledPreparedStatement statement = mDB.prepare(query);
             statement.update(params);
-            List keys = mEntity.getKeys();
+            List keys = mEntity.getPKCols();
             if (keys.size() == 1) {
                 /* What if the ID is not autoincremented? TODO check it */
                 mUserContext.get().setLastInsertedID(mEntity,statement.getLastInsertID());
