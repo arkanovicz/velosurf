@@ -73,7 +73,7 @@ public class Entity
      *
      * @param inColName name of the key column
      */
-    public void addKey(String inColName) {
+    public void addPKColumn(String inColName) {
         mKeys.add(inColName);
     }
 
@@ -337,7 +337,7 @@ public class Entity
      *
      * @return the list of key column names
      */
-    public List getKeys() {
+    public List<String> getPKCols() {
         return mKeys;
     }
 
@@ -345,7 +345,7 @@ public class Entity
      *
      * @return the list of column names
      */
-    public List getColumns() {
+    public List<String> getColumns() {
         return mColumns;
     }
 
@@ -684,6 +684,36 @@ public class Entity
             }
         }
         return ret;
+    }
+
+    public ImportedKey findImportedKey(Entity pkEntity,List<String> fkCols) {
+        for(Map.Entry entry:(Set<Map.Entry>)mAttributeMap.entrySet()) {
+            Attribute attribute = (Attribute)entry.getValue();
+            if (!(attribute instanceof ImportedKey)) {
+                continue;
+            }
+            ImportedKey imported = (ImportedKey)attribute;
+            if (imported.getResultEntity().equals(pkEntity.getName())
+                && ( imported.getFKCols() == null || imported.getFKCols().equals(fkCols)) ) {
+                return imported;
+            }
+        }
+        return null;
+    }
+
+    public ExportedKey findExportedKey(Entity fkEntity,List<String> fkCols) {
+        for(Map.Entry entry:(Set<Map.Entry>)mAttributeMap.entrySet()) {
+            Attribute attribute = (Attribute)entry.getValue();
+            if (!(attribute instanceof ExportedKey)) {
+                continue;
+            }
+            ExportedKey exported = (ExportedKey)attribute;
+            if (exported.getResultEntity().equals(fkEntity.getName())
+                && ( exported.getFKCols() == null || exported.getFKCols().equals(fkCols) )) {
+                return exported;
+            }
+        }
+        return null;
     }
 
     /** name
