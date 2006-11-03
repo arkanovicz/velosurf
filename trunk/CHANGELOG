@@ -1,7 +1,8 @@
 **** Changes ****
 
-v2.0 (October 2006)
+v2.0 (November 2006)
 ----
+ - manual definition of imported and exported keys
  - optimized reflection code in ExternalObjectWrapper
  - case used in context can now be set using the system property velosurf.case
  - cleaned behaviour of RowIterator: hasNext() can now be called sereval times per iteration
