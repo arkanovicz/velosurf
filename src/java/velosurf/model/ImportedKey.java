@@ -17,6 +17,7 @@
 package velosurf.model;
 
 import java.util.List;
+import java.sql.SQLException;
 
 import velosurf.util.StringLists;
 
@@ -26,14 +27,32 @@ import velosurf.util.StringLists;
 
 public class ImportedKey extends Attribute {
 
-    public ImportedKey(String name,Entity entity,String pkTable,List<String> pkCols,List<String> fkCols) {
+    private List<String> fkCols = null;
+
+    public ImportedKey(String name,Entity entity,String pkEntity,List<String> fkCols) {
         super(name,entity);
+        setResultEntity(pkEntity);
+        this.fkCols = fkCols; /* may still be null at this stage */
         setResultType(Attribute.ROW);
-        setResultEntity(pkTable);
-        for(String param:fkCols) {
-            addParamName(param);
+    }
+
+    protected String getQuery() throws SQLException
+    {
+        if(mQuery == null) {
+            Entity pkEntity = mDB.getEntity(mResultEntity);
+            for(String param:fkCols) {
+                addParamName(param);
+            }
+            mQuery = "SELECT * FROM " + pkEntity.getTableName() + " WHERE " + StringLists.join(pkEntity.getPKCols()," = ? AND ") + " = ?";
         }
-        String query = "SELECT * FROM " + pkTable + " WHERE " + StringLists.join(pkCols," = ? AND ") + " = ?";
-        setQuery(query);
+        return mQuery;
+    }
+
+    public List<String> getFKCols() {
+        return fkCols;
+    }
+
+    public void setFKCols(List<String> fkCols) {
+        this.fkCols = fkCols;
     }
 }

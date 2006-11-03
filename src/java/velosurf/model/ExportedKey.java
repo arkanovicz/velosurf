@@ -26,14 +26,31 @@ import velosurf.util.StringLists;
 
 public class ExportedKey extends Attribute {
 
-    public ExportedKey(String name,Entity entity,String fkTable,List<String> fkCols,List<String> pkCols) {
+    private List<String> fkCols = null;
+
+    public ExportedKey(String name,Entity entity,String pkEntity,List<String> fkCols) {
         super(name,entity);
         setResultType(Attribute.ROWSET);
-        setResultEntity(fkTable);
-        for(String param:pkCols) {
-            addParamName(param);
+        setResultEntity(pkEntity);
+        this.fkCols = fkCols; /* may still be null at this stage */
+    }
+
+    public List<String> getFKCols() {
+        return fkCols;
+    }
+
+    public void setFKCols(List<String> fkCols) {
+        this.fkCols = fkCols;
+    }
+
+    public String getQuery() {
+        if(mQuery == null) {
+            Entity fkEntity = mDB.getEntity(mResultEntity);
+            for(String param:mDB.getEntity(mResultEntity).getPKCols()) {
+                addParamName(param);
+            }
+            mQuery = "SELECT * FROM " + fkEntity.getTableName() + " WHERE " + StringLists.join(fkCols," = ? AND ") + " = ?";
         }
-        String query = "SELECT * FROM " + fkTable + " WHERE " + StringLists.join(fkCols," = ? AND ") + " = ?";
-        setQuery(query);
+        return mQuery;
     }
 }

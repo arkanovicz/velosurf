@@ -42,6 +42,8 @@ import velosurf.model.Entity;
 import velosurf.model.Action;
 import velosurf.model.Attribute;
 import velosurf.model.Transaction;
+import velosurf.model.ImportedKey;
+import velosurf.model.ExportedKey;
 import velosurf.validation.Email;
 import velosurf.validation.Length;
 import velosurf.validation.Range;
@@ -235,8 +237,8 @@ public class ConfigLoader {
     }
 
     private void defineAttributes(Element parent,Entity entity) throws SQLException {
-        for (Iterator rootAttributes = parent.getChildren("attribute").iterator();rootAttributes.hasNext();) {
-            Element element = (Element)rootAttributes.next();
+        for (Iterator attributes = parent.getChildren("attribute").iterator();attributes.hasNext();) {
+            Element element = (Element)attributes.next();
             String name = adaptCase(element.getAttributeValue("name"));
             Attribute attribute = new Attribute(name,entity);
             String result = element.getAttributeValue("result");
@@ -297,9 +299,50 @@ public class ConfigLoader {
         }
     }
 
+    private void defineForignKeys(Element parent,Entity entity) {
+        for (Iterator imported = parent.getChildren("imported-key").iterator();imported.hasNext();) {
+            Element keyelem = (Element)imported.next();
+            String name = keyelem.getAttributeValue("name");
+            if (name == null) {
+                Logger.error("tag <imported-keyelem> needs a 'name' attribute!");
+                continue;
+            }
+            String pkEntity = keyelem.getAttributeValue("entity");
+            if (pkEntity == null) {
+                Logger.error("tag <imported-keyelem> needs an 'entity' attribute (name='"+name+"')!");
+                continue;
+            }
+            List<String> fkCols = null;
+            String foreignCols = keyelem.getAttributeValue("foreign-cols");
+            if (foreignCols != null) {
+                fkCols = Arrays.asList(foreignCols.split(","));
+            }
+            entity.addAttribute(new ImportedKey(name,entity,pkEntity,fkCols));
+        }
+        for (Iterator exported = parent.getChildren("exported-key").iterator();exported.hasNext();) {
+            Element keyelem = (Element)exported.next();
+            String name = keyelem.getAttributeValue("name");
+            if (name == null) {
+                Logger.error("tag <exported-keyelem> needs a 'name' attribute!");
+                continue;
+            }
+            String pkEntity = keyelem.getAttributeValue("entity");
+            if (pkEntity == null) {
+                Logger.error("tag <exported-keyelem> needs an 'entity' attribute (name='"+name+"')!");
+                continue;
+            }
+            List<String> fkCols = null;
+            String foreignCols = keyelem.getAttributeValue("foreign-cols");
+            if (foreignCols != null) {
+                fkCols = Arrays.asList(foreignCols.split(","));
+            }
+            entity.addAttribute(new ExportedKey(name,entity,pkEntity,fkCols));
+        }
+    }
+
     private void defineActions(Element parent,Entity entity) throws SQLException {
-        for (Iterator rootAttributes = parent.getChildren("action").iterator();rootAttributes.hasNext();) {
-            Element element = (Element)rootAttributes.next();
+        for (Iterator actions = parent.getChildren("action").iterator();actions.hasNext();) {
+            Element element = (Element)actions.next();
             String name = adaptCase(element.getAttributeValue("name"));
             Action action = null;
             if(isTransaction(element)) {
@@ -430,6 +473,9 @@ public class ConfigLoader {
 
             /* define entity actions */
             defineActions(element,entity);
+
+            /* define entity imported and exported keys */
+            defineForignKeys(element,entity);
 
             /* define entity constraints */
             defineConstraints(element,entity);
