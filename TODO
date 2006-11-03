@@ -1,11 +1,11 @@
 TODO
 ----
+ - chang  read-only programmatically => 2.0
  - testcases for POJO mapping
  - deprecate servlet context param
  - review code for Logger.debug/trace strings calculation (avoid them!)
  - bug: hsqldb: when no schema specified, imported or exported keys reverse queries sometimes give the 'PUBLIC' schema => 2.0
  - bug: schema name is sometimes included in attribute name when reverse enginering imported/exported keys => 2.0
- - manual definition of imported and exported keys
  - use DatabaseMetaData.storeXXXCaseIdentifiers() to determine case sensivity
  - bug: read-only="true" and Archego managed to write to the database! (updates are blocked but inserts work) => 2.0
  - bug: if result="ROW/...", the attribute definition fails without any log and the attribute is not found (was a raw attribute... probably not important) => 2.0
@@ -14,7 +14,7 @@ TODO
  - a good dissertation about HTTP authentication to place somewhere http://www.artima.com/weblogs/viewpost.jsp?thread=155252
  - i18n: flags
  - obfuscation should be specific to entities
- - generalize ignorePrefix with a regex
+ - generalize ignorePrefix with a customizable regex
  - update README => 2.0
  - a page about dependencies => 2.0
  - prefetching?
