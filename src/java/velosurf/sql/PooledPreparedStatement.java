@@ -115,7 +115,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
      */
     public synchronized Object fetch(ReadOnlyMap inParams,Entity inResultEntity) throws SQLException {
         List values = new ArrayList();
-        for (Iterator i = inResultEntity.getKeys().iterator();i.hasNext();) {
+        for (Iterator i = inResultEntity.getPKCols().iterator();i.hasNext();) {
             String key = (String)i.next();
             String value = (String)inParams.get(key);
             if (value==null) throw new SQLException("Error: key column '"+key+"' is not specified!");
