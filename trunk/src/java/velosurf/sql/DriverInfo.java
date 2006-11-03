@@ -87,7 +87,7 @@ public class DriverInfo
         return ret;
     }
 
-    public DriverInfo(String name,String jdbcTag,String drivers[],String pingQuery,String caseSensivity,String schemaQuery,String IDGenerationMethod,String ignorePrefix)
+    public DriverInfo(String name,String jdbcTag,String drivers[],String pingQuery,String caseSensivity,String schemaQuery,String IDGenerationMethod,String ignorePattern)
     {
         _name = name;
         _jdbcTag = jdbcTag;
@@ -96,7 +96,7 @@ public class DriverInfo
         _caseSensivity = caseSensivity;
         _schemaQuery = schemaQuery;
         _IDGenerationMethod = IDGenerationMethod;
-        _ignorePrefix = ignorePrefix;
+        _ignorePattern = (ignorePattern == null ? null : Pattern.compile(ignorePattern));
 //            _IDGenerationQuery = IDGenerationQuery;
     }
 
@@ -107,7 +107,7 @@ public class DriverInfo
     protected String _caseSensivity;       // case-sensivity
     protected String _schemaQuery;         // SQL query to set the current schema
     protected String _IDGenerationMethod;  // ID generation method
-    protected String _ignorePrefix;
+    protected Pattern _ignorePattern;
 // not yet implemented (TODO)
 //        public String _IDGenerationQuery;   // ID generation query
 
@@ -174,7 +174,7 @@ public class DriverInfo
     }
 
     public boolean ignoreTable(String name) {
-        return _ignorePrefix != null && name.startsWith(_ignorePrefix);
+        return _ignorePattern != null && _ignorePattern.matcher(name).matches();
     }
 
     // sources :
@@ -188,7 +188,7 @@ public class DriverInfo
         addDriver("Derby", "derby", new String[] {"org.apache.derby.jdbc.EmbeddedDriver"}, "values 1", "uppercase", "set schema $schema", "autoincrement",null);
         addDriver("Easysoft","easysoft",new String[] {"easysoft.sql.jobDriver"},"select 1","TODO","TODO","TODO",null);
         addDriver("Frontbase","frontbase",new String[] {"jdbc.FrontBase.FBJDriver"},"select 1","TODO","TODO","TODO",null);
-        addDriver("HSQLDB","hsqldb",new String[] {"org.hsqldb.jdbcDriver","org.hsql.jdbcDriver"},"call 1","uppercase","set schema $schema","autoincrement","SYSTEM_");
+        addDriver("HSQLDB","hsqldb",new String[] {"org.hsqldb.jdbcDriver","org.hsql.jdbcDriver"},"call 1","uppercase","set schema $schema","autoincrement","SYSTEM_.*");
         addDriver("Hypersonic","hypersonic",new String[] {"org.hsql.jdbcDriver"},"select 1","TODO","TODO","autoincrement",null);
         addDriver("OpenBase","openbase",new String[] {"com.openbase.jdbc.ObDriver"},"select 1","TODO","TODO","TODO",null);
         addDriver("Informix","informix",new String[] {"com.informix.jdbc.IfxDriver"},"select 1","TODO","TODO","none",null);
@@ -198,7 +198,7 @@ public class DriverInfo
         addDriver("Sql Server","sqlserver",new String[] {"com.microsoft.jdbc.sqlserver.SQLServerDriver","com.jnetdirect.jsql.JSQLDriver","com.merant.datadirect.jdbc.sqlserver.SQLServerDriver"},"select 1","TODO","TODO","autoincrement",null);
         addDriver("MySql","mysql",new String[] {"com.mysql.jdbc.Driver","org.gjt.mm.mysql.Driver"},"select 1","sensitive",null,"autoincrement",null);
         addDriver("OpenBase","",new String[] {"com.openbase.jdbc.ObDriver"},"select 1","TODO","TODO","TODO",null);
-        addDriver("Oracle","oracle",new String[] {"oracle.jdbc.driver.OracleDriver"},"select 1 from dual","uppercase","alter session set current_schema = $schema","sequence",null);
+        addDriver("Oracle","oracle",new String[] {"oracle.jdbc.driver.OracleDriver"},"select 1 from dual","uppercase","alter session set current_schema = $schema","sequence",".*\\/.*");
         addDriver("PostgreSQL","postgresql",new String[] {"org.postgresql.Driver"},"select 1","lowercase",null,"autoincrement",null); // also sequences, but support for autoincrement is better
         addDriver("SapDB","sapdb",new String[] {"com.sap.dbtech.jdbc.DriverSapDB"},"select 1 from dual","uppercase","TODO","sequence",null);
         addDriver("Sybase","sybase",new String[] {"com.sybase.jdbc2.jdbc.SybDriver"},"select 1","TODO","TODO","autoincrement",null);
