@@ -138,10 +138,10 @@ public class BlackboxTests
         assertNull(resp.getElementWithID("2"));
         /* test SMTP email checking */
         form = resp.getFormWithName("input");
-        form.setParameter("email2","azerty@renegat.net");
+        form.setParameter("email2","inexistant_email@gmail.com");
         resp = form.submit();
         assertEquals("Input form",resp.getTitle());
-        checkText(resp,"1","field email2: 'azerty@renegat.net' is not a valid email");
+        checkText(resp,"1","field email2: 'inexistant_email@gmail.com' is not a valid email");
         assertNull(resp.getElementWithID("2"));
         /* now with a valid email... */
         form = resp.getFormWithName("input");
