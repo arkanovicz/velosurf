@@ -71,15 +71,6 @@ public class Instance extends TreeMap implements ReadOnlyMap
         return new EntityReference(mEntity,mUserContext.get());
     }
 
-    /** Get the name of the table mapped by this Instance's Entity.
-     *
-     * @return The name of the table mapped by this Instance's Entity.
-     */
-    protected String getTable() {
-        if (mEntity != null) return mEntity.getTableName();
-        return null;
-    }
-
     /** @deprecated As of Velosurf version 0.9, replaced by getPrimaryKey
      * Returns an ArrayList of two-entries maps ('name' & 'value'), meant to be use in a #foreach loop to build form fields, like:<p>
      * <code>
@@ -262,7 +253,7 @@ public class Instance extends TreeMap implements ReadOnlyMap
                 String col = (String)i.next();
                 Object value = values.get(col);
                 if (value!=null) {
-                    updateClause.add(col+"=?");
+                    updateClause.add(mEntity.aliasToColumn(col)+"=?");
                     if (mEntity.isObfuscated(col)) value = mEntity.deobfuscate(value);
                     params.add(value);
                 }
@@ -272,11 +263,11 @@ public class Instance extends TreeMap implements ReadOnlyMap
                 Object value = values.get(col);
                 if (value == null) throw new SQLException("field '"+col+"' belongs to primary key and cannot be null!");
                 if (mEntity.isObfuscated(col)) value = mEntity.deobfuscate(value);
-//                if (mEntity.isLocalized(col)) value = mEntity.unlocalize(value);
-                whereClause.add(col+"=?");
+//                if (mEntity.isLocalized(col)) value = mEntity.unlocalize(value); ???
+                whereClause.add(mEntity.aliasToColumn(col)+"=?");
                 params.add(value);
             }
-            String query = "update "+getTable()+" set "+StringLists.join(updateClause,",")+" where "+StringLists.join(whereClause," and ");
+            String query = "update "+mEntity.getTableName()+" set "+StringLists.join(updateClause,",")+" where "+StringLists.join(whereClause," and ");
             PooledPreparedStatement statement = mDB.prepare(query);
             int nb = statement.update(params);
             if (nb==0) {
@@ -314,10 +305,10 @@ public class Instance extends TreeMap implements ReadOnlyMap
                 Object value = getInternal(col);
                 if (value == null) throw new SQLException("Instance.delete: Error: field '"+col+"' belongs to primary key and cannot be null!");
                 if (mEntity.isObfuscated(col)) value = mEntity.deobfuscate(value);
-                whereClause.add(col+"=?");
+                whereClause.add(mEntity.aliasToColumn(col)+"=?");
                 params.add(value);
             }
-            String query = "delete from "+getTable()+" where "+StringLists.join(whereClause," and ");
+            String query = "delete from "+mEntity.getTableName()+" where "+StringLists.join(whereClause," and ");
             PooledPreparedStatement statement = mDB.prepare(query);
             int nb = statement.update(params);
             if (nb==0) {
@@ -356,13 +347,13 @@ public class Instance extends TreeMap implements ReadOnlyMap
                 String col = (String)i.next();
                 Object value = getInternal(col);
                 if (value!=null) {
-                    colsClause.add(col);
+                    colsClause.add(mEntity.aliasToColumn(col));
                     valsClause.add("?");
                     if (mEntity.isObfuscated(col)) value = mEntity.deobfuscate(value);
                     params.add(value);
                 }
             }
-            String query = "insert into "+getTable()+" ("+StringLists.join(colsClause,",")+") values ("+StringLists.join(valsClause,",")+")";
+            String query = "insert into "+mEntity.getTableName()+" ("+StringLists.join(colsClause,",")+") values ("+StringLists.join(valsClause,",")+")";
             PooledPreparedStatement statement = mDB.prepare(query);
             statement.update(params);
             List keys = mEntity.getPKCols();

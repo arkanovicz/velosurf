@@ -31,7 +31,6 @@ import velosurf.sql.Pooled;
 import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;
-import velosurf.util.StringLists;
 
 /** This class is a context wrapper for ResultSets, and provides an iteration mecanism for #foreach loops, as long as getters for values of the current row.
  *
@@ -117,6 +116,7 @@ public class RowIterator implements Iterator,ReadOnlyMap {
         try {
             if (!dataAvailable()) return null;
             if (mResultEntity!=null) {
+                property = mResultEntity.aliasToColumn(property);
                 Attribute attribute = mResultEntity.getAttribute(property);
                 if (attribute != null)
                         switch (attribute.getType()) {
@@ -136,7 +136,7 @@ public class RowIterator implements Iterator,ReadOnlyMap {
                                 result = attribute.evaluate(this);
                                 break;
                             default:
-                                Logger.error("Unknown attribute type for "+mResultEntity.getName()+"."+inKey+"!");
+                                Logger.error("Unknown attribute type for "+mResultEntity.getName()+"."+property+"!");
                         }
             }
             if (result == null) {
@@ -152,59 +152,6 @@ public class RowIterator implements Iterator,ReadOnlyMap {
 
         if (shouldNotifyOver) mPooledStatement.notifyOver();
         return result;
-    }
-
-    /** returns the value of a column specified by its order (starting at 1, as for ResultSet.get())
-     *
-     * @param inCol the index of the wanted column (starting at 1)
-     * @return the value of the specified column, as a String
-     */
-    public Object get(int inCol) {
-        try { return dataAvailable()?mResultSet.getObject(inCol):null;
-        } catch (SQLException e) {    Logger.log(e);    return null; }
-    }
-
-    /** returns the value of a column specified by its name
-     *
-     * @param inKey the name of the wanted column
-     * @return the value of the specified column, as an int
-     */
-    public int getInt(Object inKey) {
-        try { return dataAvailable()?mResultSet.getInt((String)inKey):0;
-        } catch (SQLException e) {    Logger.log(e);    return 0; }
-    }
-
-    // int getter by col num
-    /** returns the value of a column specified by its order (starting at 1, as for ResultSet.get())
-     *
-     * @param inCol the index of the wanted column (starting at 1)
-     * @return the value of the specified column, as an int
-     */
-    public int getInt(int inCol) {
-        try { return dataAvailable()?mResultSet.getInt(inCol):0;
-        } catch (SQLException e) {    Logger.log(e);    return 0; }
-    }
-
-    // string getter
-    /** returns the value of a column specified by its name
-     *
-     * @param inKey the name of the wanted column
-     * @return the value of the specified column, as a string
-     */
-    public String getString(Object inKey) {
-        try { return dataAvailable()?mResultSet.getString((String)inKey):null;
-        } catch (SQLException e) {    Logger.log(e);    return null; }
-    }
-
-    // string getter by col num
-    /** returns the value of a column specified by its order (starting at 1, as for ResultSet.get())
-     *
-     * @param inCol the index of the wanted column (starting at 1)
-     * @return the value of the specified column, as a string
-     */
-    public String getString(int inCol) {
-        try { return dataAvailable()?mResultSet.getString(inCol):null;
-        } catch (SQLException e) {    Logger.log(e);    return null; }
     }
 
     /** gets all the rows in a list of maps
