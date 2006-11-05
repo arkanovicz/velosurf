@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.web.i18n;
+package velosurf.web.l10n;
 
 import java.util.Locale;
 

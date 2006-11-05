@@ -10,7 +10,7 @@
 
   <filter>
     <filter-name>localization</filter-name>
-    <filter-class>velosurf.i18n.LocalizationFilter</filter-class>
+    <filter-class>velosurf.l10n.LocalizationFilter</filter-class>
   </filter>
 
   <filter>

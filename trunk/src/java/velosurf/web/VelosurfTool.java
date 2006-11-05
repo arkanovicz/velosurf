@@ -34,8 +34,8 @@ import velosurf.util.ServletLogWriter;
 import velosurf.util.ToolFinder;
 import velosurf.util.UserContext;
 import velosurf.util.XIncludeResolver;
-import velosurf.web.i18n.Localizer;
-import velosurf.web.i18n.Localizer;
+import velosurf.web.l10n.Localizer;
+import velosurf.web.l10n.Localizer;
 
 /** <p>This class is a tool meant to be referenced in toolbox.xml</p>
  * <p>It can be used in any scope you want (application/session/request), depending on the behaviour you need for the refinement and ordering mechanisms (which will follow the same scope).

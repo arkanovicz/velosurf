@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import velosurf.util.*;
-import velosurf.web.i18n.Localizer;
-import velosurf.web.i18n.Localizer;
+import velosurf.web.l10n.Localizer;
+import velosurf.web.l10n.Localizer;
 
 /**
  * <p>This class is a servlet filter used to protect web pages behind an authentication mechanism. When a
@@ -63,7 +63,7 @@ import velosurf.web.i18n.Localizer;
  *
  * <p>The javascript file <i>login.js.vtl</i> contains the necessary encryption functions. It uses
  * the <i>bignum.js</i> library file. You will find those files in <code>/src/resources/auth</code>
- * or in the auth-i18n sample webapp.</p>
+ * or in the auth-l10n sample webapp.</p>
  *
  * <p>The filter expect the login to be present in the HTTP 'login' form field, and the answer in
  * the 'answer' form field (which should be all right if you use the login.js.vtl as is). The action of the form
@@ -183,7 +183,7 @@ public class AuthenticationFilter implements Filter {
             Locale locale = null;
 
             if (session != null) {
-                locale = (Locale)session.getAttribute("velosurf.i18n.active-locale"); /* TODO: gather 'active-locale' handling in HTTPLocalizerTool */
+                locale = (Locale)session.getAttribute("velosurf.l10n.active-locale"); /* TODO: gather 'active-locale' handling in HTTPLocalizerTool */
             }
 
             if (locale == null)

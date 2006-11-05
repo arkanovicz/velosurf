@@ -42,7 +42,7 @@ v2.0 (November 2006)
    columns of an instance are resolved on-the-fly.
  - added a LocalizationFilter that triggers redirections and forwards in respect to the localization scheme.
  - added an authentication scheme (AuthenticationFilter and AuthenticatorTool).
- - added an example webapp to demonstrate authentication and i18n.
+ - added an example webapp to demonstrate authentication and l10n.
  - "Using config file..." message only logged on database connection creation.
  - marked the "full" caching method as deprecated.
  - replaced gnu regexps by jdk ones.

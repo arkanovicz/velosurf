@@ -340,13 +340,13 @@ still use those tags in <b>full</b> reverse enginering mode to customize the nam
 <a name='localization'/>
 <h1>Localization</h1>
 <p>Velosurf provides a localization mechanism. It consists of:
-<ul><li>a <code><a href='api/velosurf/web/i18n/Localizer.html'>velosurf.web.i18n.Localizer</a></code> Java interface with a getter and a setter for the active lcoale, and two getters to obtain
+<ul><li>a <code><a href='api/velosurf/web/l10n/Localizer.html'>velosurf.web.l10n.Localizer</a></code> Java interface with a getter and a setter for the active lcoale, and two getters to obtain
 localized messages from their ID (the second one allowing the use of parametrized messages as in <code>"Found {0} match(es) for {1}."</code>).</li>
-<li>an abstract <code><a href='api/velosurf/web/i18n/HTTPLocalizerTool.html'>velosurf.web.i18n.HTTPLocalizerTool</a></code> Java class implementing the <code>Localizer</code> interface.
+<li>an abstract <code><a href='api/velosurf/web/l10n/HTTPLocalizerTool.html'>velosurf.web.l10n.HTTPLocalizerTool</a></code> Java class implementing the <code>Localizer</code> interface.
 It will try to deduce the appropriate locale for incoming HTTP queries (from their "Accepted-Language" header). It is abstract because it does not make any assumption
 on how the localized data is stored.</li>
-<li>a <code><a href='api/velosurf/web/i18n/SimpleDBLocalizer.html'>velosurf.web.i18n.SimpleDBLocalizer</a></code> Java class inheriting from <code>HttpLocalizerTool</code> that uses a configurable <code>localized(id,locale,string)</code> SQL table.</li>
-<li>an optional <code><a href='api/velosurf/web/i18n/LocalizationFilter.html'>velosurf.web.i18n.LocalizationFilter</a></code> servlet filter meant to help the process of redirecting or
+<li>a <code><a href='api/velosurf/web/l10n/SimpleDBLocalizer.html'>velosurf.web.l10n.SimpleDBLocalizer</a></code> Java class inheriting from <code>HttpLocalizerTool</code> that uses a configurable <code>localized(id,locale,string)</code> SQL table.</li>
+<li>an optional <code><a href='api/velosurf/web/l10n/LocalizationFilter.html'>velosurf.web.l10n.LocalizationFilter</a></code> servlet filter meant to help the process of redirecting or
 forwarding incoming requests towards separate localized instances of a site (i.e. <code>/index.html</code> redirected
 or forwarded towards <code>/en/index.html</code> or <code>/fr/index.html</code>) based on browser locale. This rewriting mechanism is
 only implemented for the URI part of the URL at the moment (that is, you cannot yet change the hostname (&rarr;<code>en.mysite.com</code>) or the query string (&rarr;mysite.com?lang=fr)).</li>
@@ -360,7 +360,7 @@ parametrized messages, the getter that takes parameters must be used: <code>$loc
 <div class="source"><xmp>...
   <filter>
     <filter-name>localization</filter-name>
-    <filter-class>velosurf.web.i18n.LocalizationFilter</filter-class>
+    <filter-class>velosurf.web.l10n.LocalizationFilter</filter-class>
     <init-param>
       <param-name>localization-method</param-name>
       <param-value>redirect</param-value>
@@ -395,7 +395,7 @@ parametrized messages, the getter that takes parameters must be used: <code>$loc
   <tool>
     <key>local</key>
     <scope>session</scope>
-    <class>velosurf.web.i18n.SimpleDBLocalizer</class>
+    <class>velosurf.web.l10n.SimpleDBLocalizer</class>
   </tool>
   ...</xmp></div>
 </ul>
