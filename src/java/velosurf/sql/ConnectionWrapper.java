@@ -337,7 +337,7 @@ public class ConnectionWrapper
         return busy>0;
     }
 
-    public long getLastInsertId(Statement statement) {
+    public long getLastInsertId(Statement statement) throws SQLException {
         return driver.getLastInsertId(statement);
     }
 
