@@ -31,7 +31,7 @@ import java.util.Map;
  * <li>NO_CACHE
  * (cache='none', the default, in velosurf.xml) : no caching occurs on this entity.
  * <li>SOFT_CACHE (cache='soft' in velosurf.xml) : caching occurs as long as memory is ont reclaimed (see the behaviour of java soft references).
- * <li>FULL_CACHE (cache='full' in velosuf.xml) : caching occurs until manually freed.
+ * <li>FULL_CACHE (cache='full' in velosuf.xml) : the whole table is loaded into the cache at startup.
  * </ul>
  *
  * For an entity's instances to be cached, the associated table must have a primary key (even if multivalued).
@@ -39,7 +39,7 @@ import java.util.Map;
  *
  * <p><b>Warning</b>: Velosurf will invalidate entries on update requests, but global updates are not taken into account.</p>
  * This caching mechanism is meant for straightforward optimizations in simple situations, for instance to
- * avoid re-fetching the loggued user at each request.
+ * avoid re-fetching the loggued user at each request.</p>
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
