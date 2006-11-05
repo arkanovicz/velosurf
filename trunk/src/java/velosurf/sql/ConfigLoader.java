@@ -299,7 +299,7 @@ public class ConfigLoader {
         }
     }
 
-    private void defineForignKeys(Element parent,Entity entity) {
+    private void defineForeignKeys(Element parent,Entity entity) {
         for (Iterator imported = parent.getChildren("imported-key").iterator();imported.hasNext();) {
             Element keyelem = (Element)imported.next();
             String name = keyelem.getAttributeValue("name");
@@ -316,6 +316,12 @@ public class ConfigLoader {
             String foreignCols = keyelem.getAttributeValue("foreign-cols");
             if (foreignCols != null) {
                 fkCols = Arrays.asList(foreignCols.split(","));
+                /* just check... */
+                for(String col:fkCols) {
+                    if(!entity.columnToAlias(col).equals(col)) {
+                       Logger.error("entity "+entity.getName()+": column '"+col+"' is aliased as '"+entity.columnToAlias(col)+"', use the alias name when defining the imported-key '"+name+"'!");
+                    }
+                }
             }
             entity.addAttribute(new ImportedKey(name,entity,pkEntity,fkCols));
         }
@@ -335,6 +341,12 @@ public class ConfigLoader {
             String foreignCols = keyelem.getAttributeValue("foreign-cols");
             if (foreignCols != null) {
                 fkCols = Arrays.asList(foreignCols.split(","));
+                /* just check... */
+                for(String col:fkCols) {
+                    if(!entity.columnToAlias(col).equals(col)) {
+                       Logger.error("entity "+entity.getName()+": column '"+col+"' is aliased as '"+entity.columnToAlias(col)+"', use the alias name when defining the exported-key '"+name+"'!");
+                    }
+                }
             }
             entity.addAttribute(new ExportedKey(name,entity,pkEntity,fkCols));
         }
@@ -405,8 +417,10 @@ public class ConfigLoader {
         for (Iterator entities = database.getChildren("entity").iterator();entities.hasNext();) {
             Element element = (Element)entities.next();
             String origName = element.getAttributeValue("name");
+            element.removeAttribute("name");
             String name = adaptCase(origName);
             String table = adaptCase(element.getAttributeValue("table"));
+            element.removeAttribute("table");
 
             Entity entity = _database.getEntityCreate(adaptCase(name));
             if (table != null) {
@@ -416,8 +430,10 @@ public class ConfigLoader {
 
             /* custom class */
             String cls = element.getAttributeValue("class");
+            element.removeAttribute("class");
             // TODO : try to instanciate once to avoid subsequent errors
             if (cls != null) entity.setInstanceClass(cls);
+
 
             /* access (deprecated) */
             String access = element.getAttributeValue("access");
@@ -433,6 +449,7 @@ public class ConfigLoader {
 
             /* read-only */
             String ro = element.getAttributeValue("read-only");
+            element.removeAttribute("read-only");
             if (ro != null) {
                 /* check syntax but continue anyway with read-only database if the syntax is bad */
                 checkSyntax("read-only",ro,new String[] {"true","false"});
@@ -442,11 +459,13 @@ public class ConfigLoader {
 
             /* caching */
             String caching = element.getAttributeValue("caching");
+            element.removeAttribute("caching");
             if (checkSyntax("caching",caching,new String[] {"none","no","yes","soft","full"}))
                 entity.setCachingMethod(parseCaching(caching));
 
             /* obfuscation */
             String obfuscate = element.getAttributeValue("obfuscate");
+            element.removeAttribute("obfuscate");
             if (obfuscate != null) {
                 _needObfuscator = true;
                 List obfuscatedCols = new ArrayList();
@@ -459,6 +478,7 @@ public class ConfigLoader {
 
             /* localization */
             String localize = element.getAttributeValue("localize");
+            element.removeAttribute("localize");
             if (localize != null) {
                 List localizedCols = new ArrayList();
                 StringTokenizer tokenizer = new StringTokenizer(localize,", ");
@@ -468,6 +488,16 @@ public class ConfigLoader {
                 entity.setLocalized(localizedCols);
             }
 
+            /* aliases */
+            Element aliases = element.getChild("aliases");
+            if (aliases != null) {
+                for(org.jdom.Attribute att:(List<org.jdom.Attribute>)element.getAttributes()) {
+                    String column = att.getValue();
+                    String alias = att.getName();
+                    entity.addAlias(alias,column);
+                }
+            }
+
             /* define entity attributes */
             defineAttributes(element,entity);
 
@@ -475,7 +505,7 @@ public class ConfigLoader {
             defineActions(element,entity);
 
             /* define entity imported and exported keys */
-            defineForignKeys(element,entity);
+            defineForeignKeys(element,entity);
 
             /* define entity constraints */
             defineConstraints(element,entity);

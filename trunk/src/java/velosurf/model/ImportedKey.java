@@ -43,7 +43,7 @@ public class ImportedKey extends Attribute {
             for(String param:fkCols) {
                 addParamName(param);
             }
-            mQuery = "SELECT * FROM " + pkEntity.getTableName() + " WHERE " + StringLists.join(pkEntity.getPKCols()," = ? AND ") + " = ?";
+            mQuery = "SELECT * FROM " + pkEntity.getTableName() + " WHERE " + StringLists.join(pkEntity.aliasToColumn(pkEntity.getPKCols())," = ? AND ") + " = ?";
         }
         return mQuery;
     }

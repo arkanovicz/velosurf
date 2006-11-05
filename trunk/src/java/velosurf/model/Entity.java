@@ -66,15 +66,42 @@ public class Entity
      * @param inColName column name
      */
     public void addColumn(String inColName) {
-        mColumns.add(inColName);
+        /* remember the alias */
+        mColumns.add(columnToAlias(inColName));
     }
+
+    public void addAlias(String alias, String column) {
+        mAliasByColumn.put(column,alias);
+        mColumnByAlias.put(alias,column);
+    }
+
+    public String aliasToColumn(String alias) {
+        String col = mColumnByAlias.get(alias);
+        return col == null ? alias : col;
+    }
+
+    public List<String> aliasToColumn(List<String> aliases) {
+        if(mColumnByAlias.size() > 0) {
+            List<String> ret = new ArrayList<String>();
+            for(String alias:aliases) {
+                ret.add(aliasToColumn(alias));
+            }
+        } else return aliases;
+    }
+
+    public String columnToAlias(String column) {
+        String alias = mAliasByColumn.get(column);
+        return alias == null ? column : alias;
+    }
+
 
     /** adds a key column to the sequential list of the key columns (called during the reverse-engeenering of the database)
      *
      * @param inColName name of the key column
      */
     public void addPKColumn(String inColName) {
-        mKeys.add(inColName);
+        /* remember the alias */
+        mKeys.add(columnToAlias(inColName));
     }
 
     /** add a new attribute
@@ -515,8 +542,9 @@ public class Entity
      */
     protected void buildFetchQuery() {
         ArrayList whereClause = new ArrayList();
-         for (Iterator i = mKeys.iterator();i.hasNext();)
-            whereClause.add((String)i.next()+"=?");
+        for(String column:mKeys) {
+            whereClause.add(aliasToColumn(column)+"=?");
+        }
         mFetchQuery = "select * from "+mTable+" where "+StringLists.join(whereClause," and ");
     }
 
@@ -536,7 +564,7 @@ public class Entity
      * @return the resulting RowIterator
      */
     public RowIterator query(List inRefineCriteria,String inOrder) throws SQLException {
-        String query = "select * from "+mName;
+        String query = "select * from "+ mTable;
         if (inRefineCriteria!=null) query = SqlUtil.refineQuery(query,inRefineCriteria);
         if (inOrder!=null && inOrder.length()>0) query = SqlUtil.orderQuery(query,inOrder);
         return mDB.query(query,this);
@@ -742,6 +770,11 @@ public class Entity
     protected List mLocalizedColumns = null;
     /** attributes of this entity
      */
+
+    protected Map<String,String> mAliasByColumn = new HashMap<String,String>();
+
+    protected Map<String,String> mColumnByAlias = new HashMap<String,String>();
+
     protected Map mAttributeMap = new HashMap(); // map<Name,Attribute>
     /** actions of this entity
      */

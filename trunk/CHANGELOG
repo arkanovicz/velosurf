@@ -2,6 +2,7 @@
 
 v2.0 (November 2006)
 ----
+ - aliases tag for column names
  - manual definition of imported and exported keys
  - optimized reflection code in ExternalObjectWrapper
  - case used in context can now be set using the system property velosurf.case

@@ -1,5 +1,7 @@
 TODO
 ----
+ - test case for aliasing
+ - format for the date data type => 2.0
  - chang  read-only programmatically => 2.0
  - testcases for POJO mapping
  - deprecate servlet context param

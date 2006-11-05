@@ -15,7 +15,7 @@
 
 <div id="container">
 <div id="header">
-<div id="logo1"><img style="width: 80px; height: 60px;" alt="Velosurf logo" src="logo.png" border="0"></div>
+<div id="logo1"><img style="width: 80px; height: 60px;" altforeign="Velosurf logo" src="logo.png" border="0"></div>
 
 <div id="logo3"><img alt="Velosurf title" src="title.png" border="0"></div>
 
@@ -84,25 +84,184 @@ if you want to use different context keys to refer to different schemas. Provide
 (apart from the schema name), you can cross-reference entities between config files.</p>
 <p>It is also possible to split the configuration file into several pieces using the <a href="http://www.w3.org/TR/2004/PR-xinclude-20040930/">XML Include</a> syntax:
 the root <code>&lt;database&gt;</code> tag must have the following attribute set: <code>xmlns:xi="http://www.w3.org/2001/XInclude"</code>.
-You can set include files using the syntax: <code>&lt;xi:include href="<i>included_file.xml</i>"/&gt;</code>.
+You can set include files using the syntax: <code>&lt;xi:include href="<i>included_file.xml</i>"/&gt;</code> (other features of the
+<a href="http://www.w3.org/TR/2004/PR-xinclude-20040930/">XML Include specification</a>, like fallback and XPointers, are not supported).
+</p>
+<p>The XML tree of the configuration file (plus optional reverse enginered data) defines everything that will be accessible under the <code>$db</code> (or whatever name you choosed) context key.
+The syntax of this configuration file is detailed on the <a href="./configuration.html">Configuration</a> page.</p>
+
+<p>When defining a custom attribute, you must specify its result type using the <code>result</code> attribute, among:
+<ul>
+<li><b>scalar</b>: when an attribute of this type is evalued, Velosurf will return the first row of the first column in the resultset.</li>
+<li><b>row</b>: only the first row of the result is considered.</li>
+<li><b>rowset</b>: the result is a set of rows.</li>
+</ul></p>
+<p>For the row and rowset types, if the rows are instances of an entity, you can specify the name of the resulting entity after a slash as in <code>result="row/publisher"</code> or <code>result="rowset/book"</code>.
+You'll be able to call this entity's attributes directly on the returned row.</p>
+
+<h1>Connections and statements pooling and recovery</h1>
+<p>Connections and statements pooling is transparent. There are two connections pools, one with autocommit connections 
+for queries and single statement updates and one without autocommit for transactions containing several requests. Those pools 
+grow according to the rate of requests.</p>
+<p>The automatic connection recovery will transparently care for broken or timed out connections.</p>
+<p>Needed statements are created on the fly when needed, that is when there isn't any previous instance of a particular statement
+or when such an instance is already busy. The statements pool will thus grow as needed.</p>
+<p>Concurrent accesses are of course taken into account.</p>
+
+
+
+<h1>Reverse enginering</h1>
+<p>There are four reverse enginering modes proposed by Velosurf:
+<ul>
+<li><b>full</b> (default): all tables and foreign-keys of the current schema (if any) are reverse enginered. Each </li>
+<li><b>tables</b>: all tables of the current schema (if any) are reverse enginered.</li>
+<li><b>manual</b>: only entities listed in the configuration file are reverse enginered (only if they do correspond to an actual table).</li>
+<li><b>none</b>: no reverse enginering of any kind is achieved.</li>
+</ul></p>
+
+<p>See the <a href='#foreign-keys'>imported and exported keys</a> section below for details on the reverse enginering of foreign keys.</p>
+
+<p>By default entity names are deduced from SQL table names and entity property names are deduced from SQL column names.</p>
+<p>Use the <code>table='<i>table name</i>'</code> if an entity is to have a different name than its corresponding table
+and use a <code>&lt;aliases <i>alias1</i>='<i>column1</i>' <i>alias2</i>='<i>column2</i>' &gt;</code> tag to declare aliases
+for SQL column names.</p>
+<p>When a table name or an SQL column name is aliased, you have to use the alias rather than the column name in whatever attribute or tag
+in the configuration file, except when the name appears as a keyword of an attribute SQL query.</p>
+<p>Example:</p>
+<div class="source"><xmp><entity name="person" table='tbl_person'>
+  <aliases id='person_id' lastname='family_name'/>
+  <attribute name='related' result='rowset/person'>
+    SELECT * FROM tbl_person WHERE family_name = <lastname/>
+  </attribute>
+  <attribute name='children' result='scalar'>
+    SELECT count(*) FROM person WHERE person_id = <id/>
+  </attribute>
+</entity></xmp></div>
+
+
+<h1>Fetching instances and iterating</h1>
+
+<p>Unless reverse enginering is deactivated, primary keys of tables will be reverse enginered. You can then use the <code>fetch(key)</code> entity method
+to fetch a particular instance of this entity. The <code>key</code> parameter can be a scalar value, a list of values or a map of key-value pairs. The two last forms are adequate for multi-valued primary keys.</p>
+<p>For instance:</p>
+<div id="source">#set( $book = $db.book.fetch( $query.book_id ) )</div>
+<p>Multivalued keyed rows can also be fetched the same way by providing a column&rarr;value map or a list containing
+key values in their natural order.</p>
+
+<p>You can iterate on an entity or on a rowset attribute by mean of the Velocity <code>#foreach</code> directive.</p>
+<p>Example:</p>
+<div class="source"><code><pre>List of books by publisher:
+#foreach($publisher in $db.publisher)
+  Books published by $publisher.name:
+    #foreach($book in $publisher.books)
+      - $book.title (author $book.author.firstname $book.author.lastname)
+    #end
+#end
+</pre></code></div>
+<p>While discouraged since it breaks SQL code isolation, you can control the rows order and add supplemental criteria
+by calling the <code>order("<i>SQL order clause</i>")</code> and <code>refine("<i>SQL condition</i>")</code> methods before issuing the <code>#foreach</code>.
 </p>
 
+<h1>Customizing Java mapping objects</h1>
+<p>Using the <code>class</code> attribute of the entity tag, you can specify which class you'd like Velosurf to use to map instances of a particular entity.
+This class can be a POJO (Plain Old Java Object) or a class inheriting from <code>velosurf.context.Instance</code>.</p>
+<p>In both cases, the following methods will be taken into account by Velosurf when present in the POJO:
+<ul>
+<li>specific getter: <code>getFoo()</code>.</li>
+<li>generic getter: <code>get(<i>key</i>)</code></li>
+<li>specific setter: <code>setFoo(<i>value</i>)</code></li>
+<li>generic getter: <code>put(<i>key</i>,<i>value</i>)</code></li>
+<li>update row with current values: <code>update()</code> (boolean result type expected)</li>
+<li>update row with passed values: <code>update(<i>map</i>)</code> (boolean result type expected)</li>
+<li>insert row: <code>insert()</code> (boolean result type expected)</li>
+<li>delete row: <code>delete()</code> (boolean result type expected)</li>
+</ul>
+</p>
+<p>When using POJOs, you can choose to implement only some of the fields getters and setters ; other fields will still have their
+default getters and setters.</p>
 
-connections, pools: min/max, statements, recovery
-several schemas
-xi:include
-$db.entity, foreach
-entities
-pojo mapping
-attributes, types of results, #foreach natural type mapping
-actions, transactions
-reverse, schema
-foreign-keys, import/export
-ordering
-refinment
+<h1>Issuing modifications to the database</h1>
+<p>By default, the database is opened in read-only mode, and thus forbidding the execution of any action, insert, update or delete.
+You need to set a <code>read-only="no"</code> attribute in the database tag to override this default behaviour.</p>
+<p>To inforce the MVC paradigm, database modifications should not be issued from inside templates
+but rather from a controller object, so as not to mix View and Controller layers. This controller object of your own can trigger programmatically the read-only flag of
+its connection before issuing the modifications, while still relying on the model defined in Velosurf configuration file via
+the Velosurf Java api.</p>
+
+<h1>Data validation</h1>
+<p>Velosurf provides a validation process on constraints defined in its configuration file. Those constraints
+don't replace SQL defined constraints, they are supplementary constraints provided by Velosurf which are enforced on a per-row basis
+and not checked on massive updates.</p>
+<p>You can define constraints on fields of an entity using a <code>&lt;constraint&gt; tag per column. Each column constraint tag contains field constraints. Field constraints can be expressed in a short syntax form (as attributes of the column &lt;constraint&gt; tag)
+or in a long syntax form (as child tags of the column &lt;constraint&gt; tag), the long syntax form allowing somme additionnal settings
+on the field constraint like the customization of the error message to be generated when the field constraint fails.</p>
+<p>The following field constraints are available (we only recall the short syntax here, please refer to <a href="./configuration.html">the Configuration page</a>
+or to the <a href="./api/velosurf/validation.html">javadoc</a>):
+<ul>
+<li><code>not-null='yes'</code> : data cannot be null.</li>
+<li><code>not-empty='yes'</code> : data cannot be null or an empty string.</li>
+<li><code>min-length='<i>integer</i>'</code> and/or <code>max-length='<i>integer</i>'</code> : data length must reside in the specified inclusive interval.</li>
+<li><code>one-of='<i>value1,value2,...'</i></code> : data must be one of the supplied values.</li>
+<li><code>references='<i>table.column</i>'</code> : data must reference a value found in <i>table.column</i> (a <code>select distinct</code> query is performed at validation time).</li>
+<li><code>regex='<i>pattern</i>'</code> : data must be matched by the supplied pattern.</li>
+<li><code>type='number'</code> : a numeric value is expected</li>
+<li><code>type='integer'</code> : an integer or long value is expected.</li>
+<li><code>min='<i>number</i>'</code> and/or <code>max='<i>number</i>'</code> : data must be in the specified inclusive interval (number type implied).</li>
+<li><code>type='date'</code> : data must be a parsable date. Some heuristics are provided to determine the locale and the format of the date, otherwise you can use the long syntax form and specify the format you expect here.</li>
+<li><code>after='<i>yyyymmdd'</i></code> and/or <code>before='<i>yyyymmdd</i>'</code> : data must be a date lying between the specified inclusive interval (date type implied).</li>
+<li><code>type='email'</code> : data is expected to have a valid email syntax. When using the long syntax form for this constraint, you can also ask for a DNS check
+(to validate the domain name) and for an SMTP check (to validate the user name).</li>
+</ul></p>
+<p>Apart from <code>not-empty</code> and <code>not-null</code>, all constraints are considered valid on a null or empty string.</p>
+<p>Validation occurs:
+<ul>
+<li>when <code>update()</code> or <code>insert()</code> is called on a row (boolean returned).</li>
+<li>when <code>validate()</code> is called on a row (boolean returned).</li>
+<li>when using the <code>velosurf.validation.Validation</code> servlet filter, see below.</li>
+</ul></p>
+<p>In all cases, all validation error messages are then accessible in the <code>$db.validationErrors</code> list.</p>
+<p>The validation filter checks every request for a <code>velosurf.entity</code> query attribute that contains the name
+of the entity against which the data is to be validated. If found, it will check form data and either let the request pass through
+if data is valid or redirect back the client browser to the input form (using the referer field) with <code>$db.validationErrors</code>
+populated if data is not valid.</p>
+<p>Once the filter in set up in you <code>/WEB-INF/web.xml</code> file with those lines:</p>
+<div class="source"><xmp>  <filter>
+    <filter-name>validation</filter-name>
+    <filter-class>velosurf.validation.ValidationFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>validation</filter-name>
+    <!-- on a production site you can optimize this mapping with an <url-pattern> entry
+         per input form page if you have a 2.4+ servlet container -->
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+  </filter-mapping>  
+</xmp></div>
+<p>then every input form can benefit of this mechanism provided:
+<ul>
+<li>you give the name of the entity to be validated in an input field:<br><code>&lt;input&nbsp;type='hidden' name='velosurf.entity' value='<i>entity name</i>'&gt; </code>.</li>
+<li>the name of each other input field correspond to the entity field name.</li>
+</ul></p>
+
+<h1>Imported and exported keys</h1>
+<p>When reverse enginering foreign keys in <b>full</b> mode, each foreign key will produce two new attributes
+<ul>
+<li>one attribute for the <i>imported key</i>, belonging to the importing table, named after the imported table name, with a row result type.</li>
+<li>one attribute for the <i>exported key</i>, belonging to the imported table, named after a rough pluralization ("s" or "es" added) of the importing table name, with a rowset result type.</li>
+</ul></p>
+<p>Example: if the <code>book</code> table is importing the key of the <code>publisher</code> table, then the two generated attributes will be:
+<ul>
+<li><code>$book.publisher</code> (a single publisher)</li>
+<li><code>$publisher.books</code> (a set of books)</li></ul></p>
+<p>If this default behaviour is not the one you need, use a	lower reverse enginering mode and define manually the 
+foreign keys you need using the <code>&lt;imported-key&gt;</code> and <code>&lt;exported-key&gt;</code> tags. You can
+still use those tags in <b>full</b> reverse enginering mode to customize the name of the generated attributes.</p>
+
+
+
 examples
 localization
-validation, validationfilter
 $query
 mvc
 insert, lastinsertid
@@ -110,7 +269,6 @@ update, delete
 authentication
 templatenamefilter
 external parameters
-constraints
 caching, dirty
 case-sensivity
 context case
