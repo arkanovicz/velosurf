@@ -8,6 +8,7 @@ import java.util.regex.PatternSyntaxException;
 import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.lang.reflect.Method;
 
 import velosurf.util.Logger;
@@ -87,7 +88,7 @@ public class DriverInfo
         return ret;
     }
 
-    public DriverInfo(String name,String jdbcTag,String drivers[],String pingQuery,String caseSensivity,String schemaQuery,String IDGenerationMethod,String ignorePattern)
+    public DriverInfo(String name,String jdbcTag,String drivers[],String pingQuery,String caseSensivity,String schemaQuery,String IDGenerationMethod,String lastInsertIDQuery,String ignorePattern)
     {
         _name = name;
         _jdbcTag = jdbcTag;
@@ -96,6 +97,7 @@ public class DriverInfo
         _caseSensivity = caseSensivity;
         _schemaQuery = schemaQuery;
         _IDGenerationMethod = IDGenerationMethod;
+        _lastInsertIDQuery = lastInsertIDQuery;
         _ignorePattern = (ignorePattern == null ? null : Pattern.compile(ignorePattern));
 //            _IDGenerationQuery = IDGenerationQuery;
     }
@@ -107,13 +109,14 @@ public class DriverInfo
     protected String _caseSensivity;       // case-sensivity
     protected String _schemaQuery;         // SQL query to set the current schema
     protected String _IDGenerationMethod;  // ID generation method
+    protected String _lastInsertIDQuery;   // query used to retrieve the last inserted id
     protected Pattern _ignorePattern;
 // not yet implemented (TODO)
 //        public String _IDGenerationQuery;   // ID generation query
 
-    public static void addDriver(String name,String jdbcTag,String drivers[],String pingQuery,String caseSensivity,String schemaQuery,String IDGenerationMethod,String ignorePrefix/*,String IDGenerationQuery*/)
+    public static void addDriver(String name,String jdbcTag,String drivers[],String pingQuery,String caseSensivity,String schemaQuery,String IDGenerationMethod,String lastInsertIDQuery,String ignorePrefix/*,String IDGenerationQuery*/)
     {
-        DriverInfo infos = new DriverInfo(name,jdbcTag,drivers,pingQuery,caseSensivity,schemaQuery,IDGenerationMethod,ignorePrefix/*,IDGenerationQuery*/);
+        DriverInfo infos = new DriverInfo(name,jdbcTag,drivers,pingQuery,caseSensivity,schemaQuery,IDGenerationMethod,ignorePrefix,lastInsertIDQuery/*,IDGenerationQuery*/);
         sDriverByVendor.put(jdbcTag,infos);
         for(String clazz:drivers) {
             sDriverByClass.put(clazz,infos);
@@ -146,7 +149,7 @@ public class DriverInfo
         return _schemaQuery;
     }
 
-    public long getLastInsertId(Statement statement)
+    public long getLastInsertId(Statement statement) throws SQLException
     {
         long ret = -1;
         if ("mysql".equalsIgnoreCase(getJdbcTag()))
@@ -159,17 +162,15 @@ public class DriverInfo
             catch (Throwable e) {
                 Logger.log("Could not find last insert id: ",e);
             }
-        } else if ("hsqldb".equalsIgnoreCase(getJdbcTag())) {
-            /* HSQLDB */
-            try  {
-                ResultSet rs = statement.executeQuery("IDENTITY()");
+        } else {
+            if (_lastInsertIDQuery == null) {
+                Logger.error("getLastInsertID is not [yet] implemented for your dbms... Contribute!");
+            } else {
+                ResultSet rs = statement.executeQuery(_lastInsertIDQuery);
                 rs.next();
                 ret = rs.getLong(1);
-            } catch(Throwable e) {
-                Logger.log("Could not find last insert id: ",e);
             }
         }
-        else Logger.error("getLastInsertID is not [yet] implemented for your dbms... Contribute!");
         return ret;
     }
 
@@ -182,30 +183,31 @@ public class DriverInfo
     // http://db.apache.org/torque/ and org.apache.torque.adapter classes
     // and Google of course
     static {
-        addDriver("Axion","axiondb",new String[] {"org.axiondb.jdbc.AxionDriver"},"select 1","TODO","TODO","none",null);
-        addDriver("Cloudscape","cloudscape",new String[] {"COM.cloudscape.core.JDBCDriver"},"select 1","TODO","TODO","autoincrement",null);
-        addDriver("DB2","db2",new String[] {"COM.ibm.db2.jdbc.app.DB2Driver","COM.ibm.db2.jdbc.net.DB2Driver"},"select 1","TODO","TODO","none",null);
-        addDriver("Derby", "derby", new String[] {"org.apache.derby.jdbc.EmbeddedDriver"}, "values 1", "uppercase", "set schema $schema", "autoincrement",null);
-        addDriver("Easysoft","easysoft",new String[] {"easysoft.sql.jobDriver"},"select 1","TODO","TODO","TODO",null);
-        addDriver("Frontbase","frontbase",new String[] {"jdbc.FrontBase.FBJDriver"},"select 1","TODO","TODO","TODO",null);
-        addDriver("HSQLDB","hsqldb",new String[] {"org.hsqldb.jdbcDriver","org.hsql.jdbcDriver"},"call 1","uppercase","set schema $schema","autoincrement","SYSTEM_.*");
-        addDriver("Hypersonic","hypersonic",new String[] {"org.hsql.jdbcDriver"},"select 1","TODO","TODO","autoincrement",null);
-        addDriver("OpenBase","openbase",new String[] {"com.openbase.jdbc.ObDriver"},"select 1","TODO","TODO","TODO",null);
-        addDriver("Informix","informix",new String[] {"com.informix.jdbc.IfxDriver"},"select 1","TODO","TODO","none",null);
-        addDriver("InstantDB","instantdb",new String[] {"org.enhydra.instantdb.jdbc.idbDriver"},"select 1","TODO","TODO","none",null);
-        addDriver("Interbase","interbase",new String[] {"interbase.interclient.Driver"},"select 1","TODO","TODO","none",null);
-        addDriver("ODBC","odbc",new String[] {"sun.jdbc.odbc.JdbcOdbcDriver"},"select 1","TODO","TODO","TODO",null);
-        addDriver("Sql Server","sqlserver",new String[] {"com.microsoft.jdbc.sqlserver.SQLServerDriver","com.jnetdirect.jsql.JSQLDriver","com.merant.datadirect.jdbc.sqlserver.SQLServerDriver"},"select 1","TODO","TODO","autoincrement",null);
-        addDriver("MySql","mysql",new String[] {"com.mysql.jdbc.Driver","org.gjt.mm.mysql.Driver"},"select 1","sensitive",null,"autoincrement",null);
-        addDriver("OpenBase","",new String[] {"com.openbase.jdbc.ObDriver"},"select 1","TODO","TODO","TODO",null);
-        addDriver("Oracle","oracle",new String[] {"oracle.jdbc.driver.OracleDriver"},"select 1 from dual","uppercase","alter session set current_schema = $schema","sequence",".*\\/.*");
-        addDriver("PostgreSQL","postgresql",new String[] {"org.postgresql.Driver"},"select 1","lowercase",null,"autoincrement",null); // also sequences, but support for autoincrement is better
-        addDriver("SapDB","sapdb",new String[] {"com.sap.dbtech.jdbc.DriverSapDB"},"select 1 from dual","uppercase","TODO","sequence",null);
-        addDriver("Sybase","sybase",new String[] {"com.sybase.jdbc2.jdbc.SybDriver"},"select 1","TODO","TODO","autoincrement",null);
-        addDriver("Weblogic","weblogic",new String[] {"weblogic.jdbc.pool.Driver"},"select 1","TODO","TODO","none",null);
+        addDriver("Axion","axiondb",new String[] {"org.axiondb.jdbc.AxionDriver"},"select 1","TODO","TODO","none",null,null);
+        addDriver("Cloudscape","cloudscape",new String[] {"COM.cloudscape.core.JDBCDriver"},"select 1","TODO","TODO","autoincrement","VALUES IDENTITY_VAL_LOCAL()",null);
+        addDriver("DB2","db2",new String[] {"COM.ibm.db2.jdbc.app.DB2Driver","COM.ibm.db2.jdbc.net.DB2Driver"},"select 1","TODO","TODO","none","VALUES IDENTITY_VAL_LOCAL()",null);
+        addDriver("Derby", "derby", new String[] {"org.apache.derby.jdbc.EmbeddedDriver"}, "values 1", "uppercase", "set schema $schema", "autoincrement",null,null);
+        addDriver("Easysoft","easysoft",new String[] {"easysoft.sql.jobDriver"},"select 1","TODO","TODO","TODO",null,null);
+        addDriver("Firebird","firebirdsql",new String [] {"org.firebirdsql.jdbc.FBDriver"},"TODO","TODO","TODO","TODO",null,null);
+        addDriver("Frontbase","frontbase",new String[] {"jdbc.FrontBase.FBJDriver"},"select 1","TODO","TODO","TODO",null,null);
+        addDriver("HSQLDB","hsqldb",new String[] {"org.hsqldb.jdbcDriver","org.hsql.jdbcDriver"},"call 1","uppercase","set schema $schema","autoincrement","CALL IDENTITY()","SYSTEM_.*");
+        addDriver("Hypersonic","hypersonic",new String[] {"org.hsql.jdbcDriver"},"select 1","TODO","TODO","autoincrement",null,null);
+        addDriver("OpenBase","openbase",new String[] {"com.openbase.jdbc.ObDriver"},"select 1","TODO","TODO","TODO",null,null);
+        addDriver("Informix","informix",new String[] {"com.informix.jdbc.IfxDriver"},"select 1","TODO","TODO","none",null,null);
+        addDriver("InstantDB","instantdb",new String[] {"org.enhydra.instantdb.jdbc.idbDriver"},"select 1","TODO","TODO","none",null,null);
+        addDriver("Interbase","interbase",new String[] {"interbase.interclient.Driver"},"select 1","TODO","TODO","none",null,null);
+        addDriver("ODBC","odbc",new String[] {"sun.jdbc.odbc.JdbcOdbcDriver"},"select 1","TODO","TODO","TODO",null,null);
+        addDriver("Sql Server","sqlserver",new String[] {"com.microsoft.jdbc.sqlserver.SQLServerDriver","com.jnetdirect.jsql.JSQLDriver","com.merant.datadirect.jdbc.sqlserver.SQLServerDriver"},"select 1","TODO","TODO","autoincrement",null,null);
+        addDriver("MySql","mysql",new String[] {"com.mysql.jdbc.Driver","org.gjt.mm.mysql.Driver"},"select 1","sensitive",null,"autoincrement",null,null);
+        addDriver("OpenBase","",new String[] {"com.openbase.jdbc.ObDriver"},"select 1","TODO","TODO","TODO",null,null);
+        addDriver("Oracle","oracle",new String[] {"oracle.jdbc.driver.OracleDriver"},"select 1 from dual","uppercase","alter session set current_schema = $schema","sequence",null,".*\\/.*");
+        addDriver("PostgreSQL","postgresql",new String[] {"org.postgresql.Driver"},"select 1","lowercase",null,"autoincrement",null,null); // also sequences, but support for autoincrement is better
+        addDriver("SapDB","sapdb",new String[] {"com.sap.dbtech.jdbc.DriverSapDB"},"select 1 from dual","uppercase","TODO","sequence",null,null);
+        addDriver("Sybase","sybase",new String[] {"com.sybase.jdbc2.jdbc.SybDriver"},"select 1","TODO","TODO","autoincrement","SELECT @@IDENTITY",null);
+        addDriver("Weblogic","weblogic",new String[] {"weblogic.jdbc.pool.Driver"},"select 1","TODO","TODO","none",null,null);
 
         // unknwon driver
-        addDriver("Unknown driver","unknown",new String[]{},"select 1","sensitive",null,"none",null);
+        addDriver("Unknown driver","unknown",new String[]{},"select 1","sensitive",null,"none",null,null);
     }
 }
 
