@@ -36,22 +36,22 @@ public class AttributeReference extends AbstractList
 
     /** Constructor for attributes
      *
-     * @param inReadOnlyMap the data accessor this attribute reference applies to
-     * @param inAttribute the wrapped attribute
+     * @param readOnlyMap the data accessor this attribute reference applies to
+     * @param attribute the wrapped attribute
      */
-    public AttributeReference(ReadOnlyMap inReadOnlyMap,Attribute inAttribute) {
-        this(inReadOnlyMap,inAttribute,null);
+    public AttributeReference(ReadOnlyMap readOnlyMap,Attribute attribute) {
+        this(readOnlyMap,attribute,null);
     }
 
     /** Constructor for attributes
      *
-     * @param inReadOnlyMap the data accessor this attribute reference applies to
-     * @param inAttribute the wrapped attribute
+     * @param readOnlyMap the data accessor this attribute reference applies to
+     * @param attribute the wrapped attribute
      */
-    public AttributeReference(ReadOnlyMap inReadOnlyMap,Attribute inAttribute,UserContext usrCtx) {
-        mReadOnlyMap = inReadOnlyMap;
-        mAttribute = inAttribute;
-        userContext = usrCtx;
+    public AttributeReference(ReadOnlyMap readOnlyMap,Attribute attribute,UserContext usrCtx) {
+        this.readOnlyMap = readOnlyMap;
+        this.attribute = attribute;
+        this.userContext = usrCtx;
     }
 
     /** Refines this attribute's reference result : the provided criterium will be added to the 'where' clause (or a 'where' clause will be added).
@@ -70,18 +70,18 @@ public class AttributeReference extends AbstractList
      * <p>
      * select * from person where (parent_id=?) and (age>18) and (gender='F')
      *
-     * @param inCriterium a valid sql condition
+     * @param criterium a valid sql condition
      */
-    public void refine(String inCriterium) {
-        if (mRefineCriteria == null) mRefineCriteria = new ArrayList();
-        mRefineCriteria.add(inCriterium);
+    public void refine(String criterium) {
+        if (refineCriteria == null) refineCriteria = new ArrayList();
+        refineCriteria.add(criterium);
     }
 
     /** Clears any refinement made on this attribute
      * <p>
      */
     public void clearRefinement() {
-        mRefineCriteria = null;
+        refineCriteria = null;
     }
 
     /** Called by the #foreach directive.
@@ -93,7 +93,7 @@ public class AttributeReference extends AbstractList
      */
     public Iterator iterator() {
         try {
-            RowIterator iterator = mAttribute.query(mReadOnlyMap,mRefineCriteria,mOrder);
+            RowIterator iterator = attribute.query(readOnlyMap,refineCriteria,order);
             if (userContext != null) iterator.setUserContext(userContext);
             return iterator;
         }
@@ -111,7 +111,7 @@ public class AttributeReference extends AbstractList
      * @return a list of all the rows
      */
     public List getRows() throws SQLException {
-        RowIterator iterator = mAttribute.query(mReadOnlyMap,mRefineCriteria,mOrder);
+        RowIterator iterator = attribute.query(readOnlyMap,refineCriteria,order);
         if (userContext != null) iterator.setUserContext(userContext);
         return iterator.getRows();
     }
@@ -120,11 +120,11 @@ public class AttributeReference extends AbstractList
      * If an 'order by' clause is already present in the original query, the new one is appended (but successive calls to this method overwrite previous ones)<p>
      * Pass it null or an empty string to clear any ordering.
      *
-     * @param inOrder valid sql column names (separated by commas) indicating the
+     * @param order valid sql column names (separated by commas) indicating the
      *      desired order
      */
-    public void setOrder(String inOrder) {
-        mOrder = inOrder;
+    public void setOrder(String order) {
+        this.order = order;
     }
 
     /** Dummy method. Since this class has to appear as a Collection for Velocity, it extends the AbstractList class but only the iterator() method has a real meaning.
@@ -141,16 +141,16 @@ public class AttributeReference extends AbstractList
 
     /** Specified refining criteria defined on this attribute reference.
      */
-    protected List mRefineCriteria = null;
+    protected List refineCriteria = null;
     /** Specified 'order by' clause specified for this attribute reference.
      */
-    protected String mOrder = null;
+    protected String order = null;
     /** The data accessor this attribute reference applies to.
      */
-    protected ReadOnlyMap mReadOnlyMap = null;
+    protected ReadOnlyMap readOnlyMap = null;
     /** The wrapped attribute.
      */
-    protected Attribute mAttribute = null;
+    protected Attribute attribute = null;
 
     /** user context
      */

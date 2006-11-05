@@ -48,16 +48,16 @@ public class SqlUtil
     }
 
     // add seach criteria to a query
-    public static String refineQuery(String inQuery,List inCriteria) {
+    public static String refineQuery(String query,List criteriaList) {
 
-        if (inCriteria == null || inCriteria.size()==0) return inQuery;
+        if (criteriaList == null || criteriaList.size()==0) return query;
 
         try {
             /* issue all searches on a string where all constant strings
              * (inside quotes) and subqueries (inside parenthesis) have been filtered
              */
 
-            StringBuffer buffer = new StringBuffer(inQuery.toLowerCase());
+            StringBuffer buffer = new StringBuffer(query.toLowerCase());
 
             Matcher matcher = Pattern.compile("'[^']+'").matcher(buffer);
             while(matcher.find()) {
@@ -77,39 +77,38 @@ public class SqlUtil
             Matcher groupby = Pattern.compile("\\Wgroup\\W+by\\W").matcher(buffer);
             Matcher orderby = Pattern.compile("\\Worder\\W+by\\W").matcher(buffer);
 
-            int after = inQuery.length();
+            int after = query.length();
             if (groupby.find()) after = groupby.start();
             if (orderby.find()) after = Math.min(after,orderby.start());
 
-            String query;
-            String criteria = " (" + StringLists.join(inCriteria," ) and ( ") + ") ";
+            String criteria = " (" + StringLists.join(criteriaList," ) and ( ") + ") ";
 
             if (where.find()) {
                 // a little check
                 if (where.start()>after) throw new Exception("Error: 'where' clause found after 'order by' or 'group by' clause");
-                query = inQuery.substring(0,where.end()) + " ( " + inQuery.substring(where.end(),after) + ") and " + criteria + inQuery.substring(after);
+                query = query.substring(0,where.end()) + " ( " + query.substring(where.end(),after) + ") and " + criteria + query.substring(after);
             } else {
-                query = inQuery.substring(0,after) + " where " + criteria + inQuery.substring(after);
+                query = query.substring(0,after) + " where " + criteria + query.substring(after);
             }
             return query;
         }
         catch(Exception ree) {
-            Logger.warn("Could not refine query: " + inQuery);
+            Logger.warn("Could not refine query: " + query);
             Logger.log(ree);
-            return inQuery;
+            return query;
         }
     }
 
-    public static String orderQuery(String inQuery,String inOrder) {
+    public static String orderQuery(String query,String order) {
 
-        if (inOrder == null || inOrder.length()==0) return inQuery;
+        if (order == null || order.length()==0) return query;
 
         try {
             /* issue all searches on a string where all constant strings
              * (inside quotes) and subqueries (inside parenthesis) have been filtered
              */
 
-            StringBuffer buffer = new StringBuffer(inQuery.toLowerCase());
+            StringBuffer buffer = new StringBuffer(query.toLowerCase());
 
 
             Matcher matcher = Pattern.compile("'[^']+'").matcher(buffer);
@@ -128,27 +127,23 @@ public class SqlUtil
 
             Matcher orderby = Pattern.compile("\\Worder\\W+by\\W").matcher(buffer);
 
-            String query;
-
             if (orderby.find()) {
-                Logger.warn("Query has already an 'order by' clause: "+inQuery);
-                query = inQuery;
+                Logger.warn("Query has already an 'order by' clause: "+query);
             } else {
-                query = inQuery + " order by " + inOrder;
+                query = query + " order by " + order;
             }
             return query;
         }
         catch (Exception e) {
             Logger.log(e);
-            return null; // or inQuery ?
+            return null; // or query ?
         }
     }
 
-    public static List getColumnNames(ResultSet inResultSet) throws SQLException {
+    public static List getColumnNames(ResultSet resultSet) throws SQLException {
         List columnNames = new ArrayList();
-        ResultSetMetaData meta = inResultSet.getMetaData();
+        ResultSetMetaData meta = resultSet.getMetaData();
         int count = meta.getColumnCount();
-        int type;
         for (int c=1;c<=count;c++)
             columnNames.add(meta.getColumnName(c));
         return columnNames;

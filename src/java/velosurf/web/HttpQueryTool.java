@@ -45,16 +45,16 @@ import velosurf.model.Entity;
     public HttpQueryTool() {
     }
 
-    public void init(Object inViewContext) {
+    public void init(Object viewContext) {
 
-        super.init(inViewContext);
+        super.init(viewContext);
 
-        if (!(inViewContext instanceof ViewContext)) {
+        if (!(viewContext instanceof ViewContext)) {
             Logger.error("HttpQueryTool.init: can't initialize... bad scope ? (query scope expected)");
             throw new IllegalArgumentException("expecting a ViewContext argument");
         }
 
-        context = (ViewContext)inViewContext;
+        context = (ViewContext)viewContext;
         HttpServletRequest request = context.getRequest();
     }
 

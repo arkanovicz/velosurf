@@ -38,14 +38,14 @@ public class ImportedKey extends Attribute {
 
     protected String getQuery() throws SQLException
     {
-        if(mQuery == null) {
-            Entity pkEntity = mDB.getEntity(mResultEntity);
+        if(query == null) {
+            Entity pkEntity = db.getEntity(resultEntity);
             for(String param:fkCols) {
                 addParamName(param);
             }
-            mQuery = "SELECT * FROM " + pkEntity.getTableName() + " WHERE " + StringLists.join(pkEntity.aliasToColumn(pkEntity.getPKCols())," = ? AND ") + " = ?";
+            query = "SELECT * FROM " + pkEntity.getTableName() + " WHERE " + StringLists.join(pkEntity.aliasToColumn(pkEntity.getPKCols())," = ? AND ") + " = ?";
         }
-        return mQuery;
+        return query;
     }
 
     public List<String> getFKCols() {

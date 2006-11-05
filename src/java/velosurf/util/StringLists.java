@@ -41,12 +41,12 @@ public class StringLists
 
     /** joins strings using a separator
      *
-     * @param inStringList strings to join
-     * @param inJoinString separator to include between strings
+     * @param stringList strings to join
+     * @param joinString separator to include between strings
      * @return the result of the join
      */
-    public static String join(Collection inStringList,String inJoinString) {
-        Iterator i=inStringList.iterator();
+    public static String join(Collection stringList,String joinString) {
+        Iterator i=stringList.iterator();
 
         StringBuffer result = new StringBuffer();
 
@@ -55,7 +55,7 @@ public class StringLists
         result.append(i.next().toString());
 
         while (i.hasNext()) {
-            result.append(inJoinString);
+            result.append(joinString);
             result.append((String)i.next());
         }
         return result.toString();

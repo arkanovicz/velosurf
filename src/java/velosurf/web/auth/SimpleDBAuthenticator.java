@@ -33,7 +33,7 @@ import velosurf.util.Logger;
 
 public class SimpleDBAuthenticator extends BaseAuthenticator {
 
-    private static DBReference sDb = null;
+    private DBReference db = null;
 
     private static final String USER_BY_LOGIN_KEY = "user-by-login";
     private static final String LOGIN_PARAMETER_KEY = "login-parameter";
@@ -54,8 +54,8 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
 
         // init only if there was no error in super class
         if (initData instanceof ViewContext) {
-            if (sDb == null) {
-                sDb = VelosurfTool.getDefaultInstance(((ViewContext)initData).getServletContext());
+            if (db == null) {
+                db = VelosurfTool.getDefaultInstance(((ViewContext)initData).getServletContext());
             }
         }
 
@@ -78,9 +78,9 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
 
     protected String getPassword(String login) {
         Instance user = null;
-        synchronized(sDb) {
-            sDb.put(loginParameter, login);
-            user = (Instance)sDb.get(userByLogin);
+        synchronized(db) {
+            db.put(loginParameter, login);
+            user = (Instance)db.get(userByLogin);
         }
         if (user != null) {
             return (String)user.get(passwordField);
@@ -89,9 +89,9 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
     }
 
     protected Object getUser(String login) {
-        synchronized(sDb) {
-            sDb.put(loginParameter, login);
-            return sDb.get(userByLogin);
+        synchronized(db) {
+            db.put(loginParameter, login);
+            return db.get(userByLogin);
         }
     }
 

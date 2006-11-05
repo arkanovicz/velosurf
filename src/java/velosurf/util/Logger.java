@@ -65,70 +65,70 @@ public class Logger
     /**
      * Current log level
      */
-    private static int mLogLevel = INFO_ID;
+    private static int logLevel = INFO_ID;
 
     /**
      * whether to display timestamps
      */
-    private static boolean mDisplayTimestamps = false;
+    private static boolean displayTimestamps = false;
 
     /**
      * whether the logger captures stdout
      */
-    private static boolean sCaptureStdout = false;
+    private static boolean captureStdout = false;
 
     /**
      * whether the logger captures stderr
      */
-    private static boolean sCaptureStderr;
+    private static boolean captureStderr;
 
     /**
      * max number of lines to log in asynchronous mode
      */
-    private static int sAsyncLimit = 50;
+    private static int asyncLimit = 50;
 
     /**
      * Did someone give me an otput writer ?
      */
-    private static boolean sInitialized = false;
+    private static boolean initialized = false;
 
     /** Sets the log level
-     * @param inLogLevel log level
+     * @param logLevel log level
      */
-    public static void setLogLevel(int inLogLevel) {
-        mLogLevel = inLogLevel;
+    public static void setLogLevel(int logLevel) {
+        Logger.logLevel = logLevel;
     }
 
     /** whether to display timestamps
      *
      */
     public static void setDisplayTimestamps(boolean timestamps) {
-        mDisplayTimestamps = timestamps;
+        displayTimestamps = timestamps;
     }
 
     /** Gets the current log level
      * @return the current log level
      */
     public static int getLogLevel() {
-        return mLogLevel;
+        return logLevel;
     }
 
     /** date format for timestamps
      */
-    static SimpleDateFormat sFormat = null;
+    static SimpleDateFormat format = null;
     /** asynchronous log used at start
      */
-    static StringWriter sAsyncLog = null;
+    static StringWriter asyncLog = null;
     /** log output printwriter
      */
-    static PrintWriter sLog = null;
+    static PrintWriter log = null;
     static
     {
         try {
-            sFormat = new SimpleDateFormat("[yyyy/MM/dd hh:mm:ss]");
+            format = new SimpleDateFormat("[yyyy/MM/dd hh:mm:ss]");
             // initialize with an asynchronous buffer
-            sAsyncLog = new StringWriter();
-            sLog = new PrintWriter(sAsyncLog);
+            asyncLog = new StringWriter();
+            log = new PrintWriter(asyncLog);
             info("log initialized");
         }
         catch (Throwable e) {
@@ -139,18 +139,18 @@ public class Logger
 
     /** stdout old value
      */
-    static PrintStream sOldStdout = null;
+    static PrintStream oldStdout = null;
     /** stderr old value
      */
-    static PrintStream sOldStderr = null;
+    static PrintStream oldStderr = null;
 
     /** logs a string
      *
      * @param s string
      */
     static protected void log(String s) {
-        sLog.println(header()+s);
-        sLog.flush();
+        log.println(header()+s);
+        log.flush();
     }
 
     /** logs an exception with a string
@@ -160,8 +160,8 @@ public class Logger
      */
     static public void log(String s,Throwable e) {
         error(s);
-        e.printStackTrace(sLog);
-        sLog.flush();
+        e.printStackTrace(log);
+        log.flush();
     }
 
     /** log an exception
@@ -181,7 +181,7 @@ public class Logger
      * @param s string to log
      */
     static public void log(int level,String s) {
-        if (level < mLogLevel) return;
+        if (level < logLevel) return;
         String prefix="";
         switch(level) {
             case TRACE_ID:
@@ -206,10 +206,10 @@ public class Logger
         log(prefix+s);
         lines++;
         // no more than 100 lines in asynchronous mode
-        if (sAsyncLog != null && lines >sAsyncLimit) {
+        if (asyncLog != null && lines >asyncLimit) {
             log2Stderr();
             flushAsyncLog();
-            warn("More than "+sAsyncLimit+" lines in asynchronous logging mode...");
+            warn("More than "+asyncLimit+" lines in asynchronous logging mode...");
             warn("Automatically switching to stderr");
         }
     }
@@ -267,7 +267,7 @@ public class Logger
      * @return writer
      */
     static public PrintWriter getWriter() {
-        return sLog;
+        return log;
     }
 
     /** set the output writer
@@ -275,46 +275,46 @@ public class Logger
      * @param out PrintWriter or Writer or OutputStream
      */
     static public void setWriter(Object out) {
-        if (sLog!=null) {
-            sLog.flush();
-            sLog.close();
+        if (log!=null) {
+            log.flush();
+            log.close();
         }
-        if (out instanceof PrintWriter) sLog = (PrintWriter)out;
-        else if (out instanceof Writer) sLog = new PrintWriter((Writer)out);
-        else if (out instanceof OutputStream) sLog = new PrintWriter((OutputStream)out);
+        if (out instanceof PrintWriter) log = (PrintWriter)out;
+        else if (out instanceof Writer) log = new PrintWriter((Writer)out);
+        else if (out instanceof OutputStream) log = new PrintWriter((OutputStream)out);
         else throw new RuntimeException("Logger.setWriter: PANIC! class "+out.getClass().getName()+" cannot be used to build a PrintWriter!");
-        if (sAsyncLog != null) flushAsyncLog();
-        sInitialized = true;
+        if (asyncLog != null) flushAsyncLog();
+        initialized = true;
     }
 
     /** redirects stdout towards output writer
      */
     static public void startCaptureStdout() {
-        sOldStdout = System.out;
-        System.setOut(new PrintStream(new WriterOutputStream(sLog)));
-        sCaptureStdout = true;
+        oldStdout = System.out;
+        System.setOut(new PrintStream(new WriterOutputStream(log)));
+        captureStdout = true;
     }
 
     /** stop redirecting stdout
      */
     static public void stopCaptureStdout() {
-        if (sCaptureStdout) System.setOut(sOldStdout);
-        sCaptureStdout = false;
+        if (captureStdout) System.setOut(oldStdout);
+        captureStdout = false;
     }
 
     /** redirects stderr towards the output writer
      */
     static public void startCaptureStderr() {
-        sOldStderr = System.err;
-        System.setErr(new PrintStream(new WriterOutputStream(sLog)));
-        sCaptureStderr = true;
+        oldStderr = System.err;
+        System.setErr(new PrintStream(new WriterOutputStream(log)));
+        captureStderr = true;
     }
 
     /** stops redirecting stderr
      */
     static public void stopCaptureStderr() {
-        if (sCaptureStderr) System.setErr(sOldStderr);
-        sCaptureStderr = false;
+        if (captureStderr) System.setErr(oldStderr);
+        captureStderr = false;
     }
 
     /** log to stdout
@@ -322,7 +322,7 @@ public class Logger
     static public void log2Stdout() {
         stopCaptureStdout();
         stopCaptureStderr();
-        sLog = new PrintWriter(System.out);
+        log = new PrintWriter(System.out);
         flushAsyncLog();
     }
 
@@ -331,7 +331,7 @@ public class Logger
     static public void log2Stderr() {
         stopCaptureStdout();
         stopCaptureStderr();
-        sLog = new PrintWriter(System.err);
+        log = new PrintWriter(System.err);
         flushAsyncLog();
     }
 
@@ -340,17 +340,17 @@ public class Logger
      * @return return the header
      */
     static protected String header() {
-        return mDisplayTimestamps ? sFormat.format(new Date())+ " Velosurf " : " Velosurf ";
+        return displayTimestamps ? format.format(new Date())+ " Velosurf " : " Velosurf ";
     }
 
     /** flush the asynchronous log in the output writer
      */
     static protected void flushAsyncLog() {
-        if (sAsyncLog != null) {
+        if (asyncLog != null) {
             try {
-                log(sAsyncLog.toString());
-                sAsyncLog.close();
-                sAsyncLog = null;
+                log(asyncLog.toString());
+                asyncLog.close();
+                asyncLog = null;
             }
             catch (IOException ioe) {
                 log(ioe);
@@ -362,7 +362,7 @@ public class Logger
      *
      */
     static public boolean isInitialized() {
-        return sInitialized;
+        return initialized;
     }
 
     /** dumps the current stack
@@ -372,7 +372,7 @@ public class Logger
             throw new Exception("dumpStack");
         }
         catch (Exception e) {
-            e.printStackTrace(sLog);
+            e.printStackTrace(log);
         }
     }
 

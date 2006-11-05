@@ -40,14 +40,14 @@ public class RowIterator implements Iterator,ReadOnlyMap {
 
     /** Build a new RowIterator
      *
-     * @param inPooledStatement the sql statement
-     * @param inResultSet the resultset
-     * @param inResultEntity the resulting entity (may be null)
+     * @param pooledStatement the sql statement
+     * @param resultSet the resultset
+     * @param resultEntity the resulting entity (may be null)
      */
-    public RowIterator(Pooled inPooledStatement,ResultSet inResultSet,Entity inResultEntity) {
-        mPooledStatement = inPooledStatement;
-        mResultSet = inResultSet;
-        mResultEntity = inResultEntity;
+    public RowIterator(Pooled pooledStatement,ResultSet resultSet,Entity resultEntity) {
+        this.pooledStatement = pooledStatement;
+        this.resultSet = resultSet;
+        this.resultEntity = resultEntity;
     }
 
     /** Returns true if the iteration has more elements.
@@ -56,14 +56,14 @@ public class RowIterator implements Iterator,ReadOnlyMap {
      */
     public boolean hasNext() {
         try {
-            mPooledStatement.getConnection().enterBusyState();
-            boolean ret = !mResultSet.isLast();
-            mPooledStatement.getConnection().leaveBusyState();
-            if (!ret) mPooledStatement.notifyOver();
+            pooledStatement.getConnection().enterBusyState();
+            boolean ret = !resultSet.isLast();
+            pooledStatement.getConnection().leaveBusyState();
+            if (!ret) pooledStatement.notifyOver();
             return ret;
         } catch (SQLException e) {
             Logger.log(e);
-            mPooledStatement.notifyOver();
+            pooledStatement.notifyOver();
             return false;
         }
     }
@@ -75,21 +75,21 @@ public class RowIterator implements Iterator,ReadOnlyMap {
      */
     public Object next() {
         try {
-            if(!mResultSet.next()) {
+            if(!resultSet.next()) {
                 return null;
             }
-            if (mResultEntity != null) {
+            if (resultEntity != null) {
                 Instance row = null;
-                row = mResultEntity.getInstance((ReadOnlyMap)this);
-                if (mUserContext != null) {
-                    row.setUserContext(mUserContext);
+                row = resultEntity.getInstance((ReadOnlyMap)this);
+                if (userContext != null) {
+                    row.setUserContext(userContext);
                 }
                 return row;
             }
             else return new Instance(this);
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            mPooledStatement.notifyOver();
+            pooledStatement.notifyOver();
             return null;
         }
     }
@@ -106,51 +106,51 @@ public class RowIterator implements Iterator,ReadOnlyMap {
      * Note that this method is the only getter of RowIterator that cares about obfuscation - other specialized getters
      * won't do any obfuscation.
      *
-     * @param inKey the name of an existing column or attribute
+     * @param key the name of an existing column or attribute
      * @return an entity, an attribute reference, an instance, a string or null
      */
-    public Object get(Object inKey) {
-        String property = (String)inKey;
+    public Object get(Object key) {
+        String property = (String)key;
         Object result = null;
         boolean shouldNotifyOver = false;
         try {
             if (!dataAvailable()) return null;
-            if (mResultEntity!=null) {
-                property = mResultEntity.aliasToColumn(property);
-                Attribute attribute = mResultEntity.getAttribute(property);
+            if (resultEntity!=null) {
+                property = resultEntity.aliasToColumn(property);
+                Attribute attribute = resultEntity.getAttribute(property);
                 if (attribute != null)
                         switch (attribute.getType()) {
                             case Attribute.ROWSET:
                                 result = attribute.query(this);
-                                if (result != null && mUserContext != null && result instanceof RowIterator) {
-                                    ((RowIterator)result).setUserContext(mUserContext);
+                                if (result != null && userContext != null && result instanceof RowIterator) {
+                                    ((RowIterator)result).setUserContext(userContext);
                                 }
                                 break;
                             case Attribute.ROW:
                                 result = attribute.fetch(this);
-                                if (result != null && mUserContext != null && result instanceof Instance) {
-                                    ((Instance)result).setUserContext(mUserContext);
+                                if (result != null && userContext != null && result instanceof Instance) {
+                                    ((Instance)result).setUserContext(userContext);
                                 }
                                 break;
                             case Attribute.SCALAR:
                                 result = attribute.evaluate(this);
                                 break;
                             default:
-                                Logger.error("Unknown attribute type for "+mResultEntity.getName()+"."+property+"!");
+                                Logger.error("Unknown attribute type for "+resultEntity.getName()+"."+property+"!");
                         }
             }
             if (result == null) {
-                if (mResultEntity != null && mResultEntity.isObfuscated(property))
-                    result = mResultEntity .obfuscate(mResultSet.getObject(property));
+                if (resultEntity != null && resultEntity.isObfuscated(property))
+                    result = resultEntity .obfuscate(resultSet.getObject(property));
                 else
-                    result = mResultSet.getObject(property);
+                    result = resultSet.getObject(property);
             }
         }
         catch (SQLException e) {
             Logger.log(e);
         }
 
-        if (shouldNotifyOver) mPooledStatement.notifyOver();
+        if (shouldNotifyOver) pooledStatement.notifyOver();
         return result;
     }
 
@@ -161,25 +161,25 @@ public class RowIterator implements Iterator,ReadOnlyMap {
     public List getRows() {
         try {
             List ret = new ArrayList();
-            mPooledStatement.getConnection().enterBusyState();
-            if(mResultEntity != null) {
-                while (!mResultSet.isAfterLast() && mResultSet.next()) {
-                    Instance i = mResultEntity.getInstance((ReadOnlyMap)this);
-                    if (/* i != null && */mUserContext != null) {
-                        i.setUserContext(mUserContext);
+            pooledStatement.getConnection().enterBusyState();
+            if(resultEntity != null) {
+                while (!resultSet.isAfterLast() && resultSet.next()) {
+                    Instance i = resultEntity.getInstance((ReadOnlyMap)this);
+                    if (/* i != null && */userContext != null) {
+                        i.setUserContext(userContext);
                     }
                     ret.add(i);
                 }
             } else {
-                while (!mResultSet.isAfterLast() && mResultSet.next()) {
+                while (!resultSet.isAfterLast() && resultSet.next()) {
                     Instance i = new Instance(this);
-                    if (mUserContext != null) {
-                        i.setUserContext(mUserContext);
+                    if (userContext != null) {
+                        i.setUserContext(userContext);
                     }
                     ret.add(i);
                 }
             }
-            mPooledStatement.getConnection().leaveBusyState();
+            pooledStatement.getConnection().leaveBusyState();
             return ret;
         } catch(SQLException sqle) {
             Logger.log(sqle);
@@ -189,7 +189,7 @@ public class RowIterator implements Iterator,ReadOnlyMap {
 
     public Set keySet() {
         try {
-            return  new HashSet(SqlUtil.getColumnNames(mResultSet));
+            return  new HashSet(SqlUtil.getColumnNames(resultSet));
         } catch(SQLException sqle) {
             Logger.log(sqle);
             return null;
@@ -204,18 +204,18 @@ public class RowIterator implements Iterator,ReadOnlyMap {
      *     one)
      */
     protected boolean dataAvailable() throws SQLException {
-        if (mResultSet.isBeforeFirst()) {
-            mPooledStatement.getConnection().enterBusyState();
-            boolean hasNext = mResultSet.next();
-            mPooledStatement.getConnection().leaveBusyState();
+        if (resultSet.isBeforeFirst()) {
+            pooledStatement.getConnection().enterBusyState();
+            boolean hasNext = resultSet.next();
+            pooledStatement.getConnection().leaveBusyState();
             if (!hasNext) {
-                mPooledStatement.notifyOver();
+                pooledStatement.notifyOver();
                 return false;
             }
-//            mPooledStatement.notifyOver();
+//            pooledStatement.notifyOver();
         }
-        if (mResultSet.isAfterLast()) {
-            mPooledStatement.notifyOver();
+        if (resultSet.isAfterLast()) {
+            pooledStatement.notifyOver();
             return false;
         }
         return true;
@@ -225,24 +225,20 @@ public class RowIterator implements Iterator,ReadOnlyMap {
      *
      */
     public void setUserContext(UserContext context) {
-        mUserContext = context;
+        userContext = context;
     }
 
     /** the statement
      */
-    protected Pooled mPooledStatement = null;
+    protected Pooled pooledStatement = null;
     /** the result set
      */
-    protected ResultSet mResultSet = null;
+    protected ResultSet resultSet = null;
     /** the resulting entity
      */
-    protected Entity mResultEntity = null;
-
-    /** Column names in sequential order
-     */
-    protected List mColumnNames = null;
+    protected Entity resultEntity = null;
 
     /** user context
      */
-    protected UserContext mUserContext = null;
+    protected UserContext userContext = null;
 }

@@ -24,27 +24,27 @@ public class Strings
 {
     /** replace a string by another inside a target string
      *
-     * @param inTarget target string
-     * @param inOldPattern old pattern
-     * @param inNewPattern new pattern
+     * @param target target string
+     * @param oldPattern old pattern
+     * @param newPattern new pattern
      * @return result
      */
-    public static String replace(String inTarget,String inOldPattern,String inNewPattern) {
-        if (inTarget == null)
+    public static String replace(String target,String oldPattern,String newPattern) {
+        if (target == null)
             return null;
 
-        if (inOldPattern==null || inOldPattern.length()==0 || inNewPattern==null) return inTarget;
+        if (oldPattern==null || oldPattern.length()==0 || newPattern==null) return target;
 
         StringBuffer buff = new StringBuffer();
-        int previous=0,offset=0,length=inOldPattern.length();
+        int previous=0,offset=0,length=oldPattern.length();
 
-        while ( (offset=inTarget.indexOf(inOldPattern,previous)) !=-1)
+        while ( (offset=target.indexOf(oldPattern,previous)) !=-1)
         {
-            buff.append(inTarget.substring(previous,offset));
-            buff.append(inNewPattern);
+            buff.append(target.substring(previous,offset));
+            buff.append(newPattern);
             previous=offset+length;
         }
-        buff.append(inTarget.substring(previous));
+        buff.append(target.substring(previous));
 
         return buff.toString();
 
@@ -52,30 +52,29 @@ public class Strings
 
     /** characters to trim
      */
-    private static String sTrimmed = " \t\r\n";
+    private static String trimmed = " \t\r\n";
 
     /** trim spaces and EOL characters (TODO : fix the typo - nothing to do with EOF characters)
      *
-     * @param inTarget target string
+     * @param target target string
      * @return the trimmed string
      */
-    public static String trimSpacesAndEOF(String inTarget) {
-        if (inTarget == null || inTarget.length() == 0) return inTarget;
+    public static String trimSpacesAndEOF(String target) {
+        if (target == null || target.length() == 0) return target;
 
         char c;
         int i=0;
         do {
-            c = inTarget.charAt(i++);
-        } while (sTrimmed.indexOf(c) != -1 && i<inTarget.length());
+            c = target.charAt(i++);
+        } while (trimmed.indexOf(c) != -1 && i<target.length());
 
-        int j=inTarget.length();
+        int j=target.length();
         if (j>i) {
             do {
-                c = inTarget.charAt(--j);
-            } while (sTrimmed.indexOf(c) != -1 && j<inTarget.length());
+                c = target.charAt(--j);
+            } while (trimmed.indexOf(c) != -1 && j<target.length());
         }
         else j--;
-//Logger.debug("TRIM from : '"+inTarget+"'\nTRIM to : '"+        inTarget.substring(i-1,j+1)+"'");
-        return inTarget.substring(i-1,j+1);
+        return target.substring(i-1,j+1);
     }
 }

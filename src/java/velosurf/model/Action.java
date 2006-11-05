@@ -36,49 +36,49 @@ public class Action
     /** Constructor
      *
      * @param name name
-     * @param inEntity entity
+     * @param entity entity
      */
-    public Action(String name,Entity inEntity) {
-        mEntity = inEntity;
-        mDB = mEntity.mDB;
-        mName = name;
+    public Action(String name,Entity entity) {
+        this.entity = entity;
+        db = this.entity.db;
+        this.name = name;
     }
 
     public void addParamName(String paramName) {
-        mParamNames.add(paramName);
+        paramNames.add(paramName);
     }
 
     public void setQuery(String query) {
-        mQuery = query;
+        this.query = query;
     }
 
     /** executes this action
      *
-     * @param inSource the object on which apply the action
+     * @param source the object on which apply the action
      * @exception SQLException an SQL problem occurs
      * @return number of impacted rows
      */
-    public int perform(ReadOnlyMap inSource) throws SQLException {
+    public int perform(ReadOnlyMap source) throws SQLException {
         // TODO: check type
-        List params = buildArrayList(inSource);
-        return mDB.prepare(mQuery).update(params);
+        List params = buildArrayList(source);
+        return db.prepare(query).update(params);
     }
 
 
     /** get the list of values for all parameters
      *
-     * @param inSource the DataAccessor
+     * @param source the DataAccessor
      * @exception SQLException thrown by the DataAccessor
      * @return the list of values
      */
-    public List buildArrayList(ReadOnlyMap inSource) throws SQLException {
+    public List buildArrayList(ReadOnlyMap source) throws SQLException {
         ArrayList result = new ArrayList();
-        if (inSource!=null)
-            for (Iterator i = mParamNames.iterator();i.hasNext();) {
+        if (source!=null)
+            for (Iterator i = paramNames.iterator();i.hasNext();) {
                 String paramName = (String)i.next();
-                Object value = inSource.get(paramName);
-                if (mEntity.isObfuscated(paramName)) value = mDB.deobfuscate(value);
-                if (value == null) Logger.warn("Query "+mQuery+": param "+paramName+" is null!");
+                Object value = source.get(paramName);
+                if (entity.isObfuscated(paramName)) value = db.deobfuscate(value);
+                if (value == null) Logger.warn("Query "+query+": param "+paramName+" is null!");
                 result.add(value);
             }
         return result;
@@ -89,7 +89,7 @@ public class Action
      * @return the name
      */
     public String getName() {
-        return mName;
+        return name;
     }
 
     /** for debugging purpose
@@ -98,8 +98,8 @@ public class Action
      */
     public String toString() {
         String result = "";
-        if (mParamNames.size()>0) result += "("+StringLists.join(mParamNames,",")+")";
-        result+=":"+mQuery;
+        if (paramNames.size()>0) result += "("+StringLists.join(paramNames,",")+")";
+        result+=":"+query;
         return result;
     }
 
@@ -108,25 +108,25 @@ public class Action
      * @return the database connection
      */
     public Database getDB() {
-        return mDB;
+        return db;
     }
 
     /** the satabase connection
      */
-    protected Database mDB = null;
+    protected Database db = null;
     /** the entity this action belongs to
      */
-    protected Entity mEntity = null;
+    protected Entity entity = null;
     /** the name of this action
      */
-    protected String mName = null;
+    protected String name = null;
 
     // for simple actions
     /** parameter names of this action
      */
-    protected List<String> mParamNames = new ArrayList<String>();
+    protected List<String> paramNames = new ArrayList<String>();
     /** query of this action
      */
-    protected String mQuery = null;
+    protected String query = null;
 
 }

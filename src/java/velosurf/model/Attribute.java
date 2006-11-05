@@ -50,82 +50,82 @@ public class Attribute
     public static final int SCALAR = 3;
 
     public Attribute(String name,Entity entity) {
-        mEntity = entity;
-        mDB = entity.getDB();
-        mName = name;
+        this.entity = entity;
+        db = entity.getDB();
+        this.name = name;
     }
 
     public void setResultType(int type) {
-        mType = type;
+        this.type = type;
     }
 
     public String getResultEntity() {
-        return mResultEntity;
+        return resultEntity;
     }
 
     public void setResultEntity(String entityName) {
-        mResultEntity = entityName;
+        resultEntity = entityName;
     }
 
     public void setForeignKeyColumn(String col) {
-        mForeignKey = col;
+        foreignKey = col;
     }
 
     public void addParamName(String name) {
-        mParamNames.add(name);
+        paramNames.add(name);
     }
 
     public void setQuery(String query) {
-        mQuery = query;
+        this.query = query;
     }
 
     /** fetch the row result of this attribute
      *
-     * @param inSource source object
+     * @param source source object
      * @exception SQLException when thrown by the database
      * @return instance fetched
      */
-    public Object fetch(ReadOnlyMap inSource) throws SQLException {
-        if (mType != ROW) throw new SQLException("cannot call fetch: result of attribute '"+mName+"' is not a row");
-        return mDB.prepare(getQuery()).fetch(buildArrayList(inSource),mDB.getEntity(mResultEntity));
+    public Object fetch(ReadOnlyMap source) throws SQLException {
+        if (type != ROW) throw new SQLException("cannot call fetch: result of attribute '"+name+"' is not a row");
+        return db.prepare(getQuery()).fetch(buildArrayList(source),db.getEntity(resultEntity));
     }
 
     /** query the resultset for this multivalued attribute
      *
-     * @param inSource the source object
+     * @param source the source object
      * @exception SQLException when thrown from the database
      * @return the resulting row iterator
      */
-    public RowIterator query(ReadOnlyMap inSource) throws SQLException {
-        return query(inSource,null,null);
+    public RowIterator query(ReadOnlyMap source) throws SQLException {
+        return query(source,null,null);
     }
 
     /** query the rowset for this attribute
      *
-     * @param inSource source object
-     * @param inRefineCriteria refine criteria
-     * @param inOrder order clause
+     * @param source source object
+     * @param refineCriteria refine criteria
+     * @param order order clause
      * @exception SQLException when thrown by the database
      * @return the resulting row iterator
      */
-    public RowIterator query(ReadOnlyMap inSource,List inRefineCriteria,String inOrder) throws SQLException {
-        if (mType != ROWSET) throw new SQLException("cannot call query: result of attribute '"+mName+"' is not a rowset");
+    public RowIterator query(ReadOnlyMap source,List refineCriteria,String order) throws SQLException {
+        if (type != ROWSET) throw new SQLException("cannot call query: result of attribute '"+name+"' is not a rowset");
         String query = getQuery();
-        if (inRefineCriteria != null) query = SqlUtil.refineQuery(query,inRefineCriteria);
-        if (inOrder != null && inOrder.length()>0) query = SqlUtil.orderQuery(query,inOrder);
-        return mDB.prepare(query).query(buildArrayList(inSource),mDB.getEntity(mResultEntity));
+        if (refineCriteria != null) query = SqlUtil.refineQuery(query,refineCriteria);
+        if (order != null && order.length()>0) query = SqlUtil.orderQuery(query,order);
+        return db.prepare(query).query(buildArrayList(source),db.getEntity(resultEntity));
     }
 
 
     /** evaluate this scalar attribute
      *
-     * @param inSource source object
+     * @param source source object
      * @exception SQLException when thrown from the database
      * @return the resulting scalar
      */
-    public Object evaluate(ReadOnlyMap inSource) throws SQLException {
-        if (mType != SCALAR) throw new SQLException("cannot call evaluate: result of attribute '"+mName+"' is not a scalar");
-        return mDB.prepare(getQuery()).evaluate(buildArrayList(inSource));
+    public Object evaluate(ReadOnlyMap source) throws SQLException {
+        if (type != SCALAR) throw new SQLException("cannot call evaluate: result of attribute '"+name+"' is not a scalar");
+        return db.prepare(getQuery()).evaluate(buildArrayList(source));
     }
 
     /** gets the type of this attribute
@@ -133,23 +133,23 @@ public class Attribute
      * @return this attribute's type
      */
     public int getType() {
-        return mType;
+        return type;
     }
 
     /** builds the list of parameter values - do not use directly
      *
-     * @param inSource source object
+     * @param source source object
      * @exception SQLException thrown by the database engine
      * @return the built list
      */
-    public List buildArrayList(ReadOnlyMap inSource) throws SQLException {
+    public List buildArrayList(ReadOnlyMap source) throws SQLException {
         ArrayList result = new ArrayList();
-        if (inSource!=null)
-            for (Iterator i = mParamNames.iterator();i.hasNext();) {
+        if (source!=null)
+            for (Iterator i = paramNames.iterator();i.hasNext();) {
                 String paramName = (String)i.next();
-                Object value = inSource.get(paramName);
-                if (mEntity.isObfuscated(paramName)) value = mDB.deobfuscate(value);
-                if (value == null) Logger.warn("Query "+mQuery+": param "+paramName+" is null!");
+                Object value = source.get(paramName);
+                if (entity.isObfuscated(paramName)) value = db.deobfuscate(value);
+                if (value == null) Logger.warn("Query "+query+": param "+paramName+" is null!");
                 result.add(value);
             }
         return result;
@@ -160,7 +160,7 @@ public class Attribute
      * @return name of the attribute
      */
     public String getName() {
-        return mName;
+        return name;
     }
 
     /** debug method
@@ -169,7 +169,7 @@ public class Attribute
      */
     public String toString() {
         String result = "";
-        switch (mType) {
+        switch (type) {
             case SCALAR:
                 result += "!";
                 break;
@@ -177,18 +177,18 @@ public class Attribute
                 result += "*";
                 break;
         }
-        if (mResultEntity!=null) result += mResultEntity;
-        if (mForeignKey != null) result += ": foreign key ("+mForeignKey+")";
+        if (resultEntity!=null) result += resultEntity;
+        if (foreignKey != null) result += ": foreign key ("+foreignKey+")";
         else {
-            if (mParamNames.size()>0) result += "("+StringLists.join(mParamNames,",")+")";
-            result+=": "+mQuery;
+            if (paramNames.size()>0) result += "("+StringLists.join(paramNames,",")+")";
+            result+=": "+query;
         }
         return result;
     }
 
     protected String getQuery() throws SQLException
     {
-        return mQuery == null ? mDB.getEntity(mResultEntity).getFetchQuery() : mQuery;
+        return query == null ? db.getEntity(resultEntity).getFetchQuery() : query;
     }
 
     /** gets the database connection
@@ -196,36 +196,36 @@ public class Attribute
      * @return database connection
      */
     public Database getDB() {
-        return mDB;
+        return db;
     }
 
 
     /** database connection
      */
-    protected Database mDB = null;
+    protected Database db = null;
     /** name
      */
-    protected String mName = null;
+    protected String name = null;
 
     /** parent entity
      */
-    protected Entity mEntity;
+    protected Entity entity;
 
     /** for row and rowset attributes, the resulting entity (if specified)
      */
-    protected String mResultEntity;
+    protected String resultEntity;
 
     /** if used, name of the foreign key
      */
-    protected String mForeignKey = null;
+    protected String foreignKey = null;
 
     /** list of the parameter names
      */
-    protected List<String> mParamNames = new ArrayList<String>();
+    protected List<String> paramNames = new ArrayList<String>();
     /** attribute query
      */
-    protected String mQuery = null;
+    protected String query = null;
     /** attribute type
      */
-    protected int mType = UNDEFINED;
+    protected int type = UNDEFINED;
 }

@@ -16,51 +16,51 @@ import java.lang.reflect.Method;
  */
 public class ExternalObjectWrapper extends Instance {
 
-    /* Builds a new PlaiObjectWrapper
+    /** Builds a new PlaiObjectWrapper
      *
-     * @param inEntity the related entity
-     * @param inObject target object
+     * @param entity the related entity
+     * @param object target object
      */
-    public ExternalObjectWrapper(Entity inEntity,Object inObject) {
-        super(inEntity);
-        mWrapped = inObject;
-        Class clazz = mWrapped.getClass();
-        mClassInfo = sClassInfoMap.get(clazz.getName());
-        if (mClassInfo == null) {
-            mClassInfo = new ClassInfo(clazz);
-            sClassInfoMap.put(clazz.getName(),mClassInfo);
+    public ExternalObjectWrapper(Entity entity,Object object) {
+        super(entity);
+        wrapped = object;
+        Class clazz = wrapped.getClass();
+        classInfo = classInfoMap.get(clazz.getName());
+        if (classInfo == null) {
+            classInfo = new ClassInfo(clazz);
+            classInfoMap.put(clazz.getName(),classInfo);
         }
     }
 
-    /*
+    /**
      * Wrapper generic getter: tries first to get the property from the wrapped object, and falls back to the superclass
      * if not found.
      *
-     * @param inKey key of the property to be returned
+     * @param key key of the property to be returned
      * @return a String, an Instance, an AttributeReference or null if not found or if an error
      *      occurs
      */
-    public Object get(Object inKey) {
-        Object ret = getExternal(inKey);
-        if (ret == null) ret = super.get(inKey);
+    public Object get(Object key) {
+        Object ret = getExternal(key);
+        if (ret == null) ret = super.get(key);
         return ret;
     }
 
-    /*
+    /**
      * External getter: get a value on the external object
      *
-     * @param inKey key of the property to be returned
+     * @param key key of the property to be returned
      * @return a String, an Instance, an AttributeReference or null if not found or if an error
      *      occurs
      */
-    public Object getExternal(Object inKey) {
-        Method m = mClassInfo.getGetter((String)inKey);
+    public Object getExternal(Object key) {
+        Method m = classInfo.getGetter((String)key);
         if (m != null) {
             try {
-                return m.invoke(mWrapped,m.getParameterTypes().length>0?new Object[] {inKey}:new Object[]{}); // return even if result is null
+                return m.invoke(wrapped,m.getParameterTypes().length>0?new Object[] {key}:new Object[]{}); // return even if result is null
             }
             catch(Exception e) {
-                Logger.warn("could not get value of field "+mEntity.getName()+"."+inKey+"... falling back to the Instance getter");
+                Logger.warn("could not get value of field "+entity.getName()+"."+key+"... falling back to the Instance getter");
                 Logger.log(e);
             }
         }
@@ -68,25 +68,25 @@ public class ExternalObjectWrapper extends Instance {
     }
 
 
-    /*
+   /**
     * Wrapper generic setter: tries first to set the property into the wrapped object, and falls back to the superclass
     * if not found.
     * @param key key of the property to be set
     * @param value corresponding value
     * @return previous value, or null
      */
-    public Object put(Object inKey,Object inValue) {
-        Method m = mClassInfo.getSetter((String)inKey);
+    public Object put(Object key,Object value) {
+        Method m = classInfo.getSetter((String)key);
         if (m != null) {
             try {
-                return m.invoke(mWrapped,m.getParameterTypes().length==2?new Object[] {inKey,inValue}:new Object[]{inValue});
+                return m.invoke(wrapped,m.getParameterTypes().length==2?new Object[] {key,value}:new Object[]{value});
             }
             catch(Exception e) {
-                Logger.warn("could not set value of field "+mEntity.getName()+"."+inKey+" to '"+inValue+"'... falling back to the Instance setter");
+                Logger.warn("could not set value of field "+entity.getName()+"."+key+" to '"+value+"'... falling back to the Instance setter");
                 Logger.log(e);
             }
         }
-        return super.put(inKey,inValue);
+        return super.put(key,value);
     }
 
     /** <p>Try to update the row associated with this Instance using an update() method
@@ -96,16 +96,16 @@ public class ExternalObjectWrapper extends Instance {
      *     occurs (in which case $db.lastError can be checked).
      */
     public boolean update() {
-        Method m = mClassInfo.getUpdate1();
+        Method m = classInfo.getUpdate1();
         if (m != null) {
             Class cls = m.getReturnType();
             Object args[] = {};
             try {
                 if (cls == boolean.class || cls == Boolean.class) {
-                    return ((Boolean)m.invoke(mWrapped,args)).booleanValue();
+                    return ((Boolean)m.invoke(wrapped,args)).booleanValue();
                 } else {
                     Logger.warn("external object wrapper: update method should return boolean or Boolean. Actual result will be ignored.");
-                    m.invoke(mWrapped,args);
+                    m.invoke(wrapped,args);
                     return true;
                 }
             } catch(Exception e) {
@@ -122,17 +122,17 @@ public class ExternalObjectWrapper extends Instance {
      * @return <code>true</code> if successfull, <code>false</code> if an error
      *     occurs (in which case $db.lastError can be checked).
      */
-    public boolean update(Map inValues) {
-        Method m = mClassInfo.getUpdate2();
+    public boolean update(Map values) {
+        Method m = classInfo.getUpdate2();
         if (m != null) {
             Class cls = m.getReturnType();
-            Object args[] = { inValues };
+            Object args[] = { values };
             try {
                 if (cls == boolean.class || cls == Boolean.class) {
-                    return ((Boolean)m.invoke(mWrapped,args)).booleanValue();
+                    return ((Boolean)m.invoke(wrapped,args)).booleanValue();
                 } else {
                     Logger.warn("external object wrapper: update method should return boolean or Boolean. Actual result will be ignored.");
-                    m.invoke(mWrapped,args);
+                    m.invoke(wrapped,args);
                     return true;
                 }
             } catch(Exception e) {
@@ -150,16 +150,16 @@ public class ExternalObjectWrapper extends Instance {
      *     occurs (in which case $db.lastError can be checked).
      */
     public boolean delete() {
-        Method m = mClassInfo.getDelete();
+        Method m = classInfo.getDelete();
         if (m != null) {
             Class cls = m.getReturnType();
             Object args[] = {};
             try {
                 if (cls == boolean.class || cls == Boolean.class) {
-                    return ((Boolean)m.invoke(mWrapped,args)).booleanValue();
+                    return ((Boolean)m.invoke(wrapped,args)).booleanValue();
                 } else {
                     Logger.warn("external object wrapper: delete method should return boolean or Boolean. Actual result will be ignored.");
-                    m.invoke(mWrapped,args);
+                    m.invoke(wrapped,args);
                     return true;
                 }
             } catch(Exception e) {
@@ -176,16 +176,16 @@ public class ExternalObjectWrapper extends Instance {
      *     occurs (in which case $db.lastError can be checked).
      */
     public boolean insert() {
-        Method m = mClassInfo.getInsert();
+        Method m = classInfo.getInsert();
         if (m != null) {
             Class cls = m.getReturnType();
             Object args[] = {};
             try {
                 if (cls == boolean.class || cls == Boolean.class) {
-                    return ((Boolean)m.invoke(mWrapped,args)).booleanValue();
+                    return ((Boolean)m.invoke(wrapped,args)).booleanValue();
                 } else {
                     Logger.warn("external object wrapper: insert method should return boolean or Boolean. Actual result will be ignored.");
-                    m.invoke(mWrapped,args);
+                    m.invoke(wrapped,args);
                     return true;
                 }
             } catch(Exception e) {
@@ -197,42 +197,42 @@ public class ExternalObjectWrapper extends Instance {
     }
 
 
-    /*
+    /**
      * Returns the underlying external object
      *
      * @return the external object
      */
     public Object unwrap() {
-        return mWrapped;
+        return wrapped;
     }
 
-    /* Tries to find a named method in the external object
+    /** Tries to find a named method in the external object
      *
-     *  @param inName the name of the method
-     *  @param inArgs the types of the arguments
+     *  @param name the name of the method
+     *  @param args the types of the arguments
      */
-    protected Method findMethod(String inName,Class[] inArgs) {
+    protected Method findMethod(String name,Class[] args) {
         try {
-            return mWrapped.getClass().getMethod(inName,inArgs);
+            return wrapped.getClass().getMethod(name,args);
         }
         catch(NoSuchMethodException nsme) {}
         return null;
     }
 
-    /* the wrapped object */
-    Object mWrapped = null;
+    /** the wrapped object */
+    Object wrapped = null;
 
-    /* info on the wrapped object class */
-    ClassInfo mClassInfo = null;
+    /** info on the wrapped object class */
+    ClassInfo classInfo = null;
 
-    /* a map of class infos */
-    static Map<String,ClassInfo> sClassInfoMap = new HashMap<String,ClassInfo>();
+    /** a map of class infos */
+    static Map<String,ClassInfo> classInfoMap = new HashMap<String,ClassInfo>();
 
-    /* a cache for the wrapped object getter methods */
-    Map mGetterCache = null;
+    /** a cache for the wrapped object getter methods */
+    Map getterCache = null;
 
-    /* a cache for the wrapped object setter methods */
-    Map mSetterCache = null;
+    /** a cache for the wrapped object setter methods */
+    Map setterCache = null;
 
     static private class ClassInfo {
         ClassInfo(Class clazz) {

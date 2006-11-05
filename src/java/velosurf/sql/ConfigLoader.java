@@ -715,18 +715,18 @@ public class ConfigLoader {
 
     /** check the syntax of a parameter in the config file
      *
-     * @param inParamName name of the parameter
-     * @param inParamValue value of the parameter
-     * @param inPossibleValues possible values for the parameter
+     * @param paramName name of the parameter
+     * @param paramValue value of the parameter
+     * @param possibleValues possible values for the parameter
      * @return whether the syntax is correct
      */
-    private boolean checkSyntax(String inParamName, String inParamValue, String[] inPossibleValues) {
-        if (inParamValue == null) return false;
-        List possible = Arrays.asList(inPossibleValues);
-        if (inParamValue!=null && Arrays.asList(inPossibleValues).contains(inParamValue.toLowerCase()))
+    private boolean checkSyntax(String paramName, String paramValue, String[] possibleValues) {
+        if (paramValue == null) return false;
+        List possible = Arrays.asList(possibleValues);
+        if (paramValue!=null && Arrays.asList(possibleValues).contains(paramValue.toLowerCase()))
             return true;
         else {
-            Logger.error("Parameter '"+inParamName+"' wants one of: " + StringLists.join(possible,","));
+            Logger.error("Parameter '"+paramName+"' wants one of: " + StringLists.join(possible,","));
             return false;
         }
     }
@@ -746,11 +746,11 @@ public class ConfigLoader {
 
     /** checks whether the action defined by this XML tree is a simple action or a transaction
      *
-     * @param inElement XML tree defining an action
+     * @param element XML tree defining an action
      * @return true if the action is a transaction
      */
-    public static boolean isTransaction(Element inElement) {
-        Iterator queryElements = inElement.getContent().iterator();
+    public static boolean isTransaction(Element element) {
+        Iterator queryElements = element.getContent().iterator();
         while (queryElements.hasNext()) {
             Object content = queryElements.next();
             if (content instanceof Text) {

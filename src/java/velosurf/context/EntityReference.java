@@ -38,39 +38,39 @@ public class EntityReference extends AbstractList
 {
     /** Builds a new EntityReference.
      *
-     * @param inEntity the wrapped entity
+     * @param entity the wrapped entity
      */
-    public EntityReference(Entity inEntity) {
-        this(inEntity,null);
+    public EntityReference(Entity entity) {
+        this(entity,null);
     }
 
     /** Builds a new EntityReference.
      *
-     * @param inEntity the wrapped entity
+     * @param entity the wrapped entity
      */
-    public EntityReference(Entity inEntity,UserContext userContext) {
-        mEntity = inEntity;
-        mUserContext = userContext;
+    public EntityReference(Entity entity,UserContext userContext) {
+        this.entity = entity;
+        this.userContext = userContext;
     }
 
     /** gets the name of the wrapped entity
      */
     public String getName() {
-        return mEntity.getName();
+        return entity.getName();
     }
 
     /** Insert a new row in this entity's table.
      *
-     * @param inValues col -> value map
+     * @param values col -> value map
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
      */
-    public boolean insert(Map inValues) {
+    public boolean insert(Map values) {
         try {
-            return mEntity.insert(new ReadOnlyWrapper(inValues));
+            return entity.insert(new ReadOnlyWrapper(values));
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            if (mUserContext != null) {
-                mUserContext.setError(sqle.getMessage());
+            if (userContext != null) {
+                userContext.setError(sqle.getMessage());
             }
             return false;
         }
@@ -81,19 +81,19 @@ public class EntityReference extends AbstractList
      * @return last insert ID
      */
     public Object getLastInsertID() {
-        long id = mUserContext.getLastInsertedID(mEntity);
-        return mEntity.filterID(id);
+        long id = userContext.getLastInsertedID(entity);
+        return entity.filterID(id);
     }
 
     /** Update a row in this entity's table.
      * <p>
      * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
      *
-     * @param inValues col -> value map
+     * @param values col -> value map
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
      */
-    public boolean update(Map inValues) {
-        return mEntity.update(new ReadOnlyWrapper(inValues));
+    public boolean update(Map values) {
+        return entity.update(new ReadOnlyWrapper(values));
     }
 
     /** Detele a row from this entity's table.
@@ -101,30 +101,30 @@ public class EntityReference extends AbstractList
      * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
      * <p>
      *
-     * @param inValues col -> value map
+     * @param values col -> value map
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
      */
-    public boolean delete(Map inValues) {
-        return mEntity.delete(new ReadOnlyWrapper(inValues));
+    public boolean delete(Map values) {
+        return entity.delete(new ReadOnlyWrapper(values));
     }
 
     /** Fetch an Instance of this entity, specifying the values of its key columns in their natural order.
      *
-     * @param inValues values of the key columns
+     * @param values values of the key columns
      * @return an Instance, or null if an error occured (in which case
      *     $db.lastError can be checked)
      */
-    public Instance fetch(List inValues) {
+    public Instance fetch(List values) {
         try {
-            Instance instance = mEntity.fetch(inValues);
-            if (mUserContext != null) {
-                instance.setUserContext(mUserContext);
+            Instance instance = entity.fetch(values);
+            if (userContext != null) {
+                instance.setUserContext(userContext);
             }
             return instance;
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            if(mUserContext != null) {
-                mUserContext.setError(sqle.getMessage());
+            if(userContext != null) {
+                userContext.setError(sqle.getMessage());
             }
             return null;
         }
@@ -132,21 +132,21 @@ public class EntityReference extends AbstractList
 
     /** Fetch an Instance of this entity, specifying the values of its key columns in the map.
      *
-     * @param inValues key=>value map
+     * @param values key=>value map
      * @return an Instance, or null if an error occured (in which case
      *     $db.lastError can be checked)
      */
-    public Instance fetch(Map inValues) {
+    public Instance fetch(Map values) {
         try {
-            Instance instance = mEntity.fetch(new ReadOnlyWrapper(inValues));
-            if (mUserContext != null) {
-                instance.setUserContext(mUserContext);
+            Instance instance = entity.fetch(new ReadOnlyWrapper(values));
+            if (userContext != null) {
+                instance.setUserContext(userContext);
             }
             return instance;
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            if(mUserContext != null) {
-                mUserContext.setError(sqle.getMessage());
+            if(userContext != null) {
+                userContext.setError(sqle.getMessage());
             }
             return null;
         }
@@ -154,21 +154,21 @@ public class EntityReference extends AbstractList
 
     /** Fetch an Instance of this entity, specifying the value of its unique key column as a string
      *
-     * @param inKeyValue value of the key column
+     * @param keyValue value of the key column
      * @return an Instance, or null if an error occured (in which case
      *     $db.lastError can be checked)
      */
-    public Instance fetch(String inKeyValue) {
+    public Instance fetch(String keyValue) {
         try {
-            Instance instance = mEntity.fetch(inKeyValue);
-            if (mUserContext != null) {
-                instance.setUserContext(mUserContext);
+            Instance instance = entity.fetch(keyValue);
+            if (userContext != null) {
+                instance.setUserContext(userContext);
             }
             return instance;
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            if(mUserContext != null) {
-                mUserContext.setError(sqle.getMessage());
+            if(userContext != null) {
+                userContext.setError(sqle.getMessage());
             }
             return null;
         }
@@ -176,21 +176,21 @@ public class EntityReference extends AbstractList
 
     /** Fetch an Instance of this entity, specifying the value of its unique key column as an integer
      *
-     * @param inKeyValue value of the key column
+     * @param keyValue value of the key column
      * @return an Instance, or null if an error occured (in which case
      *     $db.lastError can be checked)
      */
-    public Instance fetch(Number inKeyValue) {
+    public Instance fetch(Number keyValue) {
         try {
-            Instance instance = mEntity.fetch(inKeyValue);
-            if (mUserContext != null) {
-                instance.setUserContext(mUserContext);
+            Instance instance = entity.fetch(keyValue);
+            if (userContext != null) {
+                instance.setUserContext(userContext);
             }
             return instance;
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            if(mUserContext != null) {
-                mUserContext.setError(sqle.getMessage());
+            if(userContext != null) {
+                userContext.setError(sqle.getMessage());
             }
             return null;
         }
@@ -204,15 +204,15 @@ public class EntityReference extends AbstractList
      */
     public Iterator iterator() {
         try {
-            RowIterator iterator =  mEntity.query(mRefineCriteria,mOrder);
-            if (mUserContext != null) {
-                iterator.setUserContext(mUserContext);
+            RowIterator iterator =  entity.query(refineCriteria,order);
+            if (userContext != null) {
+                iterator.setUserContext(userContext);
             }
             return iterator;
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            if(mUserContext != null) {
-                mUserContext.setError(sqle.getMessage());
+            if(userContext != null) {
+                userContext.setError(sqle.getMessage());
             }
             return null;
         }
@@ -224,15 +224,15 @@ public class EntityReference extends AbstractList
      */
     public List getRows() {
         try {
-            RowIterator iterator = mEntity.query(mRefineCriteria,mOrder);
-            if (mUserContext != null) {
-                iterator.setUserContext(mUserContext);
+            RowIterator iterator = entity.query(refineCriteria,order);
+            if (userContext != null) {
+                iterator.setUserContext(userContext);
             }
             return iterator.getRows();
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            if(mUserContext != null) {
-                mUserContext.setError(sqle.getMessage());
+            if(userContext != null) {
+                userContext.setError(sqle.getMessage());
             }
             return null;
         }
@@ -254,30 +254,30 @@ public class EntityReference extends AbstractList
      * <p>
      * select * from person where (age>30) and (salary>3000)
      *
-     * @param inCriterium a valid sql condition
+     * @param criterium a valid sql condition
      */
-    public void refine(String inCriterium) {
-        Logger.debug("refineS: "+inCriterium);
-        if (mRefineCriteria == null) mRefineCriteria = new ArrayList();
-        mRefineCriteria.add(inCriterium);
+    public void refine(String criterium) {
+        Logger.debug("refineS: "+criterium);
+        if (refineCriteria == null) refineCriteria = new ArrayList();
+        refineCriteria.add(criterium);
     }
 
     /** Clears any refinement made on this entity
      * <p>
      */
     public void clearRefinement() {
-        mRefineCriteria = null;
+        refineCriteria = null;
     }
 
     /** Specify an 'order by' clause for this attribute reference result.<p>
      * If an 'order by' clause is already present in the original query, the new one is appended (but successive calls to this method overwrite previous ones)<p>
      * Pass it null or an empty string to clear any ordering.
      *
-     * @param inOrder valid sql column names (separated by commas) indicating the
+     * @param order valid sql column names (separated by commas) indicating the
      *      desired order
      */
-    public void setOrder(String inOrder) {
-        mOrder = inOrder;
+    public void setOrder(String order) {
+        this.order = order;
     }
 
     /** Create a new instance for this entity
@@ -285,19 +285,19 @@ public class EntityReference extends AbstractList
      * @return null
      */
     public Instance newInstance() {
-        Instance instance = mEntity.newInstance();
-        if (mUserContext != null) {
-            instance.setUserContext(mUserContext);
+        Instance instance = entity.newInstance();
+        if (userContext != null) {
+            instance.setUserContext(userContext);
         }
         return instance;
     }
 
-    public boolean validate(Map inValues) {
+    public boolean validate(Map values) {
         try {
-            return mEntity.validate(new ReadOnlyWrapper(inValues),mUserContext);
+            return entity.validate(new ReadOnlyWrapper(values),userContext);
         } catch(SQLException sqle) {
             Logger.error("could not check data validity!");
-            mUserContext.addValidationError("internal errror");
+            userContext.addValidationError("internal errror");
             Logger.log(sqle);
             return false;
         }
@@ -309,7 +309,7 @@ public class EntityReference extends AbstractList
      * @return the list of column names
      */
     public List getColumns() {
-        return mEntity.getColumns();
+        return entity.getColumns();
     }
 
 
@@ -328,18 +328,18 @@ public class EntityReference extends AbstractList
 
     /** the wrapped entity
      */
-    protected Entity mEntity = null;
+    protected Entity entity = null;
 
     /** specified order
      */
-    protected String mOrder = null;
+    protected String order = null;
 
     /** specified refining criteria
      */
-    protected List mRefineCriteria = null;
+    protected List refineCriteria = null;
 
     /** user context to give to created instances
      *
      */
-    protected UserContext mUserContext = null;
+    protected UserContext userContext = null;
 }

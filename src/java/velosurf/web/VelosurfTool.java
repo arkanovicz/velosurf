@@ -79,17 +79,17 @@ public class VelosurfTool extends DBReference
     /**
      * Initializes this instance using the given ViewContext
      *
-     * @param inViewContext initialization data
+     * @param viewContext initialization data
      */
-    public void init(Object inViewContext) throws Exception {
+    public void init(Object viewContext) throws Exception {
         // get servlet context
         ViewContext viewctx = null;
         ServletContext ctx = null;
-        if (inViewContext instanceof ServletContext) {
-            ctx = (ServletContext)inViewContext;
+        if (viewContext instanceof ServletContext) {
+            ctx = (ServletContext)viewContext;
         }
-        else if (inViewContext instanceof ViewContext) {
-            viewctx = (ViewContext)inViewContext;
+        else if (viewContext instanceof ViewContext) {
+            viewctx = (ViewContext)viewContext;
             ctx = viewctx.getServletContext();
         }
         else {
@@ -102,23 +102,23 @@ public class VelosurfTool extends DBReference
         }
 
         // get config file
-        if (mConfigFile == null) { // if not already given by configure()
+        if (configFile == null) { // if not already given by configure()
             // look in the servlet context parameters
-            if (mConfigFile == null)
-                mConfigFile = ctx.getInitParameter(DATABASE_CONFIG_FILE_KEY);
+            if (configFile == null)
+                configFile = ctx.getInitParameter(DATABASE_CONFIG_FILE_KEY);
 
             // else try default
-            if (mConfigFile == null) {
+            if (configFile == null) {
                 URL check = ctx.getResource(DEFAULT_DATABASE_CONFIG_FILE);
                 if (check == null) {
                     check = ctx.getResource(OLD_DEFAULT_DATABASE_CONFIG_FILE);
                     if (check == null) {
                         throw new RuntimeException("Velosurf config file not found! Please specify it using the servlet context or the toolbox parameters.");
                     } else {
-                        mConfigFile = OLD_DEFAULT_DATABASE_CONFIG_FILE;
+                        configFile = OLD_DEFAULT_DATABASE_CONFIG_FILE;
                     }
                 } else {
-                    mConfigFile = DEFAULT_DATABASE_CONFIG_FILE;
+                    configFile = DEFAULT_DATABASE_CONFIG_FILE;
                 }
             }
         }
@@ -134,13 +134,13 @@ public class VelosurfTool extends DBReference
                     if (userContext == null) {
                         userContext = new UserContext();
                         session.setAttribute(UserContext.USER_CONTEXT_KEY,userContext);
-                        if (sFetchLocalizer) {
+                        if (fetchLocalizer) {
                             Localizer localizer = ToolFinder.findTool(session,Localizer.class);
                             if (localizer != null) {
                                 userContext.setLocalizer(localizer);
                             } else {
                                 // don't search for it again
-                                sFetchLocalizer = false;
+                                fetchLocalizer = false;
                                 userContext.setLocale(viewctx.getRequest().getLocale());
                             }
                         } else {
@@ -152,7 +152,7 @@ public class VelosurfTool extends DBReference
         }
 
         /* initialize with a new or existing connection */
-        super.init(getConnection(mConfigFile,ctx),userContext);
+        super.init(getConnection(configFile,ctx),userContext);
 
     }
 
@@ -170,81 +170,81 @@ public class VelosurfTool extends DBReference
 
     /** path to the config file
      */
-    protected String mConfigFile = null;
+    protected String configFile = null;
 
     /** database connections
      */
-    protected static Map<String,Database> sDBMap = new HashMap();
+    protected static Map<String,Database> dbMap = new HashMap();
 
     /** configure
      *
      * @param map parameters
      */
     public void configure(Map map) {
-        mConfigFile = (String)map.get("config");
+        configFile = (String)map.get("config");
     }
 
     /** returns the existing Database for the specified config file, or null
      * if it isn't already open.
-     * @param inConfigFile
+     * @param configFile
      * @return a Database
      */
-    protected static Database getConnection(String inConfigFile) {
-        if (!inConfigFile.startsWith("/")) inConfigFile = "/"+inConfigFile;
-        return sDBMap.get(inConfigFile);
+    protected static Database getConnection(String configFile) {
+        if (!configFile.startsWith("/")) configFile = "/"+configFile;
+        return dbMap.get(configFile);
     }
 
     /** returns a db reference on the existing Database for the specified config file, or null
      * if it isn't already open.
-     * @param inConfigFile
+     * @param configFile
      * @return a DBReference
      */
-    public static DBReference getInstance(String inConfigFile,UserContext userContext) {
-        if (!inConfigFile.startsWith("/")) inConfigFile = "/"+inConfigFile;
-        Database db = sDBMap.get(inConfigFile);
+    public static DBReference getInstance(String configFile,UserContext userContext) {
+        if (!configFile.startsWith("/")) configFile = "/"+configFile;
+        Database db = dbMap.get(configFile);
         return db == null ? null : new DBReference(db,userContext);
     }
 
     /** returns a db reference on the existing Database for the specified config file, or null
      * if it isn't already open.
-     * @param inConfigFile
+     * @param configFile
      * @return a DBReference
      */
-    public static DBReference getInstance(String inConfigFile) {
-        return getInstance(inConfigFile,(UserContext)null);
+    public static DBReference getInstance(String configFile) {
+        return getInstance(configFile,(UserContext)null);
     }
 
 
     /** returns the existing Database for the specified config file and servlet context,
      * or null if an error occurs.
-     * @param inConfigFile
+     * @param configFile
      * @return a Database
      */
-    protected static Database getConnection(String inConfigFile,ServletContext inServletContext) {
-        if (!inConfigFile.startsWith("/")) {
-            inConfigFile = "/"+inConfigFile;
+    protected static Database getConnection(String configFile,ServletContext servletContext) {
+        if (!configFile.startsWith("/")) {
+            configFile = "/"+configFile;
         }
-        Database db = (Database)sDBMap.get(inConfigFile);
+        Database db = (Database)dbMap.get(configFile);
         if (db == null) {
             try {
-                Logger.debug("Using config file '"+inConfigFile+"'");
-                InputStream is = inServletContext.getResourceAsStream(inConfigFile);
+                Logger.debug("Using config file '"+configFile+"'");
+                InputStream is = servletContext.getResourceAsStream(configFile);
                 if (is == null) {
-                    Logger.error("Could not read config file "+inConfigFile);
+                    Logger.error("Could not read config file "+configFile);
                     return null;
                 }
                 /* calculate the base directory, for XInclude */
                 /* Velosurf won't like '/' in windows names or '\' in linux ones... Does Java? */
                 String base = null;
-                inConfigFile = inConfigFile.replace('\\','/');
-                int i = inConfigFile.lastIndexOf('/');
+                configFile = configFile.replace('\\','/');
+                int i = configFile.lastIndexOf('/');
                 if (i == -1) {
                     base = ".";
                 } else {
-                    base = inConfigFile.substring(0,i);
+                    base = configFile.substring(0,i);
                 }
-                db = Database.getInstance(is,new XIncludeResolver(base,inServletContext));
-                sDBMap.put(inConfigFile,db);
+                db = Database.getInstance(is,new XIncludeResolver(base,servletContext));
+                dbMap.put(configFile,db);
             }
             catch(Exception e) {
                 Logger.error("Could not get a connection!");
@@ -256,21 +256,21 @@ public class VelosurfTool extends DBReference
 
     /** returns a db reference on the existing Database for the specified config file and servlet context,
      * or null if an error occurs.
-     * @param inConfigFile
+     * @param configFile
      * @return a DBReference
      */
-    public static DBReference getInstance(String inConfigFile,ServletContext inServletContext,UserContext userContext) {
-        Database db = getConnection(inConfigFile,inServletContext);
+    public static DBReference getInstance(String configFile,ServletContext servletContext,UserContext userContext) {
+        Database db = getConnection(configFile,servletContext);
         return db == null ? null : new DBReference(db,userContext);
     }
 
     /** returns a db reference on the existing Database for the specified config file and servlet context,
      * or null if an error occurs.
-     * @param inConfigFile
+     * @param configFile
      * @return a DBReference
      */
-    public static DBReference getInstance(String inConfigFile,ServletContext inServletContext) {
-        return getInstance(inConfigFile,inServletContext,null);
+    public static DBReference getInstance(String configFile,ServletContext servletContext) {
+        return getInstance(configFile,servletContext,null);
     }
 
 
@@ -280,7 +280,7 @@ public class VelosurfTool extends DBReference
      */
     protected static Database getDefaultConnection()
     {
-        return (Database)sDBMap.get(DEFAULT_DATABASE_CONFIG_FILE);
+        return (Database)dbMap.get(DEFAULT_DATABASE_CONFIG_FILE);
     }
 
     /** returns a db reference the existing Database for the default config file, or null
@@ -304,31 +304,31 @@ public class VelosurfTool extends DBReference
      * or null if an error occurs.
      * @return a Database
      */
-    protected static Database getDefaultConnection(ServletContext inServletContext)
+    protected static Database getDefaultConnection(ServletContext servletContext)
     {
-        return getConnection(DEFAULT_DATABASE_CONFIG_FILE,inServletContext);
+        return getConnection(DEFAULT_DATABASE_CONFIG_FILE,servletContext);
     }
 
     /** returns a db reference on the existing Database for the default config file and servlet context,
      * or null if an error occurs.
      * @return a Database
      */
-    public static DBReference getDefaultInstance(ServletContext inServletContext,UserContext userContext)
+    public static DBReference getDefaultInstance(ServletContext servletContext,UserContext userContext)
     {
         /* check at least in the context params */
-        String configFile  = inServletContext.getInitParameter(DATABASE_CONFIG_FILE_KEY);
-        Database db = getConnection(configFile == null ? DEFAULT_DATABASE_CONFIG_FILE : configFile,inServletContext);
+        String configFile  = servletContext.getInitParameter(DATABASE_CONFIG_FILE_KEY);
+        Database db = getConnection(configFile == null ? DEFAULT_DATABASE_CONFIG_FILE : configFile,servletContext);
         return db == null ? null : new DBReference(db,userContext);
     }
 
-    public static DBReference getDefaultInstance(ServletContext inServletContext)
+    public static DBReference getDefaultInstance(ServletContext servletContext)
     {
-        return getDefaultInstance(inServletContext,(UserContext)null);
+        return getDefaultInstance(servletContext,(UserContext)null);
     }
 
     /**
      * do we need to try to fetch the localizer object ?
      * True initially, false after one unsuccessful try.
      */
-    protected static boolean sFetchLocalizer = true;
+    protected static boolean fetchLocalizer = true;
 }

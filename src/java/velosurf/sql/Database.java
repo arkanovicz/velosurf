@@ -49,126 +49,126 @@ public class Database {
 
     /** builds a new connection
      *
-     * @param inUser user name
-     * @param inPassword password
-     * @param inUrl database url
+     * @param user user name
+     * @param password password
+     * @param url database url
      * @exception SQLException thrown by the database engine
      */
-    public Database(String inUser,String inPassword,String inUrl) throws SQLException {
-        open(inUser,inPassword,inUrl,null,null);
+    public Database(String user,String password,String url) throws SQLException {
+        open(user,password,url,null,null);
     }
 
     /** builds a new connection
      *
-     * @param inUser user name
-     * @param inPassword password
-     * @param inUrl database url
-     * @param inDriver driver java class name
+     * @param user user name
+     * @param password password
+     * @param url database url
+     * @param driver driver java class name
      * @exception SQLException thrown by the database engine
      */
-    public Database(String inUser,String inPassword,String inUrl,String inDriver) throws SQLException {
-        open(inUser,inPassword,inUrl,inDriver,null);
+    public Database(String user,String password,String url,String driver) throws SQLException {
+        open(user,password,url,driver,null);
     }
 
     /** builds a new connection
      *
-     * @param inUser user name
-     * @param inPassword password
-     * @param inUrl database url
-     * @param inDriver driver java class name
-     * @param inSchema schema name to use
+     * @param user user name
+     * @param password password
+     * @param url database url
+     * @param driver driver java class name
+     * @param schema schema name to use
      * @exception SQLException thrown by the database engine
      */
-    public Database(String inUser,String inPassword,String inUrl,String inDriver,String inSchema) throws SQLException {
-        open(inUser,inPassword,inUrl,inDriver,inSchema);
+    public Database(String user,String password,String url,String driver,String schema) throws SQLException {
+        open(user,password,url,driver,schema);
     }
 
     /** get a unique Database from connection params
      *
-     * @param inUser user name
-     * @param inPassword password
-     * @param inUrl database url
+     * @param user user name
+     * @param password password
+     * @param url database url
      * @exception SQLException thrown by the database engine
      * @return a new connection
      */
-    public static Database getInstance(String inUser,String inPassword,String inUrl) throws SQLException {
-        return getInstance(inUser,inPassword,inUrl,null,null);
+    public static Database getInstance(String user,String password,String url) throws SQLException {
+        return getInstance(user,password,url,null,null);
     }
 
     /** get a unique Database from connection params
      *
-     * @param inUser user name
-     * @param inPassword password
-     * @param inUrl database url
-     * @param inDriver driver java class name
+     * @param user user name
+     * @param password password
+     * @param url database url
+     * @param driver driver java class name
      * @exception SQLException thrown by the database engine
      * @return a new connection
      */
-    public static Database getInstance(String inUser,String inPassword,String inUrl,String inDriver) throws SQLException {
-        return getInstance(inUser,inPassword,inUrl,inDriver,null);
+    public static Database getInstance(String user,String password,String url,String driver) throws SQLException {
+        return getInstance(user,password,url,driver,null);
     }
 
     /** get a unique Database from connection params
      *
-     * @param inUser user name
-     * @param inPassword password
-     * @param inUrl database url
-     * @param inDriver driver java class name
-     * @param inSchema schema
+     * @param user user name
+     * @param password password
+     * @param url database url
+     * @param driver driver java class name
+     * @param schema schema
      * @exception SQLException thrown by the database engine
      * @return a new connection
      */
-    public static Database getInstance(String inUser,String inPassword,String inUrl,String inDriver,String inSchema) throws SQLException {
-        Integer hash = Integer.valueOf(inUser.hashCode() ^ inPassword.hashCode() ^ inUrl.hashCode() ^ (inDriver==null?0:inDriver.hashCode()) ^ (inSchema==null?0:inSchema.hashCode()) );
-        Database instance = (Database)sConnectionsByParams.get(hash);
+    public static Database getInstance(String user,String password,String url,String driver,String schema) throws SQLException {
+        Integer hash = Integer.valueOf(user.hashCode() ^ password.hashCode() ^ url.hashCode() ^ (driver==null?0:driver.hashCode()) ^ (schema==null?0:schema.hashCode()) );
+        Database instance = (Database)connectionsByParams.get(hash);
         if (instance == null) {
-            instance = new Database(inUser,inPassword,inUrl,inDriver,inSchema);
-            sConnectionsByParams.put(hash,instance);
+            instance = new Database(user,password,url,driver,schema);
+            connectionsByParams.put(hash,instance);
         }
         return instance;
     }
 
     /** get a unique Database from config filename
      *
-     * @param inConfigFilename config filename
+     * @param configFilename config filename
      * @exception SQLException thrown by the database engine
      * @return a new connection
      */
-    public static Database getInstance(String inConfigFilename) throws SQLException,FileNotFoundException,IOException {
-        Integer hash = Integer.valueOf(inConfigFilename.hashCode());
-        Database instance = (Database)sConnectionsByConfigFile.get(hash);
+    public static Database getInstance(String configFilename) throws SQLException,FileNotFoundException,IOException {
+        Integer hash = Integer.valueOf(configFilename.hashCode());
+        Database instance = (Database)connectionsByConfigFile.get(hash);
         if (instance == null) {
             String base = null;
-            inConfigFilename = inConfigFilename.replace('\\','/');
-            int i = inConfigFilename.lastIndexOf('/');
+            configFilename = configFilename.replace('\\','/');
+            int i = configFilename.lastIndexOf('/');
             if (i == -1) {
                 base = ".";
             } else {
-                base = inConfigFilename.substring(0,i);
+                base = configFilename.substring(0,i);
             }
-            instance = getInstance(new FileInputStream(inConfigFilename),new XIncludeResolver(base));
-            sConnectionsByConfigFile.put(hash,instance);
+            instance = getInstance(new FileInputStream(configFilename),new XIncludeResolver(base));
+            connectionsByConfigFile.put(hash,instance);
         }
         return instance;
     }
 
     /** get a new connection
-     * @param inConfig config filename
+     * @param config config filename
      * @exception SQLException thrown by the database engine
      * @return a new connection
      */
-    public static Database getInstance(InputStream inConfig) throws SQLException,IOException {
-        return Database.getInstance(inConfig,null);
+    public static Database getInstance(InputStream config) throws SQLException,IOException {
+        return Database.getInstance(config,null);
     }
 
     /** get a new connection
-     * @param inConfig config filename
+     * @param config config filename
      * @exception SQLException thrown by the database engine
      * @return a new connection
      */
-    public static Database getInstance(InputStream inConfig,XIncludeResolver xincludeResolver) throws SQLException,IOException {
+    public static Database getInstance(InputStream config,XIncludeResolver xincludeResolver) throws SQLException,IOException {
         Database instance = new Database();
-        instance.readConfigFile(inConfig,xincludeResolver);
+        instance.readConfigFile(config,xincludeResolver);
         instance.connect();
         instance.getReverseEngineer().readMetaData();
         return instance;
@@ -176,101 +176,101 @@ public class Database {
 
     /** open the connection
      *
-     * @param inUser user name
-     * @param inPassword password
-     * @param inUrl database url
-     * @param inDriver driver java class name
+     * @param user user name
+     * @param password password
+     * @param url database url
+     * @param driver driver java class name
      * @exception SQLException thrown by the database engine
      */
-    protected void open(String inUser,String inPassword,String inUrl,String inDriver) throws SQLException {
-        open(inUser,inPassword,inUrl,inDriver,null);
+    protected void open(String user,String password,String url,String driver) throws SQLException {
+        open(user,password,url,driver,null);
     }
 
     /** open the connection
      *
-     * @param inUser user name
-     * @param inPassword password
-     * @param inUrl database url
-     * @param inDriver driver java class name
-     * @param inSchema schema name
+     * @param user user name
+     * @param password password
+     * @param url database url
+     * @param driver driver java class name
+     * @param schema schema name
      * @exception SQLException thrown by the database engine
      */
-    protected void open(String inUser,String inPassword,String inUrl,String inDriver,String inSchema) throws SQLException {
+    protected void open(String user,String password,String url,String driver,String schema) throws SQLException {
 
-        mUser = inUser;
-        mPassword = inPassword;
-        mUrl = inUrl;
-        mSchema = inSchema;
-        mDriverClass = inDriver;
+        this.user = user;
+        this.password = password;
+        this.url = url;
+        this.schema = schema;
+        driverClass = driver;
         connect();
     }
 
     protected void connect() throws SQLException
     {
-        Logger.info("opening database "+mUrl+" for user "+mUser+(mSchema == null?"":" using schema "+mSchema));
+        Logger.info("opening database "+url+" for user "+user+(schema == null?"":" using schema "+schema));
 
         loadDriver();
 
-        mConnectionPool = new ConnectionPool(mUrl,mUser,mPassword,mSchema,mDriverInfo,true,mMinConnections,mMaxConnections);
-        mTransactionConnectionPool = new ConnectionPool(mUrl,mUser,mPassword,mSchema,mDriverInfo,false,1,mMaxConnections);
+        connectionPool = new ConnectionPool(url,user,password,schema,driverInfo,true,minConnections,maxConnections);
+        transactionConnectionPool = new ConnectionPool(url,user,password,schema,driverInfo,false,1,maxConnections);
 
-        mStatementPool = new StatementPool(mConnectionPool);
-        mPreparedStatementPool = new PreparedStatementPool(mConnectionPool);
+        statementPool = new StatementPool(connectionPool);
+        preparedStatementPool = new PreparedStatementPool(connectionPool);
 
-        mTransactionStatementPool = new StatementPool(mTransactionConnectionPool);
-        mTransactionPreparedStatementPool = new PreparedStatementPool(mTransactionConnectionPool);
+        transactionStatementPool = new StatementPool(transactionConnectionPool);
+        transactionPreparedStatementPool = new PreparedStatementPool(transactionConnectionPool);
 
         // startup action
-        Action startup = mRootEntity.getAction("startup");
+        Action startup = rootEntity.getAction("startup");
         if (startup != null) startup.perform(null);
     }
 
     protected void setReadOnly(boolean readOnly) {
-        mReadOnly = readOnly;
+        this.readOnly = readOnly;
     }
 
     protected void setCaching(int cachingMethod) {
-        mCaching = cachingMethod;
+        caching = cachingMethod;
     }
 
     public void setUser(String user) {
-        mUser = user;
+        this.user = user;
     }
 
     public void setPassword(String password) {
-       mPassword = password;
+       this.password = password;
     }
 
     public void setURL(String url) {
-        mUrl = url;
+        this.url = url;
     }
 
     public void setDriver(String driverClass) {
-        mDriverClass = driverClass;
+        this.driverClass = driverClass;
     }
 
     public void setSchema(String schema) {
-        mSchema = schema;
-        if(mSchema != null) {
+        this.schema = schema;
+        if(this.schema != null) {
             // share entities
-            sSharedCatalog.put(getMagicNumber(mSchema),mEntities);
+            sharedCatalog.put(getMagicNumber(this.schema),entities);
         }
     }
 
     public void setMinConnections(int minConnections) {
-        mMinConnections = minConnections;
+        this.minConnections = minConnections;
     }
 
     public void setMaxConnections(int maxConnections) {
-        mMaxConnections = maxConnections;
+        this.maxConnections = maxConnections;
     }
 
     public void setSeed(String seed) {
-        mSeed = seed;
+        this.seed = seed;
     }
 
     public void setCase(int caseSensivity) {
-        mCaseSensivity = caseSensivity;
+        this.caseSensivity = caseSensivity;
     }
 
     /** loads the appropriate driver
@@ -278,7 +278,7 @@ public class Database {
      */
     protected @SuppressWarnings("deprecation") void loadDriver() {
 
-        if (mDriverLoaded) return;
+        if (driverLoaded) return;
         if (Logger.getLogLevel() == Logger.TRACE_ID)
         {
             /* Initialize log
@@ -292,24 +292,24 @@ public class Database {
         }
 
         /* driver behaviour */
-        mDriverInfo = DriverInfo.getDriverInfo(mUrl,mDriverClass);
+        driverInfo = DriverInfo.getDriverInfo(url,driverClass);
 
-        mReverseEngineer.setDriverInfo(mDriverInfo);
+        reverseEngineer.setDriverInfo(driverInfo);
 
-        if (mDriverClass!=null) {
+        if (driverClass!=null) {
             try {
-                Class.forName(mDriverClass);
-                mDriverLoaded = true;
+                Class.forName(driverClass);
+                driverLoaded = true;
             }
             catch (Exception e) { Logger.log(e); }
         }
-        else if (mDriverInfo != null) {
+        else if (driverInfo != null) {
             // try to load one of the known drivers
-            String[] drivers = mDriverInfo.getDrivers();
+            String[] drivers = driverInfo.getDrivers();
             for (int i=0;i<drivers.length;i++)
             try {
                 Class.forName(drivers[i]);
-                mDriverLoaded = true;
+                driverLoaded = true;
                 break;
             }
             catch (Exception e) { }
@@ -318,14 +318,14 @@ public class Database {
 
     protected void initCryptograph()
     {
-        if (mCryptograph != null) return;
+        if (cryptograph != null) return;
         // to initialize the cryptograph, we need a chunk of user-provided bytes
         // they must be persistent, so that urls that use encrypted params remain valid
         // => use the database url if null
-        if (mSeed == null) mSeed = mUrl;
+        if (seed == null) seed = url;
         try {
-            mCryptograph = (Cryptograph)Class.forName("velosurf.util.DESCryptograph").getDeclaredConstructor(new Class[] {}).newInstance(new Object[] {});
-            mCryptograph.init(mSeed);
+            cryptograph = (Cryptograph)Class.forName("velosurf.util.DESCryptograph").getDeclaredConstructor(new Class[] {}).newInstance(new Object[] {});
+            cryptograph.init(seed);
         }
         catch(Exception e) {
             Logger.error("Cannot initialize the cryptograph");
@@ -334,40 +334,40 @@ public class Database {
     }
 
     public ReverseEngineer getReverseEngineer() {
-        return mReverseEngineer;
+        return reverseEngineer;
     }
 
     /** issue a query
      *
-     * @param inQuery an SQL query
+     * @param query an SQL query
      * @return the resulting RowIterator
      */
-    public RowIterator query(String inQuery) throws SQLException {
-        return query(inQuery,null);
+    public RowIterator query(String query) throws SQLException {
+        return query(query,null);
     }
 
     /** issue a query, knowing the resulting entity
      *
-     * @param inQuery an SQL query
-     * @param inEntity the resulting entity
+     * @param query an SQL query
+     * @param entity the resulting entity
      * @return return the resulting row iterator
      */
-    public RowIterator query(String inQuery,Entity inEntity) throws SQLException {
+    public RowIterator query(String query,Entity entity) throws SQLException {
         PooledStatement statement = null;
-        statement=mStatementPool.getStatement();
-        return statement.query(inQuery,inEntity);
+        statement=statementPool.getStatement();
+        return statement.query(query,entity);
     }
 
     /** evaluate a query to a scalar
      *
-     * @param inQuery an sql query
+     * @param query an sql query
      * @return the resulting scalar
      */
-    public Object evaluate(String inQuery) {
+    public Object evaluate(String query) {
         PooledStatement statement = null;
         try {
-            statement=mStatementPool.getStatement();
-            return statement.evaluate(inQuery);
+            statement=statementPool.getStatement();
+            return statement.evaluate(query);
         }
         catch (SQLException sqle) {
             Logger.log(sqle);
@@ -377,13 +377,13 @@ public class Database {
 
     /** prepare a query
      *
-     * @param inQuery an sql query
+     * @param query an sql query
      * @return the pooled prepared statement corresponding to the query
      */
-    public PooledPreparedStatement prepare(String inQuery) {
+    public PooledPreparedStatement prepare(String query) {
         PooledPreparedStatement statement = null;
         try {
-            statement = mPreparedStatementPool.getPreparedStatement(inQuery);
+            statement = preparedStatementPool.getPreparedStatement(query);
             return statement;
         }
         catch (SQLException sqle) {
@@ -394,13 +394,13 @@ public class Database {
 
     /** prepare a query which is part of a transaction
      *
-     * @param inQuery an sql query
+     * @param query an sql query
      * @return the prepared statemenet corresponding to the query
      */
-    public PooledPreparedStatement transactionPrepare(String inQuery) {
+    public PooledPreparedStatement transactionPrepare(String query) {
         PooledPreparedStatement statement = null;
         try {
-            statement = mTransactionPreparedStatementPool.getPreparedStatement(inQuery);
+            statement = transactionPreparedStatementPool.getPreparedStatement(query);
             return statement;
         }
         catch (SQLException sqle) {
@@ -411,13 +411,13 @@ public class Database {
 
     /** issues an update query
      *
-     * @param inQuery an sql query
+     * @param query an sql query
      * @return the number of affected rows
      */
-    public int update(String inQuery) {
+    public int update(String query) {
         try {
-               PooledStatement statement = mStatementPool.getStatement();
-            return statement.update(inQuery);
+               PooledStatement statement = statementPool.getStatement();
+            return statement.update(query);
         }
         catch (SQLException sqle) {
             Logger.log(sqle);
@@ -427,13 +427,13 @@ public class Database {
 
     /** issue an update query that is part of a transaction
      *
-     * @param inQuery an sql query
+     * @param query an sql query
      * @return the number of affected rows
      */
-    public int transactionUpdate(String inQuery) {
+    public int transactionUpdate(String query) {
         try {
-            PooledStatement statement = mTransactionStatementPool.getStatement();
-            return statement.update(inQuery);
+            PooledStatement statement = transactionStatementPool.getStatement();
+            return statement.update(query);
         }
         catch (SQLException sqle) {
             Logger.log(sqle);
@@ -446,26 +446,26 @@ public class Database {
      * @exception SQLException thrown by the database engine
      */
     public void close() throws SQLException {
-        mConnectionPool.clear();
-        mConnectionPool = null;
-        mTransactionConnectionPool.clear();
-        mTransactionConnectionPool = null;
-        mStatementPool.clear();
-        mStatementPool = null;
-        mTransactionStatementPool.clear();
-        mTransactionStatementPool = null;
-        mPreparedStatementPool.clear();
-        mPreparedStatementPool = null;
-        mTransactionPreparedStatementPool.clear();
-        mTransactionPreparedStatementPool = null;
+        connectionPool.clear();
+        connectionPool = null;
+        transactionConnectionPool.clear();
+        transactionConnectionPool = null;
+        statementPool.clear();
+        statementPool = null;
+        transactionStatementPool.clear();
+        transactionStatementPool = null;
+        preparedStatementPool.clear();
+        preparedStatementPool = null;
+        transactionPreparedStatementPool.clear();
+        transactionPreparedStatementPool = null;
     }
 
     /** display statistics about the statements pools
      */
     public void displayStats() {
         System.out.println("DB statistics:");
-        int [] normalStats = mStatementPool.getUsageStats();
-        int [] preparedStats = mPreparedStatementPool.getUsageStats();
+        int [] normalStats = statementPool.getUsageStats();
+        int [] preparedStats = preparedStatementPool.getUsageStats();
         System.out.println("\tsimple statements   - "+normalStats[0]+" free statements out of "+normalStats[1]);
         System.out.println("\tprepared statements - "+preparedStats[0]+" free statements out of "+preparedStats[1]);
     }
@@ -475,7 +475,7 @@ public class Database {
      * @return a jdbc connection wrapper (which extends java.sql.Connection)
      */
     public ConnectionWrapper getConnection() throws SQLException {
-        return mConnectionPool.getConnection();
+        return connectionPool.getConnection();
     }
 
     /** get the underlying jdbc connection used for transactions, and mark it right away as busy
@@ -483,19 +483,19 @@ public class Database {
      * @return a jdbc connection wrapper (which extends java.sql.Connection)
      */
     public synchronized ConnectionWrapper getTransactionConnection() throws SQLException {
-        ConnectionWrapper ret = mTransactionConnectionPool.getConnection();
+        ConnectionWrapper ret = transactionConnectionPool.getConnection();
         ret.enterBusyState();
         return ret;
     }
 
     /** read configuration from the given input stream
      *
-     * @param inConfig input stream on the config file
+     * @param config input stream on the config file
      * @exception SQLException thrown by the database engine
      */
-    private void readConfigFile(InputStream inConfig,XIncludeResolver xincludeResolver) throws SQLException,IOException {
+    private void readConfigFile(InputStream config,XIncludeResolver xincludeResolver) throws SQLException,IOException {
         try {
-            new ConfigLoader(this,xincludeResolver).loadConfig(inConfig);
+            new ConfigLoader(this,xincludeResolver).loadConfig(config);
 
         } catch (Exception e) {
             Logger.error("could not load configuration!");
@@ -510,7 +510,7 @@ public class Database {
      */
     public String adaptCase(String identifier) {
         if (identifier == null) return null;
-        switch(mCaseSensivity) {
+        switch(caseSensivity) {
             case CASE_SENSITIVE: return identifier;
             case UPPERCASE: return identifier.toUpperCase();
             case LOWERCASE: return identifier.toLowerCase();
@@ -525,18 +525,18 @@ public class Database {
      */
     public void addEntity(Entity entity) {
         String name = entity.getName();
-        Entity previous = mEntities.put(adaptCase(name),entity);
+        Entity previous = entities.put(adaptCase(name),entity);
         if (previous != null) {
             Logger.warn("replacing an existing entity with a new one ("+name+")");
         }
         if(name.equals("velosurf.root")) {
             /* this is the root entity */
-            mRootEntity = entity;
+            rootEntity = entity;
         }
     }
 
     public Entity getRootEntity() {
-        return mRootEntity;
+        return rootEntity;
     }
 
     /** get a named entity or creeate it if it doesn't exist
@@ -548,50 +548,50 @@ public class Database {
         Entity entity = getEntity(name);
         if (entity == null) {
             Logger.trace("Created entity: "+name);
-            entity = new Entity(this,name,mReadOnly,mCaching);
-            mEntities.put(adaptCase(name),entity);
+            entity = new Entity(this,name,readOnly,caching);
+            entities.put(adaptCase(name),entity);
         }
         return entity;
     }
 
     /** get an existing entity
      *
-     * @param inName the name of an entity
+     * @param name the name of an entity
      * @return the named entity
      */
-    public Entity getEntity(String inName) {
+    public Entity getEntity(String name) {
         int i;
-        Entity entity=(Entity)mEntities.get(adaptCase(inName));
-        if (entity == null && inName != null && (i=inName.indexOf('.')) != -1) {
+        Entity entity=(Entity)entities.get(adaptCase(name));
+        if (entity == null && name != null && (i=name.indexOf('.')) != -1) {
             // imported from another schema ?
-            String schema = inName.substring(0,i);
-            inName = inName.substring(i+1);
-            Map external = (Map)sSharedCatalog.get(getMagicNumber(schema));
-            if (external != null) entity = (Entity)external.get(inName);
+            String schema = name.substring(0,i);
+            name = name.substring(i+1);
+            Map external = (Map)sharedCatalog.get(getMagicNumber(schema));
+            if (external != null) entity = (Entity)external.get(name);
         }
         return entity;
     }
 
     public Map<String,Entity> getEntities() {
-        return mEntities;
+        return entities;
     }
 
-    /** get a named attribute
+    /** get a root attribute
      *
-     * @param inName name of an attribute
+     * @param name name of an attribute
      * @return the named attribute
      */
-    public Attribute getAttribute(String inName) {
-        return mRootEntity.getAttribute(adaptCase(inName));
+    public Attribute getAttribute(String name) {
+        return rootEntity.getAttribute(adaptCase(name));
     }
 
-    /** get a named action
+    /** get a root action
      *
-     * @param inName name of an attribute
+     * @param name name of an attribute
      * @return the named attribute
      */
-    public Action getAction(String inName) {
-        return mRootEntity.getAction(adaptCase(inName));
+    public Action getAction(String name) {
+        return rootEntity.getAction(adaptCase(name));
     }
 
     /** obfuscate the given value
@@ -602,7 +602,7 @@ public class Database {
     public String obfuscate(Object value)
     {
         if (value == null) return null;
-        String encoded = mCryptograph.encrypt(value.toString());
+        String encoded = cryptograph.encrypt(value.toString());
 
         // we want to avoid some characters fot HTTP GET
         encoded = encoded.replace('=','.');
@@ -628,7 +628,7 @@ public class Database {
         ret = ret.replace('_','/');
         ret = ret.replace('*','+');
 
-        ret = mCryptograph.decrypt(ret);
+        ret = cryptograph.decrypt(ret);
 
         if (ret == null) {
             Logger.error("deobfuscation of value '"+value+"' failed!");
@@ -642,7 +642,7 @@ public class Database {
      * @return the database vendor
      */
     public DriverInfo getDriverInfo() {
-        return mDriverInfo;
+        return driverInfo;
     }
 
     /** get database case-sensivity
@@ -650,97 +650,97 @@ public class Database {
      * @return case-sensivity
      */
     public int getCaseSensivity() {
-        return mCaseSensivity;
+        return caseSensivity;
     }
 
     /** get the integer key used to share schema entities among instances
      */
     private Integer getMagicNumber(String schema) {
         // url is not checked for now because for some databases, the schema is part of the url.
-        return Integer.valueOf((mUser/*+mUrl*/+schema).hashCode());
+        return Integer.valueOf((user/*+url*/+schema).hashCode());
     }
 
     /** get the schema
      * @return the schema
      */
     public String getSchema() {
-        return mSchema;
+        return schema;
     }
 
     /** database user
      */
-    protected String mUser = null;
+    protected String user = null;
     /** database user's password
      */
-    protected String mPassword = null;
+    protected String password = null;
     /** database url
      */
-    protected String mUrl = null;
+    protected String url = null;
     /** schema
      */
-    protected String mSchema = null;
+    protected String schema = null;
 
     /** whether the JDBC driver has been loaded */
-    protected boolean mDriverLoaded = false;
+    protected boolean driverLoaded = false;
 
     /** driver class name, if provided in the config file
      */
-    protected String mDriverClass = null;
+    protected String driverClass = null;
 
     /**
      * Pool of connections
      */
-    protected ConnectionPool mConnectionPool = null;
-    protected int mMinConnections = 1; // applies to mConnectionPool (min connections is always 1 for mTransactionConnectionPool)
-    protected int mMaxConnections = 50; // applies to mConnectionPool and mTransactionConnectionPool
+    protected ConnectionPool connectionPool = null;
+    protected int minConnections = 1; // applies to connectionPool (min connections is always 1 for transactionConnectionPool)
+    protected int maxConnections = 50; // applies to connectionPool and transactionConnectionPool
 
     /**
      * Pool of connections for transactions
      */
-    protected ConnectionPool mTransactionConnectionPool = null;
+    protected ConnectionPool transactionConnectionPool = null;
 
     /** pool of statements
      */
-    protected StatementPool mStatementPool = null;
+    protected StatementPool statementPool = null;
 
     /** pool of statements for transactions
      */
-    protected StatementPool mTransactionStatementPool = null;
+    protected StatementPool transactionStatementPool = null;
 
     /** pool of prepared statements
      */
-    protected PreparedStatementPool mPreparedStatementPool = null;
+    protected PreparedStatementPool preparedStatementPool = null;
 
     /** pool of prepared statements for transactions
      */
-    protected PreparedStatementPool mTransactionPreparedStatementPool = null;
+    protected PreparedStatementPool transactionPreparedStatementPool = null;
 
     /** default access mode
      */
-    protected boolean mReadOnly = true;
+    protected boolean readOnly = true;
     /** default caching mode
      */
-    protected int mCaching = Cache.NO_CACHE;
+    protected int caching = Cache.NO_CACHE;
 
     /** map name->entity
      */
-    protected Map<String,Entity> mEntities = new HashMap<String,Entity>();
+    protected Map<String,Entity> entities = new HashMap<String,Entity>();
 
     /** root entity that contains all root attributes and actions
      */
-    protected Entity mRootEntity = null;
+    protected Entity rootEntity = null;
 
     /** driver infos (database vendor specific)
      */
-    protected DriverInfo mDriverInfo = null;
+    protected DriverInfo driverInfo = null;
 
     /** random seed used to initialize the cryptograph
      */
-    private String mSeed = null;
+    private String seed = null;
 
     /** cryptograph used to encrypt/decrypt database ids
      */
-    private Cryptograph mCryptograph = null;
+    private Cryptograph cryptograph = null;
 
     /** case-sensitive policy */
     public static final int CASE_UNKNOWN = 0;
@@ -749,11 +749,11 @@ public class Database {
     public static final int LOWERCASE = 3;
 
     /** case-sensivity */
-    protected int mCaseSensivity = CASE_UNKNOWN;
+    protected int caseSensivity = CASE_UNKNOWN;
 
     /** case-sensivity for context
      */
-    private static int sContextCase = LOWERCASE;
+    private static int contextCase = LOWERCASE;
 
     /* context case implemented as a system property for now...
      *TODO: check also other configuration realms or use model.xml
@@ -762,9 +762,9 @@ public class Database {
         String contextCase = System.getProperty("velosurf.case");
         if (contextCase != null) {
             if ("uppercase".equals(contextCase)) {
-                sContextCase = UPPERCASE;
+                Database.contextCase = UPPERCASE;
             } else if ("lowercase".equals(contextCase)) {
-                sContextCase = LOWERCASE;
+                Database.contextCase = LOWERCASE;
             } else {
                 Logger.error("system property 'velosurf.case' should be 'lowercase' or 'uppercase'");
             }
@@ -775,7 +775,7 @@ public class Database {
         if(str == null) {
             return null;
         }
-        switch(sContextCase) {
+        switch(contextCase) {
             case LOWERCASE:
                 return str.toLowerCase();
             case UPPERCASE:
@@ -787,17 +787,17 @@ public class Database {
     }
 
     /** map parameters -> instances */
-    private static Map sConnectionsByParams = new HashMap();
+    private static Map connectionsByParams = new HashMap();
 
     /** map config files -> instances */
-    private static Map sConnectionsByConfigFile = new HashMap();
+    private static Map connectionsByConfigFile = new HashMap();
 
     /** Shared catalog, to share entities among instances.
      * <br>
      * Key is hashcode of (name+password+url+schema), value is an entities map.
      */
-    private static Map sSharedCatalog = new HashMap();
+    private static Map sharedCatalog = new HashMap();
 
-    protected ReverseEngineer mReverseEngineer = new ReverseEngineer(this);
+    protected ReverseEngineer reverseEngineer = new ReverseEngineer(this);
 
 }
