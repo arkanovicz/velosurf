@@ -23,8 +23,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 
-import velosurf.web.i18n.Localizer;
-import velosurf.web.i18n.Localizer;
+import velosurf.web.l10n.Localizer;
+import velosurf.web.l10n.Localizer;
 import velosurf.model.Entity;
 
 /**

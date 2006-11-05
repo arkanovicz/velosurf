@@ -28,7 +28,7 @@ import velosurf.sql.Database;
 import velosurf.sql.ReadOnlyMap;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;
-import velosurf.web.i18n.Localizer;
+import velosurf.web.l10n.Localizer;
 
 /** A context wrapper for the main database connection object.<p>
  * The "$db" context variable is assigned a new instance of this class at each velocity parsing.

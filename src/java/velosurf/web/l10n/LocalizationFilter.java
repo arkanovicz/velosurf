@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.web.i18n;
+package velosurf.web.l10n;
 
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
@@ -165,7 +165,7 @@ public class LocalizationFilter implements Filter {
             Logger.trace("l10n: URI locale = "+locale);
         } else {
             /* for the forward method, shouldAct rule is: always only when already forwarded */
-            Boolean forwarded = (Boolean)request.getAttribute("velosurf.i18n.l10n-forwarded");
+            Boolean forwarded = (Boolean)request.getAttribute("velosurf.l10n.l10n-forwarded");
             if(forwarded != null && forwarded.booleanValue()) {
                 shouldAct = false;
             }
@@ -173,7 +173,7 @@ public class LocalizationFilter implements Filter {
 
         if (locale == null) {
             /* Guess #2 - is there an attribute in the session? */
-            locale = (Locale)session.getAttribute("velosurf.i18n.active-locale");
+            locale = (Locale)session.getAttribute("velosurf.l10n.active-locale");
             Logger.trace("l10n: session locale = "+locale);
 
             if (locale == null) {
@@ -181,7 +181,7 @@ public class LocalizationFilter implements Filter {
                 Cookie cookies[] = request.getCookies();
                 if (cookies != null) {
                     for(Cookie cookie:cookies) {
-                        if ("velosurf.i18n.active-locale".equals(cookie.getName())) {
+                        if ("velosurf.l10n.active-locale".equals(cookie.getName())) {
                             locale = getMatchedLocale(cookie.getValue());
                         }
                     }
@@ -211,8 +211,8 @@ public class LocalizationFilter implements Filter {
         }
 
         /* sets the session atribute and the cookies */
-        session.setAttribute("velosurf.i18n.active-locale",locale);
-        Cookie localeCookie = new Cookie("velosurf.i18n.active-locale",locale.toString());
+        session.setAttribute("velosurf.l10n.active-locale",locale);
+        Cookie localeCookie = new Cookie("velosurf.l10n.active-locale",locale.toString());
         localeCookie.setPath("/");
         localeCookie.setMaxAge(SECONDS_IN_YEAR);
         response.addCookie(localeCookie);
@@ -236,7 +236,7 @@ public class LocalizationFilter implements Filter {
                         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     } else {
                         Logger.trace("l10n: forwarding request to "+newUri);
-                        request.setAttribute("velosurf.i18n.l10n-forwarded",Boolean.valueOf(shouldAct));
+                        request.setAttribute("velosurf.l10n.l10n-forwarded",Boolean.valueOf(shouldAct));
                         dispatcher.forward(request,response);
                     }
                     break;
@@ -276,7 +276,7 @@ public class LocalizationFilter implements Filter {
         }
         if(_supportedLocales != null && _supportedLocales.size() > 0) {
             /* let other objects see it?
-            _config.getServletContext().setAttribute("velosurf.i18n.supported-locales",_supportedLocales);
+            _config.getServletContext().setAttribute("velosurf.l10n.supported-locales",_supportedLocales);
              */
         } else {
             Logger.error("l10n: Cannot find any supported locale! Please add a 'supported-locales' context-param.");

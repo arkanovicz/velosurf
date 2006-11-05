@@ -32,7 +32,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletResponse;
 
 import velosurf.web.VelosurfTool;
-import velosurf.web.i18n.Localizer;
+import velosurf.web.l10n.Localizer;
 import velosurf.util.ToolFinder;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;

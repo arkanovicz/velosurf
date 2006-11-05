@@ -23,7 +23,7 @@
   <tool>
     <key>local</key>
     <scope>session</scope>
-    <class>velosurf.web.i18n.SimpleDBLocalizer</class>
+    <class>velosurf.web.l10n.SimpleDBLocalizer</class>
   </tool>
 
   <tool>

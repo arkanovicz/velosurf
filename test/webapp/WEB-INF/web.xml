@@ -25,7 +25,7 @@
 
   <filter>
     <filter-name>localization</filter-name>
-    <filter-class>velosurf.web.i18n.LocalizationFilter</filter-class>
+    <filter-class>velosurf.web.l10n.LocalizationFilter</filter-class>
     <init-param>
       <param-name>supported-locales</param-name>
       <param-value>en,fr</param-value>
