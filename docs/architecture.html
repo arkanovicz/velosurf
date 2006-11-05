@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>Velosurf - Installation</title>
+
+
+  <link rel="stylesheet" href="file:///home/claude/projects/velosurf/docs/velosurf.css" type="text/css">
+
+</head>
+
+
+<body>
+
+<div id="container">
+<div id="header">
+<div id="logo1"><img style="width: 80px; height: 60px;" alt="Velosurf logo" src="logo.png" border="0"></div>
+
+<div id="logo3"><img alt="Velosurf title" src="title.png" border="0"></div>
+
+<div id="logo2"><a href="http://jakarta.apache.org/velocity/"><img style="width: 80px;" src="powered-by-logo.gif" alt="Velocity" border="0"></a></div>
+
+</div>
+
+<div id="menu">
+<div class="menusection"><span class="menuheader">Velosurf</span>
+<ul>
+
+  <li><a href="./index.html">Home</a> </li>
+
+  <li> <a href="./overview.html">Overview</a>
+  </li>
+
+  <li><a href="./download.html">Download</a>
+  </li>
+
+  <li> <a href="./faq.html">FAQ</a> </li>
+
+  <li> <a href="http://lists.sourceforge.net/lists/listinfo/velosurf-devel">Mailing list</a> </li>
+
+</ul>
+
+</div>
+
+<div class="menusection">
+<span class="menuheader">Docs</span>
+<ul>
+
+  <li><a href="./installation.html">Installation</a></li>
+
+  <li><a href="./configuration.html">Configuration</a></li>
+
+  <li><a href="./user-guide.html">User Guide</a></li>
+
+  <li> <a href="./vtl-reference.html">VTL Reference</a> </li>
+
+  <li><a href="./api/index.html">Javadoc</a></li>
+
+  <li><b>Architecture</b></li>
+
+  <li> <a href="./CHANGELOG">Change Log</a> </li>
+
+  <li> <a href="./license.html">License</a></li>
+
+</ul>
+
+</div>
+
+</div>
+
+<div id="body">
+					<h1>Architecture</h1>
+					<p>This section gives some elements on the inner architecture of Velosurf.</p>
+					<p>Here are the main packages of Velosurf:</p>
+					<ul>
+					   <li><a href="./api/velosurf/package-summary.html"><code>velosurf</code></a> contains the Velosurf class, to be used when Velosurf is used embedded in a Java application other than a webapp.</li>
+						<li><a href="./api/velosurf/cache/package-summary.html"><code>velosurf.cache</code></a> contains the cache (used by the <code>Entity</code> class).</li>
+						<li><a href="./api/velosurf/context/package-summary.html"><code>velosurf.context</code></a> contains all the classes that are to be populated 
+						in Velocity contexts. Some of them are wrappers for internal classes (see the diagram below).</li>
+						<li><a href="./api/velosurf/model/package-summary.html"><code>velosurf.model</code></a> contains the classes that help modelize the data model 
+						as reverse-enginered and/or specified in the XML configuration file.</li>
+						<li><a href="./api/velosurf/sql/package-summary.html"><code>velosurf.sql</code></a> contains all the classes dealing with the database itself 
+						via jdbc.</li>
+						<li><a href="./api/velosurf/util/package-summary.html"><code>velosurf.util</code></a> contains various utilities and helpers.</li>
+						<li><a href="./api/velosurf/validation/package-summary.html"><code>velosurf.validation</code></a> contains all classes related to data validation.</li> 
+						<li><a href="./api/velosurf/web/package-summary.html"><code>velosurf.web</code></a> contains the two classes that can be used as 
+						Velocity-tools tools: HttpQueryTool and VelosurfTool.</li>
+						<li><a href="./api/velosurf/web/auth/package-summary.html"><code>velosurf.web.auth</code></a> contains all classes related to authentication.</li> 
+						<li><a href="./api/velosurf/web/l10n/package-summary.html"><code>velosurf.web.i18n</code></a> contains all classes related to localization.</li>
+					</ul>
+					<p>The next diagram shows the dependency relationships between the main classes of Velosurf. It should
+					be a good introduction for someone willing to browse the api or to dig into the sources.</p>
+					<img src="./class-diagram.png">
+					<p>Some dependencies are not shown to lighten the diagram:</p>
+					<ul>
+					<li>almost all objects of the <code>model</code> and <code>context</code> packages use the <code>PooledPreparedStatement</code> class, and many 
+					use the <code>Database</code> class
+					<li>the <code>Database</code> class itself references many classes of the <code>model</code> and <code>context</code> packages
+					</ul>
+				</td>
+			</tr>
+
+</div>
+</div>					
+
+			
+	</body>
+
+</html>

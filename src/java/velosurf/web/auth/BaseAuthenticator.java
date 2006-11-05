@@ -39,8 +39,13 @@ import sun.misc.BASE64Decoder;
  * This abstract class implements an authentication mechanism. It is meant to be declared
  * in toolbox.xml as a session-scoped tool.
  *
+ * The password encryption method can be specified in <code>toolbox.xml</code> using the <code>method</code> parameter
+ * (when not specified, passwords are passed in clear).
+ *
  * You will need to implement the same password encryption on the client side using the adequate
- * javascript files.
+ * javascript files. A <code>/src/javascript/md5.js</code> file is provided to help implementing the HmacMD5 method.
+ *
+ * Still, if you really want security, use HTTPS!
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
@@ -95,7 +100,7 @@ public abstract class BaseAuthenticator {
         if(method == null) {
             return password;
         } else {
-            Logger.debug("auth: using method "+method);            
+            Logger.debug("auth: using method "+method);
             try {
                 /* TODO: use utf8 (and find a way to convert an utf8 string into
                    an array of bytes on the javascript counterpart) */

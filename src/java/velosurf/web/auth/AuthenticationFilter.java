@@ -39,14 +39,15 @@ import velosurf.web.i18n.Localizer;
  * if (s)he loggued in successfully, towards his(her) initially requested page.</p>
  *
  * <p>Authentication is performed via a CRAM (challenge-response authentication mechanism).
- * Passwords are never transmitted in clear.</p>
+ * Passwords are encrypted using the method given as parameter to the Authenticator tool in toolbox.xml. The provided
+ *  Javascript file /src/javascript/md5.js implements the HmacMD5 method on the client side.</p>
  *
  * <p>This filter works in conjunction with an Authenticator object that must be present in the session scope
  * of the toolbox and with a javascript password encryption function.</p>
  *
  * <p>To use it, you just have to map protected urls (and especially, the target of the login form, this is
  * very important for the authentication to work properly!) to go through this filter, as in :</p>
- * <pre>
+ * <xmp>
  *   <filter>
  *     <filter-name>authentication</filter-name>
  *     <filter-class>auth.AuthenticationFilter</filter-class>
@@ -55,7 +56,7 @@ import velosurf.web.i18n.Localizer;
  *     <filter-name>authentication</filter-name>
  *     <url-pattern>/auth/*</url-pattern>
  *   </filter-mapping>
- * </pre>
+ * </xmp>
  *
  * <p>The password is encrypted in an irreversible manner into an <i>answer</i>, and to check the login,
  * the answer that the client sends back to the server is compared to the correct awaited answer.</p>

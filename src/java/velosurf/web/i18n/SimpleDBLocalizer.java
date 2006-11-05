@@ -32,7 +32,20 @@ import velosurf.context.EntityReference;
 import velosurf.web.VelosurfTool;
 
 /**
- * Basic Localizer implementation
+ * <p>A basic database based Localizer implementation.</p>
+ * <p>The following <code>toolbox.xml</code> parameters are available:</p>
+ * <ul>
+ * <li><code>localized-table</code>: the name of the table containing localized strings (default: "<code>localized</code>").</li>
+ * <li><code>id-field</code>: the name of the field containing the string id (default: "<code>id</code>").</li>
+ * <li><code>locale-field</code>: the name of the field containing the ISO locale code (default: "<code>locale</code>").</li>
+ * <li><code>string-field</code>: the name of the field containing the lcoalized string (default: "<code>string</code>").</li>
+ * </ul>
+ *
+ * <p>You can find on the web the list of
+ * <a href="http://www.loc.gov/standards/iso639-2/englangn.html">ISO Language Codes</a>
+ * and the list of
+ * <a href="http://www.iso.ch/iso/en/prods-services/iso3166ma/02iso-3166-code-lists/list-en1.html">ISO Country Codes</a>.
+ *
  */
 
 public class SimpleDBLocalizer extends HTTPLocalizerTool {
