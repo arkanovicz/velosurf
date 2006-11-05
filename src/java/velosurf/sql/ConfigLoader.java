@@ -252,9 +252,10 @@ public class ConfigLoader {
                     type = Attribute.SCALAR;
                 } else if (result.startsWith("rowset")) {
                     type = Attribute.ROWSET;
-                }
-                else if (result.startsWith("row")) {
+                } else if (result.startsWith("row")) {
                     type = Attribute.ROW;
+                } else {
+                    throw new SQLException("bad syntax for the 'result' attribute: "+result);
                 }
                 attribute.setResultType(type);
                 int slash = result.indexOf("/");

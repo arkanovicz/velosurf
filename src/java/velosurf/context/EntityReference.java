@@ -257,9 +257,16 @@ public class EntityReference extends AbstractList
      * @param criterium a valid sql condition
      */
     public void refine(String criterium) {
-        Logger.debug("refineS: "+criterium);
-        if (refineCriteria == null) refineCriteria = new ArrayList();
-        refineCriteria.add(criterium);
+        Logger.trace("refine: "+criterium);
+        /* protect from SQL query injection */
+        if (criterium.indexOf('\'') != -1 || criterium.indexOf(';') != -1 || criterium.indexOf("--") != -1) {
+            Logger.error("bad refine string: "+criterium);
+        } else {
+            if (refineCriteria == null) {
+                refineCriteria = new ArrayList();
+            }
+            refineCriteria.add(criterium);
+        }
     }
 
     /** Clears any refinement made on this entity
@@ -277,7 +284,12 @@ public class EntityReference extends AbstractList
      *      desired order
      */
     public void setOrder(String order) {
-        this.order = order;
+        /* protect from SQL query injection */
+        if (order.indexOf('\'') != -1 || order.indexOf(';') != -1 || order.indexOf("--") != -1) {
+            Logger.error("bad order string: "+order);
+        } else {
+            this.order = order;
+        }
     }
 
     /** Create a new instance for this entity

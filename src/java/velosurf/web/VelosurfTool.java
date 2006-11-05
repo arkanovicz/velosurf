@@ -104,9 +104,13 @@ public class VelosurfTool extends DBReference
         // get config file
         if (configFile == null) { // if not already given by configure()
             // look in the servlet context parameters
-            if (configFile == null)
+            if (configFile == null) {
                 configFile = ctx.getInitParameter(DATABASE_CONFIG_FILE_KEY);
-
+                if (configFile == null) {
+                    Logger.warn("Use of the "+DATABASE_CONFIG_FILE_KEY+" servlet context parameter is deprecated.");
+                    Logger.warn("Consider moving this parameter to toolbox.xml.");
+                }
+            }
             // else try default
             if (configFile == null) {
                 URL check = ctx.getResource(DEFAULT_DATABASE_CONFIG_FILE);
