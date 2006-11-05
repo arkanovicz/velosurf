@@ -86,6 +86,7 @@ public class Entity
             for(String alias:aliases) {
                 ret.add(aliasToColumn(alias));
             }
+            return ret;
         } else return aliases;
     }
 
@@ -180,6 +181,15 @@ public class Entity
             int i=0;
             for (;key.hasNext();i++)
                 mKeyColObfuscated[i] = mObfuscatedColumns.contains(key.next());
+        }
+        /* fills the cache for the full caching method */
+        if(mCachingMethod == Cache.FULL_CACHE) {
+            try {
+                query().getRows();
+            } catch(SQLException sqle) {
+                Logger.error("full caching for entity "+getName()+": could not fill the cache!");
+                Logger.log(sqle);
+            }
         }
     }
 
