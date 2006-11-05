@@ -46,42 +46,42 @@ public class Entity
 {
     /** Constructor reserved for the framework
      *
-     * @param inDB database connection
-     * @param inName entity name
+     * @param db database connection
+     * @param name entity name
      * @param readOnly access mode (read-write or read-only)
-     * @param inCachingMethod caching method to be used
+     * @param cachingMethod caching method to be used
      */
-    public Entity(Database inDB,String inName,boolean readOnly,int inCachingMethod) {
-        mDB = inDB;
-        mName = inName;
-        mTable = inName; // default mapped table has same name
-        mReadOnly = readOnly;
-        mCachingMethod = inCachingMethod;
-        if (mCachingMethod != Cache.NO_CACHE) mCache = new Cache(mCachingMethod);
-        mInstanceClass = Instance.class;
+    public Entity(Database db,String name,boolean readOnly,int cachingMethod) {
+        this.db = db;
+        this.name = name;
+        table = name; // default mapped table has same name
+        this.readOnly = readOnly;
+        this.cachingMethod = cachingMethod;
+        if (this.cachingMethod != Cache.NO_CACHE) cache = new Cache(this.cachingMethod);
+        instanceClass = Instance.class;
     }
 
     /** add a column at the end of the sequential list of named columns (called during the reverse engeenering of the database)
      *
-     * @param inColName column name
+     * @param colName column name
      */
-    public void addColumn(String inColName) {
+    public void addColumn(String colName) {
         /* remember the alias */
-        mColumns.add(columnToAlias(inColName));
+        columns.add(columnToAlias(colName));
     }
 
     public void addAlias(String alias, String column) {
-        mAliasByColumn.put(column,alias);
-        mColumnByAlias.put(alias,column);
+        aliasByColumn.put(column,alias);
+        columnByAlias.put(alias,column);
     }
 
     public String aliasToColumn(String alias) {
-        String col = mColumnByAlias.get(alias);
+        String col = columnByAlias.get(alias);
         return col == null ? alias : col;
     }
 
     public List<String> aliasToColumn(List<String> aliases) {
-        if(mColumnByAlias.size() > 0) {
+        if(columnByAlias.size() > 0) {
             List<String> ret = new ArrayList<String>();
             for(String alias:aliases) {
                 ret.add(aliasToColumn(alias));
@@ -91,18 +91,18 @@ public class Entity
     }
 
     public String columnToAlias(String column) {
-        String alias = mAliasByColumn.get(column);
+        String alias = aliasByColumn.get(column);
         return alias == null ? column : alias;
     }
 
 
     /** adds a key column to the sequential list of the key columns (called during the reverse-engeenering of the database)
      *
-     * @param inColName name of the key column
+     * @param colName name of the key column
      */
-    public void addPKColumn(String inColName) {
+    public void addPKColumn(String colName) {
         /* remember the alias */
-        mKeys.add(columnToAlias(inColName));
+        keyCols.add(columnToAlias(colName));
     }
 
     /** add a new attribute
@@ -110,45 +110,45 @@ public class Entity
      */
     public void addAttribute(Attribute attribute) {
         String name = attribute.getName();
-        if(mAttributeMap.containsKey(name)) {
+        if(attributeMap.containsKey(name)) {
             Logger.warn("Ignoring second definition for attribute "+name+"!");
         } else {
-            mAttributeMap.put(mDB.adaptCase(name),attribute);
-            Logger.debug("defined attribute "+mName+"."+name+" = "+attribute);
+            attributeMap.put(db.adaptCase(name),attribute);
+            Logger.debug("defined attribute "+this.name+"."+name+" = "+attribute);
         }
     }
 
     /** Get a named attribute of this entity
      *
-     * @param inProperty attribute name
+     * @param property attribute name
      * @return the attribute
      */
-    public Attribute getAttribute(String inProperty) {
-        return (Attribute)mAttributeMap.get(mDB.adaptCase(inProperty));
+    public Attribute getAttribute(String property) {
+        return (Attribute)attributeMap.get(db.adaptCase(property));
     }
 
     public void addAction(Action action) {
         String name = action.getName();
-        mActionMap.put(mDB.adaptCase(name),action);
-        Logger.debug("action "+mName+"."+name+" = "+action);
+        actionMap.put(db.adaptCase(name),action);
+        Logger.debug("action "+this.name+"."+name+" = "+action);
     }
 
     /** get the named action from this entity
      *
-     * @param inProperty action name
+     * @param property action name
      * @return the action
      */
-    public Action getAction(String inProperty) {
-        return (Action)mActionMap.get(mDB.adaptCase(inProperty));
+    public Action getAction(String property) {
+        return (Action)actionMap.get(db.adaptCase(property));
     }
 
     /** Specify a custom class to use when instanciating this entity
      *
-     * @param inClassName the java class name
+     * @param className the java class name
      */
-    public void setInstanceClass(String inClassName) {
+    public void setInstanceClass(String className) {
         try {
-            mInstanceClass = Class.forName(inClassName);
+            instanceClass = Class.forName(className);
         }
         catch (Exception e) {
             Logger.log(e);
@@ -157,33 +157,33 @@ public class Entity
 
     /** Specify the caching method, see {@link Cache} for allowed constants.
      *
-     * @param inCaching Caching method
+     * @param caching Caching method
      */
-    public void setCachingMethod(int inCaching) {
-        if (mCachingMethod != inCaching) {
-            mCachingMethod = inCaching;
-            if (mCachingMethod == Cache.NO_CACHE) mCache = null;
-            else mCache = new Cache(mCachingMethod);
+    public void setCachingMethod(int caching) {
+        if (cachingMethod != caching) {
+            cachingMethod = caching;
+            if (cachingMethod == Cache.NO_CACHE) cache = null;
+            else cache = new Cache(cachingMethod);
         }
     }
 
     public void addConstraint(String column,FieldConstraint constraint) {;
         Logger.trace("adding constraint on column "+Database.adaptContextCase(getName())+"."+column+": "+constraint);
-        mConstraints.add(new FieldConstraintInfo(column,constraint));
+        constraints.add(new FieldConstraintInfo(column,constraint));
     }
 
     /** Used by the framework to notify this entity that its reverse enginering is over
      */
     public void reverseEnginered() {
-        if (mObfuscate && mKeys.size()>0) {
-            mKeyColObfuscated = new boolean[mKeys.size()];
-            Iterator key = mKeys.iterator();
+        if (obfuscate && keyCols.size()>0) {
+            keyColObfuscated = new boolean[keyCols.size()];
+            Iterator key = keyCols.iterator();
             int i=0;
             for (;key.hasNext();i++)
-                mKeyColObfuscated[i] = mObfuscatedColumns.contains(key.next());
+                keyColObfuscated[i] = obfuscatedColumns.contains(key.next());
         }
         /* fills the cache for the full caching method */
-        if(mCachingMethod == Cache.FULL_CACHE) {
+        if(cachingMethod == Cache.FULL_CACHE) {
             try {
                 query().getRows();
             } catch(SQLException sqle) {
@@ -196,7 +196,7 @@ public class Entity
     /** Clear the cache
      */
     public void clearCache() {
-        if (mCache != null) mCache.clear();
+        if (cache != null) cache.clear();
     }
 
     /** create a new realisation of this entity
@@ -206,16 +206,16 @@ public class Entity
     public Instance newInstance() {
         Instance result = null;
         try {
-            if (Instance.class.isAssignableFrom(mInstanceClass)) {
+            if (Instance.class.isAssignableFrom(instanceClass)) {
                 try {
-                    result = (Instance)mInstanceClass.newInstance();
+                    result = (Instance)instanceClass.newInstance();
                     result.initialize(this);
                 } catch (Exception e) {
-                    Constructor instanceConstructor = mInstanceClass.getConstructor(new Class[] {Entity.class} );
+                    Constructor instanceConstructor = instanceClass.getConstructor(new Class[] {Entity.class} );
                     result = (Instance)instanceConstructor.newInstance(new Object[] { this });
                 }
             } else {
-                result = new ExternalObjectWrapper(this,mInstanceClass.newInstance());
+                result = new ExternalObjectWrapper(this,instanceClass.newInstance());
             }
         }
         catch (Exception e) {
@@ -228,23 +228,23 @@ public class Entity
 
     /** builds a new instance from values contained in a Map
      *
-     * @param inValues the Map containing the values
+     * @param values the Map containing the values
      * @return the newly created instance
      */
-    public Instance newInstance(Map inValues) {
-        return newInstance(new ReadOnlyWrapper(inValues));
+    public Instance newInstance(Map values) {
+        return newInstance(new ReadOnlyWrapper(values));
     }
 
     /** build a new instance from a DataAccessor object
      *
-     * @param inValues the DataAccessor object containing the values
+     * @param values the DataAccessor object containing the values
      * @return the newly created instance
      */
-    public Instance newInstance(ReadOnlyMap inValues) {
+    public Instance newInstance(ReadOnlyMap values) {
         try {
             Instance result = newInstance();
-            extractColumnValues(inValues,result);
-            if (mCachingMethod != Cache.NO_CACHE) mCache.put(buildKey(inValues),result);
+            extractColumnValues(values,result);
+            if (cachingMethod != Cache.NO_CACHE) cache.put(buildKey(values),result);
             return result;
         }
         catch (SQLException sqle) {
@@ -256,48 +256,48 @@ public class Entity
 
     /** get an instance whose values are in a map (by default, do not update instance values with map values if the instance is found in the cache)
      *
-     * @param inValues the map containing the key values
+     * @param values the map containing the key values
      * @return the instance
      */
-    public Instance getInstance(Map inValues) {
-        return getInstance(new ReadOnlyWrapper(inValues),false);
+    public Instance getInstance(Map values) {
+        return getInstance(new ReadOnlyWrapper(values),false);
     }
 
     /** get an instance whose values are in a map
      *
-     * @param inValues the map containing the values
-     * @param inUpdateValues whether the instance should be updated from the
+     * @param values the map containing the values
+     * @param updateValues whether the instance should be updated from the
      *      map if found in the cache
      * @return the instance
      */
-    public Instance getInstance(Map inValues,boolean inUpdateValues) {
-        return getInstance(new ReadOnlyWrapper(inValues),inUpdateValues);
+    public Instance getInstance(Map values,boolean updateValues) {
+        return getInstance(new ReadOnlyWrapper(values),updateValues);
     }
 
     /** get an instance from its values contained in a DataAccessor object (by default, update all fields based on the values in the DataAccessor if the instance has been found in the cache)
      *
-     * @param inValues the DataAccessor object containing the values
+     * @param values the DataAccessor object containing the values
      * @return the instance
      */
-    public Instance getInstance(ReadOnlyMap inValues) {
-        return getInstance(inValues,false);
+    public Instance getInstance(ReadOnlyMap values) {
+        return getInstance(values,false);
     }
 
     /** get an instance from a DataAccessor object
      *
-     * @param inValues the DataAccessor object containing the values
-     * @param inUpdateValues whether all values are to be read from the
-     *     DataAccessor if the instance has been found in the cache
+     * @param values the DataAccessor object containing the values
+     * @param updateValues whether all values are to be read from the
+     *     ReadOnlyMap if the instance has been found in the cache
      * @return the instance
      */
-    public Instance getInstance(ReadOnlyMap inValues,boolean inUpdateValues) {
+    public Instance getInstance(ReadOnlyMap values,boolean updateValues) {
         Instance ret = null;
         try {
-            if (mCachingMethod != Cache.NO_CACHE)
+            if (cachingMethod != Cache.NO_CACHE)
                 // try in cache
-                ret = (Instance)mCache.get(buildKey(inValues));
-            if (ret == null) ret = newInstance(inValues);
-            else if    (inUpdateValues) extractColumnValues(inValues,ret);
+                ret = (Instance)cache.get(buildKey(values));
+            if (ret == null) ret = newInstance(values);
+            else if    (updateValues) extractColumnValues(values,ret);
             return ret;
         }
         catch (SQLException sqle) {
@@ -307,53 +307,53 @@ public class Entity
     }
 
     public void invalidateInstance(ReadOnlyMap instance) throws SQLException {
-        if (mCachingMethod != Cache.NO_CACHE) {
-            mCache.invalidate(buildKey(instance));
+        if (cachingMethod != Cache.NO_CACHE) {
+            cache.invalidate(buildKey(instance));
         }
     }
 
-    /** extract column values from an input DataAccessor source and store result in inTarget
+    /** extract column values from an input DataAccessor source and store result in target
      *
-     * @param inSource DataAccessor source object
-     * @param inTarget Map target object
+     * @param source ReadOnlyMap source object
+     * @param target Map target object
      */
-    protected void extractColumnValues(ReadOnlyMap inSource,Map inTarget) throws SQLException {
-        for(Iterator i=mColumns.iterator();i.hasNext();) {
+    protected void extractColumnValues(ReadOnlyMap source,Map target) throws SQLException {
+        for(Iterator i=columns.iterator();i.hasNext();) {
             String col = (String)i.next();
-            Object val = inSource.get(col);
+            Object val = source.get(col);
             if (val == null) {
-                switch(mDB.getCaseSensivity()) {
+                switch(db.getCaseSensivity()) {
                     // try with different letter case
                     /* TODO review */
                     case Database.UPPERCASE:
-                        val = inSource.get(col.toLowerCase());
+                        val = source.get(col.toLowerCase());
                         break;
                     case Database.LOWERCASE:
-                        val = inSource.get(col.toUpperCase());
+                        val = source.get(col.toUpperCase());
                         break;
                 }
             }
             // avoid null and multivalued attributes
             if (val != null && !(val.getClass().isArray())) {
-                inTarget.put(col,val);
+                target.put(col,val);
             }
         }
     }
 
     /** build the key for the Cache from a DataAccessor
      *
-     * @param inValues the DataAccessor containing all values
+     * @param values the DataAccessor containing all values
      * @exception SQLException the getter of the DataAccessor throws an
      *     SQLException
      * @return an array containing all key values
      */
-    protected Object buildKey(ReadOnlyMap inValues) throws SQLException {
+    protected Object buildKey(ReadOnlyMap values) throws SQLException {
 
         // build key
-        Object [] key = new Object[mKeys.size()];
+        Object [] key = new Object[keyCols.size()];
         int c=0;
-        for(Iterator i = mKeys.iterator(); i.hasNext();)
-            key[c++] = inValues.get(i.next());
+        for(Iterator i = keyCols.iterator(); i.hasNext();)
+            key[c++] = values.get(i.next());
         return key;
     }
 
@@ -362,20 +362,20 @@ public class Entity
      *
      * @return the name of the entity
      */
-    public String getName() { return mName; }
+    public String getName() { return name; }
 
     /** set the name of this entity ** DO NOT USE DIRECTLY **
      *
-     * @param inName new name
+     * @param name new name
      */
-    public void rename(String inName) { mName = inName; }
+    public void rename(String name) { this.name = name; }
 
     /** getter for the list of key column names
      *
      * @return the list of key column names
      */
     public List<String> getPKCols() {
-        return mKeys;
+        return keyCols;
     }
 
     /** getter for the list of column names
@@ -383,128 +383,128 @@ public class Entity
      * @return the list of column names
      */
     public List<String> getColumns() {
-        return mColumns;
+        return columns;
     }
 
     /** insert a new row based on values of a map
      *
-     * @param inValues the  Map object containing the values
+     * @param values the  Map object containing the values
      * @return success indicator
      */
-    public boolean insert(ReadOnlyMap inValues) throws SQLException {
-        if (mReadOnly) {
+    public boolean insert(ReadOnlyMap values) throws SQLException {
+        if (readOnly) {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
         }
         // don't use newInstance since we don't want user classes or cache
         Instance instance = new Instance(this);
-        extractColumnValues(inValues,instance);
+        extractColumnValues(values,instance);
         return instance.insert();
     }
 
     /** update a row based on a set of values that must contain kety values
      *
-     * @param inValues the Map object containing the values
+     * @param values the Map object containing the values
      * @return success indicator
      */
-    public boolean update(ReadOnlyMap inValues) {
-        if (mReadOnly) {
+    public boolean update(ReadOnlyMap values) {
+        if (readOnly) {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
         }
-        Instance instance = newInstance(inValues);
+        Instance instance = newInstance(values);
         return instance.update();
     }
 
     /** delete a row based on (key) values
      *
-     * @param inValues the Map containing the values
+     * @param values the Map containing the values
      * @return success indicator
      */
-    public boolean delete(ReadOnlyMap inValues) {
-        if (mReadOnly) {
+    public boolean delete(ReadOnlyMap values) {
+        if (readOnly) {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
         }
-        Instance instance = newInstance(inValues);
+        Instance instance = newInstance(values);
         return instance.delete();
     }
 
     /** fetch an instance from key values stored in a List in natural order
      *
-     * @param inValues the List containing the key values
+     * @param values the List containing the key values
      * @return the fetched instance
      */
-    public Instance fetch(List inValues) throws SQLException {
-        if (inValues.size() != mKeys.size()) throw new SQLException("Entity.fetch: Error: Wrong number of values for '"+mName+"' primary key!");
+    public Instance fetch(List values) throws SQLException {
+        if (values.size() != keyCols.size()) throw new SQLException("Entity.fetch: Error: Wrong number of values for '"+name+"' primary key!");
         Instance instance = null;
         // try in cache
-        if (mCachingMethod != Cache.NO_CACHE)
-            instance = (Instance)mCache.get(inValues.toArray());
+        if (cachingMethod != Cache.NO_CACHE)
+            instance = (Instance)cache.get(values.toArray());
         if (instance == null) {
-            if (mFetchQuery == null) buildFetchQuery();
-            PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
-            if (mObfuscate) {
-                inValues = new ArrayList(inValues);
-                for(int col=0;col<mKeyColObfuscated.length;col++)
-                    if(mKeyColObfuscated[col])
-                        inValues.set(col,deobfuscate(inValues.get(col)));
+            if (fetchQuery == null) buildFetchQuery();
+            PooledPreparedStatement statement = db.prepare(fetchQuery);
+            if (obfuscate) {
+                values = new ArrayList(values);
+                for(int col=0;col<keyColObfuscated.length;col++)
+                    if(keyColObfuscated[col])
+                        values.set(col,deobfuscate(values.get(col)));
             }
-            instance = (Instance)statement.fetch(inValues,this);
+            instance = (Instance)statement.fetch(values,this);
         }
         return instance;
     }
 
     /** fetch an instance from key values stored in a Map
      *
-     * @param inValues the Map containing the key values
+     * @param values the Map containing the key values
      * @return the fetched instance
      */
-    public Instance fetch(ReadOnlyMap inValues) throws SQLException {
+    public Instance fetch(ReadOnlyMap values) throws SQLException {
         Instance instance = null;
         // try in cache
-        if (mCachingMethod != Cache.NO_CACHE)
+        if (cachingMethod != Cache.NO_CACHE)
             // try in cache
-            instance = (Instance)mCache.get(buildKey(inValues));
+            instance = (Instance)cache.get(buildKey(values));
         if (instance == null) {
-            if (mFetchQuery == null) buildFetchQuery();
-            PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
-            if (mObfuscate) {
+            if (fetchQuery == null) buildFetchQuery();
+            PooledPreparedStatement statement = db.prepare(fetchQuery);
+            if (obfuscate) {
                 Map map =  new HashMap();
-                for(Object key:inValues.keySet()) {
-                    Object value = inValues.get(key);
+                for(Object key:values.keySet()) {
+                    Object value = values.get(key);
                     map.put( Database.adaptContextCase((String)key), isObfuscated((String)key) ? deobfuscate(value) : value );
                 }
-                inValues = new ReadOnlyWrapper(map);
+                values = new ReadOnlyWrapper(map);
             }
-            instance = (Instance)statement.fetch(inValues,this);
+            instance = (Instance)statement.fetch(values,this);
         }
         return instance;
     }
 
     /** fetch an instance from its key value as a string
      *
-     * @param inKeyValue the key
+     * @param keyValue the key
      * @return the fetched instance
      */
-    public Instance fetch(String inKeyValue) throws SQLException {
-        if (mKeys.size()!=1) {
-            if (mKeys.size()==0) throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has no primary key!");
-            else throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has a multi-column primary key!");
+    public Instance fetch(String keyValue) throws SQLException {
+        if (keyCols.size()!=1) {
+            if (keyCols.size()==0) throw new SQLException("Entity.fetch: Error: Entity '"+name+"' has no primary key!");
+            else throw new SQLException("Entity.fetch: Error: Entity '"+name+"' has a multi-column primary key!");
         }
         Instance instance = null;
         // try in cache
-        if (mCachingMethod != Cache.NO_CACHE)
+        if (cachingMethod != Cache.NO_CACHE)
             // try in cache
-            instance = (Instance)mCache.get(new Object[] { inKeyValue });
+            instance = (Instance)cache.get(new Object[] { keyValue });
         if (instance == null) {
-            if (mFetchQuery == null) buildFetchQuery();
-            PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
-            if (mObfuscate && mKeyColObfuscated[0]) {
-                inKeyValue = deobfuscate(inKeyValue);
+            if (fetchQuery == null) buildFetchQuery();
+            PooledPreparedStatement statement = db.prepare(fetchQuery);
+            if (obfuscate && keyColObfuscated[0]) {
+                keyValue = deobfuscate(keyValue);
             }
             ArrayList params = new ArrayList();
-            params.add(inKeyValue);
+            params.add(keyValue);
             instance = (Instance)statement.fetch(params,this);
         }
         return instance;
@@ -512,26 +512,26 @@ public class Entity
 
     /** fetch an instance from its key value specified as a Number
      *
-     * @param inKeyValue the key
+     * @param keyValue the key
      * @return the fetched instance
      */
-    public Instance fetch(Number inKeyValue) throws SQLException {
-        if (mKeys.size()!=1) {
-            if (mKeys.size()==0) throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has no primary key!");
-            else throw new SQLException("Entity.fetch: Error: Entity '"+mName+"' has a multi-column primary key!");
+    public Instance fetch(Number keyValue) throws SQLException {
+        if (keyCols.size()!=1) {
+            if (keyCols.size()==0) throw new SQLException("Entity.fetch: Error: Entity '"+name+"' has no primary key!");
+            else throw new SQLException("Entity.fetch: Error: Entity '"+name+"' has a multi-column primary key!");
         }
         Instance instance = null;
         // try in cache
-        if (mCachingMethod != Cache.NO_CACHE)
+        if (cachingMethod != Cache.NO_CACHE)
             // try in cache
-            instance = (Instance)mCache.get(new Object[] { inKeyValue });
+            instance = (Instance)cache.get(new Object[] { keyValue });
         if (instance == null) {
-            if (mFetchQuery == null) buildFetchQuery();
-            PooledPreparedStatement statement = mDB.prepare(mFetchQuery);
+            if (fetchQuery == null) buildFetchQuery();
+            PooledPreparedStatement statement = db.prepare(fetchQuery);
             ArrayList params = new ArrayList();
-            params.add(inKeyValue);
-            if(mObfuscate && mKeyColObfuscated[0]) {
-                Logger.warn("fetch: column '"+mColumns.get(0)+"' is obfuscated, please use $db."+mName+".fetch($db.obfuscate("+inKeyValue+"))");
+            params.add(keyValue);
+            if(obfuscate && keyColObfuscated[0]) {
+                Logger.warn("fetch: column '"+columns.get(0)+"' is obfuscated, please use $db."+name+".fetch($db.obfuscate("+keyValue+"))");
                 return null;
             }
             instance = (Instance)statement.fetch(params,this);
@@ -544,18 +544,18 @@ public class Entity
      * @return the SLQ query
      */
     public String getFetchQuery() {
-        if (mFetchQuery == null) buildFetchQuery();
-        return mFetchQuery;
+        if (fetchQuery == null) buildFetchQuery();
+        return fetchQuery;
     }
 
     /** build the SQL query used to fetch one instance of this query
      */
     protected void buildFetchQuery() {
         ArrayList whereClause = new ArrayList();
-        for(String column:mKeys) {
+        for(String column:keyCols) {
             whereClause.add(aliasToColumn(column)+"=?");
         }
-        mFetchQuery = "select * from "+mTable+" where "+StringLists.join(whereClause," and ");
+        fetchQuery = "select * from "+table+" where "+StringLists.join(whereClause," and ");
     }
 
     /** issue a query to iterate though all instances of this entity
@@ -568,16 +568,16 @@ public class Entity
 
     /** issue a query to iterate thought instances of this entity, with a facultative refining criteria and a facultative order by clause
      *
-     * @param inRefineCriteria a refining criteria or null to get all instances
-     * @param inOrder an 'order by' clause or null to get instances in their
+     * @param refineCriteria a refining criteria or null to get all instances
+     * @param order an 'order by' clause or null to get instances in their
      *     natural order
      * @return the resulting RowIterator
      */
-    public RowIterator query(List inRefineCriteria,String inOrder) throws SQLException {
-        String query = "select * from "+ mTable;
-        if (inRefineCriteria!=null) query = SqlUtil.refineQuery(query,inRefineCriteria);
-        if (inOrder!=null && inOrder.length()>0) query = SqlUtil.orderQuery(query,inOrder);
-        return mDB.query(query,this);
+    public RowIterator query(List refineCriteria,String order) throws SQLException {
+        String query = "select * from "+ table;
+        if (refineCriteria!=null) query = SqlUtil.refineQuery(query,refineCriteria);
+        if (order!=null && order.length()>0) query = SqlUtil.orderQuery(query,order);
+        return db.query(query,this);
     }
 
 //    public boolean hasColumn
@@ -587,32 +587,32 @@ public class Entity
      *
      * @return the database connection
      */
-    public Database getDB() { return mDB; }
+    public Database getDB() { return db; }
 
     /** Is this entity read-only or read-write?
      *
      * @return whether this entity is read-only or not
      */
     public boolean isReadOnly() {
-        return mReadOnly;
+        return readOnly;
     }
 
     /** set this entity to be read-only or read-write
      *
-     * @param inReadOnly the mode to switch to : true for read-only, false for
+     * @param readOnly the mode to switch to : true for read-only, false for
      *     read-write
      */
-    public void setReadOnly(boolean inReadOnly) {
-        mReadOnly = inReadOnly;
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
 
     /** set the name of the table mapped by this entity
      *
-     * @param inTable the table mapped by this entity
+     * @param table the table mapped by this entity
      *     read-write
      */
-    public void setTableName(String inTable) {
-        mTable = inTable;
+    public void setTableName(String table) {
+        this.table = table;
     }
 
     /** get the name of the mapped table
@@ -620,25 +620,25 @@ public class Entity
      * @return name of the mapped table
      */
     public String getTableName() {
-        return mTable;
+        return table;
     }
 
     /** indicates a column as being obfuscated
-     * @param inColumns list of obfuscated columns
+     * @param columns list of obfuscated columns
      */
-    public void setObfuscated(List inColumns)
+    public void setObfuscated(List columns)
     {
-        mObfuscate = true;
-        mObfuscatedColumns = inColumns;
+        obfuscate = true;
+        obfuscatedColumns = columns;
     }
 
     /** returns whether the given column is obfuscated
-     * @param inColumn the name of the column
+     * @param column the name of the column
      * @return a boolean indicating whether this column is obfuscated
      */
-    public boolean isObfuscated(String inColumn)
+    public boolean isObfuscated(String column)
     {
-        return mObfuscate && mObfuscatedColumns.contains(mDB.adaptCase(inColumn));
+        return obfuscate && obfuscatedColumns.contains(db.adaptCase(column));
     }
 
     /** obfuscate given value
@@ -648,14 +648,14 @@ public class Entity
      */
     public String obfuscate(Object value)
     {
-        return mDB.obfuscate(value);
+        return db.obfuscate(value);
     }
 
     /** obfuscate this id value if needed
      *
      */
     public Object filterID(Long id) {
-        if (mKeys.size() == 1 && isObfuscated((String)mKeys.get(0))) return obfuscate(Long.valueOf(id));
+        if (keyCols.size() == 1 && isObfuscated((String)keyCols.get(0))) return obfuscate(Long.valueOf(id));
         return Long.valueOf(id);
     }
 
@@ -668,30 +668,30 @@ public class Entity
      */
     public String deobfuscate(Object value)
     {
-        return mDB.deobfuscate(value);
+        return db.deobfuscate(value);
     }
 
     /** indicates a column as being localized
-     * @param inColumns list of localized columns
+     * @param columns list of localized columns
      */
-    public void setLocalized(List inColumns)
+    public void setLocalized(List columns)
     {
-        mLocalizedColumns = inColumns;
+        localizedColumns = columns;
     }
 
     /** returns whether the given column is obfuscated
-     * @param inColumn the name of the column
+     * @param column the name of the column
      * @return a boolean indicating whether this column is obfuscated
      */
-    public boolean isLocalized(String inColumn)
+    public boolean isLocalized(String column)
     {
-        return mLocalizedColumns != null && mLocalizedColumns.contains(mDB.adaptCase(inColumn));
+        return localizedColumns != null && localizedColumns.contains(db.adaptCase(column));
     }
 
     /** does this entity have localized columns ?
      */
     public boolean hasLocalizedColumns() {
-        return mLocalizedColumns != null && mLocalizedColumns.size() > 0;
+        return localizedColumns != null && localizedColumns.size() > 0;
     }
 
     /** validate a set of values
@@ -705,7 +705,7 @@ public class Entity
                */
             userContext.clearValidationErrors();
         }
-        for(FieldConstraintInfo info:mConstraints) {
+        for(FieldConstraintInfo info:constraints) {
             Object data = row.get(info.column);
             if (!info.constraint.validate(data, userContext.getLocale())) {
                 if(userContext != null) {
@@ -725,7 +725,7 @@ public class Entity
     }
 
     public ImportedKey findImportedKey(Entity pkEntity,List<String> fkCols) {
-        for(Map.Entry entry:(Set<Map.Entry>)mAttributeMap.entrySet()) {
+        for(Map.Entry entry:(Set<Map.Entry>)attributeMap.entrySet()) {
             Attribute attribute = (Attribute)entry.getValue();
             if (!(attribute instanceof ImportedKey)) {
                 continue;
@@ -740,7 +740,7 @@ public class Entity
     }
 
     public ExportedKey findExportedKey(Entity fkEntity,List<String> fkCols) {
-        for(Map.Entry entry:(Set<Map.Entry>)mAttributeMap.entrySet()) {
+        for(Map.Entry entry:(Set<Map.Entry>)attributeMap.entrySet()) {
             Attribute attribute = (Attribute)entry.getValue();
             if (!(attribute instanceof ExportedKey)) {
                 continue;
@@ -756,57 +756,57 @@ public class Entity
 
     /** name
      */
-    protected String mName = null;
+    protected String name = null;
     /** table
      */
-    protected String mTable = null;
+    protected String table = null;
     /** column names in natural order
      */
-    protected List<String> mColumns = new ArrayList(); // list<String>
+    protected List<String> columns = new ArrayList(); // list<String>
     /** key column names in natural order
      */
-    protected List<String> mKeys = new ArrayList();
+    protected List<String> keyCols = new ArrayList();
     /** whether to obfuscate something
      */
-    protected boolean mObfuscate = false;
+    protected boolean obfuscate = false;
     /** names of obfuscated columns
      */
-    protected List<String> mObfuscatedColumns = null;
+    protected List<String> obfuscatedColumns = null;
     /** obfuscation status of key columns
      */
-    protected boolean mKeyColObfuscated[] = null;
+    protected boolean keyColObfuscated[] = null;
     /** localized columns
      */
-    protected List mLocalizedColumns = null;
+    protected List localizedColumns = null;
     /** attributes of this entity
      */
 
-    protected Map<String,String> mAliasByColumn = new HashMap<String,String>();
+    protected Map<String,String> aliasByColumn = new HashMap<String,String>();
 
-    protected Map<String,String> mColumnByAlias = new HashMap<String,String>();
+    protected Map<String,String> columnByAlias = new HashMap<String,String>();
 
-    protected Map mAttributeMap = new HashMap(); // map<Name,Attribute>
+    protected Map attributeMap = new HashMap(); // map<Name,Attribute>
     /** actions of this entity
      */
-    protected Map mActionMap = new HashMap();
+    protected Map actionMap = new HashMap();
     /** the java class to use to realize this instance
      */
-    protected Class mInstanceClass = null;
+    protected Class instanceClass = null;
     /** the SQL query used to fetch one instance of this entity
      */
-    protected String mFetchQuery = null;
+    protected String fetchQuery = null;
     /** whether this entity is read-only or not
      */
-    protected boolean mReadOnly;
+    protected boolean readOnly;
     /** the database connection
      */
-    protected Database mDB = null;
+    protected Database db = null;
     /** the caching method
      */
-    protected int mCachingMethod = 0;
+    protected int cachingMethod = 0;
     /** the cache
      */
-    protected Cache mCache = null;
+    protected Cache cache = null;
 
     /** constraints
      */
@@ -820,5 +820,5 @@ public class Entity
         protected FieldConstraint constraint;
     }
 
-    private List<FieldConstraintInfo> mConstraints = new ArrayList<FieldConstraintInfo>();
+    private List<FieldConstraintInfo> constraints = new ArrayList<FieldConstraintInfo>();
 }

@@ -44,13 +44,13 @@ public class ExportedKey extends Attribute {
     }
 
     public String getQuery() {
-        if(mQuery == null) {
-            Entity fkEntity = mDB.getEntity(mResultEntity);
-            for(String param:mDB.getEntity(mResultEntity).getPKCols()) {
+        if(query == null) {
+            Entity fkEntity = db.getEntity(resultEntity);
+            for(String param:db.getEntity(resultEntity).getPKCols()) {
                 addParamName(param);
             }
-            mQuery = "SELECT * FROM " + fkEntity.getTableName() + " WHERE " + StringLists.join(fkEntity.aliasToColumn(fkCols)," = ? AND ") + " = ?";
+            query = "SELECT * FROM " + fkEntity.getTableName() + " WHERE " + StringLists.join(fkEntity.aliasToColumn(fkCols)," = ? AND ") + " = ?";
         }
-        return mQuery;
+        return query;
     }
 }

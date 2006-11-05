@@ -56,48 +56,51 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
 
     /** builds a new PooledPreparedStatement
      *
-     * @param inConnection database connection
-     * @param inPreparedStatement wrapped prepared statement
+     * @param connection database connection
+     * @param preparedStatement wrapped prepared statement
      */
-    public PooledPreparedStatement(ConnectionWrapper inConnection,PreparedStatement inPreparedStatement) {
-        mConnection = inConnection;
-        mPreparedStatement = inPreparedStatement;
+    public PooledPreparedStatement(ConnectionWrapper connection,PreparedStatement preparedStatement) {
+        this.connection = connection;
+        this.preparedStatement = preparedStatement;
     }
 
     // get a unique object (typically by id)
     /** get a unique object by id
      *
-     * @param inParams parameter values
+     * @param params parameter values
      * @exception SQLException thrown bu the database engine
      * @return fetched Instance
      */
-    public synchronized Object fetch(List inParams) throws SQLException { return fetch(inParams,null); }
+    public synchronized Object fetch(List params) throws SQLException
+    {
+        return fetch(params,null);
+    }
 
     /** get a unique object by id and specify the Entity this object is an Instance of
      *
-     * @param inParams parameter values
-     * @param inResultEntity resulting entity
+     * @param params parameter values
+     * @param resultEntity resulting entity
      * @exception SQLException thrown by the database engine
      * @return the fetched Instance
      */
-    public synchronized Object fetch(List inParams,Entity inResultEntity) throws SQLException {
+    public synchronized Object fetch(List params,Entity resultEntity) throws SQLException {
         notifyInUse();
-        setParams(inParams);
-        mConnection.enterBusyState();
-        mRS = mPreparedStatement.executeQuery();
-        boolean hasNext = mRS.next();
-        mConnection.leaveBusyState();
-        mEntity = inResultEntity;
+        setParams(params);
+        connection.enterBusyState();
+        resultSet = preparedStatement.executeQuery();
+        boolean hasNext = resultSet.next();
+        connection.leaveBusyState();
+        entity = resultEntity;
         Map row = null;
         if (hasNext) {
-            if (inResultEntity!=null) row = inResultEntity.getInstance(this);
+            if (resultEntity!=null) row = resultEntity.getInstance(this);
             else {
                 row = new HashMap();
-                if (mColumnNames == null) mColumnNames = SqlUtil.getColumnNames(mRS);
-                for (Iterator it=mColumnNames.iterator();it.hasNext();) {
+                if (columnNames == null) columnNames = SqlUtil.getColumnNames(resultSet);
+                for (Iterator it=columnNames.iterator();it.hasNext();) {
                     String column = (String)it.next();
-                    Object value = mRS.getObject(column);
-                    if (value != null && !mRS.wasNull())
+                    Object value = resultSet.getObject(column);
+                    if (value != null && !resultSet.wasNull())
                         row.put(column,value);
                 }
             }
@@ -108,66 +111,66 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
 
     /** get a unique object by id and specify the Entity this object is an Instance of
      *
-     * @param inParams parameter values
-     * @param inResultEntity resulting entity
+     * @param params parameter values
+     * @param resultEntity resulting entity
      * @exception SQLException thrown by the database engine
      * @return the fetched Instance
      */
-    public synchronized Object fetch(ReadOnlyMap inParams,Entity inResultEntity) throws SQLException {
+    public synchronized Object fetch(ReadOnlyMap params,Entity resultEntity) throws SQLException {
         List values = new ArrayList();
-        for (Iterator i = inResultEntity.getPKCols().iterator();i.hasNext();) {
+        for (Iterator i = resultEntity.getPKCols().iterator();i.hasNext();) {
             String key = (String)i.next();
-            String value = (String)inParams.get(key);
+            String value = (String)params.get(key);
             if (value==null) throw new SQLException("Error: key column '"+key+"' is not specified!");
             values.add(value);
         }
-        return fetch(values,inResultEntity);
+        return fetch(values,resultEntity);
     }
 
     /** gets the rowset
      *
-     * @param inParams parameter values
+     * @param params parameter values
      * @exception SQLException thrown by the database engine
      * @return the resulting row iterator
      */
-    public synchronized RowIterator query(List inParams) throws SQLException { return query(inParams,null); }
+    public synchronized RowIterator query(List params) throws SQLException { return query(params,null); }
     /** gets the rowset
      *
-     * @param inParams parameter values
-     * @param inResultEntity resulting entity
+     * @param params parameter values
+     * @param resultEntity resulting entity
      * @exception SQLException thrown by the database engine
      * @return resulting RowIterator
      */
-    public synchronized RowIterator query(List inParams,Entity inResultEntity) throws SQLException {
+    public synchronized RowIterator query(List params,Entity resultEntity) throws SQLException {
         notifyInUse();
-        if (inParams != null) {
-            setParams(inParams);
+        if (params != null) {
+            setParams(params);
         }
-        mConnection.enterBusyState();
-        RowIterator result = new RowIterator(this,mPreparedStatement.executeQuery(),inResultEntity);
-        mConnection.leaveBusyState();
+        connection.enterBusyState();
+        RowIterator result = new RowIterator(this,preparedStatement.executeQuery(),resultEntity);
+        connection.leaveBusyState();
         return result;
     }
 
     /** gets a scalar result from this statement
      *
-     * @param inParams parameter values
+     * @param params parameter values
      * @exception SQLException thrown bu the database engine
      * @return scalar result
      */
-    public synchronized Object evaluate(List inParams) throws SQLException {
+    public synchronized Object evaluate(List params) throws SQLException {
         Object value = null;
         int i = 0;
         ResultSet rs = null;
         notifyInUse();
         try {
-            if (inParams != null) {
-                setParams(inParams);
+            if (params != null) {
+                setParams(params);
             }
-            mConnection.enterBusyState();
-            rs = mPreparedStatement.executeQuery();
+            connection.enterBusyState();
+            rs = preparedStatement.executeQuery();
             boolean hasNext = rs.next();
-            mConnection.leaveBusyState();
+            connection.leaveBusyState();
             if (hasNext) {
                 value = rs.getObject(1);
                 if (rs.wasNull()) value = null; /* TODO review - useless, no? */
@@ -182,16 +185,16 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
 
     /** issues the modification query of this prepared statement
      *
-     * @param inParams parameter values
+     * @param params parameter values
      * @exception SQLException thrown by the database engine
      * @return the numer of affected rows
      */
-    public synchronized int update(List inParams) throws SQLException {
+    public synchronized int update(List params) throws SQLException {
         notifyInUse();
-        setParams(inParams);
-        mConnection.enterBusyState();
-        int rows = mPreparedStatement.executeUpdate();
-        mConnection.leaveBusyState();
+        setParams(params);
+        connection.enterBusyState();
+        int rows = preparedStatement.executeUpdate();
+        connection.leaveBusyState();
         notifyOver();
         return rows;
     }
@@ -205,14 +208,14 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
 
     public synchronized Object get(Object key) throws SQLException {
         if (!(key instanceof String)) return null;
-        Object ret = mRS.getObject((String)key);
-        if (mEntity != null && mEntity.isObfuscated((String)key))
-            ret = mEntity.obfuscate((ret));
+        Object ret = resultSet.getObject((String)key);
+        if (entity != null && entity.isObfuscated((String)key))
+            ret = entity.obfuscate((ret));
         return ret;
     }
 
     public Set keySet() throws SQLException {
-        return new HashSet(SqlUtil.getColumnNames(mRS));
+        return new HashSet(SqlUtil.getColumnNames(resultSet));
     }
 
     /** get the last insert id - implemented only for mysql for now...
@@ -221,7 +224,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
      * @return the last insert id
      */
     public synchronized long getLastInsertID() throws SQLException {
-        return ((ConnectionWrapper)mConnection).getLastInsertId(mPreparedStatement);
+        return ((ConnectionWrapper)connection).getLastInsertId(preparedStatement);
     }
 
     /** close this statement
@@ -229,7 +232,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
      * @exception SQLException thrown by the database engine
      */
     public synchronized void close() throws SQLException{
-        if (mPreparedStatement!=null) mPreparedStatement.close();
+        if (preparedStatement!=null) preparedStatement.close();
     }
 
     /** get statement's Connection
@@ -237,41 +240,40 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
      *  @return the Connection object (usually a ConnectionWrapper object)
      */
     public ConnectionWrapper getConnection() {
-        return mConnection;
+        return connection;
     }
 
 
     /** set prepared parameter values
      *
-     * @param inParams parameter values
+     * @param params parameter values
      * @exception SQLException thrown by the database engine
      */
-    protected void setParams(List inParams) throws SQLException {
-        for (int i=0;i<inParams.size();i++) {
-            Object param = inParams.get(i);
+    protected void setParams(List params) throws SQLException {
+        for (int i=0;i<params.size();i++) {
+            Object param = params.get(i);
             if (valueParserSubClass != null && valueParserSubClass.isAssignableFrom(param.getClass())) {
                 param = param.toString();
             }
-            mPreparedStatement.setObject(i+1,param);
+            preparedStatement.setObject(i+1,param);
         }
     }
 
     /** the connection
      */
-    protected ConnectionWrapper mConnection = null;
+    protected ConnectionWrapper connection = null;
     /** the result set
      */
-    protected ResultSet mRS = null;
+    protected ResultSet resultSet = null;
     /** column names
      */
-    protected List mColumnNames = null;
+    protected List columnNames = null;
     /** wrapped prepared statement
      */
-    protected PreparedStatement mPreparedStatement = null;
+    protected PreparedStatement preparedStatement = null;
     /** the resulting entity
      */
-    protected Entity mEntity = null;
+    protected Entity entity = null;
     /** has meta information been fetched ?
      */
-    protected boolean mMetaDone = false; // hum...
 }

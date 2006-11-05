@@ -35,25 +35,25 @@ public class PreparedStatementPool implements Runnable,Pool {
 
     /** builds a new pool
      *
-     * @param inConnectionPool connection pool
+     * @param connectionPool connection pool
      */
-    protected PreparedStatementPool(ConnectionPool inConnectionPool) {
-        mConnectionPool = inConnectionPool;
-        mCheckTimeoutThread = new Thread(this);
-//        mCheckTimeoutThread.start();
+    protected PreparedStatementPool(ConnectionPool connectionPool) {
+        this.connectionPool = connectionPool;
+        checkTimeoutThread = new Thread(this);
+//        checkTimeoutThread.start();
     }
 
     /** gets a PooledPreparedStatement associated with this query
      *
-     * @param inQuery an SQL query
+     * @param query an SQL query
      * @exception SQLException thrown by the database engine
      * @return a valid statement
      */
-    public synchronized PooledPreparedStatement getPreparedStatement(String inQuery) throws SQLException {
-        Logger.trace("prepare-"+inQuery);
+    public synchronized PooledPreparedStatement getPreparedStatement(String query) throws SQLException {
+        Logger.trace("prepare-"+query);
         PooledPreparedStatement statement = null;
         ConnectionWrapper connection = null;
-        List available = mStatementsMap.get(inQuery);
+        List available = statementsMap.get(query);
         for (Iterator it = available.iterator();it.hasNext();) {
             statement = (PooledPreparedStatement)it.next();
             if (statement.isValid()) {
@@ -70,10 +70,10 @@ public class PreparedStatementPool implements Runnable,Pool {
                 it.remove();
             }
         }
-        if (mCount == sMaxStatements) throw new SQLException("Error: Too many opened prepared statements!");
-        connection = mConnectionPool.getConnection();
-        statement= new PooledPreparedStatement(connection,connection.prepareStatement(inQuery,ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY));
-        mStatementsMap.put(inQuery,statement);
+        if (count == maxStatements) throw new SQLException("Error: Too many opened prepared statements!");
+        connection = connectionPool.getConnection();
+        statement= new PooledPreparedStatement(connection,connection.prepareStatement(query,ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY));
+        statementsMap.put(query,statement);
         statement.notifyInUse();
         return statement;
     }
@@ -82,16 +82,16 @@ public class PreparedStatementPool implements Runnable,Pool {
     /** cycle through statements to check and recycle them
      */
     public void run() {
-        while (mRunning) {
+        while (running) {
             try {
-                Thread.sleep(sCheckDelay);
+                Thread.sleep(checkDelay);
             } catch (InterruptedException e) {}
             long now = System.currentTimeMillis();
             PooledPreparedStatement statement = null;
-            for (Iterator it=mStatementsMap.keySet().iterator();it.hasNext();)
-                for (Iterator jt=mStatementsMap.get(it.next()).iterator();jt.hasNext();) {
+            for (Iterator it=statementsMap.keySet().iterator();it.hasNext();)
+                for (Iterator jt=statementsMap.get(it.next()).iterator();jt.hasNext();) {
                     statement = (PooledPreparedStatement)jt.next();
-                    if (statement.isInUse() && now-statement.getTagTime() > sTimeout)
+                    if (statement.isInUse() && now-statement.getTagTime() > timeout)
                         statement.notifyOver();
                 }
         }
@@ -101,23 +101,23 @@ public class PreparedStatementPool implements Runnable,Pool {
      */
     public void clear() {
         // close all statements
-        for (Iterator it=mStatementsMap.keySet().iterator();it.hasNext();)
-            for (Iterator jt=mStatementsMap.get(it.next()).iterator();jt.hasNext();)
+        for (Iterator it=statementsMap.keySet().iterator();it.hasNext();)
+            for (Iterator jt=statementsMap.get(it.next()).iterator();jt.hasNext();)
                 try {
                     ((PooledPreparedStatement)jt.next()).close();
                 }
                 catch (SQLException e) { // don't care now...
                     Logger.log(e);
                 }
-        mStatementsMap.clear();
+        statementsMap.clear();
     }
 
     /* drop all statements relative to a specific connection
      * @param connection the connection
      */
     protected void dropConnection(Connection connection) {
-        for (Iterator it=mStatementsMap.keySet().iterator();it.hasNext();)
-            for (Iterator jt=mStatementsMap.get(it.next()).iterator();jt.hasNext();) {
+        for (Iterator it=statementsMap.keySet().iterator();it.hasNext();)
+            for (Iterator jt=statementsMap.get(it.next()).iterator();jt.hasNext();) {
                     PooledPreparedStatement statement = (PooledPreparedStatement)jt.next();
                     try { statement.close(); } catch(SQLException sqle) {}
                     statement.setInvalid();
@@ -138,38 +138,38 @@ public class PreparedStatementPool implements Runnable,Pool {
      */
     protected int[] getUsageStats() {
         int [] stats = new int[] {0,0};
-        for (Iterator it=mStatementsMap.keySet().iterator();it.hasNext();)
-            for (Iterator jt=mStatementsMap.get(it.next()).iterator();jt.hasNext();)
+        for (Iterator it=statementsMap.keySet().iterator();it.hasNext();)
+            for (Iterator jt=statementsMap.get(it.next()).iterator();jt.hasNext();)
                 if (!((PooledPreparedStatement)jt.next()).isInUse())
                     stats[0]++;
-        stats[1]=mStatementsMap.size();
+        stats[1]=statementsMap.size();
         return stats;
     }
 
     /** connection pool
      */
-    protected ConnectionPool mConnectionPool;
+    protected ConnectionPool connectionPool;
 
     /** statements count
      */
-    protected int mCount = 0;
+    protected int count = 0;
     /** map queries -> statements
      */
-    protected HashMultiMap mStatementsMap = new HashMultiMap(); // query -> PooledPreparedStatement
+    protected HashMultiMap statementsMap = new HashMultiMap(); // query -> PooledPreparedStatement
     /** running thread
      */
-    protected Thread mCheckTimeoutThread = null;
+    protected Thread checkTimeoutThread = null;
     /** true if running
      */
-    protected boolean mRunning = true;
+    protected boolean running = true;
 
     /** check delay
      */
-    protected static final long sCheckDelay = 30*1000;
+    protected static final long checkDelay = 30*1000;
     /** after this timeout, statements are recycled even if not closed
      */
-    protected static final long sTimeout = 60*60*1000;
+    protected static final long timeout = 60*60*1000;
     /** max number of statements
      */
-    protected static final int sMaxStatements = 50;
+    protected static final int maxStatements = 50;
 }

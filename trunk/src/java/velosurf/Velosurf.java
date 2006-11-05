@@ -132,7 +132,7 @@ public class Velosurf extends DBReference
         initialized = true;
     }
 
-    public Object get(Object inKey) {
+    public Object get(Object key) {
         if (!initialized) {
             try {
                 init();
@@ -141,10 +141,10 @@ public class Velosurf extends DBReference
                 return null;
             }
         }
-        return super.get(inKey);
+        return super.get(key);
     }
 
-    public Object put(Object inKey,Object inValue) {
+    public Object put(Object key,Object value) {
         if (!initialized) {
             try {
                 init();
@@ -153,7 +153,7 @@ public class Velosurf extends DBReference
                 return null;
             }
         }
-        return super.get(inKey);
+        return super.get(key);
     }
 
     public String getSchema() {

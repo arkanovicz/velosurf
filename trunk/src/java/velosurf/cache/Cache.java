@@ -58,23 +58,23 @@ public class Cache {
 
     /** Cache constructor
      *
-     * @param inCachingMethod required caching mode
+     * @param cachingMethod required caching mode
      */
-    public Cache(int inCachingMethod) {
-        mCachingMethod = inCachingMethod;
-        mInnerCache = new HashMap();
+    public Cache(int cachingMethod) {
+        this.cachingMethod = cachingMethod;
+        innerCache = new HashMap();
     }
 
     /** Put an instance in the cache
      *
-     * @param inKey key field(s) of this instance
-     * @param inValue instance
+     * @param key key field(s) of this instance
+     * @param value instance
      */
-    public void put(Object inKey,Object inValue) {
-        Object key = (inKey.getClass().isArray()?new ArrayKey((Object[])inKey):inKey);
-        Object value = (mCachingMethod == SOFT_CACHE?new SoftReference(inValue):inValue);
-        synchronized(mInnerCache) {
-            mInnerCache.put(key,value);
+    public void put(Object key,Object value) {
+        key = (key.getClass().isArray()?new ArrayKey((Object[])key):key);
+        value = (cachingMethod == SOFT_CACHE?new SoftReference(value):value);
+        synchronized(innerCache) {
+            innerCache.put(key,value);
         }
     }
 
@@ -83,26 +83,26 @@ public class Cache {
      * @return the size of the cache
      */
     public int size() {
-        return mInnerCache.size();
+        return innerCache.size();
     }
 
     /** Try to get an instance from the cache
      *
-     * @param inKey key field(s) of the asked instance
+     * @param key key field(s) of the asked instance
      * @return Asked instance or null if not found
      */
-    public Object get(Object inKey) {
-        Object key = (inKey.getClass().isArray()?new ArrayKey((Object[])inKey):inKey);
+    public Object get(Object key) {
+        key = (key.getClass().isArray()?new ArrayKey((Object[])key):key);
         Object ret;
-        synchronized(mInnerCache) {
-            ret = mInnerCache.get(key);
+        synchronized(innerCache) {
+            ret = innerCache.get(key);
         }
-        if (ret != null && mCachingMethod == SOFT_CACHE) {
+        if (ret != null && cachingMethod == SOFT_CACHE) {
             ret = ((SoftReference)ret).get();
             // if null, clean cache
             if (ret == null) {
-                synchronized(mInnerCache) {
-                    mInnerCache.remove(key);
+                synchronized(innerCache) {
+                    innerCache.remove(key);
                 }
             }
         }
@@ -113,47 +113,47 @@ public class Cache {
     *
     */
     public void clear() {
-        mInnerCache.clear();
+        innerCache.clear();
     }
 
     /** invalidates an entry
      * (used after an insert or an update)
      */
-    public void invalidate(Object inKey) {
-        synchronized(mInnerCache) {
-            mInnerCache.remove(inKey);
+    public void invalidate(Object key) {
+        synchronized(innerCache) {
+            innerCache.remove(key);
         }
 
     }
 
     /** The caching method this cache uses
      */
-    protected int mCachingMethod;
+    protected int cachingMethod;
     /** the inner map that stores associations
      */
-    protected Map mInnerCache = null;
+    protected Map innerCache = null;
 
     public static final class ArrayKey {
 
         /** ArrayKey is a simple wrapper that provides a field-to-field equal method between encapsulated arrays
          *
-         * @param inKeys key values
+         * @param keys key values
          */
-        public ArrayKey(Object[] inKeys) {
-            mKeys = inKeys;
+        public ArrayKey(Object[] keys) {
+            this.keys = keys;
         }
 
         /** checks the cell-to-cell equality of two arrays
          *
-         * @param inSource source array
+         * @param source source array
          * @return a boolean indicating the equality
          */
-        public boolean equals(Object inSource) {
-            if (inSource instanceof ArrayKey) {
-                ArrayKey k = (ArrayKey)inSource;
-                if (k.mKeys.length == mKeys.length) {
-                    for(int i=0;i<mKeys.length;i++)
-                        if (! mKeys[i].equals(k.mKeys[i])) return false;
+        public boolean equals(Object source) {
+            if (source instanceof ArrayKey) {
+                ArrayKey k = (ArrayKey)source;
+                if (k.keys.length == keys.length) {
+                    for(int i=0;i<keys.length;i++)
+                        if (! keys[i].equals(k.keys[i])) return false;
                     return true;
                 }
             }
@@ -166,13 +166,13 @@ public class Cache {
          */
         public int hashCode() {
             int hash = 0;
-            for (int i=0;i<mKeys.length;i++)
-                hash += mKeys[i].hashCode();
+            for (int i=0;i<keys.length;i++)
+                hash += keys[i].hashCode();
             return hash;
         }
 
         /** the wrapped array
          */
-        protected Object[] mKeys = null;
+        protected Object[] keys = null;
     } // end of inner class ArrayKey
 }

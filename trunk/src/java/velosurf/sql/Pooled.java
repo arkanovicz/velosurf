@@ -31,7 +31,7 @@ public abstract class Pooled {
     /** builds a new pooled object
      */
     public Pooled() {
-        mTagTime = System.currentTimeMillis();
+        tagTime = System.currentTimeMillis();
     }
 
     /** get the time tag of this pooled object
@@ -39,26 +39,26 @@ public abstract class Pooled {
      * @return the time tag
      */
     public long getTagTime() {
-        return mTagTime;
+        return tagTime;
     }
 
     /** reset the time tag
      */
     public void resetTagTime() {
-        mTagTime = System.currentTimeMillis();
+        tagTime = System.currentTimeMillis();
     }
 
     /** notify this object that it is in use
      */
     public void notifyInUse() {
-        mInUse = true;
+        inUse = true;
         resetTagTime();
     }
 
     /** notify this object that it is no more in use
      */
     public void notifyOver() {
-        mInUse = false;
+        inUse = false;
     }
 
     /** checks whether this pooled object is in use
@@ -66,7 +66,7 @@ public abstract class Pooled {
      * @return whether this object is in use
      */
     public boolean isInUse() {
-        return mInUse;
+        return inUse;
     }
 
     /** checks whether this pooled object is marked as valid or invalid
@@ -75,13 +75,13 @@ public abstract class Pooled {
      * @return whether this object is in use
      */
     public boolean isValid() {
-        return mValid;
+        return valid;
     }
 
     /** definitely mark this statement as meant to be deleted
      */
     public void setInvalid() {
-        mValid = false;
+        valid = false;
     }
 
     /** get the connection used by this statement
@@ -98,17 +98,17 @@ public abstract class Pooled {
 
     /** time tag
      */
-    protected long mTagTime = 0;
+    protected long tagTime = 0;
     // states (inUse - useOver) : (false-false) -> (true-false) -> (true-true) -> [delay] (false-false)
 
     /** valid statement ?
      */
-    protected boolean mValid = true;
+    protected boolean valid = true;
 
     /** is this object in use ?
      */
-    protected boolean mInUse = false;
+    protected boolean inUse = false;
     /** is the usage of this object over ?
      */
-    protected boolean mUseOver = false;
+    protected boolean useOver = false;
 }

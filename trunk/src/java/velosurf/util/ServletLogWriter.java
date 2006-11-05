@@ -32,7 +32,7 @@ public class ServletLogWriter extends Writer
      * @param log ServletContext
      */
     public ServletLogWriter(ServletContext log) {
-        mLog = log;
+        this.log = log;
     }
 
 
@@ -47,7 +47,7 @@ public class ServletLogWriter extends Writer
         // ignore \r\n & \n
         if ( (len==2 && cbuf[off]==13 && cbuf[off+1]==10) || (len==1 && cbuf[off]==10)) return;
         String s=new String(cbuf,off,len);
-        mLog.log(s);
+        log.log(s);
     }
 
     /** flush any pending output
@@ -66,5 +66,5 @@ public class ServletLogWriter extends Writer
 
     /** the ServletContext object used to log
      */
-    protected ServletContext mLog = null;
+    protected ServletContext log = null;
 }

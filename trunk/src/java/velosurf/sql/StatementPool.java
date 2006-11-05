@@ -32,12 +32,12 @@ public class StatementPool implements Runnable,Pool {
 
     /** builds a new pool
      *
-     * @param inConnectionPool connection pool
+     * @param connectionPool connection pool
      */
-    public StatementPool(ConnectionPool inConnectionPool) {
-        mConnectionPool = inConnectionPool;
-        mCheckTimeoutThread = new Thread(this);
-//        mCheckTimeoutThread.start();
+    public StatementPool(ConnectionPool connectionPool) {
+        this.connectionPool = connectionPool;
+        checkTimeoutThread = new Thread(this);
+//        checkTimeoutThread.start();
     }
 
     /** gets a valid statement
@@ -48,7 +48,7 @@ public class StatementPool implements Runnable,Pool {
     public synchronized PooledStatement getStatement() throws SQLException {
         PooledStatement statement = null;
         ConnectionWrapper connection = null;
-        for (Iterator it=mStatements.iterator();it.hasNext();) {
+        for (Iterator it=statements.iterator();it.hasNext();) {
             statement = (PooledStatement)it.next();
             if (statement.isValid()) {
                 if (!statement.isInUse() && !(connection = (ConnectionWrapper)statement.getConnection()).isBusy()) {
@@ -66,10 +66,10 @@ public class StatementPool implements Runnable,Pool {
                 it.remove();
             }
         }
-        if (mCount == sMaxStatements) throw new SQLException("Error: Too many opened statements!");
-        connection = mConnectionPool.getConnection();
+        if (count == maxStatements) throw new SQLException("Error: Too many opened statements!");
+        connection = connectionPool.getConnection();
         statement = new PooledStatement(connection,connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY));
-        mStatements.add(statement);
+        statements.add(statement);
         statement.notifyInUse();
         return statement;
     }
@@ -78,15 +78,15 @@ public class StatementPool implements Runnable,Pool {
     /** run the loop of statements checking and recycling
      */
     public void run() {
-        while (mRunning) {
+        while (running) {
             try {
-                Thread.sleep(sCheckDelay);
+                Thread.sleep(checkDelay);
             } catch (InterruptedException e) {}
             long now = System.currentTimeMillis();
             PooledStatement statement = null;
-            for (Iterator it=mStatements.iterator();it.hasNext();) {
+            for (Iterator it=statements.iterator();it.hasNext();) {
                 statement = (PooledStatement)it.next();
-                if (statement.isInUse() && now-statement.getTagTime() > sTimeout)
+                if (statement.isInUse() && now-statement.getTagTime() > timeout)
                     statement.notifyOver();
             }
         }
@@ -98,10 +98,10 @@ public class StatementPool implements Runnable,Pool {
      */
     public int[] getUsageStats() {
         int [] stats = new int[] {0,0};
-        for (Iterator it=mStatements.iterator();it.hasNext();)
+        for (Iterator it=statements.iterator();it.hasNext();)
             if (!((PooledStatement)it.next()).isInUse())
                 stats[0]++;
-        stats[1]=mStatements.size();
+        stats[1]=statements.size();
         return stats;
     }
 
@@ -109,21 +109,21 @@ public class StatementPool implements Runnable,Pool {
      */
     public void clear() {
         // close all statements
-        for (Iterator it=mStatements.iterator();it.hasNext();)
+        for (Iterator it=statements.iterator();it.hasNext();)
             try {
                 ((PooledStatement)it.next()).close();
             }
             catch (SQLException sqle) { // don't care now...
                 Logger.log(sqle);
             }
-        mStatements.clear();
+        statements.clear();
     }
 
     /* drop all statements relative to a specific connection
      * @param connection the connection
      */
     protected void dropConnection(Connection connection) {
-        for (Iterator it=mStatements.iterator();it.hasNext();) {
+        for (Iterator it=statements.iterator();it.hasNext();) {
             PooledStatement statement = (PooledStatement)it.next();
             try { statement.close(); } catch(SQLException sqle) {}
             statement.setInvalid();
@@ -139,28 +139,28 @@ public class StatementPool implements Runnable,Pool {
 
     /** Connection pool
      */
-    protected ConnectionPool mConnectionPool = null;
+    protected ConnectionPool connectionPool = null;
 
     /** number of statements
      */
-    protected int mCount = 0;
+    protected int count = 0;
     /** statements
      */
-    protected List mStatements = new ArrayList();
+    protected List statements = new ArrayList();
     /** timeout checking thread
      */
-    protected Thread mCheckTimeoutThread = null;
+    protected Thread checkTimeoutThread = null;
     /** is the thread running ?
      */
-    protected boolean mRunning = true;
+    protected boolean running = true;
 
     /** delay between checks
      */
-    protected static final long sCheckDelay = 30*1000;
+    protected static final long checkDelay = 30*1000;
     /** timeout on which statements are automatically recycled if not used
      */
-    protected static final long sTimeout = 10*60*1000;
+    protected static final long timeout = 10*60*1000;
     /** maximum number of statements
      */
-    protected static final int sMaxStatements = 50;
+    protected static final int maxStatements = 50;
 }

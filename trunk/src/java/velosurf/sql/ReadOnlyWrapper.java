@@ -29,26 +29,26 @@ public class ReadOnlyWrapper implements ReadOnlyMap {
 
     /** builds a new MapDataAccessor
      *
-     * @param inInnerMap the Map object to encapsulate
+     * @param innerMap the Map object to encapsulate
      */
-    public ReadOnlyWrapper(Map inInnerMap){
-        mInnerMap = inInnerMap;
+    public ReadOnlyWrapper(Map innerMap){
+        this.innerMap = innerMap;
     }
-    /** get the property named inKey in the wrapped Map
+    /** get the property named key in the wrapped Map
      *
-     * @param inKey the name of the property
+     * @param key the name of the property
      * @return the property value or null if not found
      * @see velosurf.sql.ReadOnlyMap#get(java.lang.Object)
      */
-    public Object get(Object inKey) {
-        return mInnerMap.get(inKey);
+    public Object get(Object key) {
+        return innerMap.get(key);
     }
 
     public Set keySet() throws SQLException {
-        return mInnerMap.keySet();
+        return innerMap.keySet();
     }
 
     /** the wrapped Map
      */
-    protected Map mInnerMap = null;
+    protected Map innerMap = null;
 }

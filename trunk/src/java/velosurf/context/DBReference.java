@@ -47,40 +47,40 @@ public class DBReference extends HashMap implements ReadOnlyMap
 
     /** Constructs a new database reference
      *
-     * @param inDB the wrapped database connection
+     * @param db the wrapped database connection
      */
-    public DBReference(Database inDB) {
-        init(inDB,null);
+    public DBReference(Database db) {
+        init(db,null);
     }
 
     /** Constructs a new database reference
      *
-     * @param inDB the wrapped database connection
+     * @param db the wrapped database connection
      */
-    public DBReference(Database inDB,UserContext inUserContext) {
-        init(inDB,inUserContext);
+    public DBReference(Database db,UserContext userContext) {
+        init(db,userContext);
     }
 
     /** protected initialization method
      *
-     * @param inDB database connection
+     * @param db database connection
      */
-    protected void init(Database inDB) {
-        init(inDB,null);
+    protected void init(Database db) {
+        init(db,null);
     }
 
     /** protected initialization method
      *
-     * @param inDB database connection
+     * @param db database connection
      */
-    protected void init(Database inDB,UserContext inUserContext) {
-        mDB = inDB;
-        mCache = new HashMap();
-        mExternalParams = new HashMap();
-        if(inUserContext == null) {
-            inUserContext = new UserContext();
+    protected void init(Database db,UserContext userContext) {
+       this. db = db;
+        cache = new HashMap();
+        externalParams = new HashMap();
+        if(userContext == null) {
+            userContext = new UserContext();
         }
-        mUserContext = inUserContext;
+        this.userContext = userContext;
     }
 
     /** Generic getter, used to access entities or root attributes by their name.<p>
@@ -91,27 +91,27 @@ public class DBReference extends HashMap implements ReadOnlyMap
      * <li>if the attribute is scalar, returns a String.
      * </ul>
      *
-     * @param inKey the name of the desired entity or root attribute.
+     * @param key the name of the desired entity or root attribute.
      * @return an entity, an attribute reference, an instance, a string or null
      *     if not found. See  See above.
      */
-    public Object get(Object inKey) {
-        String inProperty = mDB.adaptCase((String) inKey);
+    public Object get(Object key) {
+        String property = db.adaptCase((String) key);
 
         try {
             Object result=null;
 
             // 1) try the cache
-            result = mCache.get(inProperty);
+            result = cache.get(property);
             if (result!=null) return result;
 
             // 2) try to get a root attribute
-            Attribute attribute = mDB.getAttribute(inProperty);
+            Attribute attribute = db.getAttribute(property);
             if (attribute!=null) {
-//                attribute.setExternalParams(mExternalParams);
+//                attribute.setExternalParams(externalParams);
                 switch (attribute.getType()) {
                     case Attribute.ROWSET:
-                        result = new AttributeReference(this,attribute,mUserContext);
+                        result = new AttributeReference(this,attribute,userContext);
                         break;
                     case Attribute.SCALAR:
                         result = attribute.evaluate(this);
@@ -119,42 +119,42 @@ public class DBReference extends HashMap implements ReadOnlyMap
                     case Attribute.ROW:
                         result = attribute.fetch(this);
                         if (result instanceof Instance) {
-                            ((Instance)result).setUserContext(mUserContext);
+                            ((Instance)result).setUserContext(userContext);
                         }
                         break;
                     default:
-                        Logger.error("Unknown attribute type encountered: db."+inProperty);
+                        Logger.error("Unknown attribute type encountered: db."+property);
                         result=null;
                 }
-                mCache.put(inProperty,result);
+                cache.put(property,result);
                 return result;
             }
 
             // 3) try to get a root action
-            Action action = mDB.getAction(inProperty);
+            Action action = db.getAction(property);
             if (action != null) return Integer.valueOf(action.perform(this));
 
             // 3) try to get an entity
-            Entity entity = mDB.getEntity(inProperty);
+            Entity entity = db.getEntity(property);
             if (entity!=null) {
-                result = new EntityReference(entity,mUserContext);
-                mCache.put(inProperty,result);
+                result = new EntityReference(entity,userContext);
+                cache.put(property,result);
                 return result;
             }
 
             // 4) try to get an external param
-            result = mExternalParams.get(inProperty);
+            result = externalParams.get(property);
             if (result != null) return result;
 
             // 5) try with the user context
-            result = mUserContext.get(inProperty);
+            result = userContext.get(property);
             if (result != null) return result;
 
             // Sincerely, I don't see...
             return null;
         }
         catch (SQLException sqle) {
-            mUserContext.setError(sqle.getMessage());
+            userContext.setError(sqle.getMessage());
             Logger.log(sqle);
             return null;
         }
@@ -162,31 +162,31 @@ public class DBReference extends HashMap implements ReadOnlyMap
 
     /** Generic setter used to set external params for children attributes
      *
-     * @param inKey name of the external parameter
-     * @param inValue value given to the external parameter
+     * @param key name of the external parameter
+     * @param value value given to the external parameter
      * @return the previous value, if any
      */
-    public Object put(Object inKey,Object inValue) {
+    public Object put(Object key,Object value) {
         /*
          * Clear actual values in the cache, because the value of attributes may change...
          */
-        for(Iterator i = mCache.keySet().iterator();i.hasNext();) {
-            Object key = i.next();
-            Object value = mCache.get(key);
-            if (! (value instanceof AttributeReference)
-                && ! (value instanceof EntityReference)) {
+        for(Iterator i = cache.keySet().iterator();i.hasNext();) {
+            Object k = i.next();
+            Object v = cache.get(k);
+            if (! (v instanceof AttributeReference)
+                && ! (v instanceof EntityReference)) {
                     i.remove();
             }
 
         }
-        return mExternalParams.put(mDB.adaptCase((String) inKey),inValue);
+        return externalParams.put(db.adaptCase((String) key),value);
     }
 
     /** get the schema
      * @return the schema
      */
     public String getSchema() {
-        return mDB.getSchema();
+        return db.getSchema();
     }
 
     /** obfuscate the given value
@@ -196,7 +196,7 @@ public class DBReference extends HashMap implements ReadOnlyMap
      */
     public String obfuscate(Object value)
     {
-        return mDB.obfuscate(value);
+        return db.obfuscate(value);
     }
 
     /** de-obfuscate the given value
@@ -206,22 +206,22 @@ public class DBReference extends HashMap implements ReadOnlyMap
      */
     public String deobfuscate(Object value)
     {
-        return mDB.deobfuscate(value);
+        return db.deobfuscate(value);
     }
 
     /** the wrapped database connection
      */
-    protected Database mDB = null;
+    protected Database db = null;
 
     /** a cache used by the generic getter - it's purpose is to avoid the creation of several attribute references for the same multivalued attribute.
      */
-    protected Map mCache = null;
+    protected Map cache = null;
 
      /** The map of external query parameters used by children attributes
       */
-    protected Map mExternalParams = null;
+    protected Map externalParams = null;
 
     /** a reference to the user context
      */
-    protected UserContext mUserContext = null;
+    protected UserContext userContext = null;
 }

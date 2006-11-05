@@ -26,13 +26,13 @@ import java.util.Set;
  */
 public interface ReadOnlyMap
 {
-    /** get the property named inKey
+    /** get the property named key
      *
-     * @param inKey the name of the property to return
+     * @param key the name of the property to return
      * @exception SQLException when thrown by the database engine
      * @return the value of the property, or null if not found
      */
-    public Object get(Object inKey) throws SQLException;
+    public Object get(Object key) throws SQLException;
 
     public Set keySet() throws SQLException;
 

@@ -38,12 +38,12 @@ public class ReverseEngineer {
 
     /** map table->entity, valid only between readConfigFile and readMetaData
     */
-    private Map<String,String> mEntityByTableName = new HashMap<String,String>();
+    private Map<String,String> entityByTableName = new HashMap<String,String>();
 
-    private Database mDatabase;
-    private DriverInfo mDriverInfo;
+    private Database db;
+    private DriverInfo driverInfo;
 
-    private int mReverseMode = DEFAULT_REVERSE_MODE;
+    private int reverseMode = DEFAULT_REVERSE_MODE;
 
     /** reverse-enginering modes */
     public static final int REVERSE_NONE = 0;
@@ -53,7 +53,7 @@ public class ReverseEngineer {
 
     public static final int DEFAULT_REVERSE_MODE = REVERSE_FULL;
 
-    public static String[] sReverseModeName = {
+    public static String[] reverseModeName = {
         "none",
         "partial",
         "tables",
@@ -64,22 +64,22 @@ public class ReverseEngineer {
      *
      */
     public ReverseEngineer(Database database) {
-        mDatabase = database;
+        db = database;
     }
 
     protected void setDriverInfo(DriverInfo di) {
-        mDriverInfo = di;
+        driverInfo = di;
     }
 
     protected void setReverseMode(int reverseMethod) {
-        mReverseMode = reverseMethod;
+        reverseMode = reverseMethod;
     }
 
     protected void addCorrespondance(String tableName,Entity entity) {
-        if(mDatabase.getSchema() != null) {
-            tableName = mDatabase.getSchema()+"."+tableName;
+        if(db.getSchema() != null) {
+            tableName = db.getSchema()+"."+tableName;
         }
-        mEntityByTableName.put(tableName,entity.getName());
+        entityByTableName.put(tableName,entity.getName());
     }
 
     /** read the meta data from the database : reverse engeenering
@@ -88,7 +88,7 @@ public class ReverseEngineer {
      */
     protected void readMetaData() throws SQLException {
 
-        DatabaseMetaData meta = mDatabase.getConnection().getMetaData();
+        DatabaseMetaData meta = db.getConnection().getMetaData();
         ResultSet tables = null;
 
         // extra debug information about which jdbc driver we are using
@@ -99,12 +99,12 @@ public class ReverseEngineer {
 
         /* columns and primary keys */
         try {
-            Logger.debug("reverse enginering: mode = "+sReverseModeName[mReverseMode]);
-            if(mReverseMode == REVERSE_NONE) {
+            Logger.debug("reverse enginering: mode = "+reverseModeName[reverseMode]);
+            if(reverseMode == REVERSE_NONE) {
                 return;
             }
 
-            switch(mReverseMode)
+            switch(reverseMode)
             {
                 case REVERSE_TABLES:
                 case REVERSE_FULL:
@@ -113,39 +113,39 @@ public class ReverseEngineer {
                     break;
             }
 
-            switch(mReverseMode)
+            switch(reverseMode)
             {
                 case REVERSE_TABLES:
                 case REVERSE_FULL:
-                    tables = meta.getTables(null,mDatabase.getSchema(),null,null);
+                    tables = meta.getTables(null,db.getSchema(),null,null);
                     while (tables.next()) {
                         String tableName = adaptCase(tables.getString("TABLE_NAME"));
-                        if (mDriverInfo.ignoreTable(tableName)) {
+                        if (driverInfo.ignoreTable(tableName)) {
                             continue;
                         }
-                        if(mDatabase.getSchema() != null) {
-                            tableName = mDatabase.getSchema() + tableName;
+                        if(db.getSchema() != null) {
+                            tableName = db.getSchema() + tableName;
                         }
-                        String entityName = mEntityByTableName.get(tableName);
+                        String entityName = entityByTableName.get(tableName);
                         Entity entity = null;
                         if(entityName != null) {
-                            entity = mDatabase.getEntity(entityName);
+                            entity = db.getEntity(entityName);
                         }
                         if (entity == null) {
-                            entity = mDatabase.getEntityCreate(tableName);
-                            mEntityByTableName.put(tableName,entity.getName());
+                            entity = db.getEntityCreate(tableName);
+                            entityByTableName.put(tableName,entity.getName());
                         }
                         readTableMetaData(meta,entity,tableName);
                     }
-/* not any more valid since mEntityByTableName does now keep mappings
-                    for(Iterator e = mEntityByTableName.keySet().iterator();e.hasNext();)
+/* not any more valid since entityByTableName does now keep mappings
+                    for(Iterator e = entityByTableName.keySet().iterator();e.hasNext();)
                     {
                         Logger.warn("table '"+(String)e.next()+"' not found!");
                     }
 */
                     break;
                 case REVERSE_PARTIAL:
-                    for(Entity entity:mDatabase.getEntities().values()) {
+                    for(Entity entity:db.getEntities().values()) {
                         String tableName = entity.getTableName();
                         readTableMetaData(meta,entity,tableName);
                     }
@@ -158,19 +158,19 @@ public class ReverseEngineer {
         }
 
         /* imported and exported keys */
-        if(mReverseMode == REVERSE_FULL) {
+        if(reverseMode == REVERSE_FULL) {
             try {
-                tables = meta.getTables(null,mDatabase.getSchema(),null,null);
+                tables = meta.getTables(null,db.getSchema(),null,null);
                 while (tables.next()) {
                     String tableName = adaptCase(tables.getString("TABLE_NAME"));
-                    if (mDriverInfo.ignoreTable(tableName)) {
+                    if (driverInfo.ignoreTable(tableName)) {
                         continue;
                     }
-                    if(mDatabase.getSchema() != null) {
-                        tableName = mDatabase.getSchema() + tableName;
+                    if(db.getSchema() != null) {
+                        tableName = db.getSchema() + tableName;
                     }
-                    String entityName = mEntityByTableName.get(tableName);
-                    Entity entity = mDatabase.getEntity(entityName);
+                    String entityName = entityByTableName.get(tableName);
+                    Entity entity = db.getEntity(entityName);
 
                     readForeignKeys(meta,entity,tableName);
                 }
@@ -188,7 +188,7 @@ public class ReverseEngineer {
         /* read columns */
         ResultSet cols = null;
         try {
-            cols = meta.getColumns(null,mDatabase.getSchema(),tableName,null);
+            cols = meta.getColumns(null,db.getSchema(),tableName,null);
             while (cols.next()) {
                 String column = adaptCase(cols.getString("COLUMN_NAME"));
                 entity.addColumn(column);
@@ -201,7 +201,7 @@ public class ReverseEngineer {
         /* read primary keys */
         ResultSet pks = null;
         try    {
-            pks = meta.getPrimaryKeys(null,mDatabase.getSchema(),tableName);
+            pks = meta.getPrimaryKeys(null,db.getSchema(),tableName);
             int keysize = 0;
             while (pks.next()) {
                 short ord = pks.getShort("KEY_SEQ");
@@ -222,10 +222,10 @@ public class ReverseEngineer {
 
     private void readForeignKeys(DatabaseMetaData meta,Entity entity,String tableName) throws SQLException {
         /* read imported keys */
-        if (mReverseMode == REVERSE_FULL) {
+        if (reverseMode == REVERSE_FULL) {
             ResultSet iks = null;
             try {
-                iks = meta.getImportedKeys(null,mDatabase.getSchema(),tableName);
+                iks = meta.getImportedKeys(null,db.getSchema(),tableName);
                 short ord;
                 String pkSchema = null,pkTable = null;
                 List<String> fkCols = new ArrayList<String>();
@@ -256,10 +256,10 @@ public class ReverseEngineer {
         }
 
         /* read exported keys */
-        if (mReverseMode == REVERSE_FULL) {
+        if (reverseMode == REVERSE_FULL) {
             ResultSet eks = null;
             try {
-                eks = meta.getExportedKeys(null,mDatabase.getSchema(),tableName);
+                eks = meta.getExportedKeys(null,db.getSchema(),tableName);
                 short ord;
                 String fkSchema = null,fkTable = null;
                 List<String> fkCols = new ArrayList<String>();
@@ -298,12 +298,12 @@ public class ReverseEngineer {
             if (fkSchema != null) {
                 fkTable = fkSchema+"."+fkTable;
             }
-            Entity fkEntity = mDatabase.getEntity(fkEntityName);
+            Entity fkEntity = db.getEntity(fkEntityName);
             fkCols = sortColumns(entity.getPKCols(),pkCols,fkCols);
             Logger.trace("reverse: found exported key: "+entity.getName()+"("+StringLists.join(pkCols,",")+") <- "+fkTable+"("+StringLists.join(fkCols,",")+")");
             ExportedKey definedKey = entity.findExportedKey(fkEntity,fkCols);
             if (definedKey == null) {
-                entity.addAttribute(new ExportedKey(getExportedKeyName(fkEntityName),entity,fkTable,fkCols));                
+                entity.addAttribute(new ExportedKey(getExportedKeyName(fkEntityName),entity,fkTable,fkCols));
             } else if (definedKey.getFKCols() == null) {
                 definedKey.setFKCols(fkCols);
             }
@@ -318,7 +318,7 @@ public class ReverseEngineer {
             if(pkSchema != null) {
                 pkTable = pkSchema+"."+pkTable;
             }
-            Entity pkEntity = mDatabase.getEntity(pkEntityName);
+            Entity pkEntity = db.getEntity(pkEntityName);
             fkCols = sortColumns(pkEntity.getPKCols(),pkCols,fkCols);
             Logger.trace("reverse: found imported key: "+entity.getName()+"("+StringLists.join(fkCols,",")+") -> "+pkTable+"("+StringLists.join(pkCols,",")+")");
             ImportedKey definedKey = entity.findImportedKey(pkEntity,fkCols);
@@ -334,23 +334,23 @@ public class ReverseEngineer {
     private String getEntityByTable(String schema,String table) {
         String entityName;
         if (schema == null) {
-            if (mDatabase.getSchema() == null) {
-                entityName = mEntityByTableName.get(table);
+            if (db.getSchema() == null) {
+                entityName = entityByTableName.get(table);
             } else {
                 /* buggy jdbc driver */
-                entityName = mEntityByTableName.get(mDatabase.getSchema()+"."+table);
+                entityName = entityByTableName.get(db.getSchema()+"."+table);
             }
         } else {
-            if (mDatabase.getSchema() == null) {
+            if (db.getSchema() == null) {
                 /* means the jdbc driver is using a default schema name,
                  * like PUBLIC for hsqldb (OR that we want an instance in another database connexion. TODO) */
-                entityName = mEntityByTableName.get(schema+"."+table);
+                entityName = entityByTableName.get(schema+"."+table);
                 if (entityName == null) {
-                    entityName = mEntityByTableName.get(table);
+                    entityName = entityByTableName.get(table);
                 }
             } else {
                 /* TODO what if not equal? */
-                entityName = mEntityByTableName.get(schema+"."+table);
+                entityName = entityByTableName.get(schema+"."+table);
             }
         }
         return entityName;
@@ -370,7 +370,7 @@ public class ReverseEngineer {
     }
 
     private String adaptCase(String name) {
-        return mDatabase.adaptCase(name);
+        return db.adaptCase(name);
     }
 
     private String getExportedKeyName(String name) {

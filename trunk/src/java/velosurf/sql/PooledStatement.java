@@ -40,68 +40,68 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
 
     /** builds a new PooledStatement
      *
-     * @param inConnection database connection
-     * @param inStatement wrapped Statement
+     * @param connection database connection
+     * @param statement wrapped Statement
      */
-    protected PooledStatement(ConnectionWrapper inConnection,Statement inStatement) {
-        mConnection = inConnection;
-        mStatement = inStatement;
+    protected PooledStatement(ConnectionWrapper connection,Statement statement) {
+        this.connection = connection;
+        this.statement = statement;
     }
 
     /** gets the resultset for this statement
      *
-     * @param inQuery SQL query
+     * @param query SQL query
      * @exception SQLException thrown by the database engine
      * @return resulting RowIterator
      */
-    public synchronized RowIterator query(String inQuery) throws SQLException {    return query(inQuery,null); }
+    public synchronized RowIterator query(String query) throws SQLException {    return query(query,null); }
     /** gets the resultset for this statement, specifying the entity the results belong to
      *
-     * @param inQuery SQL query
-     * @param inResultEntity entity
+     * @param query SQL query
+     * @param resultEntity entity
      * @exception SQLException thrown by the database engine
      * @return the resulting RowIterator
      */
-    public synchronized RowIterator query(String inQuery,Entity inResultEntity) throws SQLException {
+    public synchronized RowIterator query(String query,Entity resultEntity) throws SQLException {
         notifyInUse();
-        mQuery = inQuery;
-        Logger.debug("query-"+inQuery);
-        mConnection.enterBusyState();
-        RowIterator result = new RowIterator(this,mStatement.executeQuery(inQuery),inResultEntity);
-        mConnection.leaveBusyState();
+        this.query = query;
+        Logger.debug("query-"+query);
+        connection.enterBusyState();
+        RowIterator result = new RowIterator(this,statement.executeQuery(query),resultEntity);
+        connection.leaveBusyState();
         return result;
     }
 
     /** fetch a single row
      *
-     * @param inQuery SQL query
+     * @param query SQL query
      * @exception SQLException thrown by the database engine
      * @return fetched row
      */
-    public synchronized Object fetch(String inQuery) throws SQLException { return fetch(inQuery,null); }
+    public synchronized Object fetch(String query) throws SQLException { return fetch(query,null); }
     /** fetch a single row, specyfing the entity it belongs to
      *
-     * @param inQuery SQL query
-     * @param inResultEntity entity
+     * @param query SQL query
+     * @param resultEntity entity
      * @exception SQLException thrown by the database engine
      * @return the fetched Instance
      */
-    public synchronized Object fetch(String inQuery,Entity inResultEntity) throws SQLException {
+    public synchronized Object fetch(String query,Entity resultEntity) throws SQLException {
         notifyInUse();
-        Logger.debug("fetch-"+inQuery);
-        mConnection.enterBusyState();
-        mRS = mStatement.executeQuery(inQuery);
-        boolean hasNext = mRS.next();
-        mConnection.leaveBusyState();
+        Logger.debug("fetch-"+query);
+        connection.enterBusyState();
+        resultSet = statement.executeQuery(query);
+        boolean hasNext = resultSet.next();
+        connection.leaveBusyState();
         Map row = null;
         if (hasNext) {
-            if (inResultEntity!=null) row = inResultEntity.getInstance(this);
+            if (resultEntity!=null) row = resultEntity.getInstance(this);
             else {
                 row = new HashMap();
-                if (mColumnNames == null) mColumnNames = SqlUtil.getColumnNames(mRS);
-                for (Iterator it=mColumnNames.iterator();it.hasNext();) {
+                if (columnNames == null) columnNames = SqlUtil.getColumnNames(resultSet);
+                for (Iterator it=columnNames.iterator();it.hasNext();) {
                     String column = (String)it.next();
-                    Object value = mRS.getObject(column);
+                    Object value = resultSet.getObject(column);
                     row.put(Database.adaptContextCase(column),value);
                 }
             }
@@ -118,30 +118,30 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
      */
     public Object get(Object key) throws SQLException {
         if (!(key instanceof String)) return null;
-        return mRS.getObject((String)key);
+        return resultSet.getObject((String)key);
     }
 
     public Set keySet() throws SQLException {
-        return new HashSet(SqlUtil.getColumnNames(mRS));
+        return new HashSet(SqlUtil.getColumnNames(resultSet));
     }
 
 
     /** evaluates the SQL query as  a scalar
      *
-     * @param inQuery SQL query
+     * @param query SQL query
      * @exception SQLException thrown by the database engine
      * @return found scalar
      */
-    public synchronized Object evaluate(String inQuery) throws SQLException {
+    public synchronized Object evaluate(String query) throws SQLException {
         notifyInUse();
-        Logger.debug("evaluate-"+inQuery);
+        Logger.debug("evaluate-"+query);
         Object result = null;
         ResultSet rs = null;
         try {
-            mConnection.enterBusyState();
-            rs = mStatement.executeQuery(inQuery);
+            connection.enterBusyState();
+            rs = statement.executeQuery(query);
             boolean hasNext = rs.next();
-            mConnection.leaveBusyState();
+            connection.leaveBusyState();
             if (hasNext) result=rs.getObject(1);
         }
         finally {
@@ -153,15 +153,15 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
 
     /** issues the update contained in the query
      *
-     * @param inQuery SQL query
+     * @param query SQL query
      * @exception SQLException thrown by the database engine
      * @return number of affected rows
      */
-    public synchronized int update(String inQuery) throws SQLException {
-        Logger.debug("update-"+inQuery);
-        mConnection.enterBusyState();
-        int result = mStatement.executeUpdate(inQuery);
-        mConnection.leaveBusyState();
+    public synchronized int update(String query) throws SQLException {
+        Logger.debug("update-"+query);
+        connection.enterBusyState();
+        int result = statement.executeUpdate(query);
+        connection.leaveBusyState();
         return result;
     }
 
@@ -170,7 +170,7 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
      * @exception SQLException thrown by the database engine
      */
     public void close() throws SQLException {
-        if (mStatement!=null) mStatement.close();
+        if (statement!=null) statement.close();
     }
 
     /** notify this statement is no more used and can be recycled
@@ -185,7 +185,7 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
      * @return last insert id
      */
     public long getLastInsertID() throws SQLException {
-        return ((ConnectionWrapper)mConnection).getLastInsertId(mStatement);
+        return ((ConnectionWrapper)connection).getLastInsertId(statement);
     }
 
     /** get statement's Connection
@@ -193,22 +193,22 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
      *  @return the Connection object (usually a ConnectionWrapper object)
      */
     public ConnectionWrapper getConnection() {
-        return mConnection;
+        return connection;
     }
 
     /** SQL query
      */
-    protected String mQuery = null;
+    protected String query = null;
     /** database connection
      */
-    protected ConnectionWrapper mConnection = null;
+    protected ConnectionWrapper connection = null;
     /** result set
      */
-    protected ResultSet mRS = null;
+    protected ResultSet resultSet = null;
     /** column names in natural order
      */
-    protected List mColumnNames = null;
+    protected List columnNames = null;
     /** wrapped statement
      */
-    protected Statement mStatement = null;
+    protected Statement statement = null;
 }

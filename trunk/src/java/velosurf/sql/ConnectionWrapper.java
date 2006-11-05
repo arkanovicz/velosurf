@@ -31,10 +31,10 @@ public class ConnectionWrapper
     implements Connection
 {
 
-    public ConnectionWrapper(DriverInfo inDriver,Connection inConn)
+    public ConnectionWrapper(DriverInfo driver,Connection connection)
     {
-        driver = inDriver;
-        connection = inConn;
+        this.driver = driver;
+        this.connection = connection;
     }
 
     public Connection unwrap()
@@ -353,8 +353,8 @@ public class ConnectionWrapper
                 if (isClosed()) throw new Exception ("Connection is closed");
             }
             else {
-                if (mCheckStatement == null) mCheckStatement = prepareStatement(checkQuery);
-                mCheckStatement.executeQuery();
+                if (checkStatement == null) checkStatement = prepareStatement(checkQuery);
+                checkStatement.executeQuery();
             }
             return true;
         }
@@ -372,5 +372,5 @@ public class ConnectionWrapper
 
     /** statement used to check connection ("select 1")
      */
-    protected PreparedStatement mCheckStatement = null;
+    protected PreparedStatement checkStatement = null;
 }
