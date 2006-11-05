@@ -2,6 +2,7 @@
 
 v2.0 (November 2006)
 ----
+ - changed the behaviour of the full caching method: now loads all the table into memory
  - aliases tag for column names
  - manual definition of imported and exported keys
  - optimized reflection code in ExternalObjectWrapper

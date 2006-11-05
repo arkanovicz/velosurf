@@ -57,6 +57,8 @@
 
   <li><a href="./api/index.html">Javadoc</a></li>
 
+  <li><a href="./architecture.html">Architecture</a></li>
+
   <li> <a href="./CHANGELOG">Change Log</a> </li>
 
   <li> <a href="./license.html">License</a></li>
@@ -70,13 +72,26 @@
 <div id="body">
 
 <h1>Table of Contents</h1>
-
 <p>
-<ul>
-
-</ul>
+<ol>
+<li><a href='#settingup'>Setting up and configuring Velosurf</a></li>
+<li><a href='#pooling'>Connections/statements pooling and recovery</a></li>
+<li><a href='#reverse'>Reverse enginering</a></li>
+<li><a href='#fetching'>Fetching instances and iterating</a></li>
+<li><a href='#obfuscation'>IDs obfuscation</a></li>
+<li><a href='#caching'>Caching instances</a></li>
+<li><a href='#mapping'>Customizing Java mapping objects</a></li>
+<li><a href='#modifications'>Issuing modifications to the database</a></li>
+<li><a href='#validation'>Data validation</a></li>
+<li><a href='#foreign-keys'>Imported and exported keys</a></li>
+<li><a href='#localization'>Localization</a></li>
+<li><a href='#authentication'>Authentication</a></li>
+<li><a href='#templatenamefilter'>Template name filter</a></li>
+<li><a href='#filtering'>Order of servlet filters</a></li>
+</ol>
 </p>
 
+<a name='settingup'/>
 <h1>Setting up and configuring Velosurf</h1> 
 <p>Please refer to the <a href="./installation.html">Installation</a> page for how to set up Velosurf in you <a href="">Velocity-Tools</a> webapp or in your Java application.</p>
 <p>It is possible to use several instances of Velosurf at the same time, each having its own configuration file, for instance
@@ -98,8 +113,41 @@ The syntax of this configuration file is detailed on the <a href="./configuratio
 </ul></p>
 <p>For the row and rowset types, if the rows are instances of an entity, you can specify the name of the resulting entity after a slash as in <code>result="row/publisher"</code> or <code>result="rowset/book"</code>.
 You'll be able to call this entity's attributes directly on the returned row.</p>
+<p>Values of the current instance that are needed in the SQL query of an entity's attribute must appear as inline tags inside the SQL query:</p>
+<div class="source"><xmp>
+  <entity name='book'>
+    <!-- let's suppose we want to manually define the foreign-key
+       towards the publisher table -->
+    <attribute name='publisher' result='row/publisher'>
+      SELECT * FROM publisher WHERE id = <publisher_id/>
+    </attribute>
+  </entity></xmp></div>
 
-<h1>Connections and statements pooling and recovery</h1>
+<p>Other parameters - called <i>external parameters</i> - can appear as inline tags in an attribute SQL query. They must have been set on the
+object owning this attribute (whether <code>$db</code> or an entity's instance). For instance, let's say we want to define
+a root attribute listing all the books published in the given year. We'll define this attribute like this:</p>
+<div class="source"><xmp>  <attribute name='books_per_year' result='rowset/book'>
+    SELECT * FROM book WHERE DATE(publication_date) = <publication_year/>
+  </attribute></xmp></div>
+<p>We'll then be able to use this attribute from a template in the following way:</p>
+<div class="source">#set($db.publication_year = '2006')
+Books for year $db.publication_year:
+#foreach($book in $db.books_per_year)
+&nbsp;&nbsp;* $book.title
+#end</div>
+<p>Note that the name <code>publication_year</code> does not correspond to anything in the database:
+it is only a label that can be used as a prepared statement parameter. Note also that external parameters
+only retain their value within the scope of one VelosurfTool instance (which is the request scope by default).</p>
+
+<p>Be carefull when using quoted SQL strings in your queries: since XML parsers may add spaces here and there
+inside text data, it may break the syntax of such SQL queries. To remedy to this problem, you must use the XML attribute
+<code>xml-space=&quot;preserve&quot;</code> as an XML attribute of any XML entity containing such an SQL query.</p>
+
+<p>Remember also to escape XML special characters &lt; &gt; and &amp; with their XML equivalent (respectively <code>&amp;lt;</code>
+<code>&amp;gt;</code> and <code>&amp;amp;</code>) whenever they appear inside your queries.<br>
+
+<a name='pooling'/>
+<h1>Connections/statements pooling and recovery</h1>
 <p>Connections and statements pooling is transparent. There are two connections pools, one with autocommit connections 
 for queries and single statement updates and one without autocommit for transactions containing several requests. Those pools 
 grow according to the rate of requests.</p>
@@ -108,15 +156,14 @@ grow according to the rate of requests.</p>
 or when such an instance is already busy. The statements pool will thus grow as needed.</p>
 <p>Concurrent accesses are of course taken into account.</p>
 
-
-
+<a name='reverse'/>
 <h1>Reverse enginering</h1>
 <p>There are four reverse enginering modes proposed by Velosurf:
 <ul>
 <li><b>full</b> (default): all tables and foreign-keys of the current schema (if any) are reverse enginered. Each </li>
 <li><b>tables</b>: all tables of the current schema (if any) are reverse enginered.</li>
 <li><b>manual</b>: only entities listed in the configuration file are reverse enginered (only if they do correspond to an actual table).</li>
-<li><b>none</b>: no reverse enginering of any kind is achieved.</li>
+<li><b>none</b>: no reverse enginering of any kind is achieved. Several features of Velosurf (like the <code><i>entity</i>.fetch</code> method) aren't available when using this mode.</li>
 </ul></p>
 
 <p>See the <a href='#foreign-keys'>imported and exported keys</a> section below for details on the reverse enginering of foreign keys.</p>
@@ -138,14 +185,16 @@ in the configuration file, except when the name appears as a keyword of an attri
   </attribute>
 </entity></xmp></div>
 
-
+<a name='fetching'/>
 <h1>Fetching instances and iterating</h1>
 
 <p>Unless reverse enginering is deactivated, primary keys of tables will be reverse enginered. You can then use the <code>fetch(key)</code> entity method
 to fetch a particular instance of this entity. The <code>key</code> parameter can be a scalar value, a list of values or a map of key-value pairs. The two last forms are adequate for multi-valued primary keys.</p>
 <p>For instance:</p>
-<div id="source">#set( $book = $db.book.fetch( $query.book_id ) )</div>
-<p>Multivalued keyed rows can also be fetched the same way by providing a column&rarr;value map or a list containing
+<div class="source">#set( $book = $db.book.fetch( $query.book_id ) )</div>
+<p>This example illustrate a common practice, which is to add hidden id fields to HTML forms so that target instances
+can be fetched using the HTTP query tool.</p>
+<p>Multivalued keyed rows can also be fetched the same way by providing a column&rarr;value map (like <code>$query</code> itself) or a list containing
 key values in their natural order.</p>
 
 <p>You can iterate on an entity or on a rowset attribute by mean of the Velocity <code>#foreach</code> directive.</p>
@@ -162,9 +211,32 @@ key values in their natural order.</p>
 by calling the <code>order("<i>SQL order clause</i>")</code> and <code>refine("<i>SQL condition</i>")</code> methods before issuing the <code>#foreach</code>.
 </p>
 
+<a name='obfuscation'/>
+<h1>IDs obfuscation</h1>
+<p>Since in a webapp the query part of URLs is likely to contain ID values, it is good practice to obfuscate those values
+if you want to protect the webapp against manual editing of those URLs. Velosurf can automatically handle this obfuscation for you.
+You just need to provide a comma separated list of columns meant to be obfuscated in the <code>obfuscate</code> attribute of the <code>&lt;entity&gt;</code> tag.</p>
+<p>Remember that obfuscated IDs will be strings, never numbers.</p>
+
+<a name='caching'/>
+<h1>Caching instances</h1>
+<p>When very frequent fetch queries occur, you can tell Velosurf to cache corresponding instances in memory by mean of the <code>cache</code> attribute of the <code>&lt;entity&gt;</code> tag,
+which can take the following values:
+<ul>
+<li><code>none</code> (the default): no caching provided.</li>
+<li><code>soft</code>: caching of fetched instances with respect to memory. Instances are put into the cache
+when fetched for the first time, but the Java virtual machine can reclaim the memory they use if needed.</li>
+<li><code>full</code>: the whole table is loaded into memory at startup (be carefull of memory usage!).</li>
+</ul></p>
+<p>Warning: Velosurf will invalidate entries on update/delete requests, but global updates are not
+taken into account.</p>
+ <p>This caching mechanism is meant for straightforward optimizations in simple situations, for instance to
+avoid re-fetching a specific instance at each HTTP request.</p>
+
+<a name='mapping'/>
 <h1>Customizing Java mapping objects</h1>
 <p>Using the <code>class</code> attribute of the entity tag, you can specify which class you'd like Velosurf to use to map instances of a particular entity.
-This class can be a POJO (Plain Old Java Object) or a class inheriting from <code>velosurf.context.Instance</code>.</p>
+This class can be a POJO (Plain Old Java Object) or a class inheriting from <code><a href='api/velosurf.context.Instance.html'>velosurf.context.Instance</a></code>.</p>
 <p>In both cases, the following methods will be taken into account by Velosurf when present in the POJO:
 <ul>
 <li>specific getter: <code>getFoo()</code>.</li>
@@ -180,6 +252,7 @@ This class can be a POJO (Plain Old Java Object) or a class inheriting from <cod
 <p>When using POJOs, you can choose to implement only some of the fields getters and setters ; other fields will still have their
 default getters and setters.</p>
 
+<a name='modifications'/>
 <h1>Issuing modifications to the database</h1>
 <p>By default, the database is opened in read-only mode, and thus forbidding the execution of any action, insert, update or delete.
 You need to set a <code>read-only="no"</code> attribute in the database tag to override this default behaviour.</p>
@@ -187,7 +260,12 @@ You need to set a <code>read-only="no"</code> attribute in the database tag to o
 but rather from a controller object, so as not to mix View and Controller layers. This controller object of your own can trigger programmatically the read-only flag of
 its connection before issuing the modifications, while still relying on the model defined in Velosurf configuration file via
 the Velosurf Java api.</p>
+<p>For each row-based update or delete, Velosurf ensures that the key values are known to avoid a wider accidental update or delete.</p>
+<p>After an insertion, the last inserted ID value can be fetched using <code>$db.<i>entity</i>.lastInsertID</code> (or from Java code by calling
+the <code>getLastInsertID()</code> method on the EntityReference). Note: this feature is not implemented in Velosurf for all databases (for now,
+only Cloudscape, DB2, HSqlDB, MySql and Sybase databases are supported - if you need this feature for your favorite RDBMS not listed here, please contribute!)</p>
 
+<a name='validation'/>
 <h1>Data validation</h1>
 <p>Velosurf provides a validation process on constraints defined in its configuration file. Those constraints
 don't replace SQL defined constraints, they are supplementary constraints provided by Velosurf which are enforced on a per-row basis
@@ -217,7 +295,7 @@ or to the <a href="./api/velosurf/validation.html">javadoc</a>):
 <ul>
 <li>when <code>update()</code> or <code>insert()</code> is called on a row (boolean returned).</li>
 <li>when <code>validate()</code> is called on a row (boolean returned).</li>
-<li>when using the <code>velosurf.validation.Validation</code> servlet filter, see below.</li>
+<li>when using the <code><a href='api/velosurf/validation/ValidationFilter.html'>velosurf.validation.ValidationFilter</a></code> servlet filter, see below.</li>
 </ul></p>
 <p>In all cases, all validation error messages are then accessible in the <code>$db.validationErrors</code> list.</p>
 <p>The validation filter checks every request for a <code>velosurf.entity</code> query attribute that contains the name
@@ -244,6 +322,7 @@ populated if data is not valid.</p>
 <li>the name of each other input field correspond to the entity field name.</li>
 </ul></p>
 
+<a name='foreign-keys'/>
 <h1>Imported and exported keys</h1>
 <p>When reverse enginering foreign keys in <b>full</b> mode, each foreign key will produce two new attributes
 <ul>
@@ -258,27 +337,179 @@ populated if data is not valid.</p>
 foreign keys you need using the <code>&lt;imported-key&gt;</code> and <code>&lt;exported-key&gt;</code> tags. You can
 still use those tags in <b>full</b> reverse enginering mode to customize the name of the generated attributes.</p>
 
+<a name='localization'/>
+<h1>Localization</h1>
+<p>Velosurf provides a localization mechanism. It consists of:
+<ul><li>a <code><a href='api/velosurf/web/i18n/Localizer.html'>velosurf.web.i18n.Localizer</a></code> Java interface with a getter and a setter for the active lcoale, and two getters to obtain
+localized messages from their ID (the second one allowing the use of parametrized messages as in <code>"Found {0} match(es) for {1}."</code>).</li>
+<li>an abstract <code><a href='api/velosurf/web/i18n/HTTPLocalizerTool.html'>velosurf.web.i18n.HTTPLocalizerTool</a></code> Java class implementing the <code>Localizer</code> interface.
+It will try to deduce the appropriate locale for incoming HTTP queries (from their "Accepted-Language" header). It is abstract because it does not make any assumption
+on how the localized data is stored.</li>
+<li>a <code><a href='api/velosurf/web/i18n/SimpleDBLocalizer.html'>velosurf.web.i18n.SimpleDBLocalizer</a></code> Java class inheriting from <code>HttpLocalizerTool</code> that uses a configurable <code>localized(id,locale,string)</code> SQL table.</li>
+<li>an optional <code><a href='api/velosurf/web/i18n/LocalizationFilter.html'>velosurf.web.i18n.LocalizationFilter</a></code> servlet filter meant to help the process of redirecting or
+forwarding incoming requests towards separate localized instances of a site (i.e. <code>/index.html</code> redirected
+or forwarded towards <code>/en/index.html</code> or <code>/fr/index.html</code>) based on browser locale. This rewriting mechanism is
+only implemented for the URI part of the URL at the moment (that is, you cannot yet change the hostname (&rarr;<code>en.mysite.com</code>) or the query string (&rarr;mysite.com?lang=fr)).</li>
+</ul>
+</p>
+<p>Please refer to the corresponding javadoc and look in the examples for how to configure those tools.</p>
+<p>Once the localizer is set up in the toolbox, the syntax used to display a localized message in a template will be like: <code>$local.welcomeMessage</code>. When localizing
+parametrized messages, the getter that takes parameters must be used: <code>$local.get('welcomeMessage',$user.name)</code></p>
+<p>Here is an example of configuration where we want the client browser redirected towards pages under <code>/en/</code>, <code>/fr/</code> or <code>/es/</code> if needed:</p>
+<ul><li>file <code>/WEB-INF/web.xml</code>:</li>
+<div class="source"><xmp>...
+  <filter>
+    <filter-name>localization</filter-name>
+    <filter-class>velosurf.web.i18n.LocalizationFilter</filter-class>
+    <init-param>
+      <param-name>localization-method</param-name>
+      <param-value>redirect</param-value>
+    </init-param>
+    <init-param>
+      <param-name>supported-locales</param-name>
+      <param-value>en,fe,es</param-value>
+    </init-param>
+    <init-param>
+      <param-name>inspect-uri</param-name>
+      <param-value>^/(.+)(?:/|$)</param-value>    
+    </init-param>
+    <init-param>
+      <param-name>match-uri</param-name>
+      <param-value>^/(.*)$</param-value>
+    </init-param>
+    <init-param>
+      <param-name>rewrite-uri</param-name>
+      <param-value>/@/$1</param-value>
+    </init-param>
+  </filter>
+  ...
+  <filter-mapping>
+    <filter-name>localization</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+  </filter-mapping>  
+  ...</xmp></div>
+<li>file <code>/WEB-INF/toolbox.xml</code>:</li>
+<div class="source"><xmp>...
+  <tool>
+    <key>local</key>
+    <scope>session</scope>
+    <class>velosurf.web.i18n.SimpleDBLocalizer</class>
+  </tool>
+  ...</xmp></div>
+</ul>
+<p>Using the redirect method is more advised than using the forward method, since the forward method will let one
+URL correspond to different web pages, thus bugging search engines.</p>
 
+<a name='authentication'/>
+<h1>Authentication</h1>
+<p>Velosurf is shipped with some utility classes that allow one to easily plug a session based CRAM (Challenge Response Authentication Mechanism)
+in a webapp. It consists of three classes:
+<ul>
+<li>an <code><a href='api/velosurf/web/auth/AuthenticationFilter.html'>velosurf.web.auth.AuthenticationFilter</a></code> that is meant to be mapped to pages needing authentication.</li>
+<li>an abstract <code><a href='api/velosurf/web/auth/BaseAutenticator.html'>velosurf.web.auth.BaseAutenticator</a></code> tool that takes a <code>method</code> configuration parameter
+(the encryption method to be used). Omitting this <code>method</code> parameter means that passwords will be transmitted in clear (which is
+not a problem if you use HTTPS, which you should really use if you want security).</li>
+<li>a simple implementation of this abstract tool, <code><a href='api/velosurf/web/auth/SimpleDBAuthenticator.html'>velosurf.web.auth.SimpleDBAuthenticator</a></code>, that implements the two abstract
+methods <code>getUser(<i>login</i>)</code> and <code>getPassword(<i>login</i>)</code> using a configurable <code>user(id,login,password)</code> SQL table.</li>
+<li>a javascript <code>/src/javascript/md5.js</code> (BSD licence) implementing the client-side encryption for the <code>HmacMD5</code> method.</li>
+</ul></p>
+<p>Please refer to the provided javadoc links for further information regarding the configuration parameters.</p>
+<p>Here is an example of configuration for an HmacMD5 autentication:</p>
+<ul><li>file <code>/WEB-INF/web.xml</code>:</li>
+<div class="source"><xmp> ...
+  <filter>
+    <filter-name>authentication</filter-name>
+    <filter-class>velosurf.web.auth.AuthenticationFilter</filter-class>
+    <init-param>
+      <param-name>index-page</param-name>
+      <param-value>/index.html.vtl</param-value>
+    </init-param>
+    <init-param>
+      <param-name>max-inactive</param-name>
+      <param-value>600</param-value>
+    </init-param>
+    <init-param>
+      <param-name>login-page</param-name>
+      <param-value>/login.html.vtl</param-value>
+    </init-param>
+    <init-param>
+      <param-name>authenticated-index-page</param-name>
+      <param-value>/auth/index.html.vtl</param-value>
+    </init-param>
+  </filter>
+  ...
+  <filter-mapping>
+    <filter-name>authentication</filter-name>
+    <!-- 2.4 syntax allows several url-patterns per mapping -->
+    <url-pattern>/auth/*</url-pattern>
+    <url-pattern>*.do</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+  </filter-mapping>  
+  ...
+</xmp></div>
+<li>file <code>/WEB-INF/toolbox.xml</code></li>
+<div class="source"><xmp>  ...
+  <tool>
+    <key>auth</key>
+    <scope>session</scope>
+    <class>velosurf.web.auth.SimpleDBAuthenticator</class>
+    <parameter name='method' value='HmacMD5'/>
+  </tool>
+  ...
+</xmp></div>
+<li>file <code>/login.html.vtl</code>:</li>
+<div class="source"><xmp><html>
+<head>
+<title>Login</title>
+<script type='text/javascript' src='md5.js'></script>
+<script type='text/javascript'>
+    function sendLogin() {
+        document.hidden.elements['login'].value = document.login.elements['login'].value;
+        document.hidden.elements['password'].value = b64_hmac_md5(document.login.elements['password'].value,'$auth.challenge');
+        document.hidden.submit();
+    }
+</script>
+</head>
+<body>
+$!loginMessage<br>
+Identification:<br>
+<form name='login' action='javascript:sendLogin()' method=POST>
+    Login: <input type=text name=login size=25 maxlength=30><br>
+    Password: <input type=password name=password  size=15 maxlenght=50"><br>
+    <input type=submit value="Ok"><br>
+</form>
+<form name='hidden' action='login.do' method=POST>
+  <input type=hidden name=login>
+  <input type=hidden name=password>
+</form>
+</body>
+</html></xmp></div>
+<li>loging out link: <code>&lt;a href="logout.do"&gt;Logout&lt;/a&gt;</code></li>
+</ul>
 
-examples
-localization
-$query
-mvc
-insert, lastinsertid
-update, delete
-authentication
-templatenamefilter
-external parameters
-caching, dirty
-case-sensivity
-context case
-obfuscation
-jdbc drivers, specificities, ignored tables... 
+<a name='templatenamefilter'/>
+<h1>Template name filter</h1>
+<p>Velosurf comes with a <code><a href='api/velosurf/util/TemplateNameFilter'>TemplateNameFilter</a></code> servlet filter
+that is used to mask the '.vtl' in URLs. The idea is to be able to change the status of an HTML file from plain HTML to templatized HTML
+without the need to update URLs. It supposes you follow the convention of suffixing '.vtl' to the name of template files (e.g. <code>index.html.vtl</code> or <code>toolkit.js.vtl</code>).</p>
+<p>Check the javadoc to see how you can customize the parameters of the filter.</p>
 
-
+<a name='filtering'/>
+<h1>Order of servlet filters</h1>
+<p>When using several of the filters proposed by the library, one must be cautious to the order in which those filters
+are mapped to incoming HTTP requests in the <code>/WEB-INF/web.xml</code> application descriptor.</p>
+<p>If used, the template name filter should appear first. Then, if both the authentication and localization filters are
+used, the should appear in the same order as the level order of the corresponding directories (i.e. authentication first if you
+use paths like <code>/auth/en/</code> and localization first if you use paths like <code>/en/auth/</code>).</p>
 </div>
-
 </div>
 
 </body>
 </html>
+
+
+
+

@@ -72,7 +72,8 @@
 <p>The configuration file follows <a href="./dtd.html">this DTD</a>.</p>
 <p>In brief:</p>
 <p><ul>
-<li>the &lt;database&gt; tag is the root element and must provide connection credentials and an optionnal schema name. It can contains any number of &lt;entity&gt;, &lt;attribute&gt; and &lt;action&gt; tags. Attributes and actions defined at this level are qualified as <i>root</i> attributes and actions.</li>
+<li>the &lt;database&gt; tag is the root element and must provide connection credentials and an optionnal schema name. It can contains any number of &lt;entity&gt;, &lt;attribute&gt; and &lt;action&gt; tags. Attributes and actions defined at this level are qualified as <i>root</i> attributes and actions.
+If present, the root action named <code>startup</code> is executed when Velosurf is initialized.</li>
 <li>&lt;entity&gt; tags usually correspond to a table (but not necessarily). They can contain any number of &lt;attribute&gt;, &lt;action&gt; and &lt;constraint&gt; tags.</li>
 <li>&lt;attribute&gt; tags describe a custom entity attribute. Their content is an SQL query where entity columns and other <i>external parameters</i> appear as embedded tags. Their <code>result</code> XML attribute describes their result</li>
 <li>&lt;action&gt; tags contain one or several SQL queries where entity columns and other <i>external parameters</i> appear as embedded tags.  They return the number of affected rows.</li>
@@ -115,7 +116,6 @@
 						</tr>
 						<tr align="center">
 							<td>database</td>
-
 							<td>driver</td>
 							<td><i> java_class_name</i></td>
 							<td>(none)</td>
@@ -151,7 +151,7 @@
 							<td>case</td>
 							<td>sensitive | uppercase | lowercase</td>
 							<td>(driver-dependant)</td>
-							<td>case-sensivity: sensitive, uppercase or lowercase - see remarks</td>
+							<td>case-sensivity policy used by Velosurf: sensitive, uppercase or lowercase<a href='#1'><sup>(1)</sup></a></td>
 						</tr>
 
 						<tr align="center">
@@ -264,7 +264,7 @@
 							<td>name</td>
 							<td><i>string</i></td>
 							<td><b>(required)</b></td>
-							<td>action name</td>
+							<td>Action name. If present, the root <code>startup</code> action is performed when Velosurf is initialized.</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
 						<tr>
@@ -539,70 +539,29 @@
 						</tr>
 </tbody>
 </table>
-					<p>And some important remarks on this config file:</p>
-					<ul>
-						<li><b>root attributes and actions</b>: Along with attributes and actions declared inside an entity (that become properties of this entity), 
-						attributes and actions can be declared directly under <nobr>&lt;database&gt;</nobr>: they become root attributes and root actions, direct 
-						properties of $db.<br>
-							If specified, the root action named <code>startup</code> is executed at startup.<br>
-
-							<br>
-						
-						<li><b>using current instance values</b>: SQL queries of attributes and actions may (and often have to) reference columns of the current instance, by simply inserting XML tags at the right place.<br>
-						<br>For instance, assuming 'owner_id' is a field of the 'event' table:<pre>&lt;entity name=&quot;event&quot;&gt;
-	&lt;attribute name=&quot;owner&quot; result=&quot;row/user&quot;&gt;
-
-		select * from user where user_id = <font color="red">&lt;owner_id/&gt;</font>
-	&lt;/attribute&gt;
-&lt;/entity&gt;</pre>
-						<p>Then, in VTL, if <code>$event</code> contains an event, then <code>$event.owner</code> will return the user that owns the event.<br>
-
-						<br>
-						</p>
-						<li><b>external parameters</b>: sometimes there is the need for an external parameter to appear in an SQL query. In that case, it can be named as an XML tag inside the query, and later used by setting its value on the surrounding entity (or on $db for root actions/attributes).<br>
-						<br>For instance, here is the definition of a root attribute that lists all events of a month:<pre>&lt;attribute name=&quot;month_events&quot; result=&quot;rowset/event&quot;&gt;
-	select * from event where month(event_date) = <font color="red">&lt;selected_month/&gt;</font>
-
-&lt;/attribute&gt;</pre>
-						<p>In VTL, you can then write:</p>
-						<pre>#set($db.selected_month = 3)
-
-#foreach($event in $db.month_events)
- ... display the event ...
-#end</pre>
-						<p>Note that the name <code>selected_month</code> does not correspond to anything in the database: it is only a label that can be used as a prepared statement parameter.</p>
-							<p>Note also that external parameters only retain their value within the scope of one VelosurfTool instance (which is the request scope by default).<br>
-
-								<br>
-							</p>
-						
-						<li><b>XML parsing of queries</b>: Since XML parsers may add spaces here and there inside #PCDATA, and since that may sometimes break the syntax of SQL queries, it is a good idea to specify <code>xml-space=&quot;preserve&quot;</code> as an XML attribute of any XML entity containing a SQL query.<br>
-						<br>
-						<li><b>escaping of XML&nbsp;special characters</b>: be sure to escapes characters &lt; &gt; &amp; and ' with their XML equivalent whenever they appear inside your queries.<br>
-
-							<br>
-						
-						
-						<li><b>IDs obfuscation</b>: When you obfuscate a key column, be sure to also obfuscate all foreign-keys that reference this column. If you want to specify an explicit value to an obfuscated column (via an update or an insert), you have to obfuscate it first since it will always be deobfuscated - you can do so with the <code>entity.obfuscate(value)</code> method. Please note that this feature requires some <code>javax.crypto</code> classes that are not included by default in the jdk for versions prior to 1.4 ; in this case, you'll have to download the <a href="(EmptyReference!)" target="http://java.sun.com/products/jce/index.jsp">Java Cryptographic Extension</a> (jce1_2_2.jar and sunjce_provider.jar) from java.sun.com.<br>
-							<br>
-
-						<li><b>Case-sensivity</b>: Indicates the policy that Velosurf must follow with SQL keywords (tables and columns). It should mimic the behaviour the database engine has with its metadata tables, and the default is choosen depending on the database vendor (see DriverInfo.java). It is one of:
-							<ul>
-								<li><code>sensitive</code>: It does not necessarily mean that the database is case-sensitive, only that Velosurf won't issue any conversion.
-								<li><code>uppercase</code>: Entities and attributes are case-insensitive; all identifiers will be stored internally and passed to the JDBC driver as uppercase strings (references in templates and names in the configuration file are then case-insensitive).<li><code>lowercase</code>: Same as above, lowercase.
-							</ul>
-							<br>
-						<li><b>Connection pooling</b>: Velosurf uses two connection pools. One with connections having the autocommit flag set to true for all 
-						standard queries, and one with connections having the autocommit flag set to false for transactionnal queries (i.e. composite queries made of 
-						a sequence of several atomic queries, and on wich a rollback must be issued when something goes wrong during the processing). Since such 
-						queries are 
-						usually less frequent and less heavy than standard ones, the latter pool is initialized with only one connection. The
-						<code>min-connections</code> parameter only applies to the former pool.
-					</ul>
-
-
+<a name='1'/>
+<p><b>(1)</b> This case-sensivity parameter indicates the policy that Velosurf must follow with SQL keywords (tables and columns)
+when speaking with the relationnal database. It should mimic the behaviour the database engine has with its metadata tables,
+and the default is choosen depending on the database vendor when known (see <a href='api/velosurf/sql/DriverInfo.html'>DriverInfo.java</a>). It is one of:
+<ul>
+<li><code>sensitive</code>: It does not necessarily mean that the database is case-sensitive,
+only that Velosurf won't issue any conversion.
+<li><code>uppercase</code>: Entities and attributes are case-insensitive; all identifiers will be stored
+internally and passed to the JDBC driver as uppercase strings
+(references in templates and names in the configuration file are then case-insensitive).
+<li><code>lowercase</code>: Same as above, lowercase.
+</ul>
+It doesn't impact case of identifiers used in the configuration file or in the templates. Those ones are converted
+to lowercase by default and this behaviour can be changed via the <code>velosurf.case</code> Java system property.</p>
+</p>
 </div>
 </div>					
 	</body>
 
 </html>
+
+
+
+
+
+

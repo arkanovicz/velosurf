@@ -28,11 +28,6 @@ import velosurf.util.Logger;
 /** <p>This class rely on the "Accepted-Language" HTTP header to detect
  *  the appropriate locale to be used.</p>
  *
- * <p>You can find on the web the list of
- * <a href="http://www.loc.gov/standards/iso639-2/englangn.html">ISO Language Codes</a>
- * and the list of
- * <a href="http://www.iso.ch/iso/en/prods-services/iso3166ma/02iso-3166-code-lists/list-en1.html">ISO Country Codes</a>.
- *
  * <p>This tool accepts a "default-locale" configuration parameter in toolbox.xml.</p>
  * <p>It is meant for the session scope.</p>
  *
