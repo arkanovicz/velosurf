@@ -69,35 +69,42 @@
 </div>
 <div id="body">
 <h1>Velosurf 2.x</h1>
-<p>The latest release is Velosurf 2.0 (gzipped tar archive). It contains both the binary and the sources.</p>
+<p>The latest release is <a href='http://prdownloads.sourceforge.net/velosurf/velosurf-2.0.tgz?download'>Velosurf 2.0</a> (gzipped tar archive). It contains both the binary and the sources.</p>
 <p>Velosurf 2.x need Java 1.5. If you're still using an older Java version, consider
 using a Velosurf 1.4.x release.</p>
 <p>The dependency jars are not included in the archive. To automatically download them,
 if you have <a href="http://ant.apache.org/">Apache Ant</a> installed, go into the <code>build/</code>
 directory of the extracted archive and type <code>ant download</code>. This will download all dependency jars
-into the <code>lib/</code> directory. You can also manually <a href="todo">download all dependencies</a>
-(gzipped tar archive) or fetch them individually:
+into the <code>lib/</code> directory. You can also manually <a href='http://prdownloads.sourceforge.net/velosurf/velosurf-2.0-dependencies.tgz?download'>download dependencies</a>
+(gzipped tar archive, meant to be extracted at the base directory of the release) or fetch them individually from the links bellow:</p>
 <ul>
-<li><a href="http://www.ibiblio.org/maven/commons-beanutils/jars/commons-beanutils-1.7.0.jar">commons-beanutils-1.7.0.jar</a></li>
-<li><a href="http://www.ibiblio.org/maven/commons-collections/jars/commons-collections-3.2.jar">commons-collections-3.2.jar</a></li>
+<li>Dependencies needed to build velosurf:
+<ul>
 <li><a href="http://www.ibiblio.org/maven/commons-lang/jars/commons-lang-2.2.jar">commons-lang-2.2.jar</a></li>
-<li><a href="http://www.ibiblio.org/maven/commons-logging/jars/commons-logging-1.1.jar">commons-logging-1.1.jar</a></li>
-<li><a href="http://www.ibiblio.org/maven/crimson/jars/crimson-1.1.3.jar">crimson-1.1.3.jar</a></li>
 <li><a href="http://www.ibiblio.org/maven/jdom/jars/jdom-1.0.jar">jdom-1.0.jar</a></li>
 <li><a href="http://www.ibiblio.org/maven/servletapi/jars/servletapi-2.4.jar">servletapi-2.4.jar</a></li>
 <li><a href="http://www.ibiblio.org/maven/velocity/jars/velocity-1.4.jar">velocity-1.4.jar</a></li>
-<li><a href="http://www.ibiblio.org/maven/velocity/jars/velocity-tools-view-1.3.jar">velocity-tools-view-1.3.jar</a></li>
+<li><a href="http://www.ibiblio.org/maven/velocity-tools/jars/velocity-tools-view-1.3.jar">velocity-tools-view-1.3.jar</a> has not yet been released
+at the time this page is being written. velocity-tools-view-1.3-dev.jar is provided in build/lib.</li>
+</ul></li>
+<li>Dependencies needed at runtime:
+<ul>
+<li><a href="http://www.ibiblio.org/maven/commons-beanutils/jars/commons-beanutils-1.7.0.jar">commons-beanutils-1.7.0.jar</a> (needed by Velocity Tools)</li>
+<li><a href="http://www.ibiblio.org/maven/commons-collections/jars/commons-collections-3.2.jar">commons-collections-3.2.jar</a> (needed by Velocity)</li>
+<li><a href="http://www.ibiblio.org/maven/commons-digester/jars/commons-digester-1.7.jar">commons-digester-1.7.jar</a> (needed by Velocity Tools)</li>
+<li><a href="http://www.ibiblio.org/maven/crimson/jars/crimson-1.1.3.jar">crimson-1.1.3.jar</a> (needed by JDOM)</li>
+</ul></li>
 </ul>
-</p>
+<p>Running the tests also requires some additionnal libraries which will be downloaded when needed.</p>
 <p>You can also checkout the last sources from the SourceForge subversion repository with the following command:</p>
-<p><code><small>svn co https://velosurf.svn.sourceforge.net/svnroot/velosurf/trunk velosurf</small></code></p>
+<p><code>svn co https://velosurf.svn.sourceforge.net/svnroot/velosurf/trunk velosurf</code></p>
 <h1>Velosurf 1.4.x</h1>
 <p>The Velosurf 1.4.x releases are still maintained for bugs but not for functional upgrades.</p>
-<p>The latest release is Velosurf 1.4.4. (gzipped tar archive). It contains both the binary and the sources,
+<p>The latest release is <a href='http://prdownloads.sourceforge.net/velosurf/velosurf-1.4.4.tgz?download'>Velosurf 1.4.4</a>. (gzipped tar archive). It contains both the binary and the sources,
 plus all dependency jars in the <code>lib/</code> directory. The binary is in the <code>bin/</code> directory of the extracted archive.</p>
 <p>You can also checkout the last 1.4.x sources from the SourceForge CVS repository with the following commands:</p>
-<p><small><code>cvs -d:pserver:anonymous@velosurf.cvs.sf.net:/cvsroot/velosurf login<br><br>
- cvs -z3 -d:pserver:anonymous@velosurf.cvs.sf.net:/cvsroot/velosurf co -P velosurf</code></small></p>
+<p><code>cvs -d:pserver:anonymous@velosurf.cvs.sf.net:/cvsroot/velosurf login<br><br>
+ cvs -z3 -d:pserver:anonymous@velosurf.cvs.sf.net:/cvsroot/velosurf co -P velosurf</code></p>
 </div>
 </body>
 </html>
