@@ -6,7 +6,7 @@
   <title>Velosurf - Installation</title>
 
 
-  <link rel="stylesheet" href="file:///home/claude/projects/velosurf/docs/velosurf.css" type="text/css">
+  <link rel="stylesheet" href="./velosurf.css" type="text/css">
 
 </head>
 
@@ -81,7 +81,7 @@ For other environments, you should refer to the <a href="./faq.html">FAQ</a>.</p
 						Then, the <code>./build/build.xml</code> file contains the following ant targets:</p>
 					<ul>
 						<li><b>jar</b>: builds <code>./velosurf-0.x.jar</code></li>
-						<li><b>download</b>: downloads denpendency jars in the <code>./lib directory</code></li>
+						<li><b>download</b>: downloads dependency jars in the <code>./lib directory</code></li>
 						<li><b>javadoc</b>: builds the javadocs in <code>./docs/api</code></li>
 						<li><b>tarball</b>: builds the distribution tarball <code>velosurf-<i>x</i>.<i>y</i>.tgz</code>
 						<li><b>test</b>: runs all the test cases.</li>
@@ -123,25 +123,25 @@ For other environments, you should refer to the <a href="./faq.html">FAQ</a>.</p
     &lt;key&gt;db&lt;/key&gt;
     &lt;scope&gt;request&lt;/scope&gt;
     &lt;class&gt;velosurf.tools.VelosurfTool&lt;/class&gt;
-    &lt;-- uncomment the next comment if you want to specify a config file which is not one
+    &lt;-- uncomment the next comment if you want to specify a configuration file which is not one
            of the default values (./WEB-INF/model.xml or ./WEB-INF/velosurf.xml) --&gt;
-    &lt;--&lt;param name='config' value='./WEB-INF/mymodel.xml'/&gt;--&gt;
+    &lt;--&lt;param name='configuration' value='./WEB-INF/mymodel.xml'/&gt;--&gt;
   &lt;/tool&gt;
 
 &lt;/toolbox&gt;</pre></div>
 
-<p>Alternatively, the configuration file is also searched in the <code>velosurf.config</code> servlet context parameter,
+<p>Alternatively, the configuration file is also searched in the <code>velosurf.configuration</code> servlet context parameter,
 but this method is deprecated.</p>
 
 					<h2>Configuring Velosurf</h2>
-					<p>By default, the database will be reverse enginered and each table becomes an entity, each column an attribute,
+					<p>By default, the database will be reverse engineered and each table becomes an entity, each column an attribute,
 					and each foreign key will produce two attributes (see the paragraph about <a href="./user-guide.html#foreign-keys">foreign keys</a> in the User Guide).</p>
-					<p>You can thus start with the minimal configuration, that only specify the database connection parameters (don't forget
+					<p>You can thus start with the minimal configuration, which only specifies the database connection parameters (don't forget
 					to specify the schema if you use one):</p>
 <div class="source"><pre>&lt;?xml version=&quot;1.0&quot;?&gt;
 &lt;database user='<i>login</i>' password='<i>password</i>' url='<i>database_url</i>' schema='the_schema'&gt;
 &lt;/database&gt;</pre></div>
-					<p>You can then check your installation with a very simple template that display a few values taken from the database.</p>
+					<p>You can then check your installation with a very simple template that displays a few values taken from the database.</p>
 					<p>Next, please refer to the <a href="./user-guide.html">User Guide</a> and the <a href="./configuration">Configuration Reference</a>
 					to tune your use of Velosurf.</p>
 </div>

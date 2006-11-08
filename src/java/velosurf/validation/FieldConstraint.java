@@ -42,10 +42,10 @@ public abstract class FieldConstraint {
     }
 
     // TODO parametrization of the message with {0} {1}...
-    protected String _message = null;
+    protected String message = null;
 
     public void setMessage(String msg) {
-        _message = msg;
+        message = msg;
     }
 
     /**
@@ -53,7 +53,7 @@ public abstract class FieldConstraint {
      * @return the error message
      */
     public String getMessage() {
-        return _message;
+        return message;
     }
 
 }

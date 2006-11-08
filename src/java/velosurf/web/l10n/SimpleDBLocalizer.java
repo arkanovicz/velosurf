@@ -65,38 +65,38 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
     private static String localeField = LOCALE_FIELD_DEFAULT;
     private static String stringField = STRING_FIELD_DEFAULT;
 
-    private static boolean _initialized = false;
+    private static boolean initialized = false;
 
-    private static Map<Locale,Map<Object,String>> _localeStrings = null;
+    private static Map<Locale,Map<Object,String>> localeStrings = null;
 
-    private Map<Object,String> _currentStrings = null;
+    private Map<Object,String> currentStrings = null;
 
-    private Map _config;
+    private Map config;
 
     public SimpleDBLocalizer() {
     }
 
     public void configure(Map config) {
-        _config = config;
+        this.config = config;
     }
 
     public void init(Object initData) {
-        if (!_initialized) {
-            if(_config != null) {
+        if (!initialized) {
+            if(config != null) {
                 String value;
-                value = (String)_config.get(LOCALIZED_TABLE_KEY);
+                value = (String)config.get(LOCALIZED_TABLE_KEY);
                 if (value != null) {
                     localizedTable = value;
                 }
-                value = (String)_config.get(ID_FIELD_KEY);
+                value = (String)config.get(ID_FIELD_KEY);
                 if (value != null) {
                     idField = value;
                 }
-                value = (String)_config.get(LOCALE_FIELD_KEY);
+                value = (String)config.get(LOCALE_FIELD_KEY);
                 if (value != null) {
                     localeField = value;
                 }
-                value = (String)_config.get(STRING_FIELD_KEY);
+                value = (String)config.get(STRING_FIELD_KEY);
                 if (value != null) {
                     stringField = value;
                 }
@@ -111,7 +111,7 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
     }
 
     private static synchronized void readLocales(ServletContext ctx) {
-        if (_initialized) return;
+        if (initialized) return;
         try {
             DBReference db = VelosurfTool.getDefaultInstance(ctx);
             if (db==null) {
@@ -121,7 +121,7 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
             if (entity==null) {
                 throw new Exception("Cannot find 'localized' database entity!");
             }
-            _localeStrings = new HashMap<Locale,Map<Object,String>>();
+            localeStrings = new HashMap<Locale,Map<Object,String>>();
             entity.setOrder(localeField);
             Iterator locales = entity.iterator(); // sorted by locale
             Map<Object,String> map = null;
@@ -139,18 +139,18 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
                     /* for now, take language and country into account... TODO: take variant into account */
                     int sep = locale.indexOf('_');
                     loc = ( sep == -1 ? new Locale(locale) : new Locale(locale.substring(0,sep),locale.substring(sep+1)) );
-                    _localeStrings.put(loc,map);
+                    localeStrings.put(loc,map);
                 }
                 map.put(key,string);
             }
-            _initialized = true;
+            initialized = true;
         } catch (Exception e) {
             Logger.log(e);
         }
     }
 
     public boolean hasLocale(Locale locale) {
-        return _localeStrings.containsKey(locale);
+        return localeStrings.containsKey(locale);
     }
 
     public void setLocale(Locale locale) {
@@ -159,18 +159,18 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
             return;
         }
         super.setLocale(locale);
-        _currentStrings = _localeStrings.get(getLocale());
-        if (_currentStrings == null) {
+        currentStrings = localeStrings.get(getLocale());
+        if (currentStrings == null) {
             Logger.warn("l10n: no strings found for locale "+getLocale());
         }
     }
 
     public String get(Object id) {
-        if (_currentStrings == null) {
+        if (currentStrings == null) {
             Logger.warn("l10n: no current locale! (was getting string id '"+id+"')");
             return id.toString();
         }
-        String message = _currentStrings.get(id);
+        String message = currentStrings.get(id);
         //Logger.trace("l10n: "+id+" -> "+message);
         return message == null ? id.toString() : message;
     }

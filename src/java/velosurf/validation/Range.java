@@ -37,11 +37,11 @@ import java.util.regex.Pattern;
  */
 public class Range extends FieldConstraint {
 
-    private Number _min = null;
-    private Number _max = null;
-    private boolean _integer = false;
+    private Number min = null;
+    private Number max = null;
+    private boolean integer = false;
 
-    private static Pattern _intPattern = Pattern.compile("(?:\\+|-)?\\d+");
+    private static Pattern intPattern = Pattern.compile("(?:\\+|-)?\\d+");
 
     /**
      *  Constructor.
@@ -51,15 +51,15 @@ public class Range extends FieldConstraint {
     }
 
     public void setInteger(boolean integer) {
-        _integer = integer;
+        this.integer = integer;
     }
 
     public void setMin(Number min) {
-        _min = min;
+        this.min = min;
     }
 
     public void setMax(Number max) {
-        _max = max;
+        this.max = max;
     }
 
     /**
@@ -76,7 +76,7 @@ public class Range extends FieldConstraint {
             number = (Number)data;
         } else {
             try {
-                if(_integer) {
+                if(integer) {
                     number = Integer.parseInt(data.toString());
                 } else {
                     number = Double.parseDouble(data.toString());
@@ -85,16 +85,16 @@ public class Range extends FieldConstraint {
                 return false;
             }
         }
-        if (_min != null && _min.doubleValue() > number.doubleValue()) {
+        if (min != null && min.doubleValue() > number.doubleValue()) {
             return false;
         }
-        if (_max != null && _max.doubleValue() < number.doubleValue()) {
+        if (max != null && max.doubleValue() < number.doubleValue()) {
             return false;
         }
         return true;
     }
 
     public String toString() {
-        return (_integer?"type integer":"type number") + (_min != null && _max != null?", between "+_min+" and "+_max:_min != null?", >= "+_min:", <="+_max);
+        return (integer?"type integer":"type number") + (min != null && max != null?", between "+min+" and "+max:min != null?", >= "+min:", <="+max);
     }
 }

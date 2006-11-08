@@ -57,7 +57,7 @@ public abstract class BaseAuthenticator {
 
     private String method = null;
     private String challenge = null;
-    private static Random _random = new Random(System.currentTimeMillis());
+    private static Random random = new Random(System.currentTimeMillis());
 
     private static final int CHALLENGE_LENGTH = 256; // bits
 
@@ -77,7 +77,7 @@ public abstract class BaseAuthenticator {
      * @return a new 1024-bit challenge in base64
      */
     public String getChallenge() {
-        BigInteger bigint = new BigInteger(CHALLENGE_LENGTH,_random);
+        BigInteger bigint = new BigInteger(CHALLENGE_LENGTH,random);
         challenge = new sun.misc.BASE64Encoder().encode(bigint.toByteArray());
         challenge = challenge.replace("\n","");
         Logger.trace("auth: challenge="+challenge);

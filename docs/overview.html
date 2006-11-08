@@ -3,7 +3,7 @@
 <head>
 <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
 <title>Velosurf - Overview</title>
-<link rel="stylesheet" href="file:///home/claude/projects/velosurf/docs/velosurf.css" type="text/css"/>
+  <link rel="stylesheet" href="./velosurf.css" type="text/css">
 </head>
 
 <body>
@@ -75,7 +75,7 @@ called Velosurf <b>entities</b>.&nbsp;Entities
 properties are <b>attributes</b> (that can be table
 columns as long as customized queries). Entities methods that trigger
 database update/delete/insert queries are <b>actions</b>.
-Each realisation of an entity is an <b>instance</b>.</p>
+Each realization of an entity is an <b>instance</b>.</p>
 
 <p align="left">Velosurf uses an XML configuration file
 that:</p>
@@ -134,7 +134,7 @@ either to the database itself ('root' attributes) or to specific
 entities, in which case they can be accessed from the corresponding
 instances. Attributes have a result type which is one of 'scalar',
 'row', or 'rowset'. One can specify the resulting entity of row or
-rowset attributes, to access nested properties on them. By default,
+row set attributes, to access nested properties on them. By default,
 Velosurf defines a scalar attribute for each table column.</p>
 
   </li>
@@ -312,7 +312,7 @@ an update method:</p>
 
 <p align="left">Suppose we've got two joined tables <code>user (id integer primary key, name varchar(50))</code>
 and <code>message(id integer primary key autoincrement, userid integer references user(id),txt varchar(255))</code>.
-</p><p>We want to list the messages per user, and to be able to add or delete messages. We'll rely on the Velosurf reverse enginering
+</p><p>We want to list the messages per user, and to be able to add or delete messages. We'll rely on the Velosurf reverse engineering
 to define the <code>$db.user</code> and <code>$db.message</code> entities, as well as the <code>$message.user</code>
 and <code>$user.messages</code> attributes.</p>
 <p>First, the toolbox.xml (that references all Velocity tools) defines the
@@ -342,17 +342,17 @@ parameters
   </tool>
 </toolbox></xmp></div>
 <p>Then, the velosurf.xml configuration file, which gives connection parameters. Nothing more to put here than
-connection parameters, since we use reverse enginering.</p>
+connection parameters, since we use reverse engineering.</p>
 <div class="source"><xmp><?xml version="1.0" encoding="UTF-8"?>
 <database user="foo" password="bar" url="jdbc:mysql://127.0.0.1/messageboard" driver="org.gjt.mm.mysql.Driver" read-only="false" reverse="full">
-<!-- without reverse enginering, we would need the following definitions:
+<!-- without reverse engineering, we would need the following definitions:
   <entity name="user">
     <attribute name="messages" result="rowset/message">select * from message where msg_user=<user_id/></attribute>
   </entity>
   <entity name="message">
     <attribute name="user" result="row/user">select * from user where id=<userid/></attribute>
   </entity>
-Note that when using reverse enginering, you can still list entities here if you want to customize them
+Note that when using reverse engineering, you can still list entities here if you want to customize them
 -->
 </database></xmp></div>
 <p>Now, the template itself:</p>
@@ -408,7 +408,7 @@ Note that when using reverse enginering, you can still list entities here if you
 </body>
 </html></xmp></div>
 <p>Of course, there is no data validation, no html escaping, no authentication (each user can see the messages of others),
-so we'd need some more work towards a real-life message board, but we already have something functionnal with few lines of code.</p>
+so we'd need some more work towards a real-life message board, but we already have something functional with few lines of code.</p>
 <p>The output would be something like this:</p>
 <div class="frame">
 <h3>Very Simple Message Board</h3>

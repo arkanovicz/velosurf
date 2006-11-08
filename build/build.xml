@@ -37,6 +37,7 @@
   <property name="lib.dir"           value="${basedir}/lib"/>
   <property name="test.dir"          value="${basedir}/test"/>
   <property name="tmp.dir"           value="${basedir}/tmp"/>
+  <property name="docs.dir"           value="${basedir}/docs"/>
   <property name="javadoc.destdir"   value="${basedir}/docs/api"/>
   <property name="final.name"        value="${project}-${version}"/>
   <property name="dist.root"         value="${basedir}/dist"/>
@@ -114,6 +115,9 @@ Please specify a target among :
     <tstamp />
     <!-- DOWNLOAD LIBRARIES IF NEEDED -->
     <antcall target="download" />
+    <copy todir="${lib.dir}">
+      <fileset dir="${build.dir}/lib"/>
+    </copy>
   </target>
 
   <target name="clean">
@@ -121,6 +125,7 @@ Please specify a target among :
     <delete dir="${tmp.dir}"/>
     <delete dir="${test.output.dir}"/>
     <delete dir="${test.rst.dir}"/>
+    <delete dir="${test.log.dir}"/>
     <delete dir="$test.webapp.dir}/WEB-INF/lib"/>
     <delete dir="$test.webapp.dir}/WEB-INF/log"/>
   </target>
@@ -561,41 +566,32 @@ Please specify a target among :
 
   <target name="tarball" depends="javadoc,jar">
 
+    <antcall target="clean"/>
+
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir}/src"/>
+    <mkdir dir="${dist.dir}/docs"/>
+    <mkdir dir="${dist.dir}/build"/>
+    <mkdir dir="${dist.dir}/examples"/>
+    <mkdir dir="${dist.dir}/test"/>
+    <mkdir dir="${dist.dir}/test/jetty"/>
+    <mkdir dir="${dist.dir}/test/webapp"/>
+    <mkdir dir="${dist.dir}/test/webapp/WEB-INF"/>
 
     <copy todir="${dist.dir}/src">
-      <fileset dir="${basedir}/src/">
-        <include name="**"/>
+      <fileset dir="${basedir}/src">
+        <include name="**/*"/>
       </fileset>
     </copy>
 
     <copy todir="${dist.dir}/docs">
-      <fileset dir="${basedir}/docs">
-        <include name="**"/>
+      <fileset dir="${docs.dir}">
+        <include name="*"/>
       </fileset>
-    </copy>
-
-<!-- TODO correct jar names! Should I include them? -->
-    <copy todir="${dist.dir}/lib" >
-      <fileset dir="${basedir}/lib" >
-        <include name="crimson.jar" />
-        <include name="dom4j.jar" />
-        <include name="jdom.jar" />
-        <include name="jsdk23.jar" />
-        
-   <!--     <include name="velocity-dep-1.5-dev.jar" />
-        <include name="velocity-tools-view-1.2-dev.jar" />
-        <include name="common-beanutils.jar" />
-        <include name="common-digester.jar" />
-        <include name="common-logging.jar" /> -->
-        
-      </fileset>
-    </copy>
+    </copy> 
 
     <copy todir="${dist.dir}">
       <fileset dir="${basedir}">
-        <include name="build.xml"/>
         <include name="CHANGELOG"/>
         <include name="LICENSE"/>
         <include name="NOTICE"/>
@@ -604,25 +600,60 @@ Please specify a target among :
       </fileset>
     </copy>
     
-    <copy todir="${dist.dir}/src">
-      <fileset dir="${basedir}/src/">
-        <include name="**"/>
+    <copy todir="${dist.dir}/build">
+      <fileset dir="${build.dir}">
+        <include name="**/*"/>
       </fileset>
     </copy>
     
-    <copy todir="${dist.dir}/samples">
-      <fileset dir="${basedir}/samples/">
-        <include name="**"/>
+    <copy todir="${dist.dir}/test">
+      <fileset dir="${test.dir}">
+        <include name="conf/*"/>
+        <include name="hsqlclient.sh"/>
+        <include name="hsqldb.sh"/>
+        <include name="sql/*"/>
+        <include name="src/**"/>
       </fileset>
     </copy>
-    <copy file="${basedir}/${project}-${version}.jar" tofile="${dist.dir}/${project}-${version}.jar"/>
-      <delete file="${basedir}/${final.name}.tar" quiet="true"/>
-      <delete file="${basedir}/${final.name}.tgz" quiet="true"/>
-      <tar tarfile="${basedir}/${final.name}.tar" basedir="${dist.root}" 
-           includes="**/${final.name}/**" longfile="gnu"/>
-      <gzip zipfile="${basedir}/${final.name}.tgz" src="${basedir}/${final.name}.tar"/>
-      <delete file="${basedir}/${final.name}.tar" quiet="true"/>
-  </target>
 
-  
+    <copy todir="${dist.dir}/test/webapp">
+      <fileset dir="${test.webapp.dir}">
+        <include name="*.html.vtl"/>
+        <include name="*.html"/>
+        <include name="*.js"/>
+        <include name="auth/**"/>
+        <include name="localized/**"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${dist.dir}/test/jetty">
+      <fileset dir="${test.jetty.dir}">
+        <include name="etc/*"/>
+        <include name="src/*"/>
+        <include name="jetty.sh"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${dist.dir}/test/webapp/WEB-INF">
+      <fileset dir="${test.webapp.dir}/WEB-INF">
+        <include name="*.xml"/>
+        <include name="*.properties"/>
+      </fileset>
+    </copy>
+    
+    <copy todir="${dist.dir}/examples">
+      <fileset dir="${basedir}/examples/">
+        <include name="*"/>
+      </fileset>
+    </copy>
+
+    <copy file="${basedir}/${final.name}.jar" tofile="${dist.dir}/${final.name}.jar"/>
+
+    <delete file="${basedir}/${final.name}.tar" quiet="true"/>
+    <delete file="${basedir}/${final.name}.tgz" quiet="true"/>
+    <tar tarfile="${basedir}/${final.name}.tar" basedir="${dist.root}" 
+         includes="**/${final.name}/**" longfile="gnu"/>
+    <gzip zipfile="${basedir}/${final.name}.tgz" src="${basedir}/${final.name}.tar"/>
+    <delete file="${basedir}/${final.name}.tar" quiet="true"/>
+  </target>
 </project>

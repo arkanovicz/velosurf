@@ -316,6 +316,12 @@ public class Instance extends TreeMap implements ReadOnlyMap
             }
             else if (nb>1) // ?!?! Referential integrities on key columns should avoid this...
                 throw new SQLException("query \""+query+"\" affected more than 1 rows!");
+            else {
+                /* invalidate cache */
+                if (entity != null) {
+                    entity.invalidateInstance(this);
+                }                
+            }
             return true;
         }
         catch (SQLException sqle) {
@@ -384,7 +390,7 @@ public class Instance extends TreeMap implements ReadOnlyMap
     /** handle an sql exception
      *
      */
-    private void handleSQLException(SQLException sqle) {
+    protected void handleSQLException(SQLException sqle) {
         Logger.log(sqle);
         UserContext uc = userContext.get();
         if (uc != null) {

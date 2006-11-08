@@ -101,28 +101,28 @@ import velosurf.web.l10n.Localizer;
 
 public class AuthenticationFilter implements Filter {
 
-    protected FilterConfig _config = null;
+    protected FilterConfig config = null;
 
-    protected int _maxInactive = 3600;
+    protected int maxInactive = 3600;
 
-    protected String _loginPage = "/login.html.vtl";
-    protected String _authenticatedIndexPage = "/index.html.vtl";
+    protected String loginPage = "/login.html.vtl";
+    protected String authenticatedIndexPage = "/index.html.vtl";
 
-    protected String _badLoginMessage = null;
-    protected String _badLoginMsgKey = "badLogin";
-    protected static final String _defaultBadLoginMessage = "Bad login or password.";
+    protected String badLoginMessage = null;
+    protected String badLoginMsgKey = "badLogin";
+    protected static final String defaultBadLoginMessage = "Bad login or password.";
 
-    protected String _disconnectedMessage = null;
-    protected String _disconnectedMsgKey = "disconnected";
-    protected static final String _defaultDisconnectedMessage = "You have been disconnected.";
+    protected String disconnectedMessage = null;
+    protected String disconnectedMsgKey = "disconnected";
+    protected static final String defaultDisconnectedMessage = "You have been disconnected.";
 
     /**
-     * Whether _indexPage, _loginPage or _authenticatedIndexPage contains a @ to be resolved.
+     * Whether indexPage, loginPage or authenticatedIndexPage contains a @ to be resolved.
      */
-    protected boolean _resolveLocale = false;
+    protected boolean resolveLocale = false;
 
     public void init(FilterConfig config) throws ServletException {
-        _config = config;
+        this.config = config;
 
         /* logger initialization */
         if (!Logger.isInitialized()) {
@@ -130,30 +130,30 @@ public class AuthenticationFilter implements Filter {
         }
 
         /* max-inactive */
-        String param = _config.getInitParameter("max-inactive");
+        String param = this.config.getInitParameter("max-inactive");
         if (param != null) {
             try {
-                _maxInactive = Integer.parseInt(param);
+                maxInactive = Integer.parseInt(param);
             } catch (NumberFormatException nfe) {
                 Logger.error("AuthenticationFilter: bad format for the max-inactive parameter: "+param);
             }
         }
         /* login page */
-        param = _config.getInitParameter("login-page");
+        param = this.config.getInitParameter("login-page");
         if (param != null) {
-            _loginPage = param;
-            _resolveLocale |= _loginPage.indexOf("@") != -1;
+            loginPage = param;
+            resolveLocale |= loginPage.indexOf("@") != -1;
         }
         /* authenticated index page */
-        param = _config.getInitParameter("authenticated-index-page");
+        param = this.config.getInitParameter("authenticated-index-page");
         if (param != null) {
-            _authenticatedIndexPage = param;
-            _resolveLocale |= _authenticatedIndexPage.indexOf("@") != -1;
+            authenticatedIndexPage = param;
+            resolveLocale |= authenticatedIndexPage.indexOf("@") != -1;
         }
         /* bad login message */
-        _badLoginMessage = _config.getInitParameter("bad-login-message");
+        badLoginMessage = this.config.getInitParameter("bad-login-message");
         /* disconnected message */
-        _disconnectedMessage = _config.getInitParameter("disconnected-message");
+        disconnectedMessage = this.config.getInitParameter("disconnected-message");
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
@@ -178,7 +178,7 @@ public class AuthenticationFilter implements Filter {
         String loginPage;
         String authenticatedIndexPage;
 
-        if (_resolveLocale) {
+        if (resolveLocale) {
             /* means the pages uris need the current locale */
             Locale locale = null;
 
@@ -193,11 +193,11 @@ public class AuthenticationFilter implements Filter {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 return;
             }
-            loginPage = _loginPage.replaceAll("@",locale.toString());
-            authenticatedIndexPage = _authenticatedIndexPage.replaceAll("@",locale.toString());
+            loginPage = this.loginPage.replaceAll("@",locale.toString());
+            authenticatedIndexPage = this.authenticatedIndexPage.replaceAll("@",locale.toString());
         } else {
-            loginPage = _loginPage;
-            authenticatedIndexPage = _authenticatedIndexPage;
+            loginPage = this.loginPage;
+            authenticatedIndexPage = this.authenticatedIndexPage;
         }
 
         if (session != null
@@ -258,9 +258,9 @@ public class AuthenticationFilter implements Filter {
                     // login ok
                     Logger.info("auth: user '"+login+"' successfully loggued in.");
                     session.setAttribute("velosurf.auth.user",auth.getUser(login));
-                    if (_maxInactive > 0) {
-                        Logger.trace("auth: setting session max inactive interval to "+_maxInactive);
-                        session.setMaxInactiveInterval(_maxInactive);
+                    if (maxInactive > 0) {
+                        Logger.trace("auth: setting session max inactive interval to "+maxInactive);
+                        session.setMaxInactiveInterval(maxInactive);
                     }
                     session.removeAttribute("challenge");
                     session.removeAttribute("authenticator");
@@ -277,9 +277,9 @@ public class AuthenticationFilter implements Filter {
                     }
                 } else {
                     Logger.warn("auth: user "+login+" made an unsuccessfull login attempt.");
-                    String message = _badLoginMessage != null ?
-                            _badLoginMessage :
-                            getMessage(localizer,_badLoginMsgKey,_defaultBadLoginMessage);
+                    String message = badLoginMessage != null ?
+                            badLoginMessage :
+                            getMessage(localizer,badLoginMsgKey,defaultBadLoginMessage);
                     session.setAttribute("loginMessage",message);
                     // redirect to login page
                     Logger.trace("auth: redirecting unauthenticated user to "+loginPage);
@@ -290,9 +290,9 @@ public class AuthenticationFilter implements Filter {
                 Logger.trace("auth: saving request towards "+uri);
                 session.setAttribute("velosurf.auth.saved-request",SavedRequest.saveRequest(request));
                 if(disconnected) {
-                    String message = _disconnectedMessage != null ?
-                            _disconnectedMessage :
-                            getMessage(localizer,_disconnectedMsgKey,_defaultDisconnectedMessage);
+                    String message = disconnectedMessage != null ?
+                            disconnectedMessage :
+                            getMessage(localizer,disconnectedMsgKey,defaultDisconnectedMessage);
                     session.setAttribute("loginMessage",message);
                 }
                 // redirect to login page

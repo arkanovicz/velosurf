@@ -45,15 +45,15 @@ import velosurf.util.StringLists;
  */
 public class OneOf extends FieldConstraint {
 
-    protected List _values = null;
+    protected List values = null;
 
     /**
      * Constructor.
      * @param values the list of possible values
      */
     public OneOf(List values) {
-        _values = values;
-        setMessage("field {0}: value '{1}' must be one of: "+StringLists.join(_values,", "));
+        this.values = values;
+        setMessage("field {0}: value '{1}' must be one of: "+StringLists.join(this.values,", "));
     }
 
     /**
@@ -62,10 +62,10 @@ public class OneOf extends FieldConstraint {
      * @return true if data is among the expected values
      */
     public boolean validate(Object data) {
-        return data == null || _values.contains(data.toString());
+        return data == null || values.contains(data.toString());
     }
 
     public String toString() {
-        return "one of "+StringLists.join(_values,", ");
+        return "one of "+StringLists.join(values,", ");
     }
 }
