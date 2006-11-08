@@ -22,6 +22,8 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.io.FileWriter;
+import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -332,6 +334,13 @@ public class Logger
         stopCaptureStdout();
         stopCaptureStderr();
         log = new PrintWriter(System.err);
+        flushAsyncLog();
+    }
+
+    /** log to file
+     */
+    static public void log2File(String file) throws FileNotFoundException {
+        log = new PrintWriter(file);
         flushAsyncLog();
     }
 

@@ -72,6 +72,9 @@
 <p>The latest release is <a href='http://prdownloads.sourceforge.net/velosurf/velosurf-2.0.tgz?download'>Velosurf 2.0</a> (gzipped tar archive). It contains both the binary and the sources.</p>
 <p>Velosurf 2.x need Java 1.5. If you're still using an older Java version, consider
 using a Velosurf 1.4.x release.</p>
+<p>If you are upgrading from a 1.4.x release and using Velosurf inside a Velocity Tools webapp, be sure to upgrade your
+version of <code>velocity-tools-view</code> and to change the deprecated classname <code>velosurf.tools.VelosurfTool</code> to
+the new <code>velosurf.web.VelosurfTool</code> inside <code>toolbox.xml</code>.</p>
 <p>The dependency jars are not included in the archive. To automatically download them,
 if you have <a href="http://ant.apache.org/">Apache Ant</a> installed, go into the <code>build/</code>
 directory of the extracted archive and type <code>ant download</code>. This will download all dependency jars
@@ -104,7 +107,7 @@ at the time this page is being written. velocity-tools-view-1.3-dev.jar is provi
 plus all dependency jars in the <code>lib/</code> directory. The binary is in the <code>bin/</code> directory of the extracted archive.</p>
 <p>You can also checkout the last 1.4.x sources from the SourceForge CVS repository with the following commands:</p>
 <p><code>cvs -d:pserver:anonymous@velosurf.cvs.sf.net:/cvsroot/velosurf login<br><br>
- cvs -z3 -d:pserver:anonymous@velosurf.cvs.sf.net:/cvsroot/velosurf co -P velosurf</code></p>
+cvs -z3 -d:pserver:anonymous@velosurf.cvs.sf.net:/cvsroot/velosurf co -P velosurf</code></p>
 </div>
 </body>
 </html>
