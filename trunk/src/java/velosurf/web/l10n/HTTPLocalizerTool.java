@@ -87,11 +87,11 @@ public abstract class HTTPLocalizerTool implements Localizer {
     public abstract boolean hasLocale(Locale locale);
 
     public void setLocale(Locale locale) {
-        _locale = locale;
+        this.locale = locale;
     }
 
     public Locale getLocale() {
-        return _locale;
+        return locale;
     }
 
     public abstract String get(Object id);
@@ -111,5 +111,5 @@ public abstract class HTTPLocalizerTool implements Localizer {
         return MessageFormat.format(message,arg1,arg2,arg3);
     }
 
-    protected Locale _locale = null;
+    protected Locale locale = null;
 }

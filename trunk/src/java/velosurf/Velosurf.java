@@ -48,18 +48,14 @@ public class Velosurf extends DBReference
 
     private String configFile = null;
 
-    public Velosurf() throws IOException,SQLException
-    {
-//        this(findConfig());
+    public Velosurf() {
     }
 
-    public Velosurf(File file) throws IOException,SQLException
-    {
+    public Velosurf(File file) throws IOException,SQLException {
         this(new FileInputStream(file));
     }
 
-    public Velosurf(InputStream config)  throws IOException,SQLException
-    {
+    public Velosurf(InputStream config)  throws IOException,SQLException {
         initLogging();
         init(config);
     }
@@ -68,12 +64,11 @@ public class Velosurf extends DBReference
         configFile = config;
     }
 
-    protected void initLogging()
-    {
+    protected void initLogging() {
         Logger.log2Stderr();
     }
 
-    protected static String findConfig() throws IOException {
+    protected static String findConfig() {
         String pathname = null;
         File file = null;
 
@@ -173,8 +168,7 @@ public class Velosurf extends DBReference
      *
      * @return obfuscated value
      */
-    public String obfuscate(Object value)
-    {
+    public String obfuscate(Object value) {
         if (!initialized) {
             try {
                 init();
@@ -191,8 +185,7 @@ public class Velosurf extends DBReference
      *
      * @return obfuscated value
      */
-    public String deobfuscate(Object value)
-    {
+    public String deobfuscate(Object value) {
         if (!initialized) {
             try {
                 init();

@@ -37,14 +37,14 @@ import java.util.Locale;
  */
 public class Regex extends FieldConstraint {
 
-    protected Pattern _pattern = null;
+    protected Pattern pattern = null;
 
     /**
      * Constructor.
      * @param pattern the regex pattern to be matched
      */
     public Regex(Pattern pattern) {
-        _pattern = pattern;
+        this.pattern = pattern;
         setMessage("field {0}: value '{1}' is not valid");
     }
 
@@ -54,10 +54,10 @@ public class Regex extends FieldConstraint {
      * @return true if data matches the regex pattern
      */
     public boolean validate(Object data) {
-        return data == null ||  data.toString().length() == 0 || _pattern.matcher(data.toString()).matches();
+        return data == null ||  data.toString().length() == 0 || pattern.matcher(data.toString()).matches();
     }
 
     public String toString() {
-        return "regular expression "+_pattern;
+        return "regular expression "+pattern;
     }
 }

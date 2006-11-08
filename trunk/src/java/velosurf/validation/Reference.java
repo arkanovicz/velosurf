@@ -44,9 +44,9 @@ import velosurf.util.Logger;
  */
 public class Reference extends FieldConstraint {
 
-    protected Database _db = null;
-    protected String _table = null;
-    protected String _column = null;
+    protected Database db = null;
+    protected String table = null;
+    protected String column = null;
 
     /**
      * Constructor.
@@ -54,9 +54,9 @@ public class Reference extends FieldConstraint {
      * @param column the column name
      */
     public Reference(Database db,String table,String column) {
-        _db = db;
-        _table = table;
-        _column = column;
+        this.db = db;
+        this.table = table;
+        this.column = column;
         setMessage("field {0}: value '{1}' not found in "+table+"."+column);
     }
 
@@ -76,9 +76,9 @@ public class Reference extends FieldConstraint {
               So, need to add some stuff to DriverInfo.
               For now, tweak the ping query.*/
 
-            String query = _db.getDriverInfo().getPingQuery();
-            query = query.replace("1","? in (select distinct "+_column+" from "+_table+")");
-            PooledPreparedStatement stmt = _db.prepare(query);
+            String query = db.getDriverInfo().getPingQuery();
+            query = query.replace("1","? in (select distinct "+column+" from "+table+")");
+            PooledPreparedStatement stmt = db.prepare(query);
             Object ret = stmt.evaluate(param);
             return ret != null && ret.equals(Boolean.valueOf(true));
         } catch(SQLException sqle) {
@@ -88,7 +88,7 @@ public class Reference extends FieldConstraint {
     }
 
     public String toString() {
-        return "references "+_table+"."+_column;
+        return "references "+table+"."+column;
     }
 
 }

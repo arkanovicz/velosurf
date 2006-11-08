@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.HashMap;
 import java.net.URL;
-import java.net.MalformedURLException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
@@ -35,17 +34,15 @@ import velosurf.util.ToolFinder;
 import velosurf.util.UserContext;
 import velosurf.util.XIncludeResolver;
 import velosurf.web.l10n.Localizer;
-import velosurf.web.l10n.Localizer;
 
 /** <p>This class is a tool meant to be referenced in toolbox.xml</p>
  * <p>It can be used in any scope you want (application/session/request), depending on the behaviour you need for the refinement and ordering mechanisms (which will follow the same scope).
  * The initialization itself is very fast once all static initialization has been done, so there is no performance bottleneck when using request scope.</p>
  *<p>Since version 1.0rc1, you can have several instances of VelosurfTool, each with a distinct configuration file.
  * This can be useful to have one instance per schema, or one instance per database if dealing with several databases.</p>
- * <p>For this to work, you have to uncomment 'Configurable' at the beginning of the class declaration in this file.
- * You can then give each instance the pathname of its configuration file via the 'config' parameter in the toolbox.xml file
- * (this is a brand new feature of VelocityTools 1.2, commented here because VelocityTools 1.2 has not been officially released yet,
- * you've got to grab it from the subversion head), like this :</p>
+ * <p>For this to work, you have to use the 1.3 version of velocity-tools (not yet released at the time I'm writing this,
+ * so you need to grab it from the Velocity subversion repository!) and give each instance the pathname of its configuration file
+ * via the 'config' parameter in the toolbox.xml file, like this :</p>
  * <pre>
  *
  *  &lt;!-- first instance --&gt;

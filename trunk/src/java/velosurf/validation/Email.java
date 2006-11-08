@@ -55,18 +55,18 @@ import velosurf.util.Logger;
  */
 public class Email extends FieldConstraint {
 
-    private boolean _dnsCheck = false;
+    private boolean dnsCheck = false;
 
-    private boolean _smtpCheck = false;
+    private boolean smtpCheck = false;
 
-    private static Pattern _validEmail = null;
+    private static Pattern validEmail = null;
 
     static {
         /* Do we really want to allow all those strange characters in emails?
            Well, that's what the RFC2822 seems to allow... */
         String atom = "[a-z0-9!#$%&'*+-/=?^_`{|}~]";
         String domain = "(?:[a-z0-9](?:[-a-z0-9]*[a-z0-9]+)?)";
-        _validEmail = Pattern.compile(
+        validEmail = Pattern.compile(
                 "(^" + atom + "+" + "(?:\\."+atom+")*)" +
                 "@((?:" + domain + "{1,63}\\.)+" + domain + "{2,63})$",Pattern.CASE_INSENSITIVE
         );
@@ -85,8 +85,8 @@ public class Email extends FieldConstraint {
      * @param smtpCheck whether to validate this email using an STMP query
      */
     public Email(boolean dnsCheck,boolean smtpCheck) {
-        _dnsCheck = dnsCheck;
-        _smtpCheck = smtpCheck;
+        this.dnsCheck = dnsCheck;
+        this.smtpCheck = smtpCheck;
         setMessage("field {0}: '{1}' is not a valid email");
     }
 
@@ -97,18 +97,18 @@ public class Email extends FieldConstraint {
      */
     public boolean validate(Object data) {
         if (data == null || data.toString().length() == 0) return true;
-        Matcher matcher = _validEmail.matcher(data.toString());
+        Matcher matcher = validEmail.matcher(data.toString());
         if (!matcher.matches()) {
             return false;
         }
         String user = matcher.group(1);
         String hostname = matcher.group(2);
         /* first, DNS validation */
-        if (_dnsCheck && !checkDNS(hostname)) {
+        if (dnsCheck && !checkDNS(hostname)) {
             return false;
         }
         /* then, SMTP */
-        if(_smtpCheck && !checkSMTP(user,hostname)) {
+        if(smtpCheck && !checkSMTP(user,hostname)) {
             return false;
         }
         return true;
@@ -298,7 +298,7 @@ public class Email extends FieldConstraint {
     }
 
     public String toString() {
-        return "type email, check-dns="+_dnsCheck+", check-smtp="+_smtpCheck;
+        return "type email, check-dns="+dnsCheck+", check-smtp="+smtpCheck;
 
     }
 

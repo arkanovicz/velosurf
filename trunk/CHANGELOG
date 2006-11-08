@@ -21,7 +21,6 @@ v2.0 (November 2006)
  - HSQLDB infos updated in DriverInfo
  - renamed DataAccessor to ReadOnlyMap and MapDataAccessor to ReadOnlyWrapper
  - HttpQueryTool now inherits org.apache.velocity.tools.view.tools.ParameterParser
- - bugfix: autofetching now uses original case of entity name
  - bugfix: Entity.fetch(Number) no longer bypass obfuscation
  - DriverInfo now has an ignorePrefix String per driver (should be generalized with a regex)
  - added an EntityReference.getName() method which returns the name of the wrapped entity.

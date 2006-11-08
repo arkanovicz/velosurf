@@ -21,6 +21,14 @@
     padding-left: 2px;
     }
 
+  h3 { background-color: rgb(180, 180, 220);
+    color: rgb(255, 255, 255);
+    font-family: arial,helvetica,sanserif;
+    font-size: medium;
+    padding-left: 2px;    
+    margin-left: 10px;
+    }
+
   p { text-align:justify;
     }
 
@@ -95,7 +103,7 @@
 
   div#body td { border: 1px solid rgb(255, 255, 255);
     padding: 2px;
-    background-color: rgb(160, 221, 240);
+    background-color: rgb(230, 230, 255);
     color: rgb(0, 0, 0);
     font-family: arial,helvetica,sanserif;
     font-size: smaller;
@@ -117,7 +125,7 @@
     margin-left: 25px;
     margin-top: 20px;
     margin-bottom: 20px;
-    width: 600px;
+/*    width: 600px; */
     background-color: rgb(238, 238, 238);
     color: rgb(51, 51, 51);
     white-space: pre;
@@ -185,6 +193,7 @@
   h2 { background-color: rgb(255, 255, 255);
     color: rgb(0, 0, 0);
     }
+  
   div#body td { border: 1px solid rgb(51, 51, 51);
     background-color: rgb(255, 255, 255);
     color: rgb(0, 0, 0);

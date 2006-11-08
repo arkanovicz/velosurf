@@ -34,12 +34,12 @@ import javax.servlet.http.HttpServletResponse;
 
 public class NullServlet extends HttpServlet
 {
-    private String _forbiddenUri = null;
+    private String forbiddenUri = null;
 
     public void init(ServletConfig config) throws ServletException
     {
         super.init(config);
-        _forbiddenUri = config.getInitParameter("forbidden-uri");
+        forbiddenUri = config.getInitParameter("forbidden-uri");
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -59,12 +59,12 @@ public class NullServlet extends HttpServlet
          throws ServletException, IOException
     {
         Logger.log("null servlet got hit: "+request.getRequestURI());
-        if (_forbiddenUri == null) {
+        if (forbiddenUri == null) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
-            response.sendRedirect(_forbiddenUri);
+            response.sendRedirect(forbiddenUri);
             /* other option...
-		        RequestDispatcher dispatcher = request.getRequestDispatcher(_forbiddenUri);
+		        RequestDispatcher dispatcher = request.getRequestDispatcher(forbiddenUri);
 		        dispatcher.forward(request,response);
              */
         }

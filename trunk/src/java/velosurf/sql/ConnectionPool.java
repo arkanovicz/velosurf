@@ -33,23 +33,23 @@ import java.util.ArrayList;
 public class ConnectionPool {
 
     public ConnectionPool(String url,String user,String password,String schema,DriverInfo driver,boolean autocommit,int min,int max) throws SQLException{
-        _user = user;
-        _password = password;
-        _url = url;
-        _schema = schema;
-        _driver = driver;
-        _autocommit= autocommit;
-        _connections = new ArrayList();
-        _min = min;
-        _max = max;
+        this.user = user;
+        this.password = password;
+        this.url = url;
+        this.schema = schema;
+        this.driver = driver;
+        this.autocommit= autocommit;
+        connections = new ArrayList();
+        this.min = min;
+        this.max = max;
 
-        for(int i=0;i<_min;i++) {
-            _connections.add(createConnection());
+        for(int i=0;i<this.min;i++) {
+            connections.add(createConnection());
         }
     }
 
     public synchronized ConnectionWrapper getConnection() throws SQLException {
-        for (Iterator it = _connections.iterator();it.hasNext();) {
+        for (Iterator it = connections.iterator();it.hasNext();) {
             ConnectionWrapper c = (ConnectionWrapper)it.next();
             if (c.isClosed()) {
                 it.remove();
@@ -58,26 +58,26 @@ public class ConnectionPool {
                 return c;
             }
         }
-        if (_connections.size() == _max) {
+        if (connections.size() == max) {
             Logger.warn("Connection pool: max number of connections reached! ");
             // return a busy connection...
-            return (ConnectionWrapper)_connections.get(0);
+            return (ConnectionWrapper)connections.get(0);
         }
         ConnectionWrapper newconn = createConnection();
-        _connections.add(newconn);
+        connections.add(newconn);
         return newconn;
     }
 
     protected ConnectionWrapper createConnection() throws SQLException {
 
         Logger.info("Creating a new connection.");
-        Connection connection = DriverManager.getConnection(_url,_user,_password);
+        Connection connection = DriverManager.getConnection(url,user,password);
 
         // schema
-        if (_schema != null) {
-            String schemaQuery = _driver.getSchemaQuery();
+        if (schema != null) {
+            String schemaQuery = driver.getSchemaQuery();
             if (schemaQuery != null) {
-                schemaQuery = Strings.replace(schemaQuery,"$schema",_schema);
+                schemaQuery = Strings.replace(schemaQuery,"$schema",schema);
                 Statement stmt = connection.createStatement();
                 stmt.executeUpdate(schemaQuery);
                 stmt.close();
@@ -85,9 +85,9 @@ public class ConnectionPool {
         }
 
         // autocommit
-        connection.setAutoCommit(_autocommit);
+        connection.setAutoCommit(autocommit);
 
-        return new ConnectionWrapper(_driver,connection);
+        return new ConnectionWrapper(driver,connection);
     }
 
 /*
@@ -100,24 +100,24 @@ protected String getSchema(Connection connection) throws SQLException
 }*/
 
     public void clear() {
-        for (Iterator it = _connections.iterator();it.hasNext();) {
+        for (Iterator it = connections.iterator();it.hasNext();) {
             ConnectionWrapper c = (ConnectionWrapper)it.next();
             try { c.close(); } catch(SQLException sqle) {}
         }
     }
 
-    protected String _user = null;
-    protected String _password = null;
-    protected String _url = null;
-    protected String _schema = null;
-    protected DriverInfo _driver = null;
-    protected boolean _autocommit = true;
-    protected List _connections = null;
+    protected String user = null;
+    protected String password = null;
+    protected String url = null;
+    protected String schema = null;
+    protected DriverInfo driver = null;
+    protected boolean autocommit = true;
+    protected List connections = null;
 
     /* Minimum number of connections */
-    protected int _min;
+    protected int min;
 
     /* Maximum number of connections */
-    protected int _max;
+    protected int max;
 
 }

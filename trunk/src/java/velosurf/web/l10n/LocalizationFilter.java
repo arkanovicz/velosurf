@@ -80,27 +80,27 @@ import java.util.regex.Matcher;
 
 public class LocalizationFilter implements Filter {
 
-    private FilterConfig _config = null;
+    private FilterConfig config = null;
 
-    private List<Locale> _supportedLocales = null;
-    private Locale _defaultLocale = null;
+    private List<Locale> supportedLocales = null;
+    private Locale defaultLocale = null;
 
     private static int SECONDS_IN_YEAR = 31536000;
 
-    private static String _defaultMatchUri = "^/(.*)$";
-    private static String _defaultRewriteUri = "/@/$1";
-    private static String _defaultInspectUri = "^/(.+)(?:/|$)";
-    private  Pattern _matchUri = null;
-    private String _rewriteUri = null;
-    private Pattern _inspectUri = null;
+    private static String defaultMatchUri = "^/(.*)$";
+    private static String defaultRewriteUri = "/@/$1";
+    private static String defaultInspectUri = "^/(.+)(?:/|$)";
+    private  Pattern matchUri = null;
+    private String rewriteUri = null;
+    private Pattern inspectUri = null;
 
     private static final int FORWARD = 1;
     private static final int REDIRECT = 2;
 
-    private int _l10nMethod = REDIRECT;
+    private int l10nMethod = REDIRECT;
 
     public synchronized void init(FilterConfig config) throws ServletException {
-        _config = config;
+        this.config = config;
 
         /* logger initialization */
         if (!Logger.isInitialized()) {
@@ -110,25 +110,25 @@ public class LocalizationFilter implements Filter {
         String param;
 
         /* uri */
-        _matchUri = Pattern.compile(getInitParameter("match-uri",_defaultMatchUri),Pattern.CASE_INSENSITIVE);
-        _rewriteUri = getInitParameter("rewrite-uri",_defaultRewriteUri);
-        _inspectUri = Pattern.compile(getInitParameter("inspect-uri",_defaultInspectUri),Pattern.CASE_INSENSITIVE);
+        matchUri = Pattern.compile(getInitParameter("match-uri",defaultMatchUri),Pattern.CASE_INSENSITIVE);
+        rewriteUri = getInitParameter("rewrite-uri",defaultRewriteUri);
+        inspectUri = Pattern.compile(getInitParameter("inspect-uri",defaultInspectUri),Pattern.CASE_INSENSITIVE);
 
         /* method */
         param = getInitParameter("localization-method","redirect");
         if (param.equalsIgnoreCase("redirect")) {
-            _l10nMethod = REDIRECT;
+            l10nMethod = REDIRECT;
         } else if (param.equalsIgnoreCase("forward")) {
-            _l10nMethod = FORWARD;
+            l10nMethod = FORWARD;
         } else {
             Logger.error("LocalizationFilter: '"+param+"' is not a valid l10n method; should be 'forward' or 'redirect'.");
         }
 
         /* supported locales */
-        findSupportedLocales(_config);
+        findSupportedLocales(this.config);
 
         /* default locale */
-        _defaultLocale = getMatchedLocale(getInitParameter("default-locale"));
+        defaultLocale = getMatchedLocale(getInitParameter("default-locale"));
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
@@ -153,8 +153,8 @@ public class LocalizationFilter implements Filter {
         Logger.trace("l10n: URI ="+request.getRequestURI());
 
         /* Guess #1 - if using redirect method, deduce from URI (and, while looking at URI, fills the shouldAct vairable) */
-        if (_l10nMethod == REDIRECT) {
-            Matcher matcher = _inspectUri.matcher(request.getRequestURI());
+        if (l10nMethod == REDIRECT) {
+            Matcher matcher = inspectUri.matcher(request.getRequestURI());
             if (matcher.find()) {
                 String candidate = matcher.group(1);
                 locale = getMatchedLocale(candidate);
@@ -197,8 +197,8 @@ public class LocalizationFilter implements Filter {
             }
         }
 
-        if (locale == null && _defaultLocale != null) {
-            locale = _defaultLocale;
+        if (locale == null && defaultLocale != null) {
+            locale = defaultLocale;
         }
 
         if (locale != null) {
@@ -218,19 +218,19 @@ public class LocalizationFilter implements Filter {
         response.addCookie(localeCookie);
 
         if (shouldAct) {
-            //  && (i = _rewriteUri.indexOf("@")) != -1) ?
+            //  && (i = rewriteUri.indexOf("@")) != -1) ?
 
-            String rewriteUri = _rewriteUri.replaceFirst("@",locale.toString());
-            String newUri = _matchUri.matcher(request.getRequestURI()).replaceFirst(rewriteUri);
+            String rewriteUri = this.rewriteUri.replaceFirst("@",locale.toString());
+            String newUri = matchUri.matcher(request.getRequestURI()).replaceFirst(rewriteUri);
             RequestDispatcher dispatcher;
 
-            switch(_l10nMethod) {
+            switch(l10nMethod) {
                 case REDIRECT:
                     Logger.trace("l10n: redirecting request to "+newUri);
                     response.sendRedirect(newUri);
                     break;
                 case FORWARD:
-                    dispatcher = _config.getServletContext().getRequestDispatcher(newUri);
+                    dispatcher = config.getServletContext().getRequestDispatcher(newUri);
                     if (dispatcher == null) {
                         Logger.error("l10n: cannot find a request dispatcher for path '"+newUri+"'");
                         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -258,25 +258,25 @@ public class LocalizationFilter implements Filter {
         if (param == null) {
             /* try to determine it */
             int i;
-            if (_rewriteUri != null && (i=_rewriteUri.indexOf("@")) != -1) {
-                _supportedLocales = guessSupportedLocales(_config.getServletContext(),_rewriteUri.substring(0,i));
+            if (rewriteUri != null && (i=rewriteUri.indexOf("@")) != -1) {
+                supportedLocales = guessSupportedLocales(this.config.getServletContext(),rewriteUri.substring(0,i));
                 if(Logger.getLogLevel() <= Logger.TRACE_ID) {
-                    Logger.trace("l10n: supported locales = " + StringLists.join(Arrays.asList(_supportedLocales),","));
+                    Logger.trace("l10n: supported locales = " + StringLists.join(Arrays.asList(supportedLocales),","));
                 }
-                if (_supportedLocales != null && _supportedLocales.size() > 0) {
+                if (supportedLocales != null && supportedLocales.size() > 0) {
                     return;
                 }
             }
         } else {
-            _supportedLocales = new ArrayList<Locale>();
+            supportedLocales = new ArrayList<Locale>();
             String[] list = param.split(",");
             for(String code:list) {
-                _supportedLocales.add(new Locale(code));
+                supportedLocales.add(new Locale(code));
             }
         }
-        if(_supportedLocales != null && _supportedLocales.size() > 0) {
+        if(supportedLocales != null && supportedLocales.size() > 0) {
             /* let other objects see it?
-            _config.getServletContext().setAttribute("velosurf.l10n.supported-locales",_supportedLocales);
+            config.getServletContext().setAttribute("velosurf.l10n.supported-locales",supportedLocales);
              */
         } else {
             Logger.error("l10n: Cannot find any supported locale! Please add a 'supported-locales' context-param.");
@@ -284,11 +284,11 @@ public class LocalizationFilter implements Filter {
     }
 
     private String getInitParameter(String key) {
-        return _config.getInitParameter(key);
+        return config.getInitParameter(key);
     }
 
     private String getInitParameter(String key,String defaultValue) {
-        String param = _config.getInitParameter(key);
+        String param = config.getInitParameter(key);
         return param == null ? defaultValue : param;
     }
 
@@ -323,30 +323,30 @@ public class LocalizationFilter implements Filter {
                 }
             }
         }
-        _supportedLocales = locales;
+        supportedLocales = locales;
         return locales;
     }
 
     private List<Locale> getRequestedLocales(HttpServletRequest request) {
         List<Locale> list = (List<Locale>)Collections.list(request.getLocales());
-        if(/*list.size() == 0 && */_defaultLocale != null) {
-            list.add(_defaultLocale);
+        if(/*list.size() == 0 && */defaultLocale != null) {
+            list.add(defaultLocale);
         }
         return list;
     }
 
     private Locale getMatchedLocale(String candidate) {
         if(candidate == null) return null;
-        if (_supportedLocales == null) {
+        if (supportedLocales == null) {
             Logger.error("l10n: the list of supported locales is empty!");
             return null;
         }
-        for(Locale locale:_supportedLocales) {
+        for(Locale locale:supportedLocales) {
             if (candidate.startsWith(locale.toString())) {
                 return locale;
             }
         }
-        for(Locale locale:_supportedLocales) {
+        for(Locale locale:supportedLocales) {
             if (locale.toString().startsWith(candidate)) {
                 return locale;
             }
@@ -356,7 +356,7 @@ public class LocalizationFilter implements Filter {
 
     private Locale getPreferredLocale(List<Locale> requestedLocales) {
         for(Locale locale:requestedLocales) {
-            if(_supportedLocales.contains(locale)) {
+            if(supportedLocales.contains(locale)) {
                 return locale;
             }
         }
@@ -364,15 +364,15 @@ public class LocalizationFilter implements Filter {
         for(Locale locale:requestedLocales) {
             if (locale.getCountry() != null) {
                 locale = new Locale(locale.getLanguage());
-                if(_supportedLocales.contains(locale)) {
+                if(supportedLocales.contains(locale)) {
                     return locale;
                 }
             }
         }
         Logger.warn("l10n: did not find a matching locale for "+StringLists.join(requestedLocales,","));
         /* then return the default locale, even if it doesn't match...
-        if(_defaultLocale != null) {
-            return _defaultLocale;
+        if(defaultLocale != null) {
+            return defaultLocale;
         }*/
         /* Oh, well... */
         return null;

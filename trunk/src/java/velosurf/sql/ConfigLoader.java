@@ -63,11 +63,11 @@ import velosurf.web.HttpQueryTool;
 
 public class ConfigLoader {
 
-    private Database _database = null;
+    private Database database = null;
 
-    private XIncludeResolver _xincludeResolver = null;
+    private XIncludeResolver xincludeResolver = null;
 
-    private boolean _needObfuscator = false;
+    private boolean needObfuscator = false;
 
     private static final Pattern attributeResultSyntax = Pattern.compile("^scalar|(?:(?:row|rowset)(?:/.+)?)$");
 
@@ -76,8 +76,8 @@ public class ConfigLoader {
     }
 
     public ConfigLoader(Database db,XIncludeResolver xincludeResolver) {
-        _database = db;
-        _xincludeResolver = xincludeResolver;
+        database = db;
+        this.xincludeResolver = xincludeResolver;
     }
 
 
@@ -87,30 +87,30 @@ public class ConfigLoader {
 
         /* build JDOM tree */
         Document document = new SAXBuilder().build(config);
-        if (_xincludeResolver != null) {
-            document = _xincludeResolver.resolve(document);
+        if (xincludeResolver != null) {
+            document = xincludeResolver.resolve(document);
         }
         Element database = document.getRootElement();
 
         setDatabaseAttributes(database);
 
         /* define root attributes */
-        defineAttributes(database,_database.getRootEntity());
+        defineAttributes(database,this.database.getRootEntity());
 
         /* define root actions */
-        defineActions(database,_database.getRootEntity());
+        defineActions(database,this.database.getRootEntity());
 
 
         /* define entities */
         defineEntities(database);
 
-        if (_needObfuscator) _database.initCryptograph();
+        if (needObfuscator) this.database.initCryptograph();
 
         Logger.info("Config file successfully read.");
     }
 
     private String adaptCase(String str) {
-        return _database.adaptCase(str);
+        return database.adaptCase(str);
     }
 
     private void setDatabaseAttributes(Element database) throws SQLException {
@@ -131,7 +131,7 @@ public class ConfigLoader {
             Logger.warn("The syntax <database default-access=\"rw|ro\"> is deprecated.");
             Logger.warn("Please use <database read-only=\"true|false\"> instead.");
             if (checkSyntax("access",access,new String[]{"ro","rw"})) {
-                _database.setReadOnly(!access.equalsIgnoreCase("rw"));
+                this.database.setReadOnly(!access.equalsIgnoreCase("rw"));
             }
         }
 
@@ -141,7 +141,7 @@ public class ConfigLoader {
             /* check syntax but continue anyway with read-only database if the syntax is bad */
             checkSyntax("read-only",ro,new String[] {"true","false"});
             /* default to true - using Boolean.parseBoolean is not possible */
-            _database.setReadOnly(!ro.equalsIgnoreCase("false"));
+            this.database.setReadOnly(!ro.equalsIgnoreCase("false"));
         }
 
         String caching = database.getAttributeValue("default-caching");
@@ -152,7 +152,7 @@ public class ConfigLoader {
         }
         if (checkSyntax("caching",caching,new String[] {"none","no","yes","soft","full"})) {
             int val = parseCaching(caching);
-            _database.setCaching(val);
+            this.database.setCaching(val);
             if (val == Cache.FULL_CACHE) Logger.warn("The 'full' caching method is deprecated and will be removed in future versions.");
         }
 
@@ -171,29 +171,29 @@ public class ConfigLoader {
             else if ("none".equalsIgnoreCase(reverseMode)) {
                 mode = ReverseEngineer.REVERSE_NONE;
             }
-            _database.getReverseEngineer().setReverseMode(mode);
+            this.database.getReverseEngineer().setReverseMode(mode);
         }
 
-        _database.setUser(database.getAttributeValue("user"));
-        _database.setPassword(database.getAttributeValue("password"));
-        _database.setURL(database.getAttributeValue("url"));
-        _database.setDriver(database.getAttributeValue("driver"));
+        this.database.setUser(database.getAttributeValue("user"));
+        this.database.setPassword(database.getAttributeValue("password"));
+        this.database.setURL(database.getAttributeValue("url"));
+        this.database.setDriver(database.getAttributeValue("driver"));
 
         String schema = adaptCase(database.getAttributeValue("schema"));
         if (schema != null) {
-            _database.setSchema(schema);
+            this.database.setSchema(schema);
         }
 
 
         /* load driver now so as to know default behaviours */
-        _database.loadDriver();
+        this.database.loadDriver();
 
         int min = 0;
         String minstr = database.getAttributeValue("min-connections");
         if (minstr != null) {
             try {
                 min = Integer.parseInt(minstr);
-                if (min>0) _database.setMinConnections(min);
+                if (min>0) this.database.setMinConnections(min);
                 else Logger.error("the parameter 'min-connections' wants an integer > 0 !");
             }
             catch(NumberFormatException nfe) {
@@ -205,7 +205,7 @@ public class ConfigLoader {
         if (maxstr != null) {
             try {
                 int max = Integer.parseInt(maxstr);
-                if (max>=min) _database.setMaxConnections(max);
+                if (max>=min) this.database.setMaxConnections(max);
                 else Logger.error("the parameter 'max-connections' must be >= min-connection!");
             }
             catch(NumberFormatException nfe) {
@@ -213,27 +213,27 @@ public class ConfigLoader {
             }
         }
 
-        _database.setSeed(database.getAttributeValue("seed"));
+        this.database.setSeed(database.getAttributeValue("seed"));
 
         String caseSensivity = database.getAttributeValue("case");
         /* if case-sensivity has not been set explicitely, deduce it from the driver */
         if (caseSensivity == null) {
-            caseSensivity = _database.getDriverInfo().getCaseSensivity();
+            caseSensivity = this.database.getDriverInfo().getCaseSensivity();
         }
         if (checkSyntax("case",caseSensivity,new String[]{"sensitive","uppercase","lowercase"})) {
             Logger.info("Case sensivity: "+caseSensivity);
             if("sensitive".equalsIgnoreCase(caseSensivity)) {
-                _database.setCase(Database.CASE_SENSITIVE);
+                this.database.setCase(Database.CASE_SENSITIVE);
             } else if("uppercase".equalsIgnoreCase(caseSensivity)) {
-                _database.setCase(Database.UPPERCASE);
+                this.database.setCase(Database.UPPERCASE);
             } else if ("lowercase".equalsIgnoreCase(caseSensivity)) {
-                _database.setCase(Database.LOWERCASE);
+                this.database.setCase(Database.LOWERCASE);
             }
         }
 
         /* root database entity (never read-only koz not a real entity and we must allow external parameters */
-        Entity root = new Entity(_database,"velosurf.root",false,Cache.NO_CACHE);
-        _database.addEntity(root);
+        Entity root = new Entity(this.database,"velosurf.root",false,Cache.NO_CACHE);
+        this.database.addEntity(root);
     }
 
     private void defineAttributes(Element parent,Entity entity) throws SQLException {
@@ -423,11 +423,11 @@ public class ConfigLoader {
             String table = adaptCase(element.getAttributeValue("table"));
             element.removeAttribute("table");
 
-            Entity entity = _database.getEntityCreate(adaptCase(name));
+            Entity entity = this.database.getEntityCreate(adaptCase(name));
             if (table != null) {
                 entity.setTableName(table);
             }
-            _database.getReverseEngineer().addCorrespondance(entity.getTableName(),entity);
+            this.database.getReverseEngineer().addCorrespondance(entity.getTableName(),entity);
 
             /* custom class */
             String cls = element.getAttributeValue("class");
@@ -455,7 +455,7 @@ public class ConfigLoader {
                 /* check syntax but continue anyway with read-only database if the syntax is bad */
                 checkSyntax("read-only",ro,new String[] {"true","false"});
                 /* default to true - using Boolean.parseBoolean is not possible */
-                _database.setReadOnly(!ro.equalsIgnoreCase("false"));
+                this.database.setReadOnly(!ro.equalsIgnoreCase("false"));
             }
 
             /* caching */
@@ -468,7 +468,7 @@ public class ConfigLoader {
             String obfuscate = element.getAttributeValue("obfuscate");
             element.removeAttribute("obfuscate");
             if (obfuscate != null) {
-                _needObfuscator = true;
+                needObfuscator = true;
                 List obfuscatedCols = new ArrayList();
                 StringTokenizer tokenizer = new StringTokenizer(obfuscate,", ");
                 while(tokenizer.hasMoreTokens()) {
@@ -612,7 +612,7 @@ public class ConfigLoader {
                     } else {
                         String table = value.substring(0,dot);
                         String col = value.substring(dot+1);
-                        entity.addConstraint(column,new Reference(_database,table,col));
+                        entity.addConstraint(column,new Reference(database,table,col));
                     }
                 } else if (name.equals("regex")) {
                     entity.addConstraint(column,new Regex(Pattern.compile(value)));
@@ -674,6 +674,10 @@ public class ConfigLoader {
                     if(maxstr != null) {
                         daterange.setBeforeDate(format.parse(maxstr));
                     }
+                    String dateformat = constraintElement.getAttributeValue("format");
+                    if (dateformat != null) {
+                        daterange.setDateFormat(new SimpleDateFormat(dateformat));
+                    }
                     constraint = daterange;
                 } else if (name.equals("not-null")) {
                     constraint = new NotNull();
@@ -696,7 +700,7 @@ public class ConfigLoader {
                     } else {
                         String table = fk.substring(0,dot);
                         String col = fk.substring(dot+1);
-                        constraint = new Reference(_database,table,col);
+                        constraint = new Reference(database,table,col);
                     }
                 } else if (name.equals("regex")) {
                     constraint = new Regex(Pattern.compile(constraintElement.getAttributeValue("pattern")));

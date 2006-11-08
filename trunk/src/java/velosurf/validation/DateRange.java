@@ -46,36 +46,39 @@ import velosurf.util.Logger;
 
 public class DateRange extends FieldConstraint {
 
-    private Date _before = null;
-    private Date _after = null;
+    private Date before = null;
+    private Date after = null;
+    private SimpleDateFormat dateFormat = null;
 
     public DateRange() {
         setMessage("field {0}: '{1}' is not a valid date or is outside range");
     }
 
     public void setBeforeDate(Date before) {
-        _before = before;
+        this.before = before;
     }
 
     public void setAfterDate(Date after) {
-        _after = after;
+        this.after = after;
     }
 
     public boolean validate(Object data,Locale locale) {
-        SimpleDateFormat format = null;
+        SimpleDateFormat format = dateFormat;
         try {
             if (data == null || data.toString().length() == 0) return true;
             if (locale == null) {
                 Logger.error("date range validation: locale is null!");
                 return true;
             }
-            format = (SimpleDateFormat)SimpleDateFormat.getDateInstance(DateFormat.SHORT,locale);
+            if(format == null) {
+                format = (SimpleDateFormat)SimpleDateFormat.getDateInstance(DateFormat.SHORT,locale);
+            }
             String reformatted = reformat(format.toPattern(), data.toString());
             Date date = format.parse(reformatted);
-            if(_after != null && date.before(_after)) {
+            if(after != null && date.before(after)) {
                 return false;
             }
-            if(_before != null &&  date.after(_before)) {
+            if(before != null &&  date.after(before)) {
                 return false;
             }
             return true;
@@ -141,12 +144,16 @@ public class DateRange extends FieldConstraint {
 
     public String toString() {
         String ret = "type date";
-        if(_after != null) {
-            ret += ", after "+ymd.format(_after);
+        if(after != null) {
+            ret += ", after "+ymd.format(after);
         }
-        if(_before != null) {
-            ret += ", before "+ymd.format(_before);
+        if(before != null) {
+            ret += ", before "+ymd.format(before);
         }
         return ret;
-    }    
+    }
+
+    public void setDateFormat(SimpleDateFormat dateFormat) {
+        this.dateFormat = dateFormat;
+    }
 }

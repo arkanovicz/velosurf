@@ -40,8 +40,8 @@ import java.util.Locale;
  */
 public class Length extends FieldConstraint {
 
-    protected int _minLen = 0;
-    protected int _maxLen = Integer.MAX_VALUE;
+    protected int minLen = 0;
+    protected int maxLen = Integer.MAX_VALUE;
 
     /**
      *  Constructor.
@@ -49,8 +49,8 @@ public class Length extends FieldConstraint {
      * @param maxLen the maximum length allowed (inclusive)
      */
     public Length(int minLen,int maxLen) {
-        _minLen = minLen;
-        _maxLen = maxLen;
+        this.minLen = minLen;
+        this.maxLen = maxLen;
         setMessage("field {0}: value '{1}' is not of the proper length");
     }
 
@@ -61,17 +61,17 @@ public class Length extends FieldConstraint {
      * @param msg a string like "is not of the proper length"
      */
     public Length(int minLen,int maxLen,String msg) {
-        _minLen = minLen;
-        _maxLen = maxLen;
-        _message = msg;
+        this.minLen = minLen;
+        this.maxLen = maxLen;
+        message = msg;
     }
 
     public void setMinLength(int minLen) {
-        _minLen = minLen;
+        this.minLen = minLen;
     }
 
     public void setMaxLength(int maxLen) {
-        _maxLen = maxLen;
+        this.maxLen = maxLen;
     }
 
     /**
@@ -84,10 +84,10 @@ public class Length extends FieldConstraint {
             return true;
         }
         int len = data.toString().length();
-        return len >= _minLen && len <= _maxLen;
+        return len >= minLen && len <= maxLen;
     }
 
     public String toString() {
-        return "length "+(_minLen>0 && _maxLen<Integer.MAX_VALUE?"between "+_minLen+" and "+_maxLen:_minLen>0?">= "+_minLen:"<="+_maxLen);
+        return "length "+(minLen>0 && maxLen<Integer.MAX_VALUE?"between "+minLen+" and "+maxLen:minLen>0?">= "+minLen:"<="+maxLen);
     }
 }

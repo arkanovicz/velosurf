@@ -54,7 +54,7 @@ public class Database {
      * @param url database url
      * @exception SQLException thrown by the database engine
      */
-    public Database(String user,String password,String url) throws SQLException {
+    private Database(String user,String password,String url) throws SQLException {
         open(user,password,url,null,null);
     }
 
@@ -66,7 +66,7 @@ public class Database {
      * @param driver driver java class name
      * @exception SQLException thrown by the database engine
      */
-    public Database(String user,String password,String url,String driver) throws SQLException {
+    private Database(String user,String password,String url,String driver) throws SQLException {
         open(user,password,url,driver,null);
     }
 
@@ -79,7 +79,7 @@ public class Database {
      * @param schema schema name to use
      * @exception SQLException thrown by the database engine
      */
-    public Database(String user,String password,String url,String driver,String schema) throws SQLException {
+    private Database(String user,String password,String url,String driver,String schema) throws SQLException {
         open(user,password,url,driver,schema);
     }
 
