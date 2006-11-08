@@ -123,16 +123,20 @@ Please specify a target among :
   <target name="clean">
     <delete dir="${output.dir}"/>
     <delete dir="${tmp.dir}"/>
+    <delete dir="${dist.root}"/>
     <delete dir="${test.output.dir}"/>
     <delete dir="${test.rst.dir}"/>
     <delete dir="${test.log.dir}"/>
-    <delete dir="$test.webapp.dir}/WEB-INF/lib"/>
-    <delete dir="$test.webapp.dir}/WEB-INF/log"/>
+    <delete dir="${test.jetty.dir}/log"/>
+    <delete dir="${test.webapp.dir}/WEB-INF/lib"/>
+    <delete dir="${test.webapp.dir}/WEB-INF/log"/>
   </target>
 
-  <target name="clean-all" depends="clean">
-    <delete dir="${lib.dir}"/>    
+  <target name="clean-all">
+    <antcall target="clean"/>
+    <delete dir="${lib.dir}"/>
     <delete dir="${test.lib.dir}"/>
+    <delete dir="${test.jetty.dir}/lib"/>
   </target>
   
   <target name="download-if-needed" unless="skip.jar.loading">
@@ -154,10 +158,9 @@ Please specify a target among :
 
   <target name="download">
    <property name="download.dir" value="${lib.dir}"/>
-   
    <antcall target="commons-beanutils-download"/>
+   <antcall target="commons-collections-download"/>
    <antcall target="commons-lang-download"/>
-   <antcall target="commons-logging-download"/>
    <antcall target="crimson-download"/>
    <antcall target="jdom-download"/>
    <antcall target="servletapi-download"/>
@@ -239,7 +242,6 @@ Please specify a target among :
   <target name="test-download">
    <property name="download.dir" value="${test.lib.dir}"/>
    <antcall target="commons-digester-download"/>
-   <antcall target="commons-collections-download"/>
    <antcall target="hsqldb-download"/>
    <antcall target="httpunit-download"/>
    <antcall target="js-download"/>
@@ -251,6 +253,7 @@ Please specify a target among :
 
   <target name="jetty-main-download">
    <property name="download.dir" value="${test.jetty.dir}/lib"/>  
+   <antcall target="commons-logging-download"/>
    <antcall target="jetty-download"/>
    <antcall target="jetty-util-download"/>
    <antcall target="servlet-api-2.5-download"/>
@@ -355,7 +358,7 @@ Please specify a target among :
 
   <target name="compile-test" depends="prepare,jar">
     <antcall target="test-download"/>
-    <antcall target="jetty-main-download"/>
+    <copy file="${lib.dir}/commons-collections-${jar.commons-collections.version}.jar" todir="${test.lib.dir}"/>
     <property name="testclasspath" refid="test.classpath"/>
     <echo message="using classpath= ${testclasspath}"/>
     <javac srcdir="${test.src.dir}"
@@ -373,7 +376,7 @@ Please specify a target among :
         <filelist dir="${basedir}" files="velosurf-${version}.jar"/>
       </classpath>
     </javac>
-    <copy file="${lib.dir}/commons-logging-${jar.commons-logging.version}.jar" todir="${test.jetty.dir}/lib"/>
+    <antcall target="jetty-main-download"/>
     <javac srcdir="${test.jetty.dir}/src" destdir="${tmp.dir}" source="1.5" target="1.5">
       <classpath>
         <filelist dir="${test.jetty.dir}/lib" files="jetty-${jar.jetty.version}.jar,jetty-util-${jar.jetty.version}.jar"/>
@@ -656,4 +659,13 @@ Please specify a target among :
     <gzip zipfile="${basedir}/${final.name}.tgz" src="${basedir}/${final.name}.tar"/>
     <delete file="${basedir}/${final.name}.tar" quiet="true"/>
   </target>
+
+  <target name="dependencies" depends="download">
+    <delete file="${basedir}/${final.name}-dependencies.tar" quiet="true"/>
+    <delete file="${basedir}/${final.name}-dependencies.tgz" quiet="true"/>
+    <tar tarfile="${basedir}/${final.name}-dependencies.tar" basedir="${basedir}" includes="lib/*.jar" longfile="gnu"/>
+    <gzip zipfile="${basedir}/${final.name}-dependencies.tgz" src="${basedir}/${final.name}-dependencies.tar"/>
+    <delete file="${basedir}/${final.name}-dependencies.tar" quiet="true"/>
+  </target>
+
 </project>
