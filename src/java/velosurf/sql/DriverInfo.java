@@ -116,7 +116,7 @@ public class DriverInfo
 
     public static void addDriver(String name,String jdbcTag,String drivers[],String pingQuery,String caseSensivity,String schemaQuery,String IDGenerationMethod,String lastInsertIDQuery,String ignorePrefix/*,String IDGenerationQuery*/)
     {
-        DriverInfo infos = new DriverInfo(name,jdbcTag,drivers,pingQuery,caseSensivity,schemaQuery,IDGenerationMethod,ignorePrefix,lastInsertIDQuery/*,IDGenerationQuery*/);
+        DriverInfo infos = new DriverInfo(name,jdbcTag,drivers,pingQuery,caseSensivity,schemaQuery,IDGenerationMethod,lastInsertIDQuery,ignorePrefix/*,IDGenerationQuery*/);
         driverByVendor.put(jdbcTag,infos);
         for(String clazz:drivers) {
             driverByClass.put(clazz,infos);
