@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<!--
+ Copyright 2000-2006 The Apache Software Foundation.
+
+ Licensed under the Apache License, Version 2.0 (the "License")
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<project name="ant-vpp-demo" basedir="." xmlns:vpp="antlib:foundrylogic.vpp">
+
+  <!-- DOWNLOAD PROPERTIES -->
+  <property name="repo.url"          value="http://www.ibiblio.org/maven"/>
+  <property name="proxy.host"        value=""/>
+  <property name="proxy.port"        value="80"/>
+
+  <!-- demo -->
+
+  <!-- necessary if you want to customize the config file
+       (otherwise just specify the Velosurf class in the vpp context tool) -->
+  <typedef name="velosurf" className="velosurf.Velosurf"/>
+  <velosurf id="velosurf" configFile="./model.xml"/>
+
+  <vpp:config id="vppconfig">
+    <context>
+      <tool key="logger" classname="velosurf.util.Logger" />
+      <tool key="db" refid="velosurf" />
+      <property key="whatever" value="whatever" />
+    </context>
+  </vpp:config>
+
+  <target name="demo">
+    <vpp:copy todir="." overwrite="true">
+      <fileset dir="." includes="*.java.vtl"/>
+      <mapper type="glob" from="*.java.vtl" to="*.java"/>
+      <config refid="vppconfig"/>
+    </vpp:copy>
+  </target>
+
+</project>
+
