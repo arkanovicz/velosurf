@@ -2,6 +2,13 @@
 
 if [ "$0" == "./demo.sh" ] ; then
 
+  pushd .
+  cd ../../build
+  ant download
+  ant test-download
+  ant start-hsqldb
+  popd
+
   if [ ! -e lib/commons-collections-3.2.jar ]; then cp ../../lib/commons-collections-3.2.jar lib; fi
   if [ ! -e lib/commons-lang-2.2.jar ]; then cp ../../lib/commons-lang-2.2.jar lib; fi
   if [ ! -e lib/crimson-1.1.3.jar ]; then cp ../../lib/crimson-1.1.3.jar lib; fi
@@ -22,6 +29,11 @@ if [ "$0" == "./demo.sh" ] ; then
   ant demo
   CLASSPATH=$OLDCLASSPATH
   export CLASSPATH
+
+  pushd .
+  cd ../../build
+  ant stop-hsqldb
+  popd
 
 else
   echo "demo.sh must be launched in its directory!"
