@@ -1,18 +1,15 @@
 This example show how to use Velosurf in the VPP Ant preprocessor.
 
-To run it:
+To run it you need to have Ant installed and to be running an unix-like
+shell (otherwise you'll have to adapt the provided script).
 
- - you need to have Ant installed
+Just enter this directory and type "./demo.sh"
 
- - you need to have launched then "ant test" already once in the build
-   directory of the release, so that needed libraries are downloaded
-   from the net.
-
+The script will:
+ - download needed libraries from the net
  - launch "ant start-hsqldb" from the build directory of the release
    to start the hsqldb demo database server.
-
- - if you are running a real operating system, run "./demo.sh" in this directory.
-   Otherwise, you'll need to create the appropriate batch file.
-
+ - launch "ant demo" in this directory (the real part of the demo)
  - launch "ant stop-hsqldb" from the build directory of the release
    to stop the hsqldb demo database server.
+
