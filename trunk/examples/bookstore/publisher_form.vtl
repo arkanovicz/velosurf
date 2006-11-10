@@ -3,8 +3,7 @@
 <title>The Bookstore Sample</title>
 </head>
 <body>
-##not needed with autofetching : 
-##if($query.publisher_id) #set( $publisher = $db.publisher.fetch($query.publisher_id) ) #end
+#if($query.publisher_id) #set( $publisher = $db.publisher.fetch($query.publisher_id) ) #end
 
 #if($publisher)
 <h2>Edit publisher</h2>
@@ -12,7 +11,7 @@
 <h2>Add publisher</h2>
 #end
 <ul>
-<form method="post" action="./publisher_commit.vm">
+<form method="post" action="./publisher_commit.vtl">
 <input type="hidden" name="publisher_id" value="$!publisher.publisher_id">
 <li>Name : <input type="text" name="name" value="$!publisher.name">
 </ul>
