@@ -1,0 +1,28 @@
+<html>
+<head>
+<title>Login</title>
+<script type='text/javascript' src='./md5.js'></script>
+<script type='text/javascript'>
+    function sendLogin() {
+        document.hidden.elements['login'].value = document.login.elements['login'].value;
+        document.hidden.elements['password'].value = b64_hmac_md5(document.login.elements['password'].value,'$auth.challenge');
+        document.hidden.submit();
+    }
+</script>
+</head>
+<body>
+$!loginMessage<br>
+Identification:<br>
+<form name='login' action='javascript:sendLogin()' method=POST>
+<table>
+<tr><td>Login :</td><td><input type=text name=login size=25 maxlength=30></td></tr>
+<tr><td>Mot de passe :</td><td><input type=password name=password  size=15 maxlenght=50"></td></tr>
+<tr><td>&nbsp;</td><td><input type=submit value="Ok"></td></tr>
+</table>
+</form>
+<form name='hidden' action='login.do' method=POST>
+  <input type=hidden name=login>
+  <input type=hidden name=password>
+</form>
+</body>
+</html>
