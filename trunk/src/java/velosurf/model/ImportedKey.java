@@ -82,7 +82,7 @@ public class ImportedKey extends Attribute {
      * @return the definition string of this attribute
      */
     public String toString() {
-        return getQuery();
+        return "imported-key"+(fkCols==null?"":" on "+StringLists.join(fkCols,","));
     }
 
 }

@@ -78,7 +78,7 @@ the new <code>velosurf.web.VelosurfTool</code> inside <code>toolbox.xml</code>.<
 <p>The dependency jars are not included in the archive. To automatically download them,
 if you have <a href="http://ant.apache.org/">Apache Ant</a> installed, go into the <code>build/</code>
 directory of the extracted archive and type <code>ant download</code>. This will download all dependency jars
-into the <code>lib/</code> directory. You can also manually <a href='http://prdownloads.sourceforge.net/velosurf/velosurf-2.0-dependencies.tgz?download'>download dependencies</a>
+into the <code>./lib/</code> directory. You can also manually <a href='http://prdownloads.sourceforge.net/velosurf/velosurf-2.0-dependencies.tgz?download'>download dependencies</a>
 (gzipped tar archive, meant to be extracted at the base directory of the release) or fetch them individually from the links bellow:</p>
 <ul>
 <li>Dependencies needed to build velosurf:
@@ -98,6 +98,8 @@ at the time this page is being written. velocity-tools-view-1.3-dev.jar is provi
 <li><a href="http://www.ibiblio.org/maven/crimson/jars/crimson-1.1.3.jar">crimson-1.1.3.jar</a> (needed by JDOM)</li>
 </ul></li>
 </ul>
+<p>Some earlier versions of the <code>commons-*</code> libraries may be supported by Velosurf. To test them,
+you can edit the version numbers in the <code>./build/build.properties</code> file and test Velosurf with '<code>ant test</code>'.</p>
 <p>Running the tests also requires some additionnal libraries which will be downloaded when needed.</p>
 <p>You can also checkout the last sources from the SourceForge subversion repository with the following command:</p>
 <p><code>svn co https://velosurf.svn.sourceforge.net/svnroot/velosurf/trunk velosurf</code></p>
