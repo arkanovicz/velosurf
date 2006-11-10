@@ -157,7 +157,7 @@ import velosurf.util.Logger;
 
     /**
      * Get the collection of values
-     * @return
+     * @return collection of values
      */
     public Collection values() {
         String[] array;
