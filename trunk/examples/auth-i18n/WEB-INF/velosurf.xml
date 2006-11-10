@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<database user="ubik" password="ipopotam" url="jdbc:mysql://127.0.0.1/stillness" default-access="rw" loglevel="trace">
-  <attribute name="user_by_login" result="rowset/user" xml:space="preserve">
-    select * from user where login=<login/>
-  </attribute>
-  <entity name='foo' localized='message'>
-  </entity>
-</database>
