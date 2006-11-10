@@ -590,7 +590,7 @@ Please specify a target among :
 
     <copy todir="${dist.dir}/docs">
       <fileset dir="${docs.dir}">
-        <include name="*"/>
+        <include name="**"/>
       </fileset>
     </copy> 
 
