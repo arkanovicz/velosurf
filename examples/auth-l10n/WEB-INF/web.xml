@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+  <!-- Filters -->
+
+  <!-- filter used to map .html.vtl towards .vtl -->
+  <filter>
+    <filter-name>templatename</filter-name>
+    <filter-class>velosurf.util.TemplateNameFilter</filter-class>
+    <init-param>
+      <param-name>reset-method</param-name>
+      <param-value>manual</param-value>
+    </init-param>
+  </filter>
+
+  <!-- filter used to redirect /foo.html towards /en/foo.html or /fr/foo.html -->
+  <filter>
+    <filter-name>localization</filter-name>
+    <filter-class>velosurf.web.l10n.LocalizationFilter</filter-class>
+    <init-param>
+      <param-name>localization-method</param-name>
+      <param-value>redirect</param-value>
+    </init-param>
+  </filter>
+
+  <!-- filter used to require authentication for /en/auth/* and /fr/auth/* -->
+  <!-- the '@' in parameter values is a placeholder for 'en' or 'fr' -->
+  <filter>
+    <filter-name>authentication</filter-name>
+    <filter-class>velosurf.web.auth.AuthenticationFilter</filter-class>
+    <init-param>
+      <param-name>index-page</param-name>
+      <param-value>/@/index.html</param-value>
+    </init-param>
+    <init-param>
+      <param-name>login-page</param-name>
+      <param-value>/@/login.html</param-value>
+    </init-param>
+    <init-param>
+      <param-name>authenticated-index-page</param-name>
+      <param-value>/@/auth/index.html</param-value>
+    </init-param>
+  </filter>
+
+  <!-- Filter Mapping -->
+
+  <filter-mapping>
+    <filter-name>templatename</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>localization</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>authentication</filter-name>
+    <url-pattern>/en/auth/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>authentication</filter-name>
+    <url-pattern>/fr/auth/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>authentication</filter-name>
+    <url-pattern>*.do</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+  </filter-mapping>
+
+  <!-- Servlets -->
+
+  <servlet>
+    <servlet-name>velocityview</servlet-name> 
+    <servlet-class>org.apache.velocity.tools.view.servlet.VelocityViewServlet</servlet-class>
+    <load-on-startup/>
+  </servlet>
+
+  <!-- Servlet Mapping -->
+
+  <servlet-mapping>
+    <servlet-name>velocityview</servlet-name> 
+    <url-pattern>*.vtl</url-pattern> 
+  </servlet-mapping>
+
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file> 
+    <welcome-file>index.html.vtl</welcome-file> 
+  </welcome-file-list>
+
+  <!-- context params -->
+
+  <context-param>
+    <param-name>org.apache.velocity.properties</param-name>
+    <param-value>/WEB-INF/velocity.properties</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>org.apache.velocity.toolbox</param-name>
+    <param-value>/WEB-INF/toolbox.xml</param-value>
+  </context-param>
+
+</web-app>

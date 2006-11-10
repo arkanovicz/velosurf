@@ -1,0 +1,27 @@
+This Webapp example demonstrates:
+
+ - the use of the localization filter (see javadoc for the velosurf.web.l10n.LocalizationFilter)
+
+ - the use of the authentication filter (see javadoc for the velosurf.web.auth.AuthenticationFilter)
+
+ - the use of the template name filter (see javadoc for the velosurf.util.TemplateNameFilter)
+
+To install it:
+
+1. Create an empty Webapp in your Servlet container.
+
+2. Copy the content of the auth-l10n directory to your Webapp folder.
+
+3. Copy the necessary libraries to WEB-INF/lib (Velosurf dependencies plus
+   your JDBC driver lib should be a good first guess).
+
+4. Adapt the database login informations in model.xml
+
+Some remarks:
+
+ - the provided deployment descriptor (web.xml) is for a 2.4 servlet container.
+
+ - the empty index.html file at root is here to fool the servlet container in
+   letting him find a welcome file whereas we will redirect the user later on
+   to a localized welcome file.
+
