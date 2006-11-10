@@ -13,3 +13,6 @@ The script will:
  - launch "ant stop-hsqldb" from the build directory of the release
    to stop the hsqldb demo database server.
 
+
+Thanks to Mike Kienenberger for the initial version of this example.
+

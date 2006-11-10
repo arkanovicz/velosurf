@@ -25,8 +25,28 @@ import java.util.Locale;
  **/
 
 public interface Localizer {
+    /**
+     * Locale setter.
+     * @param locale locale
+     */
     public void setLocale(Locale locale);
+    /**
+     * Locale getter.
+     * @return locale
+     */
     public Locale getLocale();
+    /**
+     * Message getter.
+     * @param id message id
+     * @return localized message
+     */
     public String get(Object id);
+
+    /**
+     * Parameterized message getter.
+     * @param id message id
+     * @param param message parameters
+     * @return localized message
+     */
     public String get(Object id,Object ... param);
 }

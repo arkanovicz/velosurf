@@ -50,36 +50,63 @@ import velosurf.web.VelosurfTool;
 
 public class SimpleDBLocalizer extends HTTPLocalizerTool {
 
+    /** localized table name parameter key. */
     private static final String LOCALIZED_TABLE_KEY = "localized-table";
+    /** id field name parameter key. */
     private static final String ID_FIELD_KEY = "id-field";
+    /** locale field name parameter key. */
     private static final String LOCALE_FIELD_KEY = "locale-field";
+    /** localized string field name parameter key. */
     private static final String STRING_FIELD_KEY = "string-field";
 
+    /** default localized table name. */
     private static final String LOCALIZED_TABLE_DEFAULT = "localized";
+    /** default id fied name. */
     private static final String ID_FIELD_DEFAULT = "id";
+    /** default locale field name. */
     private static final String LOCALE_FIELD_DEFAULT = "locale";
+    /** default localized string field name. */
     private static final String STRING_FIELD_DEFAULT = "string";
 
+    /** localized table name. */
     private static String localizedTable = LOCALIZED_TABLE_DEFAULT;
+    /** id field name. */
     private static String idField = ID_FIELD_DEFAULT;
+    /** locale field name. */
     private static String localeField = LOCALE_FIELD_DEFAULT;
+    /** localized string field name. */
     private static String stringField = STRING_FIELD_DEFAULT;
 
+    /** initialization status. */
     private static boolean initialized = false;
 
+    /** map locale -&gt; (id -&gt; localized). */
     private static Map<Locale,Map<Object,String>> localeStrings = null;
 
+    /** map (id -&gt; localized) for the current locale. */
     private Map<Object,String> currentStrings = null;
 
+    /** tool configuration. */
     private Map config;
 
+    /**
+     * Constructor.
+     */
     public SimpleDBLocalizer() {
     }
 
+    /**
+     * Configure this tool.
+     * @param config tool configuration
+     */
     public void configure(Map config) {
         this.config = config;
     }
 
+    /**
+     * Initialize this tool.
+     * @param initData a view context
+     */
     public void init(Object initData) {
         if (!initialized) {
             if(config != null) {
@@ -110,6 +137,10 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
         super.init(initData);
     }
 
+    /**
+     * read localized messages into memory.
+     * @param ctx servlet context
+     */
     private static synchronized void readLocales(ServletContext ctx) {
         if (initialized) return;
         try {
@@ -149,10 +180,19 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
         }
     }
 
+    /**
+     * Check for the presence of a locale.
+     * @param locale locale
+     * @return true if present
+     */
     public boolean hasLocale(Locale locale) {
         return localeStrings.containsKey(locale);
     }
 
+    /**
+     * Locale setter.
+     * @param locale locale
+     */
     public void setLocale(Locale locale) {
         if (locale == null && getLocale() == null || locale != null && locale.equals(getLocale())) {
             /* no change */
@@ -165,6 +205,11 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
         }
     }
 
+    /**
+     * Localized message getter.
+      * @param id message id
+     * @return localized message or id itself if not found
+     */
     public String get(Object id) {
         if (currentStrings == null) {
             Logger.warn("l10n: no current locale! (was getting string id '"+id+"')");

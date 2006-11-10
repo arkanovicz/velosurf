@@ -28,15 +28,14 @@ import velosurf.sql.PooledPreparedStatement;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
 import velosurf.util.UserContext;
-import velosurf.web.l10n.Localizer;
 
 /** An Instance provides field values by their name.
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
-public class Instance extends TreeMap implements ReadOnlyMap
+public class Instance extends TreeMap<String,Object> implements ReadOnlyMap
 {
-    /** Build an empty instance for the given entity
+    /** Build an empty instance for the given entity.
      *
      * @param entity Entity this instance is a realisation of
      */
@@ -44,6 +43,10 @@ public class Instance extends TreeMap implements ReadOnlyMap
         initialize(entity);
     }
 
+    /**
+     * Builds a generic instance using <code>values</code>.
+     * @param values
+     */
     public Instance(ReadOnlyMap values) {
         try {
             for(Object key:values.keySet()) {
@@ -55,7 +58,8 @@ public class Instance extends TreeMap implements ReadOnlyMap
         }
     }
 
-     /** Meant to be overloaded if needed
+     /** Initialization. Meant to be overloaded if needed.
+      * @param entity
       */
      public void initialize(Entity entity) {
          this.entity = entity;
@@ -71,33 +75,21 @@ public class Instance extends TreeMap implements ReadOnlyMap
         return new EntityReference(entity,userContext.get());
     }
 
-    /** @deprecated As of Velosurf version 0.9, replaced by getPrimaryKey
-     * Returns an ArrayList of two-entries maps ('name' & 'value'), meant to be use in a #foreach loop to build form fields, like:<p>
+    /** <p>Returns an ArrayList of two-entries maps ('name' & 'value'), meant to be use in a #foreach loop to build form fields.</p>
+     * <p>Example:</p>
      * <code>
-     * #foreach ($field in $product.keys)<p>
-     * &nbsp;&nbsp;&lt;input type=hidden name='$field.name' value='$field.value'&gt;
-     * #end</code><p>
-     *
-     * @return an ArrayList of two-entries maps ('name' & 'value')
-     */
-    public List getKeys() {
-        return getPrimaryKey();
-    }
-
-    /** Returns an ArrayList of two-entries maps ('name' & 'value'), meant to be use in a #foreach loop to build form fields, like:<p>
-     * <code>
-     * #foreach ($field in $product.primaryKey)<p>
-     * &nbsp;&nbsp;&lt;input type=hidden name='$field.name' value='$field.value'&gt;
-     * #end</code><p>
+     * #foreach ($field in $product.primaryKey)<br>
+     * &nbsp;&nbsp;&lt;input type=hidden name='$field.name' value='$field.value'&gt;<br>
+     * #end</code>
      *
      * @return an ArrayList of two-entries maps ('name' & 'value')
      */
     public List getPrimaryKey() {
-        List result = new ArrayList();
+        List<Map<String,Object>> result = new ArrayList<Map<String,Object>>();
         if (entity!=null) {
             for (Iterator i=entity.getPKCols().iterator();i.hasNext();) {
                 String key = (String)i.next();
-                HashMap map = new HashMap();
+                Map<String,Object> map = new HashMap<String,Object>();
                 map.put("name",key);
                 map.put("value",getInternal(key));
                 result.add(map);
@@ -106,14 +98,14 @@ public class Instance extends TreeMap implements ReadOnlyMap
         return result;
     }
 
-    /** Generic getter, used to access this instance properties by their name.<p>
-     * Asked property is first searched in the Map, then among Attributes defined for the entity.
+    /** <p>Generic getter, used to access this instance properties by their name.</p>
+     * <p>Asked property is first searched in the Map, then among Attributes defined for the entity.</p>
      *
      * @param key key of the property to be returned
      * @return a String, an Instance, an AttributeReference or null if an error
      *      occurs
      */
-    public Object get(Object key) {
+    public Object get(String key) {
         if (db != null) {
             key = db.adaptCase((String)key);
         }
@@ -122,7 +114,7 @@ public class Instance extends TreeMap implements ReadOnlyMap
             result = super.get(key);
             if (result == null) {
                 if (entity!=null) {
-                    Attribute attribute = entity.getAttribute((String)key);
+                    Attribute attribute = entity.getAttribute(key);
                     if (attribute != null)
                         switch (attribute.getType()) {
                             case Attribute.ROWSET:
@@ -140,11 +132,11 @@ public class Instance extends TreeMap implements ReadOnlyMap
                                 Logger.error("Unknown attribute type for "+entity.getName()+"."+key+"!");
                         }
                     else {
-                        Action action = entity.getAction((String)key);
+                        Action action = entity.getAction(key);
                         if (action != null) result = Integer.valueOf(action.perform(this));
                     }
                 }
-            } else if (localized && entity.isLocalized((String)key) && userContext.get() != null) {
+            } else if (localized && entity.isLocalized(key) && userContext.get() != null) {
                 result = userContext.get().localize(result.toString());
             }
         }
@@ -154,21 +146,21 @@ public class Instance extends TreeMap implements ReadOnlyMap
         return result;
     }
 
-    /** Generic setter<p>
+    /** Generic setter.
      *
      * @param key key of the property to be set
      * @param value corresponding value
      * @return previous value, or null
      */
-    public synchronized Object put(Object key, Object value)
+    public synchronized Object put(String key, Object value)
     {
         if(db != null) {
-            key = db.adaptCase((String)key);
+            key = db.adaptCase(key);
         }
         return super.put(key,value);
     }
 
-    /** Internal getter: first tries on the external object then on the Map interface
+    /** Internal getter. First tries on the external object then on the Map interface.
      *
      * @param key key of the property to be returned
      * @return a String, an Instance, an AttributeReference or null if not found or if an error
@@ -180,7 +172,7 @@ public class Instance extends TreeMap implements ReadOnlyMap
         return ret;
     }
 
-    /** External getter: meant to be overloaded in ExternalObjectWrapper
+    /** External getter. Meant to be overloaded in ExternalObjectWrapper.
      *
      * @param key key of the property to be returned
      * @return a String, an Instance, an AttributeReference or null if not found or if an error
@@ -190,6 +182,11 @@ public class Instance extends TreeMap implements ReadOnlyMap
         return null;
     }
 
+    /**
+     * Test equality of two instances.
+     * @param o other instance
+     * @return equality status
+     */
     public boolean equals(Object o) {
         return super.equals(o);
 /*
@@ -208,25 +205,24 @@ public class Instance extends TreeMap implements ReadOnlyMap
 */
     }
 
-    /** Update the row associated with this Instance from passed values<p>
-     * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
+    /** <p>Update the row associated with this Instance from passed values.</p>
+     * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
      *
      * @return <code>true</code> if successfull, <code>false</code> if an error
-     *     occurs (in which case $db.lastError can be checked).
+     *     occurs (in which case $db.error can be checked).
      */
     public synchronized boolean update() {
         return update(null);
     }
 
-    // update from passed values
-    /** Update the row associated with this Instance from actual values<p>
-     * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
+    /** <p>Update the row associated with this Instance from actual values.</p>
+     * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
      *
      * @param values values to be used for the update
      * @return <code>true</code> if successfull, <code>false</code> if an error
-     *      occurs (in which case $db.lastError can be checked).
+     *      occurs (in which case $db.error can be checked).
      */
-    public synchronized boolean update(Map values) {
+    public synchronized boolean update(Map<String,Object> values) {
         try {
             if (entity == null) {
                 throw new SQLException("Cannot update an instance whose Entity is null.");
@@ -234,23 +230,22 @@ public class Instance extends TreeMap implements ReadOnlyMap
             if (entity.isReadOnly()) {
                 throw new SQLException("Entity "+entity.getName()+" is read-only.");
             }
-            Map newvalues = new HashMap();
+            Map<String,Object> newvalues = new HashMap<String,Object>();
             for(Iterator it = keySet().iterator();it.hasNext();) {
                 String key = (String)it.next();
                 newvalues.put(db.adaptCase(key),getInternal(key));
             }
             if (values != null && values != this) {
-                for(Map.Entry entry:(Set<Map.Entry>)values.entrySet()) {
-                    newvalues.put(db.adaptCase((String)entry.getKey()),entry.getValue());
+                for(Map.Entry<String,Object> entry:values.entrySet()) {
+                    newvalues.put(db.adaptCase(entry.getKey()),entry.getValue());
                 }
             }
-            List updateClause = new ArrayList();
-            List whereClause = new ArrayList();
-            List params = new ArrayList();
-            ArrayList cols = new ArrayList(entity.getColumns());
+            List<String> updateClause = new ArrayList<String>();
+            List<String> whereClause = new ArrayList<String>();
+            List<Object> params = new ArrayList<Object>();
+            List<String> cols = new ArrayList<String>(entity.getColumns());
             cols.removeAll(entity.getPKCols());
-            for (Iterator i=cols.iterator();i.hasNext();) {
-                String col = (String)i.next();
+            for (String col:cols) {
                 Object value = newvalues.get(col);
                 if (value!=null) {
                     updateClause.add(entity.aliasToColumn(col)+"=?");
@@ -258,8 +253,7 @@ public class Instance extends TreeMap implements ReadOnlyMap
                     params.add(value);
                 }
             }
-            for (Iterator i = entity.getPKCols().iterator();i.hasNext();) {
-                String col = (String)i.next();
+            for (String col:entity.getPKCols()) {
                 Object value = newvalues.get(col);
                 if (value == null) throw new SQLException("field '"+col+"' belongs to primary key and cannot be null!");
                 if (entity.isObfuscated(col)) value = entity.deobfuscate(value);
@@ -289,19 +283,18 @@ public class Instance extends TreeMap implements ReadOnlyMap
         }
     }
 
-    /** Delete the row associated with this Instance.<p>
-     * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
+    /** <p>Delete the row associated with this Instance.</p>
+     * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
      *
      * @return <code>true</code> if successfull, <code>false</code> if an error
-     *     occurs (in which case $db.lastError can be checked).
+     *     occurs (in which case $db.error can be checked).
      */
     public synchronized boolean delete() {
         try {
             if (entity == null) throw new SQLException("Instance.delete: Error: Entity is null!");
-            List whereClause = new ArrayList();
-            List params = new ArrayList();
-            for (Iterator i = entity.getPKCols().iterator();i.hasNext();) {
-                String col = (String)i.next();
+            List<String> whereClause = new ArrayList<String>();
+            List<Object> params = new ArrayList<Object>();
+            for (String col:entity.getPKCols()) {
                 Object value = getInternal(col);
                 if (value == null) throw new SQLException("Instance.delete: Error: field '"+col+"' belongs to primary key and cannot be null!");
                 if (entity.isObfuscated(col)) value = entity.deobfuscate(value);
@@ -320,7 +313,7 @@ public class Instance extends TreeMap implements ReadOnlyMap
                 /* invalidate cache */
                 if (entity != null) {
                     entity.invalidateInstance(this);
-                }                
+                }
             }
             return true;
         }
@@ -333,7 +326,7 @@ public class Instance extends TreeMap implements ReadOnlyMap
     /** Insert a new row corresponding to this Instance.
      *
      * @return <code>true</code> if successfull, <code>false</code> if an error
-     *     occurs (in which case $db.lastError can be checked).
+     *     occurs (in which case $db.error can be checked).
      */
     public synchronized boolean insert() {
         try {
@@ -344,13 +337,11 @@ public class Instance extends TreeMap implements ReadOnlyMap
             if (!entity.validate(this,userContext.get())) {
                 return false;
             }
-
-            List colsClause = new ArrayList();
-            List valsClause = new ArrayList();
-            List params = new ArrayList();
-            List cols = entity.getColumns();
-            for (Iterator i=cols.iterator();i.hasNext();) {
-                String col = (String)i.next();
+            List<String> colsClause = new ArrayList<String>();
+            List<String> valsClause = new ArrayList<String>();
+            List<Object> params = new ArrayList<Object>();
+            List<String> cols = entity.getColumns();
+            for (String col:cols) {
                 Object value = getInternal(col);
                 if (value!=null) {
                     colsClause.add(entity.aliasToColumn(col));
@@ -362,11 +353,10 @@ public class Instance extends TreeMap implements ReadOnlyMap
             String query = "insert into "+entity.getTableName()+" ("+StringLists.join(colsClause,",")+") values ("+StringLists.join(valsClause,",")+")";
             PooledPreparedStatement statement = db.prepare(query);
             statement.update(params);
-            List keys = entity.getPKCols();
+            List<String> keys = entity.getPKCols();
             if (keys.size() == 1) {
-                /* What if the ID is not autoincremented? TODO check it */
+                /* What if the ID is not autoincremented? TODO check it. => reverse engineering of autoincrement */
                 userContext.get().setLastInsertedID(entity,statement.getLastInsertID());
-                //... how to check for autoincrements ? => metadata!
             }
             return true;
         }
@@ -376,7 +366,7 @@ public class Instance extends TreeMap implements ReadOnlyMap
         }
     }
 
-    /** validate this instance against declared contraints
+    /** Validate this instance against declared contraints.
      */
     public boolean validate() {
         try {
@@ -387,10 +377,10 @@ public class Instance extends TreeMap implements ReadOnlyMap
         }
     }
 
-    /** handle an sql exception
+    /** Handle an sql exception.
      *
      */
-    protected void handleSQLException(SQLException sqle) {
+    private void handleSQLException(SQLException sqle) {
         Logger.log(sqle);
         UserContext uc = userContext.get();
         if (uc != null) {
@@ -398,27 +388,27 @@ public class Instance extends TreeMap implements ReadOnlyMap
         }
     }
 
-    /** set this instance user context (thread local)
+    /** Set this instance user context (thread local).
      *
      */
     protected void setUserContext(UserContext userContext) {
         this.userContext.set(userContext);
     }
 
-    /** thread-local user context
+    /** Thread-local user context.
      */
-    protected ThreadLocal<UserContext> userContext = new ThreadLocal<UserContext>();
+    private ThreadLocal<UserContext> userContext = new ThreadLocal<UserContext>();
 
-    /** this Instance's Entity
+    /** This Instance's Entity.
      */
-    protected Entity entity = null;
+    private Entity entity = null;
 
-    /** is there a column to localize ?
+    /** Is there a column to localize?
      */
-    protected boolean localized = false;
+    private boolean localized = false;
 
-    /** the main database connection
+    /** The main database connection.
      */
-    protected Database db = null;
+    private Database db = null;
 
 }

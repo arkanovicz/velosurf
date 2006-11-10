@@ -26,7 +26,6 @@ import java.text.SimpleDateFormat;
 
 /**
  * <p>Utility class to generate HTTP dates.</p>
- * <p><a href="FastHttpDateFormat.java.html"><i>View Source</i></a></p>
  * <p>This source code is taken from Tomcat Apache</p>
  *
  * @author Remy Maucherat
@@ -40,14 +39,14 @@ public class FastHttpDateFormat {
     /**
      * HTTP date format.
      */
-    protected static final SimpleDateFormat format =
+    private static final SimpleDateFormat format =
         new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 
 
     /**
      * The set of SimpleDateFormat formats to use in <code>getDateHeader()</code>.
      */
-    protected static final SimpleDateFormat formats[] = {
+    private static final SimpleDateFormat formats[] = {
         new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US),
         new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
         new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US)
@@ -57,7 +56,7 @@ public class FastHttpDateFormat {
     /**
      * GMT timezone - all HTTP dates are on GMT
      */
-    protected final static TimeZone gmtZone = TimeZone.getTimeZone("GMT");
+    private final static TimeZone gmtZone = TimeZone.getTimeZone("GMT");
 
 
     static {
@@ -74,25 +73,25 @@ public class FastHttpDateFormat {
     /**
      * Instant on which the currentDate object was generated.
      */
-    protected static long currentDateGenerated = 0L;
+    private static long currentDateGenerated = 0L;
 
 
     /**
      * Current formatted date.
      */
-    protected static String currentDate = null;
+    private static String currentDate = null;
 
 
     /**
      * Formatter cache.
      */
-    protected static final HashMap formatCache = new HashMap();
+    private static final HashMap formatCache = new HashMap();
 
 
     /**
      * Parser cache.
      */
-    protected static final HashMap parseCache = new HashMap();
+    private static final HashMap parseCache = new HashMap();
 
 
     // --------------------------------------------------------- Public Methods

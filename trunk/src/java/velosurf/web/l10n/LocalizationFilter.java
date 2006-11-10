@@ -45,33 +45,33 @@ import java.util.regex.Matcher;
  *
  * <p>Optional init parameters:
  * <ul>
- * <li>supported-locales: comma separated list of supported locales ; if not provided, there is an attempt to programatically determine it<sup>(1)</sup>.
+ * <li><code>supported-locales</code>: comma separated list of supported locales ; if not provided, there is an attempt to programatically determine it<sup>(1)</sup>.
  * No default value provided.</li>
- * <li>default-locale: the locale to be used by default (after four checks: the incoming URI, the session, cookies, and the request headers).
+ * <li><code>default-locale</code>: the locale to be used by default (after four checks: the incoming URI, the session, cookies, and the request headers).
  * No default value provided.</li>
- * <li>localization-method: <code>forward</code> or <code>redirect</code>, default is <code>redirect</code>.
- * <li>match-host & rewrite-host: not yet implemented.<sup>(2)</sup></li>
- * <li>match-uri & rewrite-uri: the regular expression against which an unlocalized uri is matched, and the replacement uri, where
+ * <li><code>localization-method</code>: <code>forward</code> or <code>redirect</code>, default is <code>redirect</code>.
+ * <li><code>match-host</code> & <code>rewrite-host</code>: not yet implemented.<sup>(2)</sup></li>
+ * <li><code>match-uri</code> & <code>rewrite-uri</code>: the regular expression against which an unlocalized uri is matched, and the replacement uri, where
  * <code>@</code> represents the locale and $1, $2, ... the matched sub-patterns. Defaults are <code>^/(.*)$</code>
- * for match-uri and <code>/@/$1</code> for rewrite-uri.(2)</li>
- * <li>match-query-string & rewrite-query-string: not yet implemented.(2)</li>
- * <li>match-url & rewrite-url: not yet implemented.(2)</li>
+ * for <code>match-uri</code> and <code>/@/$1</code> for rewrite-uri.(2)</li>
+ * <li><code>match-query-string</code> & <code>rewrite-query-string</code>: not yet implemented.(2)</li>
+ * <li><code>match-url</code> & <code>rewrite-url</code>: not yet implemented.(2)</li>
  * </ul>
  * </p>
  *
  * <p><b><small>(1)</small></b> for now, to find supported locales if this parameter is not provided,
- * the filter try to use the rewrite-uri param and to check for the existence of corresponding directories (only if the rewriting
+ * the filter try to use the <code>rewrite-uri</code> param and to check for the existence of corresponding directories (only if the rewriting
  * string contains a pattern like '/@/', that is if you use directories to store localized sites).
- * <p><b><small>(2)</small></b> The different match- and rewrite- parameters pairs are mutually exclusive. All matches are case-insensitive.
- * When using the redirect method, POST parameters are lost.</p>
+ * <p><b><small>(2)</small></b> The different <code>match-</code> and <code>rewrite-</code> parameters pairs are mutually exclusive.
+ * All matches are case-insensitive.</p>
  *
- * <p>When the REDIRECT method is used, these supplementary parameters (mutually exclusive) allow the filter to
+ * <p>When the <code>redirect</code> method is used, these supplementary parameters (mutually exclusive) allow the filter to
  * know whether or not an incoming URI is localized.
  * <ul>
- * <li>inspect-host: not yet implemented.</li>
- * <li>inspect-uri: default is <code>^/(.+)(?:/|$)</code>.
- * <li>inspect-query-string: not yet implemented.</li>
- * <li>inspect-url: not yet implemented.</li>
+ * <li><code>inspect-host</code>: not yet implemented.</li>
+ * <li><code>inspect-uri</code>: default is <code>^/(.+)(?:/|$)</code>.
+ * <li><code>inspect-query-string</code>: not yet implemented.</li>
+ * <li><code>inspect-url</code>: not yet implemented.</li>
  * </ul>
  * </p>
  *
@@ -80,25 +80,43 @@ import java.util.regex.Matcher;
 
 public class LocalizationFilter implements Filter {
 
+    /** filter config. */
     private FilterConfig config = null;
 
+    /** supported locales. */
     private List<Locale> supportedLocales = null;
+    /** default locale. */
     private Locale defaultLocale = null;
 
+    /** seconds in year (for setting cookies age). */
     private static int SECONDS_IN_YEAR = 31536000;
 
+    /** default match uri. */
     private static String defaultMatchUri = "^/(.*)$";
+    /** default rewrite uri. */
     private static String defaultRewriteUri = "/@/$1";
+    /** default inspect uri. */
     private static String defaultInspectUri = "^/(.+)(?:/|$)";
+    /** match uri. */
     private  Pattern matchUri = null;
+    /** rewrite uri */
     private String rewriteUri = null;
+    /** inspect uri. */
     private Pattern inspectUri = null;
 
+    /** forward method constant. */
     private static final int FORWARD = 1;
+    /** redirect method constant. */
     private static final int REDIRECT = 2;
 
+    /** localization method. */
     private int l10nMethod = REDIRECT;
 
+    /** initialization.
+     *
+     * @param config filter config
+     * @throws ServletException
+     */
     public synchronized void init(FilterConfig config) throws ServletException {
         this.config = config;
 
@@ -131,6 +149,14 @@ public class LocalizationFilter implements Filter {
         defaultLocale = getMatchedLocale(getInitParameter("default-locale"));
     }
 
+    /**
+     * Filtering.
+     * @param servletRequest request
+     * @param servletResponse response
+     * @param chain filter chain
+     * @throws IOException
+     * @throws ServletException
+     */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
 
@@ -202,7 +228,7 @@ public class LocalizationFilter implements Filter {
         }
 
         if (locale != null) {
-            Localizer tool = ToolFinder.findTool(session,Localizer.class);
+            Localizer tool = ToolFinder.findSessionTool(session,Localizer.class);
             if (tool != null) {
                 tool.setLocale(locale);
             } else {
@@ -247,6 +273,10 @@ public class LocalizationFilter implements Filter {
         }
     }
 
+    /** Find supported locales.
+     *
+     * @param config filter config
+     */
     private void findSupportedLocales(FilterConfig config) {
         /* look in the filter init-params */
         String param = config.getInitParameter("supported-locales");
@@ -283,18 +313,38 @@ public class LocalizationFilter implements Filter {
         }
     }
 
+    /** Helper function.
+     *
+     * @param key
+     * @return init-parameter
+     */
     private String getInitParameter(String key) {
         return config.getInitParameter(key);
     }
 
+    /** Helper function.
+     *
+     * @param key
+     * @param defaultValue
+     * @return init-parameter
+     */
     private String getInitParameter(String key,String defaultValue) {
         String param = config.getInitParameter(key);
         return param == null ? defaultValue : param;
     }
 
+    /** Destroy the filter.
+     *
+     */
     public void destroy() {
     }
 
+    /**
+     * Guess supported locales.
+     * @param ctx servlet context
+     * @param path path
+     * @return list of locales
+     */
     private List<Locale> guessSupportedLocales(ServletContext ctx,String path) {
         List<Locale> locales = new ArrayList<Locale>();
         String languages[] = Locale.getISOLanguages();
@@ -327,6 +377,11 @@ public class LocalizationFilter implements Filter {
         return locales;
     }
 
+    /** get the list of requested locales.
+     *
+     * @param request request
+     * @return list of locales
+     */
     private List<Locale> getRequestedLocales(HttpServletRequest request) {
         List<Locale> list = (List<Locale>)Collections.list(request.getLocales());
         if(/*list.size() == 0 && */defaultLocale != null) {
@@ -335,6 +390,11 @@ public class LocalizationFilter implements Filter {
         return list;
     }
 
+    /**
+     * get matched locale.
+     * @param candidate candidate
+     * @return locale
+     */
     private Locale getMatchedLocale(String candidate) {
         if(candidate == null) return null;
         if (supportedLocales == null) {
@@ -354,6 +414,11 @@ public class LocalizationFilter implements Filter {
         return null;
     }
 
+    /**
+     * Get preferred locale.
+     * @param requestedLocales requested locales
+     * @return preferred locale
+     */
     private Locale getPreferredLocale(List<Locale> requestedLocales) {
         for(Locale locale:requestedLocales) {
             if(supportedLocales.contains(locale)) {

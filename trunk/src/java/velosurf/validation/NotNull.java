@@ -23,10 +23,10 @@ import java.util.Locale;
  *  <pre>
  *    &lt;<i>column</i> not-null="true"/&gt;
  *  </pre>
- *<p>Or:</p>
+ *<p>Or:</p><pre>
  *   &lt;<i>column</i>&gt;
  *     &lt;not-null [message="<i>error-message</i>"]/&gt;
- *   &lt;/<i>column</i>&gt;
+ *   &lt;/<i>column</i>&gt;</pre>
  * <p>To validate data coming from an HTML form, you should rather use the not-empty constraint since there cannot
  * be any null value.</p>
  * <p>Note: this constraint is not meant to replace an internal SQL "not-null" clause in the database,
@@ -44,7 +44,7 @@ public class NotNull extends FieldConstraint {
     }
 
     /**
-     *
+     * Validate datea against this constraint.
      * @param data the data to be validated
      * @return true if data is not null
      */
@@ -52,6 +52,10 @@ public class NotNull extends FieldConstraint {
         return data != null;
     }
 
+    /**
+     * return a string representation for this constraint.
+     * @return string
+     */
     public String toString() {
         return "not-null";
     }

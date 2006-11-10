@@ -28,10 +28,9 @@ import velosurf.sql.Database;
 import velosurf.sql.ReadOnlyMap;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;
-import velosurf.web.l10n.Localizer;
 
-/** A context wrapper for the main database connection object.<p>
- * The "$db" context variable is assigned a new instance of this class at each velocity parsing.
+/** <p>A context wrapper for the main database connection object.</p>
+ * <p>The "<code>$db</code>" context variable is assigned a new instance of this class at each velocity parsing.</p>
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
@@ -40,12 +39,12 @@ import velosurf.web.l10n.Localizer;
 
 public class DBReference extends HashMap implements ReadOnlyMap
 {
-    /** Default constructor for use by derived classes
+    /** Default constructor for use by derived classes.
      */
     protected DBReference() {
     }
 
-    /** Constructs a new database reference
+    /** Constructs a new database reference.
      *
      * @param db the wrapped database connection
      */
@@ -53,7 +52,7 @@ public class DBReference extends HashMap implements ReadOnlyMap
         init(db,null);
     }
 
-    /** Constructs a new database reference
+    /** Constructs a new database reference.
      *
      * @param db the wrapped database connection
      */
@@ -61,7 +60,7 @@ public class DBReference extends HashMap implements ReadOnlyMap
         init(db,userContext);
     }
 
-    /** protected initialization method
+    /** Protected initialization method.
      *
      * @param db database connection
      */
@@ -69,22 +68,22 @@ public class DBReference extends HashMap implements ReadOnlyMap
         init(db,null);
     }
 
-    /** protected initialization method
+    /** Protected initialization method.
      *
      * @param db database connection
      */
     protected void init(Database db,UserContext userContext) {
        this. db = db;
-        cache = new HashMap();
-        externalParams = new HashMap();
+        cache = new HashMap<String,Object>();
+        externalParams = new HashMap<String,Object>();
         if(userContext == null) {
             userContext = new UserContext();
         }
         this.userContext = userContext;
     }
 
-    /** Generic getter, used to access entities or root attributes by their name.<p>
-     * For attributes, the return value depends upon the type of the attribute :
+    /** <p>Generic getter, used to access entities or root attributes by their name.</p>
+     * <p>For attributes, the return value depends upon the type of the attribute :</p>
      * <ul>
      * <li>if the attribute is multivalued, returns an AttributeReference.
      * <li>if the attribute is singlevalued, returns an Instance.
@@ -101,14 +100,13 @@ public class DBReference extends HashMap implements ReadOnlyMap
         try {
             Object result=null;
 
-            // 1) try the cache
+            /* 1) try the cache */
             result = cache.get(property);
             if (result!=null) return result;
 
-            // 2) try to get a root attribute
+            /* 2) try to get a root attribute */
             Attribute attribute = db.getAttribute(property);
             if (attribute!=null) {
-//                attribute.setExternalParams(externalParams);
                 switch (attribute.getType()) {
                     case Attribute.ROWSET:
                         result = new AttributeReference(this,attribute,userContext);
@@ -130,11 +128,11 @@ public class DBReference extends HashMap implements ReadOnlyMap
                 return result;
             }
 
-            // 3) try to get a root action
+            /* 3) try to get a root action */
             Action action = db.getAction(property);
             if (action != null) return Integer.valueOf(action.perform(this));
 
-            // 3) try to get an entity
+            /* 4) try to get an entity */
             Entity entity = db.getEntity(property);
             if (entity!=null) {
                 result = new EntityReference(entity,userContext);
@@ -142,15 +140,15 @@ public class DBReference extends HashMap implements ReadOnlyMap
                 return result;
             }
 
-            // 4) try to get an external param
+            /* 5) try to get an external param */
             result = externalParams.get(property);
             if (result != null) return result;
 
-            // 5) try with the user context
+            /* 6) try with the user context */
             result = userContext.get(property);
             if (result != null) return result;
 
-            // Sincerely, I don't see...
+            /* Sincerely, I don't see... */
             return null;
         }
         catch (SQLException sqle) {
@@ -160,7 +158,7 @@ public class DBReference extends HashMap implements ReadOnlyMap
         }
     }
 
-    /** Generic setter used to set external params for children attributes
+    /** Generic setter used to set external params for children attributes.
      *
      * @param key name of the external parameter
      * @param value value given to the external parameter
@@ -182,14 +180,14 @@ public class DBReference extends HashMap implements ReadOnlyMap
         return externalParams.put(db.adaptCase((String) key),value);
     }
 
-    /** get the schema
+    /** Get the schema name.
      * @return the schema
      */
     public String getSchema() {
         return db.getSchema();
     }
 
-    /** obfuscate the given value
+    /** Obfuscate the given value.
      * @param value value to obfuscate
      *
      * @return obfuscated value
@@ -199,7 +197,7 @@ public class DBReference extends HashMap implements ReadOnlyMap
         return db.obfuscate(value);
     }
 
-    /** de-obfuscate the given value
+    /** De-obfuscate the given value.
      * @param value value to de-obfuscate
      *
      * @return obfuscated value
@@ -209,19 +207,20 @@ public class DBReference extends HashMap implements ReadOnlyMap
         return db.deobfuscate(value);
     }
 
-    /** the wrapped database connection
+    /** The wrapped database connection.
      */
-    protected Database db = null;
+    private Database db = null;
 
-    /** a cache used by the generic getter - it's purpose is to avoid the creation of several attribute references for the same multivalued attribute.
+    /** A cache used by the generic getter. Its purpose is to avoid the creation of several
+     * attribute references for the same multivalued attribute.
      */
-    protected Map cache = null;
+    private Map<String,Object> cache = null;
 
-     /** The map of external query parameters used by children attributes
+     /** The map of external query parameters used by children attributes.
       */
-    protected Map externalParams = null;
+    private Map<String,Object> externalParams = null;
 
-    /** a reference to the user context
+    /** A reference to the user context.
      */
-    protected UserContext userContext = null;
+    private UserContext userContext = null;
 }

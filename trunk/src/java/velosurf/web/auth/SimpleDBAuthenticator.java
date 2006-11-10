@@ -26,29 +26,58 @@ import velosurf.context.DBReference;
 import velosurf.context.Instance;
 import velosurf.util.Logger;
 
-/** Authenticator basic implementation.
+/** <p>Authenticator basic implementation.</p>
+ * <p>It accepts the four following parameters in <code>toolbox.xml</code>:</p>
+ * <ul>
+ * <li><code>method</code> (inherited from <code>BaseAuthenticator</code>) the encryption method to use (default to none,
+ * an example client-side javascript encryption is provided for the method HmacMD5).</li>
+ * <li><code>user-by-login</code> name of the Velosurf root attribute that returns a user given its login.</li>
+ * <li><code>login-parameter</code> name of the external parameter 'login' in the previous attribute.</li>
+ * <li><code>password-field</code> name of the password field.</li>
+ * </ul>
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 
 public class SimpleDBAuthenticator extends BaseAuthenticator {
 
+    /** database. */
     private DBReference db = null;
 
+    /** key used in toolbox.xml to indicate the "user by login" root attribute. */
     private static final String USER_BY_LOGIN_KEY = "user-by-login";
+
+    /** key used in toolbox.xml to indicate the name of the login parameter in the "user by login" attribute. */
     private static final String LOGIN_PARAMETER_KEY = "login-parameter";
+
+    /** key used in toolbox.xml to indicate the name of the password field in the "user by login" attribute. */
     private static final String PASSWORD_FIELD_KEY = "password-field";
 
+    /** default name of the "user by login" root attribute. */
     private static final String USER_BY_LOGIN_DEFAULT = "user_by_login";
+
+    /** default name for the "login" parameter. */
     private static final String LOGIN_PARAMETER_DEFAULT = "login";
+
+    /** default name of the "password" field. */
     private static final String PASSWORD_FIELD_DEFAULT = "password";
 
+    /** configuration. */
     private Map config = null;
 
+    /** "user by login" root attribute name. */
     private String userByLogin = USER_BY_LOGIN_DEFAULT;
+
+    /** login parameter name */
     private String loginParameter = LOGIN_PARAMETER_DEFAULT;
+
+    /** password field name */
     private String passwordField = PASSWORD_FIELD_DEFAULT;
 
+    /**
+     * initialize this tool.
+     * @param initData a view context
+     */
     public void init(Object initData) {
         super.init(initData);
 
@@ -76,6 +105,11 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
         }
     }
 
+    /**
+     * get the password for this login.
+     * @param login login
+     * @return password or null
+     */
     protected String getPassword(String login) {
         Instance user = null;
         synchronized(db) {
@@ -88,6 +122,11 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
         return null;
     }
 
+    /**
+     * get the user object for this login.
+     * @param login login
+     * @return user object
+     */
     protected Object getUser(String login) {
         synchronized(db) {
             db.put(loginParameter, login);
@@ -95,6 +134,10 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
         }
     }
 
+    /**
+     * configure this tool.
+     * @param map
+     */
     public void configure(Map map) {
         super.configure(map);
         config = map;

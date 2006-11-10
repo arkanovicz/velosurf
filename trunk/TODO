@@ -2,8 +2,8 @@ TODO
 ----
  - parse conditions in refine and columns in order to apply aliases
  - review pools timeout
+ - pool transaction statements
  - test case for aliasing
- - ability to change the read-only state programmatically => 2.0
  - testcases for POJO mapping
  - review code for Logger.debug/trace strings calculation (avoid them!)
  - use DatabaseMetaData.storeXXXCaseIdentifiers() to determine case sensivity
@@ -12,18 +12,9 @@ TODO
  - l10n: flags
  - obfuscation should be specific to entities
  - generalize ignorePrefix with a customizable regex
- - update README => 2.0
- - graphic reporting => 2.0
+ - graphic reporting
  - docfix: a drivers.html page about DriverInfo
- - make a whole sourcecode review about members access (public/protected/private) => 2.0
- - docfix: add "seed" database attribute to config description => 2.0
  - allow the database connection to be configured via a jndi resource
- - rewrite description: an extensive set of independant tools that provide automagic database mapping, 
-     forms validation, authentication and internationalization to the velocity-tools architecture. => 2.0
-Should be somehting like this :
-Velosurf is a database access layer library for the Apache Velocity template engine. It provides an automagic database
-mapping without any code generation.
-In the context of a velocity-tools web application, Velosurf also provides handy tools for authentication, internationalization and forms validation.
  - inheritance of entities in velosurf.xml?
  - shared catalog: what to use as magic number?
  - ability to query current schema (ex : under Oracle :  select sys_context('userenv','current_schema') from dual) [done by caching the given schema for now]

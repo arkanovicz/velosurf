@@ -26,14 +26,14 @@ import java.util.List;
 import velosurf.util.HashMultiMap;
 import velosurf.util.Logger;
 
-/** This class is a pool of PooledPreparedStatements
+/** This class is a pool of PooledPreparedStatements.
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class PreparedStatementPool implements Runnable,Pool {
 
-    /** builds a new pool
+    /** build a new pool.
      *
      * @param connectionPool connection pool
      */
@@ -43,7 +43,7 @@ public class PreparedStatementPool implements Runnable,Pool {
 //        checkTimeoutThread.start();
     }
 
-    /** gets a PooledPreparedStatement associated with this query
+    /** get a PooledPreparedStatement associated with this query.
      *
      * @param query an SQL query
      * @exception SQLException thrown by the database engine
@@ -78,8 +78,7 @@ public class PreparedStatementPool implements Runnable,Pool {
         return statement;
     }
 
-    // timeout and delay loop
-    /** cycle through statements to check and recycle them
+    /** cycle through statements to check and recycle them.
      */
     public void run() {
         while (running) {
@@ -97,7 +96,7 @@ public class PreparedStatementPool implements Runnable,Pool {
         }
     }
 
-    /** close all statements
+    /** close all statements.
      */
     public void clear() {
         // close all statements
@@ -115,7 +114,7 @@ public class PreparedStatementPool implements Runnable,Pool {
     /* drop all statements relative to a specific connection
      * @param connection the connection
      */
-    protected void dropConnection(Connection connection) {
+    private void dropConnection(Connection connection) {
         for (Iterator it=statementsMap.keySet().iterator();it.hasNext();)
             for (Iterator jt=statementsMap.get(it.next()).iterator();jt.hasNext();) {
                     PooledPreparedStatement statement = (PooledPreparedStatement)jt.next();
@@ -126,17 +125,17 @@ public class PreparedStatementPool implements Runnable,Pool {
     }
 
 
-    /** clear statements on exit
+    /** clear statements on exit.
      */
     protected void finalize() {
         clear();
     }
 
-    /** debug - get usage statistics
+    /** debug - get usage statistics.
      *
      * @return an int array : [nb of statements in use , total nb of statements]
      */
-    protected int[] getUsageStats() {
+    public int[] getUsageStats() {
         int [] stats = new int[] {0,0};
         for (Iterator it=statementsMap.keySet().iterator();it.hasNext();)
             for (Iterator jt=statementsMap.get(it.next()).iterator();jt.hasNext();)
@@ -146,30 +145,30 @@ public class PreparedStatementPool implements Runnable,Pool {
         return stats;
     }
 
-    /** connection pool
+    /** connection pool.
      */
-    protected ConnectionPool connectionPool;
+    private ConnectionPool connectionPool;
 
-    /** statements count
+    /** statements count.
      */
-    protected int count = 0;
-    /** map queries -> statements
+    private int count = 0;
+    /** map queries -> statements.
      */
-    protected HashMultiMap statementsMap = new HashMultiMap(); // query -> PooledPreparedStatement
-    /** running thread
+    private HashMultiMap statementsMap = new HashMultiMap(); // query -> PooledPreparedStatement
+    /** running thread.
      */
-    protected Thread checkTimeoutThread = null;
-    /** true if running
+    private Thread checkTimeoutThread = null;
+    /** true if running.
      */
-    protected boolean running = true;
+    private boolean running = true;
 
-    /** check delay
+    /** check delay.
      */
-    protected static final long checkDelay = 30*1000;
-    /** after this timeout, statements are recycled even if not closed
+    private static final long checkDelay = 30*1000;
+    /** after this timeout, statements are recycled even if not closed.
      */
-    protected static final long timeout = 60*60*1000;
-    /** max number of statements
+    private static final long timeout = 60*60*1000;
+    /** max number of statements.
      */
-    protected static final int maxStatements = 50;
+    private static final int maxStatements = 50;
 }

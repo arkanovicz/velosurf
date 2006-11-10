@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.regex.PatternSyntaxException;
 import java.sql.Statement;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.lang.reflect.Method;
@@ -14,9 +13,9 @@ import java.lang.reflect.Method;
 import velosurf.util.Logger;
 
 /**
- * <p>Contains specific description and behaviour of jdbc drivers</p>
+ * <p>Contains specific description and behaviour of jdbc drivers.</p>
  *
- * <p>(main sources:
+ * <p>Main sources:
  * <ul><li>http://www.schemaresearch.com/products/srtransport/doc/modules/jdbcconf.html
  * <li>http://db.apache.org/torque/ and org.apache.torque.adapter classes
  * </ul></p>
@@ -26,7 +25,13 @@ import velosurf.util.Logger;
 
 public class DriverInfo
 {
-    static DriverInfo getDriverInfo(String url,String driverClass)
+    /**
+     * Get a driver info by url and driver class.
+     * @param url database url
+     * @param driverClass driver class
+     * @return driver infos
+     */
+    static public DriverInfo getDriverInfo(String url,String driverClass)
     {
         /* always try to use both infos to check for validity */
         String vendor = null;
@@ -88,7 +93,19 @@ public class DriverInfo
         return ret;
     }
 
-    public DriverInfo(String name,String jdbcTag,String drivers[],String pingQuery,String caseSensivity,String schemaQuery,String IDGenerationMethod,String lastInsertIDQuery,String ignorePattern)
+    /**
+     * Driver info constructor.
+     * @param name name
+     * @param jdbcTag jdbc tag
+     * @param drivers array of driver class names
+     * @param pingQuery ping query (e.g. "select 1")
+     * @param caseSensivity default case sensivity policy
+     * @param schemaQuery query to change schema
+     * @param IDGenerationMethod preferred ID generation method
+     * @param lastInsertIDQuery query to get last inserted ID value
+     * @param ignorePattern ignore tables whose name matches this pattern
+     */
+    private DriverInfo(String name,String jdbcTag,String drivers[],String pingQuery,String caseSensivity,String schemaQuery,String IDGenerationMethod,String lastInsertIDQuery,String ignorePattern)
     {
         this.name = name;
         this.jdbcTag = jdbcTag;
@@ -102,18 +119,39 @@ public class DriverInfo
 //        this.IDGenerationQuery = IDGenerationQuery;
     }
 
-    protected String name;                // name of the database vendor
-    protected String jdbcTag;             // jdbc tag of the database vendor
-    protected String[] drivers;           // list of driver classes
-    protected String pingQuery;           // ping SQL query
-    protected String caseSensivity;       // case-sensivity
-    protected String schemaQuery;         // SQL query to set the current schema
-    protected String IDGenerationMethod;  // ID generation method
-    protected String lastInsertIDQuery;   // query used to retrieve the last inserted id
-    protected Pattern ignorePattern;
+    /** name of the database vendor */
+    private String name;
+    /** jdbc tag of the database vendor */
+    private String jdbcTag;
+    /** list of driver classes */
+    private String[] drivers;
+    /** ping SQL query */
+    private String pingQuery;
+    /** case-sensivity */
+    private String caseSensivity;
+    /** SQL query to set the current schema */
+    private String schemaQuery;
+    /** ID generation method */
+    private String IDGenerationMethod;
+    /** query used to retrieve the last inserted id */
+    private String lastInsertIDQuery;
+    /** ignore tables matchoing this pattern */
+    private Pattern ignorePattern;
 // not yet implemented (TODO)
 //   public String IDGenerationQuery;   // ID generation query
 
+    /**
+     *  Add a new driver.
+     * @param name name
+     * @param jdbcTag jdbc tag
+     * @param drivers array of driver class names
+     * @param pingQuery ping query (e.g. "select 1")
+     * @param caseSensivity default case sensivity policy
+     * @param schemaQuery query to change schema
+     * @param IDGenerationMethod preferred ID generation method
+     * @param lastInsertIDQuery query to get last inserted ID value
+     * @param ignorePrefix ignore tables whose name matches this pattern
+     */
     public static void addDriver(String name,String jdbcTag,String drivers[],String pingQuery,String caseSensivity,String schemaQuery,String IDGenerationMethod,String lastInsertIDQuery,String ignorePrefix/*,String IDGenerationQuery*/)
     {
         DriverInfo infos = new DriverInfo(name,jdbcTag,drivers,pingQuery,caseSensivity,schemaQuery,IDGenerationMethod,lastInsertIDQuery,ignorePrefix/*,IDGenerationQuery*/);
@@ -123,32 +161,53 @@ public class DriverInfo
         }
     }
 
-    /* map jdbctag -> driver infos */
+    /** map jdbctag -> driver infos. */
     static private Map<String,DriverInfo> driverByVendor = new HashMap<String,DriverInfo>();
 
-    /* map driver class -> driver infos */
+    /** map driver class -> driver infos. */
     static private Map<String,DriverInfo> driverByClass = new HashMap<String,DriverInfo>();
 
+    /**
+     * Get the jdbc tag.
+     * @return jdbc tag
+     */
     public String getJdbcTag() {
         return jdbcTag;
     }
-
-    protected String[] getDrivers() {
+    /**
+     * Get the list of driver class names.
+     * @return array of driver class names
+     */
+    public String[] getDrivers() {
         return drivers;
     }
-
+    /**
+     * Get the ping query.
+     * @return ping query
+     */
     public String getPingQuery() {
         return pingQuery;
     }
-
+    /**
+     * Get case sensivity default policy.
+     * @return case sensivity default policy
+     */
     public String getCaseSensivity() {
         return caseSensivity;
     }
-
+    /**
+     * Get the schema setter query.
+     * @return schema setter query
+     */
     public String getSchemaQuery() {
         return schemaQuery;
     }
-
+    /**
+     * Get the last inserted id.
+     * @param statement source statement
+     * @return last inserted id (or -1)
+     * @throws SQLException
+     */
     public long getLastInsertId(Statement statement) throws SQLException
     {
         long ret = -1;
@@ -173,7 +232,11 @@ public class DriverInfo
         }
         return ret;
     }
-
+    /** Check whether to ignore or not this table.
+     *
+     * @param name table name
+     * @return whether to ignore this table
+     */
     public boolean ignoreTable(String name) {
         return ignorePattern != null && ignorePattern.matcher(name).matches();
     }
@@ -210,34 +273,3 @@ public class DriverInfo
         addDriver("Unknown driver","unknown",new String[]{},"select 1","sensitive",null,"none",null,null);
     }
 }
-
-/* old implementation
-    // array containing { vendor(as it appear in the url), driver-1, ... driver-n, CheckQuery/null, case-sensivity }
-    // sources :
-    // http://www.schemaresearch.com/products/srtransport/doc/modules/jdbcconf.html
-    // http://db.apache.org/torque/ and org.apache.torque.adapter classes
-    // and Google of course
-    private static String vendors[][] =
-            { // ID genetation methods are indicated at the end as comments, for further implementation
-                {"Axiondb","org.axiondb.jdbc.AxionDriver","select 1",""}, // none
-                {"Cloudscape","COM.cloudscape.core.JDBCDriver","select 1",""}, // autoincrement : select distinct ConnectionInfo.lastAutoIncrementValue( 'APP'|schema, table, column ) from table
-                {"DB2","COM.ibm.db2.jdbc.app.DB2Driver","COM.ibm.db2.jdbc.net.DB2Driver","select 1",""}, // none
-                {"Easysoft","easysoft.sql.jobDriver","select 1",""},
-                {"FrontBase","jdbc.FrontBase.FBJDriver","select 1",""},
-                {"HSQLDB","org.hsqldb.jdbcDriver","org.hsql.jdbcDriver","",""},
-                {"Hypersonic","org.hsql.jdbcDriver","select 1",""}, // autoincrement : select IDENTIY() from ?
-                {"OpenBase","com.openbase.jdbc.ObDriver","select 1",""},
-                {"Informix","com.informix.jdbc.IfxDriver","select 1",""}, // none
-                {"InstantDB","org.enhydra.instantdb.jdbc.idbDriver","select 1",""}, // none
-                {"Interbase","interbase.interclient.Driver","select 1",""}, // none
-                {"odbc","sun.jdbc.odbc.JdbcOdbcDriver","select 1",""},
-                {"SqlServer","com.microsoft.jdbc.sqlserver.SQLServerDriver","com.jnetdirect.jsql.JSQLDriver","com.merant.datadirect.jdbc.sqlserver.SQLServerDriver","select 1",""}, // autoincrement : select @@identity
-                {"MySql","com.mysql.jdbc.Driver","org.gjt.mm.mysql.Driver","select 1","sensitive"}, // autoincrement : select lastinsertid()
-                {"Openbase","com.openbase.jdbc.ObDriver","select 1",""},
-                {"Oracle","oracle.jdbc.driver.OracleDriver","select 1 from dual","uppercase"}, // sequence : select seq.nextval from dual
-                {"PostgreSQL","org.postgresql.Driver","select 1",""}, // autoincrement (or sequence !) : select currval(table)
-                {"SapDB","com.sap.dbtech.jdbc.DriverSapDB","select 1 from dual",""},  // sequence : select seq.nextval from dual
-                {"Sybase","com.sybase.jdbc2.jdbc.SybDriver","select 1",""}, // autoincrement : select @@identity
-                {"Weblogic","weblogic.jdbc.pool.Driver","select 1",""} // none
-            };
-*/

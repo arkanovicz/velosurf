@@ -26,16 +26,14 @@ import java.sql.SQLException;
 import velosurf.model.Entity;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;
-import velosurf.web.l10n.Localizer;
 import velosurf.sql.ReadOnlyWrapper;
 
-// inherits AbstractList so that Velocity will call iterator() from within a #foreach directive
 /** Context wrapper for an entity.
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
-public class EntityReference extends AbstractList
-{
+public class EntityReference extends AbstractList {
+        /* extends AbstractList so that Velocity will call iterator() from within a #foreach directive */
     /** Builds a new EntityReference.
      *
      * @param entity the wrapped entity
@@ -62,7 +60,7 @@ public class EntityReference extends AbstractList
     /** Insert a new row in this entity's table.
      *
      * @param values col -> value map
-     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
+     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
     public boolean insert(Map values) {
         try {
@@ -76,7 +74,7 @@ public class EntityReference extends AbstractList
         }
     }
 
-    /** Returns the ID of the last inserted row (obfuscated if needed)
+    /** Returns the ID of the last inserted row (obfuscated if needed).
      *
      * @return last insert ID
      */
@@ -85,24 +83,23 @@ public class EntityReference extends AbstractList
         return entity.filterID(id);
     }
 
-    /** Update a row in this entity's table.
-     * <p>
-     * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
+    /** <p>Update a row in this entity's table.</p>
+     *
+     * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
      *
      * @param values col -> value map
-     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
+     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
     public boolean update(Map values) {
         return entity.update(new ReadOnlyWrapper(values));
     }
 
-    /** Detele a row from this entity's table.
-     * <p>
-     * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
-     * <p>
+    /** <p>Detele a row from this entity's table.</p>
+     *
+     * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
      *
      * @param values col -> value map
-     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.lastError can be checked).
+     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
     public boolean delete(Map values) {
         return entity.delete(new ReadOnlyWrapper(values));
@@ -112,9 +109,9 @@ public class EntityReference extends AbstractList
      *
      * @param values values of the key columns
      * @return an Instance, or null if an error occured (in which case
-     *     $db.lastError can be checked)
+     *     $db.error can be checked)
      */
-    public Instance fetch(List values) {
+    public Instance fetch(List<Object> values) {
         try {
             Instance instance = entity.fetch(values);
             if (userContext != null) {
@@ -134,7 +131,7 @@ public class EntityReference extends AbstractList
      *
      * @param values key=>value map
      * @return an Instance, or null if an error occured (in which case
-     *     $db.lastError can be checked)
+     *     $db.error can be checked)
      */
     public Instance fetch(Map values) {
         try {
@@ -156,7 +153,7 @@ public class EntityReference extends AbstractList
      *
      * @param keyValue value of the key column
      * @return an Instance, or null if an error occured (in which case
-     *     $db.lastError can be checked)
+     *     $db.error can be checked)
      */
     public Instance fetch(String keyValue) {
         try {
@@ -178,7 +175,7 @@ public class EntityReference extends AbstractList
      *
      * @param keyValue value of the key column
      * @return an Instance, or null if an error occured (in which case
-     *     $db.lastError can be checked)
+     *     $db.error can be checked)
      */
     public Instance fetch(Number keyValue) {
         try {
@@ -196,7 +193,6 @@ public class EntityReference extends AbstractList
         }
     }
 
-    // called by the #foreach directive
     /** Called by the #foreach directive.
      *
      * @return a RowIterator on all instances of this entity, possibly previously
@@ -218,7 +214,7 @@ public class EntityReference extends AbstractList
         }
     }
 
-    /** gets all the rows in a list of maps
+    /** Get all the rows in a list of maps.
      *
      * @return a list of all the rows
      */
@@ -238,21 +234,21 @@ public class EntityReference extends AbstractList
         }
     }
 
-    /** Refines this entity reference querying result: the provided criterium will be added to the 'where' clause (or a 'where' clause will be added).
-     * <p>
-     * This method can be called several times, thus allowing a field-by-field handling of an html search form.
-     * <p>
-     * All criteria will be merged with the sql 'and' operator (if there is an initial where clause, it is wrapped into parenthesis).
-     * <p>
-     * Example: if we issue the following calls from inside the template:
+    /** <p>Refines this entity reference querying result. The provided criterium will be added to the 'where' clause (or a 'where' clause will be added).</p>
+     *
+     * <p>This method can be called several times, thus allowing a field-by-field handling of an html search form.</p>
+     *
+     * <p>All criteria will be merged with the sql 'and' operator (if there is an initial where clause, it is wrapped into parenthesis).</p>
+     *
+     * <p>Example: if we issue the following calls from inside the template:</p>
      * <blockquote>
      * $person.refine("age>30")
-     * <p>
+     * <br>
      * $person.refine("salary>3000")
      * </blockquote>
-     * the resulting query that will be issed is:
-     * <p>
-     * select * from person where (age>30) and (salary>3000)
+     * <p>the resulting query that will be issed is:</p>
+     *
+     * <p><code>select * from person where (age>30) and (salary>3000)</code></p>
      *
      * @param criterium a valid sql condition
      */
@@ -269,16 +265,16 @@ public class EntityReference extends AbstractList
         }
     }
 
-    /** Clears any refinement made on this entity
-     * <p>
+    /** Clears any refinement made on this entity.
      */
     public void clearRefinement() {
         refineCriteria = null;
     }
 
-    /** Specify an 'order by' clause for this attribute reference result.<p>
-     * If an 'order by' clause is already present in the original query, the new one is appended (but successive calls to this method overwrite previous ones)<p>
-     * Pass it null or an empty string to clear any ordering.
+    /** <p>Specify an 'order by' clause for this attribute reference result.</p>
+     * <p>If an 'order by' clause is already present in the original query, the ew one is appended (but successive calls to this method overwrite previous ones).</p>
+     * <p> postfix " DESC " to a column for descending order.</p>
+     * <p>Pass it null or an empty string to clear any ordering.</p>
      *
      * @param order valid sql column names (separated by commas) indicating the
      *      desired order
@@ -292,7 +288,7 @@ public class EntityReference extends AbstractList
         }
     }
 
-    /** Create a new instance for this entity
+    /** Create a new instance for this entity.
      *
      * @return null
      */
@@ -316,7 +312,7 @@ public class EntityReference extends AbstractList
     }
 
 
-    /** getter for the list of column names
+    /** Getter for the list of column names.
      *
      * @return the list of column names
      */
@@ -338,20 +334,20 @@ public class EntityReference extends AbstractList
      */
     public int size() { return 0; }
 
-    /** the wrapped entity
+    /** The wrapped entity.
      */
-    protected Entity entity = null;
+    private Entity entity = null;
 
-    /** specified order
+    /** Specified order.
      */
-    protected String order = null;
+    private String order = null;
 
-    /** specified refining criteria
+    /** Specified refining criteria.
      */
-    protected List refineCriteria = null;
+    private List<String> refineCriteria = null;
 
-    /** user context to give to created instances
+    /** User context to be given to created instances.
      *
      */
-    protected UserContext userContext = null;
+    private UserContext userContext = null;
 }

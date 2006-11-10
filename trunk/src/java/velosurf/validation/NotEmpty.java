@@ -24,9 +24,9 @@ import java.util.Locale;
  *    &lt;<i>column</i> not-empty="true"/&gt;
  *  </pre>
  *<p>Or:</p>
- *   &lt;<i>column</i>&gt;
+ * <pre>  &lt;<i>column</i>&gt;
  *     &lt;not-empty [message="<i>error-message</i>"]/&gt;
- *   &lt;/<i>column</i>&gt;
+ *   &lt;/<i>column</i>&gt;</pre>
  * <p>Note: this constraint is not meant to replace an internal SQL clause in the database,
  * since it cannot be made sure that complex updates will respect this constraint.</p>
  *
@@ -42,14 +42,18 @@ public class NotEmpty extends FieldConstraint {
     }
 
     /**
-     *
+     * Validate datea against this constraint.
      * @param data the data to be validated
-     * @return true if data is not null
+     * @return true if data is not null and not empty
      */
     public boolean validate(Object data) {
         return data != null && data.toString().length() > 0;
     }
 
+    /**
+     * return a string representation for this constraint.
+     * @return string
+     */
     public String toString() {
         return "not-empty";
     }

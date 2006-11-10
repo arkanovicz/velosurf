@@ -24,40 +24,58 @@ import java.util.Map;
 import java.util.HashMap;
 
 import velosurf.web.l10n.Localizer;
-import velosurf.web.l10n.Localizer;
 import velosurf.model.Entity;
 
 /**
- * Used to store contextual values relatives to the user (in a web context, there is one UserContext per http session)
+ * Used to store contextual values relatives to the user (in a web context, there is one UserContext per http session).
  *
  * @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 public class UserContext {
 
-    /** key used to store the user context in the http session
+    /** key used to store the user context in the http session.
      */
     public static final String USER_CONTEXT_KEY = "velosurf.util.UserContext:session-key";
-
+    /**
+     * Constructor.
+     */
     public UserContext() {
 
     }
-
+    /**
+     * Last error setter.
+     * @param err error
+     */
     public void setError(String err) {
         error = err;
     }
-
+    /**
+     * Last error getter.
+     * @return last error message.
+     */
     public String getError() {
         return error;
     }
-
+    /** Localizer setter.
+     *
+     * @param loc localizer
+     */
     public void setLocalizer(Localizer loc) {
         localizer = loc;
     }
-
+    /** Locale setter.
+     *
+     * @param loc Locale
+     */
     public void setLocale(Locale loc) {
         locale = loc;
     }
-
+    /**
+     * Localize a parameterized message.
+     * @param str message to localize
+     * @param params parameters that are meant to replace "{0}", "{1}", ... in the message
+     * @return localized message
+     */
     public String localize(String str,Object ... params) {
         if (localizer == null) {
             if(params.length > 0) {
@@ -76,21 +94,29 @@ public class UserContext {
         }
 
     }
-
+    /**
+     * Clear validation errors.
+     */
     public void clearValidationErrors() {
         validationErrors.clear();
     }
-
+    /**
+     * Add a validation error.
+     * @param err validation error
+     */
     public void addValidationError(String err) {
         validationErrors.add(err);
     }
-
+    /** Get all validation error messages.
+     *
+     * @return validation error messages
+     */
     public List<String> getValidationErrors() {
         /* returning null allows a test like "#if($db.validationErrors)" */
         return validationErrors.size()>0 ? validationErrors : null;
     }
 
-    /** generic getter
+    /** generic getter.
      *
      */
     public Object get(String key) {
@@ -103,7 +129,10 @@ public class UserContext {
         }
         return null;
     }
-
+    /**
+     * Locale getter.
+     * @return current locale
+     */
     public Locale getLocale() {
         if(localizer != null) {
             return localizer.getLocale();
@@ -113,11 +142,19 @@ public class UserContext {
             return Locale.getDefault();
         }
     }
-
+    /**
+     * Set the last inserted ID for an entity.
+     * @param entity entity
+     * @param id last inserted id
+     */
     public void setLastInsertedID(Entity entity,long id) {
         lastInsertedIDs.put(entity,id);
     }
-
+    /**
+     * Get the last inserted ID for an entity.
+     * @param entity entity
+     * @return last inserted ID of -1
+     */
     public long getLastInsertedID(Entity entity) {
         Long id = lastInsertedIDs.get(entity);
         if(id != null) {
@@ -127,10 +164,14 @@ public class UserContext {
             return -1;
         }
     }
-
+    /** last error message */
     private String error = "";
+    /** list of validation error messages */
     private List<String> validationErrors = new ArrayList<String>();
+    /** localizer */
     private Localizer localizer = null;
+     /** locale */
     private Locale locale = null;
+    /** map of last inserted IDs */
     private Map<Entity,Long> lastInsertedIDs = new HashMap<Entity,Long>();
 }

@@ -20,21 +20,21 @@ import java.util.Map;
 import java.util.Set;
 import java.sql.SQLException;
 
-/** This class encapsulates a Map as a DataAccessor
+/** This class encapsulates a Map as a ReadOnlyMap.
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class ReadOnlyWrapper implements ReadOnlyMap {
 
-    /** builds a new MapDataAccessor
+    /** build a new MapReadOnlyMap.
      *
      * @param innerMap the Map object to encapsulate
      */
     public ReadOnlyWrapper(Map innerMap){
         this.innerMap = innerMap;
     }
-    /** get the property named key in the wrapped Map
+    /** get the property named key in the wrapped Map.
      *
      * @param key the name of the property
      * @return the property value or null if not found
@@ -43,12 +43,16 @@ public class ReadOnlyWrapper implements ReadOnlyMap {
     public Object get(Object key) {
         return innerMap.get(key);
     }
-
+    /**
+     * Get the keys set.
+     * @return keys set
+     * @throws SQLException
+     */
     public Set keySet() throws SQLException {
         return innerMap.keySet();
     }
 
-    /** the wrapped Map
+    /** the wrapped Map.
      */
-    protected Map innerMap = null;
+    private Map innerMap = null;
 }

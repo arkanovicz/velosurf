@@ -93,7 +93,7 @@
 </p>
 
 <a name='settingup'/>
-<h1>Setting up and configuring Velosurf</h1>
+<h1>Setting up and Configuring Velosurf</h1>
 <p>Please refer to the <a href="./installation.html">Installation</a> page for how to set up Velosurf in you <a href="">Velocity-Tools</a> Webapp or in your Java application.</p>
 <p>It is possible to use several instances of Velosurf at the same time, each having its own configuration file, for instance
 if you want to use different context keys to refer to different schemas. Provided that the different configuration files use the same database login
@@ -148,7 +148,7 @@ inside text data, it may break the syntax of such SQL queries. To remedy to this
 <code>&amp;gt;</code> and <code>&amp;amp;</code>) whenever they appear inside your queries.<br>
 
 <a name='pooling'/>
-<h1>Connections/statements pooling and recovery</h1>
+<h1>Connections/Statements Pooling and Recovery</h1>
 <p>Connections and statements pooling is transparent. There are two connections pools, one with autocommit connections
 for queries and single statement updates and one without autocommit for transactions containing several requests. Those pools
 grow according to the rate of requests.</p>
@@ -158,16 +158,16 @@ or when such an instance is already busy. The statements pool will thus grow as 
 <p>Concurrent accesses are of course taken into account.</p>
 
 <a name='reverse'/>
-<h1>Reverse engineering</h1>
+<h1>Reverse Engineering</h1>
 <p>There are four reverse engineering modes proposed by Velosurf:
 <ul>
-<li><b>full</b> (default): all tables and foreign-keys of the current schema (if any) are reverse engineered. Each </li>
+<li><b>full</b> (default): all tables and foreign-keys of the current schema (if any) are reverse engineered.</li>
 <li><b>tables</b>: all tables of the current schema (if any) are reverse engineered.</li>
 <li><b>manual</b>: only entities listed in the configuration file are reverse engineered (only if they do correspond to an actual table).</li>
 <li><b>none</b>: no reverse engineering of any kind is achieved. Several features of Velosurf (like the <code><i>entity</i>.fetch</code> method) aren't available when using this mode.</li>
 </ul></p>
 
-<p>See the <a href='#foreign-keys'>imported and exported keys</a> section below for details on the reverse engineering of foreign keys.</p>
+<p>See the <a href='#foreign-keys'>Imported and Exported Keys</a> section below for details on the reverse engineering of foreign keys.</p>
 
 <p>By default entity names are deduced from SQL table names and entity property names are deduced from SQL column names.</p>
 <p>Use the <code>table='<i>table name</i>'</code> if an entity is to have a different name than its corresponding table
@@ -271,7 +271,7 @@ only Cloudscape, DB2, HSqlDB, MySql and Sybase databases are supported - if you 
 <p>Velosurf provides a validation process on constraints defined in its configuration file. Those constraints
 don't replace SQL defined constraints, they are supplementary constraints provided by Velosurf which are enforced on a per-row basis
 and not checked on massive updates.</p>
-<p>You can define constraints on fields of an entity using a <code>&lt;constraint&gt; tag per column. Each column constraint tag contains field constraints. Field constraints can be expressed in a short syntax form (as attributes of the column &lt;constraint&gt; tag)
+<p>You can define constraints on fields of an entity using a <code>&lt;constraint&gt;</code> tag per column. Each column constraint tag contains field constraints. Field constraints can be expressed in a short syntax form (as attributes of the column &lt;constraint&gt; tag)
 or in a long syntax form (as child tags of the column &lt;constraint&gt; tag), the long syntax form allowing some additional settings
 on the field constraint like the customization of the error message to be generated when the field constraint fails.</p>
 <p>The following field constraints are available (we only recall the short syntax here; please refer to <a href="./configuration.html">the Configuration page</a>
@@ -325,7 +325,7 @@ populated if data is not valid.</p>
 </ul></p>
 
 <a name='foreign-keys'/>
-<h1>Imported and exported keys</h1>
+<h1>Imported and Exported Keys</h1>
 <p>When reverse engineering foreign keys in <b>full</b> mode, each foreign key will produce two new attributes:
 <ul>
 <li>one attribute for the <i>imported key</i>, belonging to the importing table, named after the imported table name, with a row result type.</li>

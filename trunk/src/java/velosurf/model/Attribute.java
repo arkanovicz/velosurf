@@ -28,58 +28,87 @@ import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
 
-/** This class represents an attribute in the object model
+/** This class represents an attribute in the object model.
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class Attribute
 {
-    // attribute type constants
-    /** constant meaning the return type is undefined
+    /** Constant meaning the return type is undefined.
      */
     public static final int UNDEFINED = 0;
-    /** constant meaning the result is a single row
+    /** Constant meaning the result is a single row.
      */
     public static final int ROW = 1;
-    /** constant meaning the result is a rowset
+    /** Constant meaning the result is a rowset.
      */
     public static final int ROWSET = 2;
-    /** constant meaning the result is a scalar
+    /** Constant meaning the result is a scalar.
      */
     public static final int SCALAR = 3;
 
+    /**
+     * Constructor.
+     * @param name name of this attribute
+     * @param entity parent entity
+     */
     public Attribute(String name,Entity entity) {
         this.entity = entity;
         db = entity.getDB();
         this.name = name;
     }
 
+    /**
+     * Sets the result type.
+     * @param type
+     */
     public void setResultType(int type) {
         this.type = type;
     }
 
+    /** Gets the result type.
+     *
+     * @return a string describing the result type.
+     */
     public String getResultEntity() {
         return resultEntity;
     }
 
+    /**
+     * Sets the result entity.
+     * @param entityName the name of the result entity.
+     */
     public void setResultEntity(String entityName) {
         resultEntity = entityName;
     }
 
+    /**
+     * Declares this attribute as a foreign-key and specifies its foreign-key column.
+     * @param col the foreign-key column.
+     * @deprecated since Velosurf 2.0. Use a &lt;imported-key&gt; tag instead.
+     */
     public void setForeignKeyColumn(String col) {
         foreignKey = col;
     }
 
+    /**
+     * Adds a parameter name.
+     * @param name name of a parameter.
+     */
     public void addParamName(String name) {
         paramNames.add(name);
     }
 
+    /**
+     * Sets the query.
+     * @param query this attribute's query
+     */
     public void setQuery(String query) {
         this.query = query;
     }
 
-    /** fetch the row result of this attribute
+    /** Fetch a row.
      *
      * @param source source object
      * @exception SQLException when thrown by the database
@@ -90,7 +119,7 @@ public class Attribute
         return db.prepare(getQuery()).fetch(buildArrayList(source),db.getEntity(resultEntity));
     }
 
-    /** query the resultset for this multivalued attribute
+    /** Query the resultset for this multivalued attribute.
      *
      * @param source the source object
      * @exception SQLException when thrown from the database
@@ -100,7 +129,7 @@ public class Attribute
         return query(source,null,null);
     }
 
-    /** query the rowset for this attribute
+    /** Query the rowset for this attribute.
      *
      * @param source source object
      * @param refineCriteria refine criteria
@@ -117,7 +146,7 @@ public class Attribute
     }
 
 
-    /** evaluate this scalar attribute
+    /** Evaluate this scalar attribute.
      *
      * @param source source object
      * @exception SQLException when thrown from the database
@@ -128,7 +157,7 @@ public class Attribute
         return db.prepare(getQuery()).evaluate(buildArrayList(source));
     }
 
-    /** gets the type of this attribute
+    /** Get the type of this attribute.
      *
      * @return this attribute's type
      */
@@ -136,14 +165,14 @@ public class Attribute
         return type;
     }
 
-    /** builds the list of parameter values - do not use directly
+    /** Builds the list of parameter values.
      *
      * @param source source object
      * @exception SQLException thrown by the database engine
      * @return the built list
      */
-    public List buildArrayList(ReadOnlyMap source) throws SQLException {
-        ArrayList result = new ArrayList();
+    private List<Object> buildArrayList(ReadOnlyMap source) throws SQLException {
+        List<Object> result = new ArrayList<Object>();
         if (source!=null)
             for (Iterator i = paramNames.iterator();i.hasNext();) {
                 String paramName = (String)i.next();
@@ -155,7 +184,7 @@ public class Attribute
         return result;
     }
 
-    /** gets the name of the attribute
+    /** Gets the name of this attribute.
      *
      * @return name of the attribute
      */
@@ -163,7 +192,7 @@ public class Attribute
         return name;
     }
 
-    /** debug method
+    /** Debug method.
      *
      * @return the definition string of this attribute
      */
@@ -186,12 +215,12 @@ public class Attribute
         return result;
     }
 
-    protected String getQuery() throws SQLException
+    private String getQuery()
     {
         return query == null ? db.getEntity(resultEntity).getFetchQuery() : query;
     }
 
-    /** gets the database connection
+    /** Gets the database connection.
      *
      * @return database connection
      */
@@ -200,32 +229,33 @@ public class Attribute
     }
 
 
-    /** database connection
+    /** Database connection.
      */
     protected Database db = null;
-    /** name
+    /** Name.
      */
-    protected String name = null;
+    private String name = null;
 
-    /** parent entity
+    /** Parent entity.
      */
-    protected Entity entity;
+    private Entity entity;
 
-    /** for row and rowset attributes, the resulting entity (if specified)
+    /** For row and rowset attributes, the resulting entity (if specified).
      */
     protected String resultEntity;
 
-    /** if used, name of the foreign key
+    /** If used, name of the foreign key.
+     * @deprecated
      */
-    protected String foreignKey = null;
+    private String foreignKey = null;
 
-    /** list of the parameter names
+    /** List of the parameter names.
      */
-    protected List<String> paramNames = new ArrayList<String>();
-    /** attribute query
+    private List<String> paramNames = new ArrayList<String>();
+    /** Attribute query.
      */
     protected String query = null;
-    /** attribute type
+    /** Attribute type.
      */
-    protected int type = UNDEFINED;
+    private int type = UNDEFINED;
 }

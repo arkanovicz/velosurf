@@ -349,6 +349,7 @@ Please specify a target among :
         target="1.5">
 	  <patternset refid="sources"/>
       <classpath refid="classpath"/>
+<!--      <compilerarg value="-Xlint:unchecked"/> -->
 	</javac>
     <jar jarfile="${basedir}/velosurf-${version}.jar" basedir="${output.dir}" >
 	  <patternset refid="sources"/>

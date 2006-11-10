@@ -4,7 +4,6 @@ import velosurf.model.Entity;
 import velosurf.util.Logger;
 
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.HashMap;
 import java.lang.reflect.Method;
 
@@ -16,7 +15,7 @@ import java.lang.reflect.Method;
  */
 public class ExternalObjectWrapper extends Instance {
 
-    /** Builds a new PlaiObjectWrapper
+    /** Builds a new PlaiObjectWrapper.
      *
      * @param entity the related entity
      * @param object target object
@@ -33,7 +32,7 @@ public class ExternalObjectWrapper extends Instance {
     }
 
     /**
-     * Wrapper generic getter: tries first to get the property from the wrapped object, and falls back to the superclass
+     * Wrapper generic getter. Tries first to get the property from the wrapped object, and falls back to the superclass
      * if not found.
      *
      * @param key key of the property to be returned
@@ -47,7 +46,7 @@ public class ExternalObjectWrapper extends Instance {
     }
 
     /**
-     * External getter: get a value on the external object
+     * External getter. Get a value on the external object
      *
      * @param key key of the property to be returned
      * @return a String, an Instance, an AttributeReference or null if not found or if an error
@@ -60,7 +59,7 @@ public class ExternalObjectWrapper extends Instance {
                 return m.invoke(wrapped,m.getParameterTypes().length>0?new Object[] {key}:new Object[]{}); // return even if result is null
             }
             catch(Exception e) {
-                Logger.warn("could not get value of field "+entity.getName()+"."+key+"... falling back to the Instance getter");
+                Logger.warn("could not get value of field "+getEntity().getName()+"."+key+"... falling back to the Instance getter");
                 Logger.log(e);
             }
         }
@@ -69,20 +68,20 @@ public class ExternalObjectWrapper extends Instance {
 
 
    /**
-    * Wrapper generic setter: tries first to set the property into the wrapped object, and falls back to the superclass
+    * Wrapper generic setter. Tries first to set the property into the wrapped object, and falls back to the superclass
     * if not found.
     * @param key key of the property to be set
     * @param value corresponding value
     * @return previous value, or null
      */
-    public Object put(Object key,Object value) {
+    public Object put(String key,Object value) {
         Method m = classInfo.getSetter((String)key);
         if (m != null) {
             try {
                 return m.invoke(wrapped,m.getParameterTypes().length==2?new Object[] {key,value}:new Object[]{value});
             }
             catch(Exception e) {
-                Logger.warn("could not set value of field "+entity.getName()+"."+key+" to '"+value+"'... falling back to the Instance setter");
+                Logger.warn("could not set value of field "+getEntity().getName()+"."+key+" to '"+value+"'... falling back to the Instance setter");
                 Logger.log(e);
             }
         }
@@ -93,7 +92,7 @@ public class ExternalObjectWrapper extends Instance {
      * in the external object.</p>
      *
      * @return <code>true</code> if successfull, <code>false</code> if an error
-     *     occurs (in which case $db.lastError can be checked).
+     *     occurs (in which case $db.error can be checked).
      */
     public boolean update() {
         Method m = classInfo.getUpdate1();
@@ -120,7 +119,7 @@ public class ExternalObjectWrapper extends Instance {
      * in the external object.</p>
      *
      * @return <code>true</code> if successfull, <code>false</code> if an error
-     *     occurs (in which case $db.lastError can be checked).
+     *     occurs (in which case $db.error can be checked).
      */
     public boolean update(Map values) {
         Method m = classInfo.getUpdate2();
@@ -143,11 +142,11 @@ public class ExternalObjectWrapper extends Instance {
         else return super.update();
     }
 
-    /** Tries to delete the row associated with this Instance using a delete() method in the external object.<p>
-     * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.
+    /** <p>Tries to delete the row associated with this Instance using a delete() method in the external object.
+     * Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
      *
      * @return <code>true</code> if successfull, <code>false</code> if an error
-     *     occurs (in which case $db.lastError can be checked).
+     *     occurs (in which case $db.error can be checked).
      */
     public boolean delete() {
         Method m = classInfo.getDelete();
@@ -173,7 +172,7 @@ public class ExternalObjectWrapper extends Instance {
     /** Tries to insert a new row corresponding to this Instance using an insert() method in the external object.
      *
      * @return <code>true</code> if successfull, <code>false</code> if an error
-     *     occurs (in which case $db.lastError can be checked).
+     *     occurs (in which case $db.error can be checked).
      */
     public boolean insert() {
         Method m = classInfo.getInsert();
@@ -198,7 +197,7 @@ public class ExternalObjectWrapper extends Instance {
 
 
     /**
-     * Returns the underlying external object
+     * Returns the underlying external object.
      *
      * @return the external object
      */
@@ -206,39 +205,32 @@ public class ExternalObjectWrapper extends Instance {
         return wrapped;
     }
 
-    /** Tries to find a named method in the external object
-     *
-     *  @param name the name of the method
-     *  @param args the types of the arguments
-     */
-    protected Method findMethod(String name,Class[] args) {
-        try {
-            return wrapped.getClass().getMethod(name,args);
-        }
-        catch(NoSuchMethodException nsme) {}
-        return null;
-    }
-
-    /** the wrapped object */
+    /** The wrapped object. */
     Object wrapped = null;
 
-    /** info on the wrapped object class */
+    /** Info on the wrapped object class. */
     ClassInfo classInfo = null;
 
-    /** a map of class infos */
+    /** A map of class infos. */
     static Map<String,ClassInfo> classInfoMap = new HashMap<String,ClassInfo>();
 
-    /** a cache for the wrapped object getter methods */
+    /** A cache for the wrapped object getter methods. */
     Map getterCache = null;
 
-    /** a cache for the wrapped object setter methods */
+    /** A cache for the wrapped object setter methods. */
     Map setterCache = null;
 
+    /** This private class gathers informations on the class of wrapped objects. */
     static private class ClassInfo {
         ClassInfo(Class clazz) {
             this.clazz = clazz;
         }
 
+        /**
+         * Getter getter :-) .
+         * @param key property name
+         * @return property getter, if found
+         */
         Method getGetter(String key) {
             Method result = (Method)getterMap.get(key);
             if(result == noSuchMethod) {
@@ -281,6 +273,11 @@ public class ExternalObjectWrapper extends Instance {
 
         }
 
+        /**
+         * Setter getter
+         * @param key property name
+         * @return property setter, if found
+         */
         Method getSetter(String key) {
             Method result = setterMap.get(key);
             if(result == noSuchMethod) {
@@ -292,7 +289,7 @@ public class ExternalObjectWrapper extends Instance {
 
             Class [] types = {};
 
-            // setFoo
+            /* setFoo */
             StringBuffer sb = new StringBuffer("set");
             sb.append(key);
             try {
@@ -302,7 +299,7 @@ public class ExternalObjectWrapper extends Instance {
             }
             catch (NoSuchMethodException nsme) {}
 
-            // setfoo
+            /* setfoo */
             char c = sb.charAt(3);
             sb.setCharAt(3,Character.isLowerCase(c)?Character.toUpperCase(c):Character.toLowerCase(c));
             try {
@@ -312,7 +309,7 @@ public class ExternalObjectWrapper extends Instance {
             }
             catch (NoSuchMethodException nsme) {}
 
-            // put(foo,bar)
+            /* put(foo,bar) */
             result = getGenericSetter();
             if (result == null) {
                 setterMap.put(key,noSuchMethod);
@@ -322,6 +319,10 @@ public class ExternalObjectWrapper extends Instance {
             return result;
         }
 
+        /**
+         * Tries to get an update() method in the wrapped object.
+         * @return found update method, if any
+         */
         Method getUpdate1() {
             if(update1 == noSuchMethod) {
                 return null;
@@ -337,6 +338,10 @@ public class ExternalObjectWrapper extends Instance {
             }
         }
 
+        /**
+         * Tries to get an update(Map) method in the wrapped object.
+         * @return found update method, if any
+         */
         Method getUpdate2() {
             if(update2 == noSuchMethod) {
                 return null;
@@ -352,6 +357,10 @@ public class ExternalObjectWrapper extends Instance {
             }
         }
 
+        /**
+         * Tries to get an insert() method in the wrapped object.
+         * @return found method, if any
+         */
         Method getInsert() {
             if(insert == noSuchMethod) {
                 return null;
@@ -367,6 +376,10 @@ public class ExternalObjectWrapper extends Instance {
             }
         }
 
+        /**
+         * Tries to get a delete() method in the wrapped object.
+         * @return found method, if any
+         */
         Method getDelete() {
             if(delete == noSuchMethod) {
                 return null;
@@ -382,6 +395,10 @@ public class ExternalObjectWrapper extends Instance {
             }
         }
 
+        /**
+         * Tries to get a generic getter in the wrapped object.
+         * @return found method, if any
+         */
         Method getGenericGetter() {
             if(genericGetter == noSuchMethod) {
                 return null;
@@ -399,6 +416,10 @@ public class ExternalObjectWrapper extends Instance {
             }
         }
 
+        /**
+         * Tries to get a generic setter in the wrapped object.
+         * @return found method, if any
+         */
         Method getGenericSetter() {
             if (genericSetter == noSuchMethod) {
                 return null;
@@ -416,17 +437,45 @@ public class ExternalObjectWrapper extends Instance {
             }
         }
 
+        /**
+         * Wrapped class.
+         */
         Class clazz;
+        /**
+         * Getter map.
+         */
         Map<String,Method> getterMap = new HashMap<String,Method>();
+        /**
+         * Setter map.
+         */
         Map<String,Method> setterMap = new HashMap<String,Method>();
+        /**
+         * Generic getter.
+         */
         Method genericGetter = null;
+        /**
+         * Generic setter.
+         */
         Method genericSetter = null;
+        /**
+         * Update method, first form.
+         */
         Method update1 = null;
+        /**
+         * Update method, second form.
+         */
         Method update2 = null;
+        /**
+         * Insert method.
+         */
         Method insert = null;
+        /**
+         * Delete method.
+         */
         Method delete = null;
-        /* dummy method object used to remember we already tried to find an unexistant method */
+        /* dummy method object used to remember we already tried to find an unexistant method. */
         static Method noSuchMethod;
+
         static {
             try {
                 noSuchMethod = Object.class.getMethod("toString",new Class[]{});

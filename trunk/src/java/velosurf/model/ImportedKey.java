@@ -17,18 +17,27 @@
 package velosurf.model;
 
 import java.util.List;
-import java.sql.SQLException;
 
 import velosurf.util.StringLists;
 
-/** An imported key (aka foreign key) attribute
+/** An imported key (aka foreign key) attribute.
  *
  */
 
 public class ImportedKey extends Attribute {
 
+    /**
+     * Foreign key columns.
+     */
     private List<String> fkCols = null;
 
+    /** Imported key constructor.
+     *
+     * @param name name of this exported key
+     * @param entity parent entity
+     * @param pkEntity primary key entity
+     * @param fkCols foreign key columns
+     */
     public ImportedKey(String name,Entity entity,String pkEntity,List<String> fkCols) {
         super(name,entity);
         setResultEntity(pkEntity);
@@ -36,7 +45,11 @@ public class ImportedKey extends Attribute {
         setResultType(Attribute.ROW);
     }
 
-    protected String getQuery() throws SQLException
+    /**
+     * Query getter.
+     * @return SQL query
+     */
+    private String getQuery()
     {
         if(query == null) {
             Entity pkEntity = db.getEntity(resultEntity);
@@ -48,11 +61,28 @@ public class ImportedKey extends Attribute {
         return query;
     }
 
+    /**
+     * Foreign key columns getter.
+     * @return foreign key columns list
+     */
     public List<String> getFKCols() {
         return fkCols;
     }
 
+    /** Foreign key columns setter.
+     *
+     * @param fkCols foreign key columns list
+     */
     public void setFKCols(List<String> fkCols) {
         this.fkCols = fkCols;
     }
+
+    /** Debug method.
+     *
+     * @return the definition string of this attribute
+     */
+    public String toString() {
+        return getQuery();
+    }
+
 }

@@ -22,7 +22,7 @@ package velosurf.util;
  */
 public class Strings
 {
-    /** replace a string by another inside a target string
+    /** replace a string by another inside a target string.
      *
      * @param target target string
      * @param oldPattern old pattern
@@ -50,16 +50,16 @@ public class Strings
 
     }
 
-    /** characters to trim
+    /** characters to trim.
      */
     private static String trimmed = " \t\r\n";
 
-    /** trim spaces and EOL characters (TODO : fix the typo - nothing to do with EOF characters)
+    /** trim spaces and EOL characters.
      *
      * @param target target string
      * @return the trimmed string
      */
-    public static String trimSpacesAndEOF(String target) {
+    public static String trimSpacesAndEOL(String target) {
         if (target == null || target.length() == 0) return target;
 
         char c;

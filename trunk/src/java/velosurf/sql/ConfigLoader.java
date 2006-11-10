@@ -54,33 +54,44 @@ import velosurf.validation.Regex;
 import velosurf.validation.FieldConstraint;
 import velosurf.validation.DateRange;
 import velosurf.validation.NotEmpty;
-import velosurf.web.HttpQueryTool;
 
-/** A configuration loader for the Database object
+/** A configuration loader for the Database object.
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 
 public class ConfigLoader {
 
+    /** Database. */
     private Database database = null;
-
+    /** &lt;<code>xi:include</code>&gt; tag resolver. */
     private XIncludeResolver xincludeResolver = null;
-
+    /** Obfuscation needed? */
     private boolean needObfuscator = false;
-
+    /** Syntax checker pattern for the <code>result</code> attribute of &lt;<code>attribute</code>&gt; tags. */
     private static final Pattern attributeResultSyntax = Pattern.compile("^scalar|(?:(?:row|rowset)(?:/.+)?)$");
-
+    /**
+     * Constructor.
+     * @param db database
+     */
     public ConfigLoader(Database db) {
         this(db,null);
     }
-
+    /**
+     * Constructor.
+     * @param db database
+     * @param xincludeResolver &lt;<code>xi:include</code>&gt; tag resolver
+     */
     public ConfigLoader(Database db,XIncludeResolver xincludeResolver) {
         database = db;
         this.xincludeResolver = xincludeResolver;
     }
 
-
+   /**
+    * Main method of the ConfigLoader.
+    * @param config the configuration input stream
+    * @throws Exception
+    */
     public void loadConfig(InputStream config) throws Exception {
 
         Logger.info("reading properties...");
@@ -109,11 +120,20 @@ public class ConfigLoader {
         Logger.info("Config file successfully read.");
     }
 
+    /**
+     * Adapt the case to match chosen database case policy.
+     * @param str string to adapt
+     * @return adapted string
+     */
     private String adaptCase(String str) {
         return database.adaptCase(str);
     }
 
-    private void setDatabaseAttributes(Element database) throws SQLException {
+    /**
+     * Parses database XML attributes.
+     * @param database parent element
+     */
+    private void setDatabaseAttributes(Element database)  {
 
         /* log level */
         String loglevel = database.getAttributeValue("loglevel");
@@ -236,6 +256,12 @@ public class ConfigLoader {
         this.database.addEntity(root);
     }
 
+    /**
+     * Define Velosurf attributes.
+     * @param parent parent XML element
+     * @param entity parent entity
+     * @throws SQLException
+     */
     private void defineAttributes(Element parent,Entity entity) throws SQLException {
         for (Iterator attributes = parent.getChildren("attribute").iterator();attributes.hasNext();) {
             Element element = (Element)attributes.next();
@@ -281,7 +307,7 @@ public class ConfigLoader {
                 Iterator queryElements = element.getContent().iterator();
                 while (queryElements.hasNext()) {
                     Object content = queryElements.next();
-                    if (content instanceof Text) query += Strings.trimSpacesAndEOF(((Text)content).getText());
+                    if (content instanceof Text) query += Strings.trimSpacesAndEOL(((Text)content).getText());
                     else if (content instanceof Element) {
                         query+=" ? ";
                         Element elem = (Element)content;
@@ -300,6 +326,11 @@ public class ConfigLoader {
         }
     }
 
+    /**
+     * Define foreign keys.
+     * @param parent parent XML element
+     * @param entity parent entity
+     */
     private void defineForeignKeys(Element parent,Entity entity) {
         for (Iterator imported = parent.getChildren("imported-key").iterator();imported.hasNext();) {
             Element keyelem = (Element)imported.next();
@@ -353,7 +384,12 @@ public class ConfigLoader {
         }
     }
 
-    private void defineActions(Element parent,Entity entity) throws SQLException {
+    /**
+     * Define actions.
+     * @param parent parent XML element
+     * @param entity parent entity
+     */
+    private void defineActions(Element parent,Entity entity) {
         for (Iterator actions = parent.getChildren("action").iterator();actions.hasNext();) {
             Element element = (Element)actions.next();
             String name = adaptCase(element.getAttributeValue("name"));
@@ -369,7 +405,7 @@ public class ConfigLoader {
                 while (queryElements.hasNext()) {
                     Object content = queryElements.next();
                     if (content instanceof Text) {
-                        String text = Strings.trimSpacesAndEOF(((Text)content).getText());
+                        String text = Strings.trimSpacesAndEOL(((Text)content).getText());
                         int i = text.indexOf(';');
                         if (i!=-1) {
                             query.append(text.substring(0,i));
@@ -395,12 +431,11 @@ public class ConfigLoader {
             } else { /* simple action */
                 action = new Action(name,entity);
                 String query = "";
-                List<String> paramNames = new ArrayList<String>();
                 Iterator queryElements = element.getContent().iterator();
                 while (queryElements.hasNext()) {
                     Object content = queryElements.next();
                     if (content instanceof Text) {
-                        query += Strings.trimSpacesAndEOF(((Text)content).getText());
+                        query += Strings.trimSpacesAndEOL(((Text)content).getText());
                     }
                     else {
                         query += " ? ";
@@ -414,6 +449,11 @@ public class ConfigLoader {
         }
     }
 
+    /**
+     * Define entities.
+     * @param database database XML element
+     * @throws Exception
+     */
     private void defineEntities(Element database) throws Exception {
         for (Iterator entities = database.getChildren("entity").iterator();entities.hasNext();) {
             Element element = (Element)entities.next();
@@ -427,13 +467,22 @@ public class ConfigLoader {
             if (table != null) {
                 entity.setTableName(table);
             }
-            this.database.getReverseEngineer().addCorrespondance(entity.getTableName(),entity);
+            this.database.getReverseEngineer().addTableMatching(entity.getTableName(),entity);
 
             /* custom class */
             String cls = element.getAttributeValue("class");
             element.removeAttribute("class");
-            // TODO : try to instanciate once to avoid subsequent errors
-            if (cls != null) entity.setInstanceClass(cls);
+            if (cls != null) {
+                try {
+                    Class clazz = Class.forName(cls);
+                    clazz.newInstance();
+                    /* looks ok */
+                    entity.setInstanceClass(cls);
+                } catch(Throwable t) {
+                    Logger.error("Cannot instantiate class "+cls);
+                    Logger.log(t);
+                }
+            }
 
 
             /* access (deprecated) */
@@ -469,7 +518,7 @@ public class ConfigLoader {
             element.removeAttribute("obfuscate");
             if (obfuscate != null) {
                 needObfuscator = true;
-                List obfuscatedCols = new ArrayList();
+                List<String> obfuscatedCols = new ArrayList<String>();
                 StringTokenizer tokenizer = new StringTokenizer(obfuscate,", ");
                 while(tokenizer.hasMoreTokens()) {
                     obfuscatedCols.add(adaptCase(tokenizer.nextToken()));
@@ -481,7 +530,7 @@ public class ConfigLoader {
             String localize = element.getAttributeValue("localize");
             element.removeAttribute("localize");
             if (localize != null) {
-                List localizedCols = new ArrayList();
+                List<String> localizedCols = new ArrayList<String>();
                 StringTokenizer tokenizer = new StringTokenizer(localize,", ");
                 while(tokenizer.hasMoreTokens()) {
                     localizedCols.add(adaptCase(tokenizer.nextToken()));
@@ -513,6 +562,12 @@ public class ConfigLoader {
         }
     }
 
+    /**
+     * Define constraints.
+     * @param element parent XML element
+     * @param entity parent entity
+     * @throws Exception
+     */
     private void defineConstraints(Element element,Entity entity) throws Exception {
         DateFormat format = new SimpleDateFormat("yyyyMMdd");
         String str;
@@ -718,7 +773,7 @@ public class ConfigLoader {
         }
     }
 
-    /** check the syntax of a parameter in the config file
+    /** Check the syntax of a parameter in the config file.
      *
      * @param paramName name of the parameter
      * @param paramValue value of the parameter
@@ -736,7 +791,7 @@ public class ConfigLoader {
         }
     }
 
-    /** parse a caching value
+    /** Parse a caching value.
      *
      * @param caching string describing the type of caching
      * @return type of caching
@@ -749,7 +804,7 @@ public class ConfigLoader {
             Cache.NO_CACHE;
     }
 
-    /** checks whether the action defined by this XML tree is a simple action or a transaction
+    /** Check whether the action defined by this XML tree is a simple action or a transaction.
      *
      * @param element XML tree defining an action
      * @return true if the action is a transaction
@@ -759,7 +814,7 @@ public class ConfigLoader {
         while (queryElements.hasNext()) {
             Object content = queryElements.next();
             if (content instanceof Text) {
-                String text = Strings.trimSpacesAndEOF(((Text)content).getText());
+                String text = Strings.trimSpacesAndEOL(((Text)content).getText());
                 char[] chars = text.toCharArray();
                 boolean insideLitteral = false;
                 for (int i=0;i<chars.length;i++) {
@@ -771,6 +826,4 @@ public class ConfigLoader {
         }
         return false;
     }
-
-
 }

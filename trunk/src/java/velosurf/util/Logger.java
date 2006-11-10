@@ -22,106 +22,105 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.io.FileWriter;
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/** this class is the logger used by velosurf
+/** This class is the logger used by velosurf.
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
 public class Logger
 {
     /**
-     * trace messages loglevel
+     * trace messages loglevel.
      */
     public final static int TRACE_ID = 0;
 
     /**
-     * debug messages loglevel
+     * debug messages loglevel.
      */
     public final static int DEBUG_ID = 1;
 
     /**
-     * info messages loglevel
+     * info messages loglevel.
      */
     public final static int INFO_ID = 2;
 
     /**
-     * warn messages loglevel
+     * warn messages loglevel.
      */
     public final static int WARN_ID = 3;
 
     /**
-     * error messages loglevel
+     * error messages loglevel.
      */
     public final static int ERROR_ID = 4;
 
     /**
-     * fatal messages loglevel
+     * fatal messages loglevel.
      */
     public final static int FATAL_ID = 5;
 
 
     /**
-     * Current log level
+     * Current log level.
      */
     private static int logLevel = INFO_ID;
 
     /**
-     * whether to display timestamps
+     * whether to display timestamps.
      */
     private static boolean displayTimestamps = false;
 
     /**
-     * whether the logger captures stdout
+     * whether the logger captures stdout.
      */
     private static boolean captureStdout = false;
 
     /**
-     * whether the logger captures stderr
+     * whether the logger captures stderr.
      */
     private static boolean captureStderr;
 
     /**
-     * max number of lines to log in asynchronous mode
+     * max number of lines to log in asynchronous mode.
      */
     private static int asyncLimit = 50;
 
     /**
-     * Did someone give me an otput writer ?
+     * Did someone give me an otput writer?
      */
     private static boolean initialized = false;
 
-    /** Sets the log level
+    /** Sets the log level.
      * @param logLevel log level
      */
     public static void setLogLevel(int logLevel) {
         Logger.logLevel = logLevel;
     }
 
-    /** whether to display timestamps
-     *
+    /** whether to display timestamps.
+     * @param timestamps
      */
     public static void setDisplayTimestamps(boolean timestamps) {
         displayTimestamps = timestamps;
     }
 
-    /** Gets the current log level
+    /** Gets the current log level.
      * @return the current log level
      */
     public static int getLogLevel() {
         return logLevel;
     }
 
-    /** date format for timestamps
+    /** date format for timestamps.
      */
     static SimpleDateFormat format = null;
-    /** asynchronous log used at start
+    /** asynchronous log used at start.
      */
     static StringWriter asyncLog = null;
-    /** log output printwriter
+    /** log output printwriter.
      */
     static PrintWriter log = null;
     static
@@ -139,23 +138,23 @@ public class Logger
         }
     }
 
-    /** stdout old value
+    /** stdout old value.
      */
     static PrintStream oldStdout = null;
-    /** stderr old value
+    /** stderr old value.
      */
     static PrintStream oldStderr = null;
 
-    /** logs a string
+    /** logs a string.
      *
      * @param s string
      */
-    static protected void log(String s) {
+    static private void log(String s) {
         log.println(header()+s);
         log.flush();
     }
 
-    /** logs an exception with a string
+    /** logs an exception with a string.
      *
      * @param s string
      * @param e exception
@@ -166,7 +165,7 @@ public class Logger
         log.flush();
     }
 
-    /** log an exception
+    /** log an exception.
      *
      * @param e exception
      */
@@ -177,7 +176,7 @@ public class Logger
 
     static int lines = 0;
 
-    /** log a string using a verbose level
+    /** log a string using a verbose level.
      *
      * @param level verbose level
      * @param s string to log
@@ -216,7 +215,7 @@ public class Logger
         }
     }
 
-    /** logs a tracing string
+    /** logs a tracing string.
      *
      * @param s tracing string
      */
@@ -224,7 +223,7 @@ public class Logger
         log(TRACE_ID,s);
     }
 
-    /** logs a debug string
+    /** logs a debug string.
      *
      * @param s debug string
      */
@@ -232,7 +231,7 @@ public class Logger
         log(DEBUG_ID,s);
     }
 
-    /** logs an info string
+    /** logs an info string.
      *
      * @param s info string
      */
@@ -240,7 +239,7 @@ public class Logger
         log(INFO_ID,s);
     }
 
-    /** logs a warning string
+    /** logs a warning string.
      *
      * @param s warning string
      */
@@ -248,7 +247,7 @@ public class Logger
         log(WARN_ID,s);
     }
 
-    /** logs an error string
+    /** logs an error string.
      *
      * @param s error string
      */
@@ -256,7 +255,7 @@ public class Logger
         log(ERROR_ID,s);
     }
 
-    /** logs a fatal error string
+    /** logs a fatal error string.
      *
      * @param s fatal error string
      */
@@ -264,7 +263,7 @@ public class Logger
         log(ERROR_ID,s);
     }
 
-    /** get the output writer
+    /** get the output writer.
      *
      * @return writer
      */
@@ -272,7 +271,7 @@ public class Logger
         return log;
     }
 
-    /** set the output writer
+    /** set the output writer.
      *
      * @param out PrintWriter or Writer or OutputStream
      */
@@ -289,7 +288,7 @@ public class Logger
         initialized = true;
     }
 
-    /** redirects stdout towards output writer
+    /** redirects stdout towards output writer.
      */
     static public void startCaptureStdout() {
         oldStdout = System.out;
@@ -297,14 +296,14 @@ public class Logger
         captureStdout = true;
     }
 
-    /** stop redirecting stdout
+    /** stop redirecting stdout.
      */
     static public void stopCaptureStdout() {
         if (captureStdout) System.setOut(oldStdout);
         captureStdout = false;
     }
 
-    /** redirects stderr towards the output writer
+    /** redirects stderr towards the output writer.
      */
     static public void startCaptureStderr() {
         oldStderr = System.err;
@@ -312,14 +311,14 @@ public class Logger
         captureStderr = true;
     }
 
-    /** stops redirecting stderr
+    /** stops redirecting stderr.
      */
     static public void stopCaptureStderr() {
         if (captureStderr) System.setErr(oldStderr);
         captureStderr = false;
     }
 
-    /** log to stdout
+    /** log to stdout.
       */
     static public void log2Stdout() {
         stopCaptureStdout();
@@ -328,7 +327,7 @@ public class Logger
         flushAsyncLog();
     }
 
-    /** log to stderr
+    /** log to stderr.
      */
     static public void log2Stderr() {
         stopCaptureStdout();
@@ -337,24 +336,24 @@ public class Logger
         flushAsyncLog();
     }
 
-    /** log to file
+    /** log to file.
      */
     static public void log2File(String file) throws FileNotFoundException {
         log = new PrintWriter(file);
         flushAsyncLog();
     }
 
-    /** returns "Velosurf "
+    /** returns "Velosurf ".
      *
      * @return return the header
      */
-    static protected String header() {
+    static private String header() {
         return displayTimestamps ? format.format(new Date())+ " Velosurf " : " Velosurf ";
     }
 
-    /** flush the asynchronous log in the output writer
+    /** flush the asynchronous log in the output writer.
      */
-    static protected void flushAsyncLog() {
+    static private void flushAsyncLog() {
         if (asyncLog != null) {
             try {
                 log(asyncLog.toString());
@@ -367,14 +366,14 @@ public class Logger
         }
     }
 
-    /** queries the initialized state
+    /** queries the initialized state.
      *
      */
     static public boolean isInitialized() {
         return initialized;
     }
 
-    /** dumps the current stack
+    /** dumps the current stack.
      */
     static public void dumpStack() {
         try {

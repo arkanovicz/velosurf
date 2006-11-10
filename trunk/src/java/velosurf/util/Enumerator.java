@@ -25,8 +25,6 @@ import java.util.*;
  * Constructors are provided to easliy create such wrappers.</p>
  * <p>The source code is taken from Apache Tomcat</p>
  *
- * <p><a href="Enumerator.java.html"><i>View Source</i></a></p>
- *
  * @author Craig R. McClanahan
  * @author Andrey Grebnev <a href="mailto:andrey.grebnev@blandware.com">&lt;andrey.grebnev@blandware.com&gt;</a>
  */

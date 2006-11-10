@@ -19,21 +19,25 @@ package velosurf.sql;
 import java.sql.SQLException;
 import java.util.Set;
 
-/** This interface represents objects having read-only properties
+/** This interface represents objects having read-only properties/
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public interface ReadOnlyMap
 {
-    /** get the property named key
+    /** get the property named key.
      *
      * @param key the name of the property to return
      * @exception SQLException when thrown by the database engine
      * @return the value of the property, or null if not found
      */
     public Object get(Object key) throws SQLException;
-
+    /**
+     * Get keys set.
+     * @return keys set
+     * @throws SQLException
+     */
     public Set keySet() throws SQLException;
 
 }

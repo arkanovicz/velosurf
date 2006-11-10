@@ -19,23 +19,19 @@ package velosurf.sql;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Connection;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
-
-import org.apache.velocity.tools.generic.ValueParser;
+import java.util.TreeMap;
 
 import velosurf.context.RowIterator;
 import velosurf.model.Entity;
-import velosurf.util.Logger;
 
-/** this class encapsulates a jdbc PreparedStatement
+/** this class encapsulates a jdbc PreparedStatement.
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
@@ -43,9 +39,7 @@ import velosurf.util.Logger;
 
 public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
 
-
-    /* TODO: review the necessity of the synchronized accesses */
-
+    /** org.apache.velocity.tools.generic.ValueParser$ValueParserSub class, if found in the classpath. */
     private static Class valueParserSubClass = null;
 
     static {
@@ -54,7 +48,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         } catch(ClassNotFoundException cnfe) {}
     }
 
-    /** builds a new PooledPreparedStatement
+    /** build a new PooledPreparedStatement.
      *
      * @param connection database connection
      * @param preparedStatement wrapped prepared statement
@@ -64,8 +58,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         this.preparedStatement = preparedStatement;
     }
 
-    // get a unique object (typically by id)
-    /** get a unique object by id
+    /** get a unique object by id.
      *
      * @param params parameter values
      * @exception SQLException thrown bu the database engine
@@ -76,7 +69,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         return fetch(params,null);
     }
 
-    /** get a unique object by id and specify the Entity this object is an Instance of
+    /** get a unique object by id and specify the Entity this object is an Instance of.
      *
      * @param params parameter values
      * @param resultEntity resulting entity
@@ -91,11 +84,11 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         boolean hasNext = resultSet.next();
         connection.leaveBusyState();
         entity = resultEntity;
-        Map row = null;
+        Map<String,Object> row = null;
         if (hasNext) {
             if (resultEntity!=null) row = resultEntity.getInstance(this);
             else {
-                row = new HashMap();
+                row = new TreeMap<String,Object>();
                 if (columnNames == null) columnNames = SqlUtil.getColumnNames(resultSet);
                 for (Iterator it=columnNames.iterator();it.hasNext();) {
                     String column = (String)it.next();
@@ -109,7 +102,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         return row;
     }
 
-    /** get a unique object by id and specify the Entity this object is an Instance of
+    /** get a unique object by id and specify the Entity this object is an Instance of.
      *
      * @param params parameter values
      * @param resultEntity resulting entity
@@ -117,7 +110,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
      * @return the fetched Instance
      */
     public synchronized Object fetch(ReadOnlyMap params,Entity resultEntity) throws SQLException {
-        List values = new ArrayList();
+        List<Object> values = new ArrayList<Object>();
         for (Iterator i = resultEntity.getPKCols().iterator();i.hasNext();) {
             String key = (String)i.next();
             String value = (String)params.get(key);
@@ -127,14 +120,14 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         return fetch(values,resultEntity);
     }
 
-    /** gets the rowset
+    /** get the rowset.
      *
      * @param params parameter values
      * @exception SQLException thrown by the database engine
      * @return the resulting row iterator
      */
     public synchronized RowIterator query(List params) throws SQLException { return query(params,null); }
-    /** gets the rowset
+    /** get the rowset.
      *
      * @param params parameter values
      * @param resultEntity resulting entity
@@ -152,7 +145,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         return result;
     }
 
-    /** gets a scalar result from this statement
+    /** get a scalar result from this statement.
      *
      * @param params parameter values
      * @exception SQLException thrown bu the database engine
@@ -160,7 +153,6 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
      */
     public synchronized Object evaluate(List params) throws SQLException {
         Object value = null;
-        int i = 0;
         ResultSet rs = null;
         notifyInUse();
         try {
@@ -173,7 +165,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
             connection.leaveBusyState();
             if (hasNext) {
                 value = rs.getObject(1);
-                if (rs.wasNull()) value = null; /* TODO review - useless, no? */
+                if (rs.wasNull()) value = null;
             }
         }
         finally {
@@ -183,7 +175,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         return value;
     }
 
-    /** issues the modification query of this prepared statement
+    /** issue the modification query of this prepared statement.
      *
      * @param params parameter values
      * @exception SQLException thrown by the database engine
@@ -199,7 +191,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         return rows;
     }
 
-    /** get the object value of the specified resultset column
+    /** get the object value of the specified resultset column.
      *
      * @param key the name of the resultset column
      * @exception SQLException thrown by the database engine
@@ -214,11 +206,11 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         return ret;
     }
 
-    public Set keySet() throws SQLException {
-        return new HashSet(SqlUtil.getColumnNames(resultSet));
+    public Set<String> keySet() throws SQLException {
+        return new HashSet<String>(SqlUtil.getColumnNames(resultSet));
     }
 
-    /** get the last insert id - implemented only for mysql for now...
+    /** get the last insert id.
      *
      * @exception SQLException thrown by the database engine
      * @return the last insert id
@@ -227,7 +219,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         return ((ConnectionWrapper)connection).getLastInsertId(preparedStatement);
     }
 
-    /** close this statement
+    /** close this statement.
      *
      * @exception SQLException thrown by the database engine
      */
@@ -235,7 +227,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         if (preparedStatement!=null) preparedStatement.close();
     }
 
-    /** get statement's Connection
+    /** get statement Connection.
      *
      *  @return the Connection object (usually a ConnectionWrapper object)
      */
@@ -244,12 +236,12 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
     }
 
 
-    /** set prepared parameter values
+    /** set prepared parameter values.
      *
      * @param params parameter values
      * @exception SQLException thrown by the database engine
      */
-    protected void setParams(List params) throws SQLException {
+    private void setParams(List params) throws SQLException {
         for (int i=0;i<params.size();i++) {
             Object param = params.get(i);
             if (valueParserSubClass != null && valueParserSubClass.isAssignableFrom(param.getClass())) {
@@ -259,21 +251,21 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         }
     }
 
-    /** the connection
+    /** the connection.
      */
-    protected ConnectionWrapper connection = null;
-    /** the result set
+    private ConnectionWrapper connection = null;
+    /** the result set.
      */
-    protected ResultSet resultSet = null;
-    /** column names
+    private ResultSet resultSet = null;
+    /** column names.
      */
-    protected List columnNames = null;
-    /** wrapped prepared statement
+    private List columnNames = null;
+    /** wrapped prepared statement.
      */
-    protected PreparedStatement preparedStatement = null;
-    /** the resulting entity
+    private PreparedStatement preparedStatement = null;
+    /** the resulting entity.
      */
-    protected Entity entity = null;
-    /** has meta information been fetched ?
+    private Entity entity = null;
+    /** has meta information been fetched?
      */
 }

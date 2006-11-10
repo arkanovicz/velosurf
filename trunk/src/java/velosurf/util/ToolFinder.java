@@ -30,11 +30,11 @@ public class ToolFinder  {
     private static final String toolsMapKey = "org.apache.velocity.tools.view.servlet.ServletToolboxManager:session-tools";
 
     /**
-     *
+     * Find a session tool.
      * @param session the http session the tool is
      * @return the tool if found in the session, or null
      */
-    public static <T> T findTool(HttpSession session, Class<T> toolClass) {
+    public static <T> T findSessionTool(HttpSession session, Class<T> toolClass) {
         if (session != null) {
             Map sessionTools = (Map)session.getAttribute(toolsMapKey);
             if (sessionTools != null) {

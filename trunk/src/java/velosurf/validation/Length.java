@@ -25,7 +25,7 @@ import java.util.Locale;
  *    &lt;<i>column</i> min-len="<i>min</i>" max-len="<i>max</i>"/&gt;
  *  </pre>
  * <p>where you donnot need to specify both min-len and max-len.</p>
- * instead of one.</p>
+ * <p></p> 
  * <p>Or:</p>
  * <pre>
  *   &lt;<i>column</i>&gt;
@@ -39,9 +39,10 @@ import java.util.Locale;
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 public class Length extends FieldConstraint {
-
-    protected int minLen = 0;
-    protected int maxLen = Integer.MAX_VALUE;
+    /** min lmength. */
+    private int minLen = 0;
+    /** max length. */
+    private int maxLen = Integer.MAX_VALUE;
 
     /**
      *  Constructor.
@@ -63,21 +64,29 @@ public class Length extends FieldConstraint {
     public Length(int minLen,int maxLen,String msg) {
         this.minLen = minLen;
         this.maxLen = maxLen;
-        message = msg;
+        setMessage(msg);
     }
 
+    /**
+     * Min length setter.
+     * @param minLen minimum length
+     */
     public void setMinLength(int minLen) {
         this.minLen = minLen;
     }
 
+    /**
+     * Maximum length setter.
+     * @param maxLen maximum length
+     */
     public void setMaxLength(int maxLen) {
         this.maxLen = maxLen;
     }
 
     /**
-     *
-     * @param data the data to be validated
-     * @return true if data is a string of the expected length
+     * Validate data against this constraint.
+     * @param data data to validate
+     * @return whether data is valid
      */
     public boolean validate(Object data) {
         if (data == null) {
@@ -87,6 +96,10 @@ public class Length extends FieldConstraint {
         return len >= minLen && len <= maxLen;
     }
 
+    /**
+     * return a string representation for this constraint.
+     * @return string
+     */
     public String toString() {
         return "length "+(minLen>0 && maxLen<Integer.MAX_VALUE?"between "+minLen+" and "+maxLen:minLen>0?">= "+minLen:"<="+maxLen);
     }

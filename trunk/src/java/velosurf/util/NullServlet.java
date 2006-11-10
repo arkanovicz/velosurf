@@ -18,7 +18,6 @@ package velosurf.util;
 
 import java.io.IOException;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -34,31 +33,58 @@ import javax.servlet.http.HttpServletResponse;
 
 public class NullServlet extends HttpServlet
 {
+    /** page showing the 'forbidden' error message */
     private String forbiddenUri = null;
 
+    /**
+     * init.
+     * @param config config
+     * @throws ServletException
+     */
     public void init(ServletConfig config) throws ServletException
     {
         super.init(config);
         forbiddenUri = config.getInitParameter("forbidden-uri");
     }
 
+    /**
+     * doGet handler.
+     * @param request request
+     * @param response response
+     * @throws ServletException
+     * @throws IOException
+     */
     public void doGet(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException
     {
         doRequest(request, response);
     }
 
+    /**
+     * doPost handler.
+     * @param request request
+     * @param response response
+     * @throws ServletException
+     * @throws IOException
+     */
     public void doPost(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException
     {
         doRequest(request, response);
     }
 
-    protected void doRequest(HttpServletRequest request,
+    /**
+     * doRequest handler.
+     * @param request request
+     * @param response response
+     * @throws ServletException
+     * @throws IOException
+     */
+    private void doRequest(HttpServletRequest request,
                              HttpServletResponse response)
          throws ServletException, IOException
     {
-        Logger.log("null servlet got hit: "+request.getRequestURI());
+        Logger.trace("null servlet got hit: "+request.getRequestURI());
         if (forbiddenUri == null) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {

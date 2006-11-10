@@ -37,7 +37,8 @@ import java.util.Locale;
  */
 public class Regex extends FieldConstraint {
 
-    protected Pattern pattern = null;
+    /** pattern. */
+    private Pattern pattern = null;
 
     /**
      * Constructor.
@@ -49,7 +50,7 @@ public class Regex extends FieldConstraint {
     }
 
     /**
-     *
+     * Validate data against this constraint.
      * @param data the data to be validated
      * @return true if data matches the regex pattern
      */
@@ -57,6 +58,10 @@ public class Regex extends FieldConstraint {
         return data == null ||  data.toString().length() == 0 || pattern.matcher(data.toString()).matches();
     }
 
+    /**
+     * return a string representation for this constraint.
+     * @return string
+     */
     public String toString() {
         return "regular expression "+pattern;
     }

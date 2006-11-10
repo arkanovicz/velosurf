@@ -18,7 +18,6 @@ package velosurf.sql;
 
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.sql.SQLException;
@@ -32,27 +31,30 @@ import velosurf.util.Logger;
 import velosurf.util.StringLists;
 
 /**
- * Class used to reverse engine a database
+ * Class used to reverse engine a database.
  */
 public class ReverseEngineer {
 
-    /** map table->entity, valid only between readConfigFile and readMetaData
+    /** map table->entity, valid only between readConfigFile and readMetaData.
     */
     private Map<String,String> entityByTableName = new HashMap<String,String>();
-
+    /** Database. */
     private Database db;
+    /** Driver infos. */
     private DriverInfo driverInfo;
-
+    /** Reverse mode. */
     private int reverseMode = DEFAULT_REVERSE_MODE;
-
-    /** reverse-enginering modes */
+    /** No reverse engineering mode. */
     public static final int REVERSE_NONE = 0;
+    /** Partial reverse engineering mode. */
     public static final int REVERSE_PARTIAL = 1;
+    /** Tables reverse engineering mode. */
     public static final int REVERSE_TABLES = 2;
+    /** Full reverse engineering mode. */
     public static final int REVERSE_FULL = 3;
-
+    /** Default reverse engineering mode. */
     public static final int DEFAULT_REVERSE_MODE = REVERSE_FULL;
-
+    /** Reverse engineering mode names. */
     public static String[] reverseModeName = {
         "none",
         "partial",
@@ -60,29 +62,40 @@ public class ReverseEngineer {
         "full"
     };
 
-    /** constructor
+    /** constructor.
      *
+     * @param database database
      */
     public ReverseEngineer(Database database) {
         db = database;
     }
-
+    /** Driver infos setter.
+     *
+     * @param di driver infos
+     */
     protected void setDriverInfo(DriverInfo di) {
         driverInfo = di;
     }
-
+    /**
+     * Set reverse mode.
+     * @param reverseMethod reverse mode
+     */
     protected void setReverseMode(int reverseMethod) {
         reverseMode = reverseMethod;
     }
-
-    protected void addCorrespondance(String tableName,Entity entity) {
+    /**
+     * add a table &lt;-&gt; entity matching.
+     * @param tableName
+     * @param entity
+     */
+    protected void addTableMatching(String tableName,Entity entity) {
         if(db.getSchema() != null) {
             tableName = db.getSchema()+"."+tableName;
         }
         entityByTableName.put(tableName,entity.getName());
     }
 
-    /** read the meta data from the database : reverse engeenering
+    /** read the meta data from the database.
      *
      * @exception java.sql.SQLException thrown by the database engine
      */
@@ -180,10 +193,16 @@ public class ReverseEngineer {
         }
 
     }
-
+    /** Read table meta data.
+     *
+     * @param meta database meta data
+     * @param entity corresponding entity
+     * @param tableName table name
+     * @throws SQLException
+     */
     private void readTableMetaData(DatabaseMetaData meta,Entity entity,String tableName) throws SQLException {
 
-        List keylist = StringLists.getPopulatedArrayList(10); // ever seen a primary key with more than 10 columns ?!
+        List<String> keylist = StringLists.getPopulatedArrayList(10); // ever seen a primary key with more than 10 columns ?!
 
         /* read columns */
         ResultSet cols = null;
@@ -219,7 +238,13 @@ public class ReverseEngineer {
 
         entity.reverseEnginered();
     }
-
+    /**
+     * Read foreign keys.
+     * @param meta database meta data
+     * @param entity entity
+     * @param tableName table name
+     * @throws SQLException
+     */
     private void readForeignKeys(DatabaseMetaData meta,Entity entity,String tableName) throws SQLException {
         /* read imported keys */
         if (reverseMode == REVERSE_FULL) {
@@ -289,7 +314,14 @@ public class ReverseEngineer {
             }
         }
     }
-
+    /**
+     * Add a new exported key.
+     * @param entity target entity
+     * @param fkSchema foreign key schema
+     * @param fkTable foreign key table
+     * @param fkCols foreign key columns
+     * @param pkCols primary key columns
+     */
     private void addExportedKey(Entity entity, String fkSchema, String fkTable, List<String> fkCols, List<String> pkCols) {
         String fkEntityName = getEntityByTable(fkSchema,fkTable);
         if (fkEntityName == null) {
@@ -309,7 +341,14 @@ public class ReverseEngineer {
             }
         }
     }
-
+    /**
+     * Add a new imported key.
+     * @param entity target entity
+     * @param pkSchema primary key schema
+     * @param pkTable primary key table
+     * @param pkCols primary key columns
+     * @param fkCols foreign key columns
+     */
     private void addImportedKey(Entity entity,String pkSchema, String pkTable, List<String> pkCols, List<String> fkCols) {
         String pkEntityName = getEntityByTable(pkSchema,pkTable);
         if(pkEntityName == null) {
@@ -329,8 +368,12 @@ public class ReverseEngineer {
             }
         }
     }
-
-    /* TODO review case */
+    /** Get an entity by its table name.
+     *
+     * @param schema schema name
+     * @param table table name
+     * @return entity name
+     */
     private String getEntityByTable(String schema,String table) {
         String entityName;
         if (schema == null) {
@@ -349,13 +392,22 @@ public class ReverseEngineer {
                     entityName = entityByTableName.get(table);
                 }
             } else {
-                /* TODO what if not equal? */
+                /* what if not equal? rather strange... */
+                if (schema.equals(db.getSchema())) {
+                    Logger.error("reverse: was expecting schema '"+db.getSchema()+"' and got schema '"+schema+"'! Please report this error.");
+                }
                 entityName = entityByTableName.get(schema+"."+table);
             }
         }
         return entityName;
     }
-
+    /** Sort columns in <code>target</code> the same way <code>unordered</code> would have to
+     * be sorted to be like <code>ordered</code>.
+     * @param ordered ordered list reference
+     * @param unordered unordered list reference
+     * @param target target list
+     * @return sorted target list
+     */
     private List<String> sortColumns(List<String> ordered,List<String> unordered,List<String>target) {
         if(ordered.size() == 1) {
             return target;
@@ -368,11 +420,19 @@ public class ReverseEngineer {
         }
         return sorted;
     }
-
+    /** adapt case
+     *
+     * @param name name to adapt
+     * @return adapted name
+     */
     private String adaptCase(String name) {
         return db.adaptCase(name);
     }
-
+    /**
+     * rough plural calculation.
+     * @param name singular
+     * @return plural
+     */
     private String getExportedKeyName(String name) {
         return adaptCase(name.endsWith("s")? name+"es" : name+"s");
     }

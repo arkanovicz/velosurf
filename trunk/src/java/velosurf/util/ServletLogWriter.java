@@ -21,13 +21,13 @@ import java.io.Writer;
 
 import javax.servlet.ServletContext;
 
-/** This class implements a writer towards the servlet log
+/** This class implements a writer towards the servlet log.
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
 public class ServletLogWriter extends Writer
 {
-    /** builds a new ServletLogWriter
+    /** build a new ServletLogWriter.
      *
      * @param log ServletContext
      */
@@ -36,7 +36,7 @@ public class ServletLogWriter extends Writer
     }
 
 
-    /** writes an array of chars to the servlet log
+    /** write an array of chars to the servlet log.
      *
      * @param cbuf characters to write
      * @param off offset in the array
@@ -50,21 +50,21 @@ public class ServletLogWriter extends Writer
         log.log(s);
     }
 
-    /** flush any pending output
+    /** flush any pending output.
      *
      * @exception IOException thrown by underlying servlet logger
      */
     public void flush() throws IOException    {
     }
 
-    /** close the writer
+    /** close the writer.
      *
      * @exception IOException thrown by underlying servlet logger
      */
     public void close() throws IOException {
     }
 
-    /** the ServletContext object used to log
+    /** the ServletContext object used to log.
      */
-    protected ServletContext log = null;
+    private ServletContext log = null;
 }

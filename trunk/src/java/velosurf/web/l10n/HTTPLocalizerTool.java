@@ -38,6 +38,10 @@ import velosurf.util.Logger;
 
 public abstract class HTTPLocalizerTool implements Localizer {
 
+    /**
+     * Initialize this tool.
+     * @param initData a view context
+     */
     public void init(Object initData) {
         if (initData instanceof ViewContext) {
             HttpSession session = ((ViewContext)initData).getRequest().getSession();
@@ -57,6 +61,11 @@ public abstract class HTTPLocalizerTool implements Localizer {
         }
     }
 
+    /**
+     * Transform an enumeration into a list of locales.
+     * @param e enumeration
+     * @return a list of locales
+     */
     private static List<Locale> listFromEnum(Enumeration e) {
         List<Locale> list = new ArrayList<Locale>();
         while(e.hasMoreElements()) {
@@ -65,6 +74,11 @@ public abstract class HTTPLocalizerTool implements Localizer {
         return list;
     }
 
+    /**
+     * Get the locale best matching available localized data among a list.
+     * @param locales list of input locales
+     * @return best matching locale
+     */
     public Locale getBestLocale(List<Locale> locales) {
         for(Locale locale:locales) {
             if (hasLocale(locale)) {
@@ -84,32 +98,48 @@ public abstract class HTTPLocalizerTool implements Localizer {
         return null;
     }
 
+    /**
+     * Check for the presence of a locale.
+     * @param locale locale to check
+     * @return true if present
+     */
     public abstract boolean hasLocale(Locale locale);
 
+    /**
+     * Current locale setter.
+     * @param locale locale
+     */
     public void setLocale(Locale locale) {
         this.locale = locale;
     }
 
+    /** Current lcoale getter.
+     *
+     * @return current locale
+     */
     public Locale getLocale() {
         return locale;
     }
 
+    /**
+     * Get the localized message for this key.
+     * @param id message key
+     * @return localized message (or id if not found).
+     */
     public abstract String get(Object id);
 
+
+    /**
+     * Get the localized parameterized message for this key.
+     * @param id message key
+     * @param params message parameters
+     * @return localized message (or id if not found).
+     */
     public String get(Object id,Object ... params) {
         String message = get(id).replaceAll("'","''");
         return MessageFormat.format(message,params);
     }
 
-    public String get(Object id,Object arg1,Object arg2) {
-        String message = get(id).replaceAll("'","''");
-        return MessageFormat.format(message,arg1,arg2);
-    }
-
-    public String get(Object id,Object arg1,Object arg2,Object arg3) {
-        String message = get(id).replaceAll("'","''");
-        return MessageFormat.format(message,arg1,arg2,arg3);
-    }
-
-    protected Locale locale = null;
+    /** current locale */
+    private Locale locale = null;
 }

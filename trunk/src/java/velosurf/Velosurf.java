@@ -30,12 +30,13 @@ import java.sql.SQLException;
 
 import org.apache.velocity.app.Velocity;
 
-/** this class is the Velosurf main entry class if you do not use the toolbox.xml mechanism.
- *  Unless you specify the config file to use, it will successively search for a configuration file :
+/** <p>This class is the Velosurf main entry class if you do not use the toolbox.xml mechanism.
+ *  Unless you specify the config file to use, it will successively search for a configuration file :</p>
  *  <ul>
  *  <li><p>from the java property "config.velosurf" (like in 'java -Dconfig.velosurf=/.../velosurf.xml ...' )</p>
  *  <li><p>from the Velocity property "config.velosurf" (entry of the velocity.properties file)</p>
  *  <li><p>as './velosurf.xml', './conf/velosurf.xml', './WEB-INF/velosurf.xml', './cfg/velosurf.xml'
+ * </ul>
  *
  * @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  *
@@ -44,49 +45,78 @@ import org.apache.velocity.app.Velocity;
 
 public class Velosurf extends DBReference
 {
+    /** Initialization flag.
+     */
     private boolean initialized = false;
 
+    /** Configuration file.
+     */
     private String configFile = null;
 
+    /** Empty constructor.
+     */
     public Velosurf() {
     }
 
-    public Velosurf(File file) throws IOException,SQLException {
-        this(new FileInputStream(file));
+    /**
+     * Constructor taking a File object as configuration.
+     * @param configFile configuration file
+     * @throws IOException
+     * @throws SQLException
+     */
+    public Velosurf(File configFile) throws IOException,SQLException {
+        this(new FileInputStream(configFile));
     }
 
+    /**
+     * Constructor taking an InputStream object as configuration.
+     * @param config
+     * @throws IOException
+     * @throws SQLException
+     */
     public Velosurf(InputStream config)  throws IOException,SQLException {
         initLogging();
         init(config);
     }
 
+    /**
+     * Explicitely set the configuration file.
+     * @param config configuration pathname
+     */
     public void setConfigFile(String config) {
         configFile = config;
     }
 
-    protected void initLogging() {
+    /**
+     * Initializes the logger.
+     */
+    private void initLogging() {
         Logger.log2Stderr();
     }
 
-    protected static String findConfig() {
+    /**
+     * Tries to find a configuration file using some default locations.
+     * @return the pathname of the configuration file, if found - null otherwise
+     */
+    private static String findConfig() {
         String pathname = null;
         File file = null;
 
-        // first, ask Java
+        /* first, ask Java */
         pathname = System.getProperty("velosurf.config");
         if (pathname != null) {
             file = new File(pathname);
             if (file.exists()) return pathname;
         }
 
-        // then Velocity
+        /* then Velocity */
         pathname = (String)Velocity.getProperty("velosurf.config");
         if (pathname != null) {
             file = new File(pathname);
             if (file.exists()) return pathname;
         }
 
-        // then try some standard pathes
+        /* then try some standard pathes */
         String [] guesses = {
             "./velosurf.xml","./conf/velosurf.xml","./WEB-INF/velosurf.xml","./cfg/velosurf.xml",
             "./model.xml","./conf/model.xml","./WEB-INF/model.xml","./cfg/model.xml"
@@ -99,13 +129,24 @@ public class Velosurf extends DBReference
         return null;
     }
 
-    protected void init(InputStream config)  throws SQLException,IOException {
+    /**
+     * Lazzy initialization.
+     * @param config configuration file input stream
+     * @throws SQLException
+     * @throws IOException
+     */
+    private void init(InputStream config)  throws SQLException,IOException {
         Database db = Database.getInstance(config);
         super.init(db,new UserContext());
         initialized = true;
     }
 
-    protected void init() throws SQLException,IOException {
+    /**
+     * Lazzy initialization.
+     * @throws SQLException
+     * @throws IOException
+     */
+    private void init() throws SQLException,IOException {
         if(configFile == null) {
             configFile = findConfig();
         }
@@ -127,6 +168,11 @@ public class Velosurf extends DBReference
         initialized = true;
     }
 
+    /**
+     * Generic getter.
+     * @param key
+     * @return property
+     */
     public Object get(Object key) {
         if (!initialized) {
             try {
@@ -139,6 +185,12 @@ public class Velosurf extends DBReference
         return super.get(key);
     }
 
+    /**
+     * Generic setter.
+     * @param key
+     * @param value
+     * @return old value
+     */
     public Object put(Object key,Object value) {
         if (!initialized) {
             try {
@@ -151,6 +203,10 @@ public class Velosurf extends DBReference
         return super.get(key);
     }
 
+    /**
+     * Schema name getter.
+     * @return the name of the current schema
+     */
     public String getSchema() {
         if (!initialized) {
             try {
@@ -163,9 +219,8 @@ public class Velosurf extends DBReference
         return super.getSchema();
     }
 
-    /** obfuscate the given value
+    /** Obfuscate the given value.
      * @param value value to obfuscate
-     *
      * @return obfuscated value
      */
     public String obfuscate(Object value) {
@@ -180,9 +235,8 @@ public class Velosurf extends DBReference
         return super.obfuscate(value);
     }
 
-    /** de-obfuscate the given value
+    /** De-obfuscate the given value.
      * @param value value to de-obfuscate
-     *
      * @return obfuscated value
      */
     public String deobfuscate(Object value) {

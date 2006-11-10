@@ -27,14 +27,14 @@ import velosurf.sql.ReadOnlyMap;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;
 
-/** Context wrapper for attributes
+/** Context wrapper for attributes.
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
 public class AttributeReference extends AbstractList
 {
 
-    /** Constructor for attributes
+    /** Constructor.
      *
      * @param readOnlyMap the data accessor this attribute reference applies to
      * @param attribute the wrapped attribute
@@ -43,10 +43,11 @@ public class AttributeReference extends AbstractList
         this(readOnlyMap,attribute,null);
     }
 
-    /** Constructor for attributes
+    /** Constructor.
      *
      * @param readOnlyMap the data accessor this attribute reference applies to
      * @param attribute the wrapped attribute
+     * @param usrCtx user context
      */
     public AttributeReference(ReadOnlyMap readOnlyMap,Attribute attribute,UserContext usrCtx) {
         this.readOnlyMap = readOnlyMap;
@@ -54,21 +55,17 @@ public class AttributeReference extends AbstractList
         this.userContext = usrCtx;
     }
 
-    /** Refines this attribute's reference result : the provided criterium will be added to the 'where' clause (or a 'where' clause will be added).
-     * <p>
-     * This method can be called several times, thus allowing a field-by-field handling of an html search form.
-     * <p>
-     * All criteria will be merged with the sql 'and' operator (if there is an initial where clause, it is wrapped into parenthesis).
-     * <p>
-     * Example : suppose we have defined the attribute 'person.children' as " *person(person_id):select * from person where parent_id=?". Then, if we issue the following calls from inside the template :
+    /** <p>Refines this attribute's reference result. The provided criterium will be added to the 'where' clause (or a 'where' clause will be added).</p>
+     * <p>This method can be called several times, thus allowing a field-by-field handling of an html search form.</p>
+     * <p>All criteria will be merged with the sql 'and' operator (if there is an initial where clause, it is wrapped into parenthesis).</p>
+     * <p>Example : suppose we have defined the attribute 'person.children' as " *person(person_id):select * from person where parent_id=?". Then, if we issue the following calls from inside the template :</p>
      * <blockquote>
      * $bob.children.refine("age>18")
-     * <p>
+     * <br>
      * $bob.children.refine("gender='F'")
      * </blockquote>
-     * the resulting query that will be issed is :
-     * <p>
-     * select * from person where (parent_id=?) and (age>18) and (gender='F')
+     * <p>the resulting query that will be issed is :</p>
+     * <p><code>select * from person where (parent_id=?) and (age>18) and (gender='F')</code></p>
      *
      * @param criterium a valid sql condition
      */
@@ -77,7 +74,7 @@ public class AttributeReference extends AbstractList
         refineCriteria.add(criterium);
     }
 
-    /** Clears any refinement made on this attribute
+    /** Clears any refinement made on this attribute.
      * <p>
      */
     public void clearRefinement() {
@@ -86,7 +83,7 @@ public class AttributeReference extends AbstractList
 
     /** Called by the #foreach directive.
      * <p>
-     * Returns a RowIterator on all possible instances of this entity, possibly previously refined and ordered.
+     * Returns a RowIterator on all possible instances of this entity, possibly previously refined and ordered.</p>
      *
      * @return a RowIterator on instances of this entity, or null if an error
      *     occured.
@@ -106,7 +103,7 @@ public class AttributeReference extends AbstractList
         }
     }
 
-    /** gets all the rows in a list of maps
+    /** Gets all the rows in a list of maps.
      *
      * @return a list of all the rows
      */
@@ -116,9 +113,10 @@ public class AttributeReference extends AbstractList
         return iterator.getRows();
     }
 
-    /** Specify an 'order by' clause for this attribute reference result.<p>
-     * If an 'order by' clause is already present in the original query, the new one is appended (but successive calls to this method overwrite previous ones)<p>
-     * Pass it null or an empty string to clear any ordering.
+    /** <p>Specify an 'order by' clause for this attribute reference result.</p>
+     * <p>If an 'order by' clause is already present in the original query, the new one is appended (but successive calls to this method overwrite previous ones)</p>
+     * <p> postfix " DESC " to a column for descending order.</p>
+     * <p>Pass it null or an empty string to clear any ordering.</p>
      *
      * @param order valid sql column names (separated by commas) indicating the
      *      desired order
@@ -141,18 +139,18 @@ public class AttributeReference extends AbstractList
 
     /** Specified refining criteria defined on this attribute reference.
      */
-    protected List refineCriteria = null;
+    private List<String> refineCriteria = null;
     /** Specified 'order by' clause specified for this attribute reference.
      */
-    protected String order = null;
+    private String order = null;
     /** The data accessor this attribute reference applies to.
      */
-    protected ReadOnlyMap readOnlyMap = null;
+    private ReadOnlyMap readOnlyMap = null;
     /** The wrapped attribute.
      */
-    protected Attribute attribute = null;
+    private Attribute attribute = null;
 
-    /** user context
+    /** User context.
      */
-    protected UserContext userContext = null;
+    private UserContext userContext = null;
 }

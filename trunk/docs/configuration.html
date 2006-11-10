@@ -56,6 +56,8 @@
 
   <li><a href="./api/index.html">Javadoc</a></li>
 
+  <li><a href="./architecture.html">Architecture</a></li>
+
   <li> <a href="./CHANGELOG">Change Log</a> </li>
 
   <li> <a href="./license.html">License</a></li>
@@ -174,7 +176,6 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 							<td>database</td>
 							<td>min-connections</td>
 							<td><i>integer</i></td>
-
 							<td>1</td>
 							<td>the initial number of connections in the connection pool</td>
 						</tr>
@@ -185,6 +186,13 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 
 							<td>50</td>
 							<td>the maximum number of connections in the connection pool</td>
+						</tr>
+						<tr align="center">
+							<td>database</td>
+							<td>seed</td>
+							<td><i>string</i></td>
+							<td>database url</td>
+							<td>seed of the encryption engine random generator</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
 						<tr align="center">

@@ -30,7 +30,7 @@ import velosurf.util.Logger;
  *  <pre>
  *    &lt;<i>column</i> references="<i>table.foreign-key</i>"&gt;
  * </pre>
- * or:
+ * <p>Or:</p>
  * <pre>
  *   &lt;<i>column</i>&gt;
  *     &lt;references foreign-key="<i>table.foreign-key</i>" [message="<i>error-message</i>"]/&gt;
@@ -44,9 +44,12 @@ import velosurf.util.Logger;
  */
 public class Reference extends FieldConstraint {
 
-    protected Database db = null;
-    protected String table = null;
-    protected String column = null;
+    /** database */
+    private Database db = null;
+    /** table */
+    private String table = null;
+    /** column */
+    private String column = null;
 
     /**
      * Constructor.
@@ -61,14 +64,14 @@ public class Reference extends FieldConstraint {
     }
 
     /**
-     *
+     * Validate data against this constraint.
      * @param data the data to be validated
      * @return true if data respects the specified reference
      */
     public boolean validate(Object data) {
         try {
             if (data == null || data.toString().length() == 0) return true;
-            List param = new ArrayList();
+            List<Object> param = new ArrayList<Object>();
             param.add(data);
             /* TODO this kind of query may vary with dbms...
                - under Oracle, we need to add "from dual"
@@ -87,6 +90,10 @@ public class Reference extends FieldConstraint {
         }
     }
 
+    /**
+     * return a string representation for this constraint.
+     * @return string
+     */
     public String toString() {
         return "references "+table+"."+column;
     }
