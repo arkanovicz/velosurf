@@ -81,7 +81,7 @@ public class ExportedKey extends Attribute {
      * @return the definition string of this attribute
      */
     public String toString() {
-        return getQuery();
+        return "exported-key"+(fkCols==null?"":" on "+StringLists.join(fkCols,","));
     }
 
 }
