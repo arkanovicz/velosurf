@@ -36,34 +36,48 @@ import java.util.regex.Pattern;
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 public class Range extends FieldConstraint {
-
+    /** minimum value. */
     private Number min = null;
+    /** maximum value. */
     private Number max = null;
+    /** integer value expected. */
     private boolean integer = false;
-
+    /** integer value pattern matcher. */
     private static Pattern intPattern = Pattern.compile("(?:\\+|-)?\\d+");
 
     /**
      *  Constructor.
      */
     public Range() {
-        setMessage("field {0}: '{1}' is not in the valid range"); /* TODO review... format message! */
+        setMessage("field {0}: '{1}' is not in the valid range");
     }
 
+    /**
+     * Whether to expect an integer or not.
+     * @param integer a boolean
+     */
     public void setInteger(boolean integer) {
         this.integer = integer;
     }
 
+    /**
+     * Minimum value setter.
+     * @param min minimum value
+     */
     public void setMin(Number min) {
         this.min = min;
     }
 
+    /**
+     * Maximum value setter.
+     * @param max maximum value
+     */
     public void setMax(Number max) {
         this.max = max;
     }
 
     /**
-     *
+     * Validate data against this constraint.
      * @param data the data to be validated
      * @return true if data is in the expected range and type
      */
@@ -94,6 +108,10 @@ public class Range extends FieldConstraint {
         return true;
     }
 
+    /**
+     * return a string representation for this constraint.
+     * @return string
+     */
     public String toString() {
         return (integer?"type integer":"type number") + (min != null && max != null?", between "+min+" and "+max:min != null?", >= "+min:", <="+max);
     }

@@ -21,25 +21,25 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 
-/** This static class gathers utilities for lists of strings
+/** This static class gathers utilities for lists of strings.
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
 public class StringLists
 {
-    /** builds an array list initially filled with <code>size</code> dummy objects
+    /** builds an array list initially filled with <code>size</code> dummy objects.
      *
      * @param size size of the list
      * @return the new ArrayList
      */
-    public static List getPopulatedArrayList(int size) {
-        ArrayList list = new ArrayList(size);
-        Object o = new Object();
-        for (int i=0;i<size;i++) list.add(o);
+    public static List<String> getPopulatedArrayList(int size) {
+        List<String> list = new ArrayList<String>(size);
+        String s = new String();
+        for (int i=0;i<size;i++) list.add(s);
         return list;
     }
 
-    /** joins strings using a separator
+    /** joins strings using a separator.
      *
      * @param stringList strings to join
      * @param joinString separator to include between strings

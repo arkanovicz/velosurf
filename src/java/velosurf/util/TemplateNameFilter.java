@@ -59,31 +59,35 @@ import java.util.HashSet;
 
 public class TemplateNameFilter implements Filter {
 
+    /** the servlet context. */
     private ServletContext servletContext;
 
-    /* targeted template extension */
+    /** targeted template extension. */
     private String templateExtension = ".vtl";
 
-    /* reset method */
+    /** NONE reset method. */
     private static final int RESET_NONE = 0;
+    /** MANUAL reset method. */
     private static final int RESET_MANUAL = 1;
+    /** PERIODIC reset method. */
     private static final int RESET_PERIODIC = 2;
+    /** reset method. */
     private int resetMethod = RESET_NONE; /* bit-masked */
 
-    /* reset uri */
+    /** reset uri. */
     private String resetUri = "/reset-cache";
 
-    /* reset period */
+    /** reset period. */
     private long resetPeriod = 120000; /* millisec */
 
-    /* the set of template names */
-    private Set templates = null;
+    /* the set of template names. */
+    private Set<String> templates = null;
 
-    /* the time of the last reset */
+    /* the time of the last reset. */
     private long lastReset;
 
     /**
-     * init the filter
+     * init the filter.
      * @param filterConfig filter configuration
      * @throws ServletException
      */
@@ -129,7 +133,7 @@ public class TemplateNameFilter implements Filter {
     }
 
     /**
-     * Builds the cache, which consists of a hash set containing all template names.
+     * Build the cache, which consists of a hash set containing all template names.
      *
      */
     private synchronized void buildsTemplateNamesList() {
@@ -139,11 +143,11 @@ public class TemplateNameFilter implements Filter {
             return;
         }
 
-        Set result = new HashSet();
+        Set<String> result = new HashSet<String>();
 
         String path,entry;
         Set entries;
-        LinkedList paths = new LinkedList();
+        LinkedList<String> paths = new LinkedList<String>();
         paths.add("/");
         while(paths.size() > 0) {
             path = (String)paths.removeFirst();
@@ -166,6 +170,14 @@ public class TemplateNameFilter implements Filter {
         lastReset = System.currentTimeMillis();
     }
 
+    /**
+     * doFilter method.
+     * @param servletRequest request
+     * @param servletResponse response
+     * @param filterChain filter chain
+     * @throws ServletException
+     * @throws IOException
+     */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws ServletException, IOException {
 
         HttpServletRequest request = (HttpServletRequest)servletRequest;
@@ -204,6 +216,9 @@ public class TemplateNameFilter implements Filter {
         }
     }
 
+    /** Destroy the filter.
+     *
+     */
     public void destroy() {
     }
 }

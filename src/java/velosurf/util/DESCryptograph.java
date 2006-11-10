@@ -26,19 +26,26 @@ import java.security.SecureRandom;
 import java.security.Security;
 
 /**
- * Implemenation of the cryptograph for the DES algorithm 
- * inspired from some code found at http://javaalmanac.com/
+ * Implemenation of the cryptograph for the DES algorithm.
+ * Inspired from some code found at http://javaalmanac.com/
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
 public class DESCryptograph implements Cryptograph {
+    /** encryption cypher */
     Cipher ecipher;
+    /** decryption cypher */
     Cipher dcipher;
 
+    /** Constructor.
+     */
     public DESCryptograph() {
 
     }
-
+    /**
+     * initialization.
+     * @param random random string
+     */
     public void init(String random) {
         try {
             // this is the only method that gives us reproducibility
@@ -61,7 +68,11 @@ public class DESCryptograph implements Cryptograph {
             e.printStackTrace();
         }
     }
-
+    /**
+     * encrypt a string.
+     * @param str string to encrypt
+     * @return encrypted string
+     */
     public String encrypt(String str) {
         try {
             // Encode the string into bytes using utf-8
@@ -83,7 +94,11 @@ public class DESCryptograph implements Cryptograph {
         }
         return null;
     }
-
+    /**
+     * Decrypt a string.
+     * @param str string to decrypt
+     * @return decrypted string
+     */
     public String decrypt(String str) {
         try {
             // Decode base64 to get bytes
@@ -106,7 +121,10 @@ public class DESCryptograph implements Cryptograph {
     {
         Security.addProvider(new com.sun.crypto.provider.SunJCE());
     }
-
+    /**
+     * test method
+     * @param args not used
+     */
    public static void main(String args[])
    {
        DESCryptograph crypt = new DESCryptograph();

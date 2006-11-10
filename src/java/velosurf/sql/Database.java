@@ -17,7 +17,6 @@
 package velosurf.sql;
 
 import java.io.*;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
@@ -41,36 +40,13 @@ import velosurf.util.XIncludeResolver;
  */
 public class Database {
 
-    /** builds a new connection
+    /** Builds a new connection.
      *
      */
     private Database() {
     }
 
-    /** builds a new connection
-     *
-     * @param user user name
-     * @param password password
-     * @param url database url
-     * @exception SQLException thrown by the database engine
-     */
-    private Database(String user,String password,String url) throws SQLException {
-        open(user,password,url,null,null);
-    }
-
-    /** builds a new connection
-     *
-     * @param user user name
-     * @param password password
-     * @param url database url
-     * @param driver driver java class name
-     * @exception SQLException thrown by the database engine
-     */
-    private Database(String user,String password,String url,String driver) throws SQLException {
-        open(user,password,url,driver,null);
-    }
-
-    /** builds a new connection
+    /** Builds a new connection.
      *
      * @param user user name
      * @param password password
@@ -83,7 +59,7 @@ public class Database {
         open(user,password,url,driver,schema);
     }
 
-    /** get a unique Database from connection params
+    /** Get a unique Database from connection params.
      *
      * @param user user name
      * @param password password
@@ -95,7 +71,7 @@ public class Database {
         return getInstance(user,password,url,null,null);
     }
 
-    /** get a unique Database from connection params
+    /** Get a unique Database from connection params.
      *
      * @param user user name
      * @param password password
@@ -108,7 +84,7 @@ public class Database {
         return getInstance(user,password,url,driver,null);
     }
 
-    /** get a unique Database from connection params
+    /** Get a unique Database from connection params.
      *
      * @param user user name
      * @param password password
@@ -128,7 +104,7 @@ public class Database {
         return instance;
     }
 
-    /** get a unique Database from config filename
+    /** Get a unique Database from config filename.
      *
      * @param configFilename config filename
      * @exception SQLException thrown by the database engine
@@ -152,21 +128,21 @@ public class Database {
         return instance;
     }
 
-    /** get a new connection
+    /** Get a new connection.
      * @param config config filename
      * @exception SQLException thrown by the database engine
      * @return a new connection
      */
-    public static Database getInstance(InputStream config) throws SQLException,IOException {
+    public static Database getInstance(InputStream config) throws SQLException {
         return Database.getInstance(config,null);
     }
 
-    /** get a new connection
+    /** Get a new connection.
      * @param config config filename
      * @exception SQLException thrown by the database engine
      * @return a new connection
      */
-    public static Database getInstance(InputStream config,XIncludeResolver xincludeResolver) throws SQLException,IOException {
+    public static Database getInstance(InputStream config,XIncludeResolver xincludeResolver) throws SQLException {
         Database instance = new Database();
         instance.readConfigFile(config,xincludeResolver);
         instance.connect();
@@ -174,19 +150,7 @@ public class Database {
         return instance;
     }
 
-    /** open the connection
-     *
-     * @param user user name
-     * @param password password
-     * @param url database url
-     * @param driver driver java class name
-     * @exception SQLException thrown by the database engine
-     */
-    protected void open(String user,String password,String url,String driver) throws SQLException {
-        open(user,password,url,driver,null);
-    }
-
-    /** open the connection
+    /** Open the connection.
      *
      * @param user user name
      * @param password password
@@ -195,7 +159,7 @@ public class Database {
      * @param schema schema name
      * @exception SQLException thrown by the database engine
      */
-    protected void open(String user,String password,String url,String driver,String schema) throws SQLException {
+    private void open(String user,String password,String url,String driver,String schema) throws SQLException {
 
         this.user = user;
         this.password = password;
@@ -204,8 +168,11 @@ public class Database {
         driverClass = driver;
         connect();
     }
-
-    protected void connect() throws SQLException
+    /** Connect the database.
+     *
+     * @throws SQLException
+     */
+    private void connect() throws SQLException
     {
         Logger.info("opening database "+url+" for user "+user+(schema == null?"":" using schema "+schema));
 
@@ -224,31 +191,52 @@ public class Database {
         Action startup = rootEntity.getAction("startup");
         if (startup != null) startup.perform(null);
     }
-
-    protected void setReadOnly(boolean readOnly) {
+    /**
+     * Set the read-only state.
+     * @param readOnly read-only state
+     */
+    public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
     }
-
-    protected void setCaching(int cachingMethod) {
+    /**
+     * Set the caching method.
+     * @param cachingMethod caching method
+     */
+    public void setCaching(int cachingMethod) {
         caching = cachingMethod;
     }
-
+    /** Set the database user.
+     *
+     * @param user user name.
+     */
     public void setUser(String user) {
         this.user = user;
     }
-
+    /**
+     * Set the database password.
+     * @param password password
+     */
     public void setPassword(String password) {
        this.password = password;
     }
-
+    /**
+     * Set the database URL.
+     * @param url database url
+     */
     public void setURL(String url) {
         this.url = url;
     }
-
+    /**
+     * Set driver class.
+     * @param driverClass driver class
+     */
     public void setDriver(String driverClass) {
         this.driverClass = driverClass;
     }
-
+    /**
+     * Set schema name.
+     * @param schema schema name
+     */
     public void setSchema(String schema) {
         this.schema = schema;
         if(this.schema != null) {
@@ -256,25 +244,37 @@ public class Database {
             sharedCatalog.put(getMagicNumber(this.schema),entities);
         }
     }
-
+    /**
+     * Set minimum number of connections.
+     * @param minConnections minimum number of connections
+     */
     public void setMinConnections(int minConnections) {
         this.minConnections = minConnections;
     }
-
+    /**
+     * Set the maximum number of connections.
+     * @param maxConnections maximum number of connections
+     */
     public void setMaxConnections(int maxConnections) {
         this.maxConnections = maxConnections;
     }
-
+    /**
+     * Set the encryption seed.
+     * @param seed encryption seed
+     */
     public void setSeed(String seed) {
         this.seed = seed;
     }
-
+    /**
+     * Set the case policy.
+     * Possible values are CASE_SENSITIVE, CASE_LOWERCASE and CASE_UPPERCASE.
+     * @param caseSensivity case policy
+     */
     public void setCase(int caseSensivity) {
         this.caseSensivity = caseSensivity;
     }
 
-    /** loads the appropriate driver
-     *
+    /** Load the appropriate driver.
      */
     protected @SuppressWarnings("deprecation") void loadDriver() {
 
@@ -315,14 +315,18 @@ public class Database {
             catch (Exception e) { }
         }
     }
-
+    /** Init cryptograph.
+     *
+     */
     protected void initCryptograph()
     {
         if (cryptograph != null) return;
         // to initialize the cryptograph, we need a chunk of user-provided bytes
         // they must be persistent, so that urls that use encrypted params remain valid
         // => use the database url if null
-        if (seed == null) seed = url;
+        if (seed == null) {
+            seed = url;
+        }
         try {
             cryptograph = (Cryptograph)Class.forName("velosurf.util.DESCryptograph").getDeclaredConstructor(new Class[] {}).newInstance(new Object[] {});
             cryptograph.init(seed);
@@ -332,12 +336,15 @@ public class Database {
             Logger.log(e);
         }
     }
-
+    /**
+     * Get reverse engineer.
+     * @return reverse engineer.
+     */
     public ReverseEngineer getReverseEngineer() {
         return reverseEngineer;
     }
 
-    /** issue a query
+    /** Issue a query.
      *
      * @param query an SQL query
      * @return the resulting RowIterator
@@ -346,7 +353,7 @@ public class Database {
         return query(query,null);
     }
 
-    /** issue a query, knowing the resulting entity
+    /** Issue a query, knowing the resulting entity.
      *
      * @param query an SQL query
      * @param entity the resulting entity
@@ -358,7 +365,7 @@ public class Database {
         return statement.query(query,entity);
     }
 
-    /** evaluate a query to a scalar
+    /** Evaluate a query to a scalar.
      *
      * @param query an sql query
      * @return the resulting scalar
@@ -375,7 +382,7 @@ public class Database {
         }
     }
 
-    /** prepare a query
+    /** Prepare a query.
      *
      * @param query an sql query
      * @return the pooled prepared statement corresponding to the query
@@ -392,7 +399,7 @@ public class Database {
         }
     }
 
-    /** prepare a query which is part of a transaction
+    /** Prepare a query which is part of a transaction.
      *
      * @param query an sql query
      * @return the prepared statemenet corresponding to the query
@@ -409,7 +416,7 @@ public class Database {
         }
     }
 
-    /** issues an update query
+    /** Issue an update query.
      *
      * @param query an sql query
      * @return the number of affected rows
@@ -425,7 +432,7 @@ public class Database {
         }
     }
 
-    /** issue an update query that is part of a transaction
+    /** Issue an update query that is part of a transaction.
      *
      * @param query an sql query
      * @return the number of affected rows
@@ -441,7 +448,7 @@ public class Database {
         }
     }
 
-    /** close the connection
+    /** Close the connection.
      *
      * @exception SQLException thrown by the database engine
      */
@@ -460,7 +467,7 @@ public class Database {
         transactionPreparedStatementPool = null;
     }
 
-    /** display statistics about the statements pools
+    /** Display statistics about the statements pools.
      */
     public void displayStats() {
         System.out.println("DB statistics:");
@@ -470,15 +477,17 @@ public class Database {
         System.out.println("\tprepared statements - "+preparedStats[0]+" free statements out of "+preparedStats[1]);
     }
 
-    /** get a jdbc connection
+    /** Get a jdbc connection.
      *
      * @return a jdbc connection wrapper (which extends java.sql.Connection)
      */
     public ConnectionWrapper getConnection() throws SQLException {
-        return connectionPool.getConnection();
+        ConnectionWrapper c = connectionPool.getConnection();
+        c.setReadOnly(readOnly);
+        return c;
     }
 
-    /** get the underlying jdbc connection used for transactions, and mark it right away as busy
+    /** Get the underlying jdbc connection used for transactions, and mark it right away as busy.
      *
      * @return a jdbc connection wrapper (which extends java.sql.Connection)
      */
@@ -488,12 +497,11 @@ public class Database {
         return ret;
     }
 
-    /** read configuration from the given input stream
+    /** Read configuration from the given input stream.
      *
      * @param config input stream on the config file
-     * @exception SQLException thrown by the database engine
      */
-    private void readConfigFile(InputStream config,XIncludeResolver xincludeResolver) throws SQLException,IOException {
+    private void readConfigFile(InputStream config,XIncludeResolver xincludeResolver) {
         try {
             new ConfigLoader(this,xincludeResolver).loadConfig(config);
 
@@ -503,7 +511,7 @@ public class Database {
         }
     }
 
-    /** changes to lowercase or uppercase if needed
+    /** Changes to lowercase or uppercase if needed.
      *
      * @param identifier
      * @return changed identifier
@@ -520,8 +528,9 @@ public class Database {
         }
     }
 
-    /** add a new entity
+    /** Add a new entity.
      *
+     * @param entity entity to add
      */
     public void addEntity(Entity entity) {
         String name = entity.getName();
@@ -534,12 +543,15 @@ public class Database {
             rootEntity = entity;
         }
     }
-
+    /**
+     * Get root entity.
+     * @return root entity
+     */
     public Entity getRootEntity() {
         return rootEntity;
     }
 
-    /** get a named entity or creeate it if it doesn't exist
+    /** Get a named entity or creeate it if it doesn't exist
      *
      * @param name name of an entity
      * @return the named entity
@@ -554,7 +566,7 @@ public class Database {
         return entity;
     }
 
-    /** get an existing entity
+    /** Get an existing entity.
      *
      * @param name the name of an entity
      * @return the named entity
@@ -571,12 +583,15 @@ public class Database {
         }
         return entity;
     }
-
+    /** Entities map getter.
+     *
+     * @return entities map
+     */
     public Map<String,Entity> getEntities() {
         return entities;
     }
 
-    /** get a root attribute
+    /** Get a root attribute.
      *
      * @param name name of an attribute
      * @return the named attribute
@@ -585,7 +600,7 @@ public class Database {
         return rootEntity.getAttribute(adaptCase(name));
     }
 
-    /** get a root action
+    /** Get a root action.
      *
      * @param name name of an attribute
      * @return the named attribute
@@ -594,7 +609,7 @@ public class Database {
         return rootEntity.getAction(adaptCase(name));
     }
 
-    /** obfuscate the given value
+    /** Obfuscate the given value.
      * @param value value to obfuscate
      *
      * @return obfuscated value
@@ -612,7 +627,7 @@ public class Database {
         return encoded;
     }
 
-    /** de-obfuscate the given value
+    /** De-obfuscate the given value.
      * @param value value to de-obfuscate
      *
      * @return obfuscated value
@@ -638,14 +653,14 @@ public class Database {
         return ret;
     }
 
-    /** get database vendor
+    /** Get database driver infos.
      * @return the database vendor
      */
     public DriverInfo getDriverInfo() {
         return driverInfo;
     }
 
-    /** get database case-sensivity
+    /** Get database case-sensivity policy.
      *
      * @return case-sensivity
      */
@@ -653,105 +668,110 @@ public class Database {
         return caseSensivity;
     }
 
-    /** get the integer key used to share schema entities among instances
+    /** Get the integer key used to share schema entities among instances.
      */
     private Integer getMagicNumber(String schema) {
         // url is not checked for now because for some databases, the schema is part of the url.
         return Integer.valueOf((user/*+url*/+schema).hashCode());
     }
 
-    /** get the schema
+    /** Get the schema.
      * @return the schema
      */
     public String getSchema() {
         return schema;
     }
 
-    /** database user
+    /** database user.
      */
-    protected String user = null;
-    /** database user's password
+    private String user = null;
+    /** database user's password.
      */
-    protected String password = null;
-    /** database url
+    private String password = null;
+    /** database url.
      */
-    protected String url = null;
-    /** schema
+    private String url = null;
+    /** schema.
      */
-    protected String schema = null;
+    private String schema = null;
 
-    /** whether the JDBC driver has been loaded */
-    protected boolean driverLoaded = false;
+    /** whether the JDBC driver has been loaded. */
+    private boolean driverLoaded = false;
 
-    /** driver class name, if provided in the config file
+    /** driver class name, if provided in the config file.
      */
-    protected String driverClass = null;
-
-    /**
-     * Pool of connections
-     */
-    protected ConnectionPool connectionPool = null;
-    protected int minConnections = 1; // applies to connectionPool (min connections is always 1 for transactionConnectionPool)
-    protected int maxConnections = 50; // applies to connectionPool and transactionConnectionPool
+    private String driverClass = null;
 
     /**
-     * Pool of connections for transactions
+     * Pool of connections.
      */
-    protected ConnectionPool transactionConnectionPool = null;
+    private ConnectionPool connectionPool = null;
+    /** min connections. */
+    private int minConnections = 1; // applies to connectionPool (min connections is always 1 for transactionConnectionPool)
+    /** max connections. */
+    private int maxConnections = 50; // applies to connectionPool and transactionConnectionPool
 
-    /** pool of statements
+    /**
+     * Pool of connections for transactions.
      */
-    protected StatementPool statementPool = null;
+    private ConnectionPool transactionConnectionPool = null;
 
-    /** pool of statements for transactions
+    /** pool of statements.
      */
-    protected StatementPool transactionStatementPool = null;
+    private StatementPool statementPool = null;
 
-    /** pool of prepared statements
+    /** pool of statements for transactions.
      */
-    protected PreparedStatementPool preparedStatementPool = null;
+    private StatementPool transactionStatementPool = null;
 
-    /** pool of prepared statements for transactions
+    /** pool of prepared statements.
      */
-    protected PreparedStatementPool transactionPreparedStatementPool = null;
+    private PreparedStatementPool preparedStatementPool = null;
 
-    /** default access mode
+    /** pool of prepared statements for transactions.
      */
-    protected boolean readOnly = true;
-    /** default caching mode
-     */
-    protected int caching = Cache.NO_CACHE;
+    private PreparedStatementPool transactionPreparedStatementPool = null;
 
-    /** map name->entity
+    /** default access mode.
      */
-    protected Map<String,Entity> entities = new HashMap<String,Entity>();
-
-    /** root entity that contains all root attributes and actions
+    private boolean readOnly = true;
+    /** default caching mode.
      */
-    protected Entity rootEntity = null;
+    private int caching = Cache.NO_CACHE;
 
-    /** driver infos (database vendor specific)
+    /** map name->entity.
      */
-    protected DriverInfo driverInfo = null;
+    private Map<String,Entity> entities = new HashMap<String,Entity>();
 
-    /** random seed used to initialize the cryptograph
+    /** root entity that contains all root attributes and actions.
+     */
+    private Entity rootEntity = null;
+
+    /** driver infos (database vendor specific).
+     */
+    private DriverInfo driverInfo = null;
+
+    /** random seed used to initialize the cryptograph.
      */
     private String seed = null;
 
-    /** cryptograph used to encrypt/decrypt database ids
+    /** cryptograph used to encrypt/decrypt database ids.
      */
     private Cryptograph cryptograph = null;
 
-    /** case-sensitive policy */
+    /** unknown case-sensitive policy. */
     public static final int CASE_UNKNOWN = 0;
+    /** sensitive case-sensitive policy. */
     public static final int CASE_SENSITIVE = 1;
+    /** uppercase case-sensitive policy. */
     public static final int UPPERCASE = 2;
+    /** lowercase case-sensitive policy. */
     public static final int LOWERCASE = 3;
 
-    /** case-sensivity */
-    protected int caseSensivity = CASE_UNKNOWN;
+    /** case-sensivity. */
+    private int caseSensivity = CASE_UNKNOWN;
 
-    /** case-sensivity for context
+    /** case-sensivity for context.
      */
     private static int contextCase = LOWERCASE;
 
@@ -770,7 +790,11 @@ public class Database {
             }
         }
     }
-
+    /** adapt a string to the context case.
+     *
+     * @param str string to adapt
+     * @return adapted string
+     */
     public static String adaptContextCase(String str) {
         if(str == null) {
             return null;
@@ -786,18 +810,20 @@ public class Database {
         }
     }
 
-    /** map parameters -> instances */
-    private static Map connectionsByParams = new HashMap();
+    /** map parameters -> instances. */
+    private static Map<Integer,Database> connectionsByParams = new HashMap<Integer,Database>();
 
-    /** map config files -> instances */
-    private static Map connectionsByConfigFile = new HashMap();
+    /** map config files -> instances. */
+    private static Map<Integer,Database> connectionsByConfigFile = new HashMap<Integer,Database>();
 
-    /** Shared catalog, to share entities among instances.
-     * <br>
-     * Key is hashcode of (name+password+url+schema), value is an entities map.
+    /** <p>Shared catalog, to share entities among instances.</p>
+     *
+     * <p>Key is hashcode of (name+password+url+schema), value is an entities map.</p>
      */
-    private static Map sharedCatalog = new HashMap();
-
-    protected ReverseEngineer reverseEngineer = new ReverseEngineer(this);
+    private static Map<Integer,Map<String,Entity>> sharedCatalog = new HashMap<Integer,Map<String,Entity>>();
+    /**
+     * Reverse engineer.
+     */
+    private ReverseEngineer reverseEngineer = new ReverseEngineer(this);
 
 }

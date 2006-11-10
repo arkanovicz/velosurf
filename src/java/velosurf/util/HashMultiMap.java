@@ -31,14 +31,14 @@ import java.util.Set;
  */
 
 public class HashMultiMap implements MultiMap {
-    /** inner map
+    /** inner map.
      */
     private Map map;        // (Object key -> List values)
-    /** total number of values
+    /** total number of values.
      */
     private transient int sizeAll;
 
-    /** builds a new HashMultiMap
+    /** build a new HashMultiMap.
      */
     public HashMultiMap() {
     map = new HashMap();
@@ -106,6 +106,8 @@ public class HashMultiMap implements MultiMap {
 
     /**
      * Adds the specified value with the specified key to this multimap.
+     * @param key
+     * @param value
      */
     public void put(Object key, Object value) {
     List l = (List) map.get(key);
@@ -120,6 +122,7 @@ public class HashMultiMap implements MultiMap {
     /**
      * Copies all entries from the specified multimap to this
      * multimap.
+     * @param t source multimap
      */
     public void putAll(MultiMap t) {
 
@@ -140,6 +143,7 @@ public class HashMultiMap implements MultiMap {
 
     /**
      * Removes all mappings for this key from this multimap if present.
+     * @param key
      */
     public void remove(Object key) {
     List l = (List) map.get(key);
@@ -150,6 +154,8 @@ public class HashMultiMap implements MultiMap {
 
     /**
      * Removes the specified key/value mapping from this multimap if present.
+     * @param key
+     * @param value
      */
     public void remove(Object key, Object value) {
     List l = (List) map.get(key);
@@ -181,6 +187,7 @@ public class HashMultiMap implements MultiMap {
 
     /**
      * Compares the specified object with this multimap for equality.
+     * @param o
      */
     public boolean equals(Object o) {
     if ( o == this )

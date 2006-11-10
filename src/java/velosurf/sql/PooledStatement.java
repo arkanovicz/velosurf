@@ -19,43 +19,41 @@ package velosurf.sql;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Connection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.TreeMap;
 
 import velosurf.context.RowIterator;
 import velosurf.model.Entity;
 import velosurf.util.Logger;
 
-/** this class encapsulates a jdbc Statement
+/** this class encapsulates a jdbc Statement.
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class PooledStatement extends Pooled implements ReadOnlyMap {
 
-    /** builds a new PooledStatement
+    /** build a new PooledStatement.
      *
      * @param connection database connection
      * @param statement wrapped Statement
      */
-    protected PooledStatement(ConnectionWrapper connection,Statement statement) {
+    public PooledStatement(ConnectionWrapper connection,Statement statement) {
         this.connection = connection;
         this.statement = statement;
     }
 
-    /** gets the resultset for this statement
+    /** get the resultset for this statement.
      *
      * @param query SQL query
      * @exception SQLException thrown by the database engine
      * @return resulting RowIterator
      */
     public synchronized RowIterator query(String query) throws SQLException {    return query(query,null); }
-    /** gets the resultset for this statement, specifying the entity the results belong to
+    /** get the resultset for this statement, specifying the entity the results belong to.
      *
      * @param query SQL query
      * @param resultEntity entity
@@ -64,7 +62,6 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
      */
     public synchronized RowIterator query(String query,Entity resultEntity) throws SQLException {
         notifyInUse();
-        this.query = query;
         Logger.debug("query-"+query);
         connection.enterBusyState();
         RowIterator result = new RowIterator(this,statement.executeQuery(query),resultEntity);
@@ -72,14 +69,14 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
         return result;
     }
 
-    /** fetch a single row
+    /** fetch a single row.
      *
      * @param query SQL query
      * @exception SQLException thrown by the database engine
      * @return fetched row
      */
     public synchronized Object fetch(String query) throws SQLException { return fetch(query,null); }
-    /** fetch a single row, specyfing the entity it belongs to
+    /** fetch a single row, specyfing the entity it belongs to.
      *
      * @param query SQL query
      * @param resultEntity entity
@@ -93,14 +90,15 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
         resultSet = statement.executeQuery(query);
         boolean hasNext = resultSet.next();
         connection.leaveBusyState();
-        Map row = null;
+        Map<String,Object> row = null;
         if (hasNext) {
             if (resultEntity!=null) row = resultEntity.getInstance(this);
             else {
-                row = new HashMap();
-                if (columnNames == null) columnNames = SqlUtil.getColumnNames(resultSet);
-                for (Iterator it=columnNames.iterator();it.hasNext();) {
-                    String column = (String)it.next();
+                row = new TreeMap<String,Object>();
+                if (columnNames == null) {
+                    columnNames = SqlUtil.getColumnNames(resultSet);
+                }
+                for (String column:columnNames) {
                     Object value = resultSet.getObject(column);
                     row.put(Database.adaptContextCase(column),value);
                 }
@@ -110,7 +108,7 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
         return row;
     }
 
-    /** get specified column as an object
+    /** get specified column as an object.
      *
      * @param key column
      * @exception SQLException thrown by the database engine
@@ -122,11 +120,11 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
     }
 
     public Set keySet() throws SQLException {
-        return new HashSet(SqlUtil.getColumnNames(resultSet));
+        return new HashSet<String>(SqlUtil.getColumnNames(resultSet));
     }
 
 
-    /** evaluates the SQL query as  a scalar
+    /** evaluates the SQL query as  a scalar.
      *
      * @param query SQL query
      * @exception SQLException thrown by the database engine
@@ -151,7 +149,7 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
         }
     }
 
-    /** issues the update contained in the query
+    /** issue the update contained in the query.
      *
      * @param query SQL query
      * @exception SQLException thrown by the database engine
@@ -165,7 +163,7 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
         return result;
     }
 
-    /** close thos statement
+    /** close this statement.
      *
      * @exception SQLException thrown by the database engine
      */
@@ -173,13 +171,13 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
         if (statement!=null) statement.close();
     }
 
-    /** notify this statement is no more used and can be recycled
+    /** notify this statement is no more used and can be recycled.
      */
     public void notifyOver() {
         super.notifyOver();
     }
 
-    /** gets the last insert id
+    /** gets the last insert id.
      *
      * @exception SQLException thrown by the database engine
      * @return last insert id
@@ -188,7 +186,7 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
         return ((ConnectionWrapper)connection).getLastInsertId(statement);
     }
 
-    /** get statement's Connection
+    /** get statement's Connection.
      *
      *  @return the Connection object (usually a ConnectionWrapper object)
      */
@@ -196,19 +194,16 @@ public class PooledStatement extends Pooled implements ReadOnlyMap {
         return connection;
     }
 
-    /** SQL query
+    /** database connection.
      */
-    protected String query = null;
-    /** database connection
+    private ConnectionWrapper connection = null;
+    /** result set.
      */
-    protected ConnectionWrapper connection = null;
-    /** result set
+    private ResultSet resultSet = null;
+    /** column names in natural order.
      */
-    protected ResultSet resultSet = null;
-    /** column names in natural order
+    private List<String> columnNames = null;
+    /** wrapped statement.
      */
-    protected List columnNames = null;
-    /** wrapped statement
-     */
-    protected Statement statement = null;
+    private Statement statement = null;
 }

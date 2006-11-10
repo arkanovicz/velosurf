@@ -38,7 +38,7 @@ import velosurf.util.UserContext;
  */
 public class RowIterator implements Iterator,ReadOnlyMap {
 
-    /** Build a new RowIterator
+    /** Build a new RowIterator.
      *
      * @param pooledStatement the sql statement
      * @param resultSet the resultset
@@ -68,7 +68,7 @@ public class RowIterator implements Iterator,ReadOnlyMap {
         }
     }
 
-    /** Returns the next element in the iteration.<p>
+    /** Returns the next element in the iteration.
      *
      * @return an Instance if a resulting entity has been specified, or a
      *     reference to myself
@@ -101,8 +101,7 @@ public class RowIterator implements Iterator,ReadOnlyMap {
         Logger.warn("'remove' not implemented");
     }
 
-    // generic getter
-    /** generic getter for values of the current row. If no column corresponds to the specified name and a resulting entity has been specified, search among this entity's attributes.
+    /** Generic getter for values of the current row. If no column corresponds to the specified name and a resulting entity has been specified, search among this entity's attributes.
      * Note that this method is the only getter of RowIterator that cares about obfuscation - other specialized getters
      * won't do any obfuscation.
      *
@@ -154,13 +153,13 @@ public class RowIterator implements Iterator,ReadOnlyMap {
         return result;
     }
 
-    /** gets all the rows in a list of maps
+    /** Gets all the rows in a list of instances.
      *
      * @return a list of all the rows
      */
-    public List getRows() {
+    public List<Instance> getRows() {
         try {
-            List ret = new ArrayList();
+            List<Instance> ret = new ArrayList<Instance>();
             pooledStatement.getConnection().enterBusyState();
             if(resultEntity != null) {
                 while (!resultSet.isAfterLast() && resultSet.next()) {
@@ -187,23 +186,23 @@ public class RowIterator implements Iterator,ReadOnlyMap {
         }
     }
 
-    public Set keySet() {
+    public Set<String> keySet() {
         try {
-            return  new HashSet(SqlUtil.getColumnNames(resultSet));
+            return  new HashSet<String>(SqlUtil.getColumnNames(resultSet));
         } catch(SQLException sqle) {
             Logger.log(sqle);
             return null;
         }
     }
 
-    /** check if some data is available
+    /** Check if some data is available.
      *
      * @exception SQLException if the internal ResultSet is not happy
      * @return <code>true</code> if some data is available (ie the internal
      *     ResultSet is not empty, and not before first row neither after last
      *     one)
      */
-    protected boolean dataAvailable() throws SQLException {
+    private boolean dataAvailable() throws SQLException {
         if (resultSet.isBeforeFirst()) {
             pooledStatement.getConnection().enterBusyState();
             boolean hasNext = resultSet.next();
@@ -221,24 +220,24 @@ public class RowIterator implements Iterator,ReadOnlyMap {
         return true;
     }
 
-    /** set the localizer to be used to build instances
+    /** Set the localizer to be used to build instances.
      *
      */
     public void setUserContext(UserContext context) {
         userContext = context;
     }
 
-    /** the statement
+    /** Source statement.
      */
-    protected Pooled pooledStatement = null;
-    /** the result set
+    private Pooled pooledStatement = null;
+    /** Wrapped result set.
      */
-    protected ResultSet resultSet = null;
-    /** the resulting entity
+    private ResultSet resultSet = null;
+    /** Resulting entity.
      */
-    protected Entity resultEntity = null;
+    private Entity resultEntity = null;
 
-    /** user context
+    /** User context.
      */
-    protected UserContext userContext = null;
+    private UserContext userContext = null;
 }

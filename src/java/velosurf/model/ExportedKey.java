@@ -20,29 +20,51 @@ import java.util.List;
 
 import velosurf.util.StringLists;
 
-/** An exported key (aka primary key used in a foreign key) attribute
+/** An exported key (aka primary key used in a foreign key) attribute.
  *
  */
 
 public class ExportedKey extends Attribute {
 
+    /**
+     * List of foreign keys.
+     */
     private List<String> fkCols = null;
 
-    public ExportedKey(String name,Entity entity,String pkEntity,List<String> fkCols) {
+    /**
+     * Exported key constructor.
+     * @param name name of this exported key
+     * @param entity parent entity
+     * @param fkEntity foreign key entity
+     * @param fkCols foreign key columns
+     */
+    public ExportedKey(String name,Entity entity,String fkEntity,List<String> fkCols) {
         super(name,entity);
         setResultType(Attribute.ROWSET);
-        setResultEntity(pkEntity);
+        setResultEntity(fkEntity);
         this.fkCols = fkCols; /* may still be null at this stage */
     }
 
+    /**
+     * Foreign key columns getter.
+     * @return foreign key columns list
+     */
     public List<String> getFKCols() {
         return fkCols;
     }
 
+    /**
+     * Foreign key columns setter.
+     * @param fkCols foreign key columns list
+     */
     public void setFKCols(List<String> fkCols) {
         this.fkCols = fkCols;
     }
 
+    /**
+     * Query getter.
+     * @return the SQL query
+     */
     public String getQuery() {
         if(query == null) {
             Entity fkEntity = db.getEntity(resultEntity);
@@ -53,4 +75,13 @@ public class ExportedKey extends Attribute {
         }
         return query;
     }
+
+    /** Debug method.
+     *
+     * @return the definition string of this attribute
+     */
+    public String toString() {
+        return getQuery();
+    }
+
 }

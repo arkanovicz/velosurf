@@ -18,7 +18,7 @@ package velosurf.sql;
 
 import java.sql.SQLException;
 
-/** this abstract class represents a pooled object.<p>
+/** This abstract class represents a pooled object.<p>
  * It has two booleans : inUse and useOver (understand : usageOver).<p>
  * The cycle of those two booleans is the following :<p>
  * states (inUse - useOver) : (false-false) -> (true-false) -> (true-true) -> [delay] (false-false)
@@ -28,13 +28,13 @@ import java.sql.SQLException;
  */
 public abstract class Pooled {
 
-    /** builds a new pooled object
+    /** build a new pooled object.
      */
     public Pooled() {
         tagTime = System.currentTimeMillis();
     }
 
-    /** get the time tag of this pooled object
+    /** get the time tag of this pooled object.
      *
      * @return the time tag
      */
@@ -42,26 +42,26 @@ public abstract class Pooled {
         return tagTime;
     }
 
-    /** reset the time tag
+    /** reset the time tag.
      */
     public void resetTagTime() {
         tagTime = System.currentTimeMillis();
     }
 
-    /** notify this object that it is in use
+    /** notify this object that it is in use.
      */
     public void notifyInUse() {
         inUse = true;
         resetTagTime();
     }
 
-    /** notify this object that it is no more in use
+    /** notify this object that it is no more in use.
      */
     public void notifyOver() {
         inUse = false;
     }
 
-    /** checks whether this pooled object is in use
+    /** check whether this pooled object is in use.
      *
      * @return whether this object is in use
      */
@@ -69,7 +69,7 @@ public abstract class Pooled {
         return inUse;
     }
 
-    /** checks whether this pooled object is marked as valid or invalid
+    /** check whether this pooled object is marked as valid or invalid.
      * (used in the recovery process)
      *
      * @return whether this object is in use
@@ -78,37 +78,34 @@ public abstract class Pooled {
         return valid;
     }
 
-    /** definitely mark this statement as meant to be deleted
+    /** definitely mark this statement as meant to be deleted.
      */
     public void setInvalid() {
         valid = false;
     }
 
-    /** get the connection used by this statement
+    /** get the connection used by this statement.
      *
      * @return the connection used by this statement
      */
     public abstract ConnectionWrapper getConnection();
 
-    /** close this pooled object
+    /** close this pooled object.
      *
      * @exception SQLException when thrown by the database engine
      */
     public abstract void close() throws SQLException;
 
-    /** time tag
+    /** time tag.
      */
-    protected long tagTime = 0;
+    private long tagTime = 0;
     // states (inUse - useOver) : (false-false) -> (true-false) -> (true-true) -> [delay] (false-false)
 
-    /** valid statement ?
+    /** valid statement?
      */
-    protected boolean valid = true;
+    private boolean valid = true;
 
-    /** is this object in use ?
+    /** is this object in use?
      */
-    protected boolean inUse = false;
-    /** is the usage of this object over ?
-     */
-    protected boolean useOver = false;
+    private boolean inUse = false;
 }

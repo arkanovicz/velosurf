@@ -45,7 +45,7 @@ import velosurf.util.StringLists;
  */
 public class OneOf extends FieldConstraint {
 
-    protected List values = null;
+    private List values = null;
 
     /**
      * Constructor.
@@ -57,7 +57,7 @@ public class OneOf extends FieldConstraint {
     }
 
     /**
-     *
+     * Validate data against this constraint.
      * @param data the data to be validated
      * @return true if data is among the expected values
      */
@@ -65,6 +65,10 @@ public class OneOf extends FieldConstraint {
         return data == null || values.contains(data.toString());
     }
 
+    /**
+     * return a string representation for this constraint.
+     * @return string
+     */
     public String toString() {
         return "one of "+StringLists.join(values,", ");
     }

@@ -26,57 +26,71 @@ import velosurf.sql.ReadOnlyMap;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
 
-/** This class correspond to custom update and delete queries
+/** This class corresponds to custom update, delete and insert queries.
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
 public class Action
 {
-    /** Constructor
+    /** Constructor.
      *
      * @param name name
      * @param entity entity
      */
     public Action(String name,Entity entity) {
         this.entity = entity;
-        db = this.entity.db;
+        db = this.entity.getDB();
         this.name = name;
     }
 
+    /**
+     * Add a parameter name.
+     * @param paramName
+     */
     public void addParamName(String paramName) {
         paramNames.add(paramName);
     }
 
+    /**
+     * Sets the query.
+     * @param query query
+     */
     public void setQuery(String query) {
         this.query = query;
     }
 
-    /** executes this action
+    /** Executes this action.
      *
      * @param source the object on which apply the action
      * @exception SQLException an SQL problem occurs
      * @return number of impacted rows
      */
     public int perform(ReadOnlyMap source) throws SQLException {
-        // TODO: check type
         List params = buildArrayList(source);
         return db.prepare(query).update(params);
     }
 
 
-    /** get the list of values for all parameters
+    /** Get the list of values for all parameters.
      *
-     * @param source the DataAccessor
-     * @exception SQLException thrown by the DataAccessor
+     * @param source the ReadOnlyMap
+     * @exception SQLException thrown by the ReadOnlyMap
      * @return the list of values
      */
-    public List buildArrayList(ReadOnlyMap source) throws SQLException {
-        ArrayList result = new ArrayList();
+    public List<Object> buildArrayList(ReadOnlyMap source) throws SQLException {
+        List<Object> result = new ArrayList<Object>();
         if (source!=null)
             for (Iterator i = paramNames.iterator();i.hasNext();) {
                 String paramName = (String)i.next();
                 Object value = source.get(paramName);
+                if(value == null) {
+                    /* TODO: same problem than in Entity.extractColumnValues... we need a case-insensitive algorithm */
+                    value = source.get(paramName.toUpperCase());
+                    if (value == null) {
+                        value = source.get(paramName.toLowerCase());
+                    }
+                }
                 if (entity.isObfuscated(paramName)) value = db.deobfuscate(value);
                 if (value == null) Logger.warn("Query "+query+": param "+paramName+" is null!");
                 result.add(value);
@@ -84,7 +98,7 @@ public class Action
         return result;
     }
 
-    /** get the name of the action
+    /** Get the name of the action.
      *
      * @return the name
      */
@@ -92,7 +106,7 @@ public class Action
         return name;
     }
 
-    /** for debugging purpose
+    /** For debugging purposes.
      *
      * @return definition string
      */
@@ -103,7 +117,7 @@ public class Action
         return result;
     }
 
-    /** get the database connection
+    /** Get the database connection.
      *
      * @return the database connection
      */
@@ -111,22 +125,21 @@ public class Action
         return db;
     }
 
-    /** the satabase connection
+    /** The database connection.
      */
     protected Database db = null;
-    /** the entity this action belongs to
+    /** The entity this action belongs to.
      */
-    protected Entity entity = null;
-    /** the name of this action
+    private Entity entity = null;
+    /** The name of this action.
      */
-    protected String name = null;
+    private String name = null;
 
-    // for simple actions
-    /** parameter names of this action
+    /** Parameter names of this action.
      */
     protected List<String> paramNames = new ArrayList<String>();
-    /** query of this action
+    /** Query.
      */
-    protected String query = null;
+    private String query = null;
 
 }

@@ -28,28 +28,35 @@ import java.util.Locale;
 public abstract class FieldConstraint {
 
     /**
-     * used to validate data against this constraint
-     * @param data to be validated
+     * validate data against this constraint.
+     * @param data to validate
      * @param locale
-     * @return true if the data respects the constraint, false if not
+     * @return true if the data respects the constraint
      */
     public boolean validate(Object data, Locale locale) throws SQLException {
         return validate(data);
     }
-
+    /**
+     * validate data against this constraint.
+     * @param data data to validate
+     * @return true if data respects the constaint
+     * @throws SQLException
+     */
     public boolean validate(Object data) throws SQLException {
         return false;
     }
-
-    // TODO parametrization of the message with {0} {1}...
-    protected String message = null;
-
+    /** the error message */
+    private String message = null;
+    /** error message setter
+     *
+     * @param msg error message
+     */
     public void setMessage(String msg) {
         message = msg;
     }
 
     /**
-     * used to get the error message if an error occured
+     * get the error message
      * @return the error message
      */
     public String getMessage() {

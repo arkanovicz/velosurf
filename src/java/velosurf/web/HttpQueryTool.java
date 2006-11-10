@@ -17,15 +17,11 @@
 package velosurf.web;
 
 import java.util.*;
-import java.sql.SQLException;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.velocity.tools.view.context.ViewContext;
 import org.apache.velocity.tools.view.tools.ParameterParser;
 
 import velosurf.util.Logger;
-import velosurf.model.Entity;
 
 /** This class extends the tool org.apache.velocity.tools.view.tools.ParameterParser,
  *  adding a generic setter. Values that are set manually hide any previous values that
@@ -38,13 +34,21 @@ import velosurf.model.Entity;
  **/
  public class HttpQueryTool extends ParameterParser implements Map
 {
-
+    /** view context. */
     private ViewContext context = null;
+    /** extra values map. */
     private Map extraValues = new HashMap();
 
+    /**
+     * Constructor.
+     */
     public HttpQueryTool() {
     }
 
+    /**
+     * Initialize this tool.
+     * @param viewContext view context
+     */
     public void init(Object viewContext) {
 
         super.init(viewContext);
@@ -53,11 +57,14 @@ import velosurf.model.Entity;
             Logger.error("HttpQueryTool.init: can't initialize... bad scope ? (query scope expected)");
             throw new IllegalArgumentException("expecting a ViewContext argument");
         }
-
         context = (ViewContext)viewContext;
-        HttpServletRequest request = context.getRequest();
     }
 
+    /**
+     * Generic getter.
+     * @param key key
+     * @return value or null
+     */
     public Object get(Object key)
     {
         Object ret = extraValues.get(key);
@@ -68,46 +75,90 @@ import velosurf.model.Entity;
         }
     }
 
+    /**
+     * Generic setter.
+     * @param key key
+     * @param value value
+     * @return previous value
+     */
     public Object put(Object key, Object value) {
         return extraValues.put(key,value);
     }
 
+    /**
+     * Get the number of parameters.
+     * @return number of parameters
+     */
     public int size() {
         return context.getRequest().getParameterMap().size() + extraValues.size();
     }
 
+    /**
+     * Check for the presence of parameters.
+     * @return true if empty
+     */
     public boolean isEmpty() {
         return context.getRequest().getParameterMap().isEmpty() && extraValues.isEmpty();
     }
 
+    /**
+     * Check for the presence of a parameter.
+     * @param key parameter name
+     * @return true if present
+     */
     public boolean containsKey(Object key) {
         return context.getRequest().getParameterMap().containsKey(key) || extraValues.containsKey(key);
     }
 
+    /**
+     * Check for the presence of a value.
+     * @param value value to find
+     * @return true if present
+     */
     public boolean containsValue(Object value) {
         String[] array = new String[1];
         array[0] = (String)value;
         return context.getRequest().getParameterMap().containsValue(array) || extraValues.containsValue(value);
     }
 
+    /**
+     * Remove a parameter (from extra values).
+     * @param key parameter name
+     * @return value or null
+     */
     public Object remove(Object key) {
         return extraValues.remove(key);
     }
 
+    /**
+     * Put all key/values from a map.
+     * @param map source map
+     */
     public void putAll(Map map) {
         extraValues.putAll(map);
     }
 
+    /**
+     * Clear extra parameters.
+     */
     public void clear() {
         extraValues.clear();
     }
 
+    /**
+     * Get the set of parameter names.
+     * @return set of names
+     */
     public Set keySet() {
         Set ret = context.getRequest().getParameterMap().keySet();
         ret.addAll(extraValues.keySet());
         return ret;
     }
 
+    /**
+     * Get the collection of values
+     * @return
+     */
     public Collection values() {
         String[] array;
         Collection ret = new HashSet();

@@ -25,13 +25,25 @@ import java.util.Iterator;
 import java.util.ArrayList;
 
 /**
- *  Connection pool
+ *  Connection pool.
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 
 public class ConnectionPool {
 
+    /**
+     * Constructor.
+     * @param url url
+     * @param user user
+     * @param password password
+     * @param schema schema
+     * @param driver infos on the driver
+     * @param autocommit autocommit
+     * @param min min connections
+     * @param max max connections
+     * @throws SQLException
+     */
     public ConnectionPool(String url,String user,String password,String schema,DriverInfo driver,boolean autocommit,int min,int max) throws SQLException{
         this.user = user;
         this.password = password;
@@ -39,7 +51,7 @@ public class ConnectionPool {
         this.schema = schema;
         this.driver = driver;
         this.autocommit= autocommit;
-        connections = new ArrayList();
+        connections = new ArrayList<ConnectionWrapper>();
         this.min = min;
         this.max = max;
 
@@ -48,6 +60,11 @@ public class ConnectionPool {
         }
     }
 
+    /**
+     * Get a connection.
+     * @return a connection
+     * @throws SQLException
+     */
     public synchronized ConnectionWrapper getConnection() throws SQLException {
         for (Iterator it = connections.iterator();it.hasNext();) {
             ConnectionWrapper c = (ConnectionWrapper)it.next();
@@ -68,7 +85,12 @@ public class ConnectionPool {
         return newconn;
     }
 
-    protected ConnectionWrapper createConnection() throws SQLException {
+    /** Create a connection.
+     *
+     * @return connection
+     * @throws SQLException
+     */
+    private ConnectionWrapper createConnection() throws SQLException {
 
         Logger.info("Creating a new connection.");
         Connection connection = DriverManager.getConnection(url,user,password);
@@ -91,7 +113,7 @@ public class ConnectionPool {
     }
 
 /*
-protected String getSchema(Connection connection) throws SQLException
+private String getSchema(Connection connection) throws SQLException
 {
     Statement stmt = connection.createStatement();
     ResultSet rs = stmt.executeQuery("select sys_context('userenv','current_schema') from dual");
@@ -99,6 +121,9 @@ protected String getSchema(Connection connection) throws SQLException
     return rs.getString(1);
 }*/
 
+    /**
+     * clear all connections.
+     */
     public void clear() {
         for (Iterator it = connections.iterator();it.hasNext();) {
             ConnectionWrapper c = (ConnectionWrapper)it.next();
@@ -106,18 +131,25 @@ protected String getSchema(Connection connection) throws SQLException
         }
     }
 
-    protected String user = null;
-    protected String password = null;
-    protected String url = null;
-    protected String schema = null;
-    protected DriverInfo driver = null;
-    protected boolean autocommit = true;
-    protected List connections = null;
+    /** user */
+    private String user = null;
+    /** password */
+    private String password = null;
+    /** database url */
+    private String url = null;
+    /** optional schema */
+    private String schema = null;
+    /** infos on the driver */
+    private DriverInfo driver = null;
+    /** autocommit flag */
+    private boolean autocommit = true;
+    /** list of all connections */
+    private List<ConnectionWrapper> connections = null;
 
-    /* Minimum number of connections */
-    protected int min;
+    /** Minimum number of connections. */
+    private int min;
 
-    /* Maximum number of connections */
-    protected int max;
+    /** Maximum number of connections. */
+    private int max;
 
 }

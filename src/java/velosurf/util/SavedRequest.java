@@ -35,7 +35,6 @@ import java.util.*;
  * request parameters so that a POST transaction can be faithfully
  * duplicated.
  * </p>
- * <p><a href="SavedRequest.java.html"><i>View Source</i></a></p>
  * <p>The original source code is got from Apache Tomcat<p>
  *
  * @author Craig R. McClanahan
@@ -50,7 +49,7 @@ public class SavedRequest {
     private ArrayList cookies = new ArrayList();
 
     /**
-     * Adds cookie to list of cookies
+     * Adds cookie to list of cookies.
      *
      * @param cookie cookie to add
      */
@@ -59,7 +58,7 @@ public class SavedRequest {
     }
 
     /**
-     * Returns list of cookies
+     * Returns list of cookies.
      *
      * @return list of cookies
      */
@@ -77,7 +76,7 @@ public class SavedRequest {
     private HashMap headers = new HashMap();
 
     /**
-     * Adds header
+     * Adds header.
      *
      * @param name  header name
      * @param value header value
@@ -93,7 +92,7 @@ public class SavedRequest {
     }
 
     /**
-     * Returns iterator over header names
+     * Returns iterator over header names.
      *
      * @return iterator over header names
      */
@@ -102,7 +101,7 @@ public class SavedRequest {
     }
 
     /**
-     * Returns iterator over header values
+     * Returns iterator over header values.
      *
      * @param name header name
      * @return iterator over header values
@@ -123,7 +122,7 @@ public class SavedRequest {
     private ArrayList locales = new ArrayList();
 
     /**
-     * Adds locale
+     * Adds locale.
      *
      * @param locale locale to add
      */
@@ -132,7 +131,7 @@ public class SavedRequest {
     }
 
     /**
-     * Returns iterator over locales
+     * Returns iterator over locales.
      *
      * @return iterator over locales
      */
@@ -147,7 +146,7 @@ public class SavedRequest {
     private String method = null;
 
     /**
-     * Returns request method
+     * Returns request method.
      *
      * @return request method
      */
@@ -156,7 +155,7 @@ public class SavedRequest {
     }
 
     /**
-     * Sets request method
+     * Sets request method.
      *
      * @param method request method to set
      */
@@ -174,7 +173,7 @@ public class SavedRequest {
     private HashMap parameters = new HashMap();
 
     /**
-     * Adds parameter
+     * Adds parameter.
      *
      * @param name      parameter name
      * @param values    parameter values
@@ -184,7 +183,7 @@ public class SavedRequest {
     }
 
     /**
-     * Returns iterator over parameter names
+     * Returns iterator over parameter names.
      *
      * @return iterator over parameter names
      */
@@ -193,7 +192,7 @@ public class SavedRequest {
     }
 
     /**
-     * Returns parameter values
+     * Returns parameter values.
      *
      * @param name parameter name
      * @return parameter values
@@ -203,7 +202,7 @@ public class SavedRequest {
     }
 
     /**
-     * Returns parameters
+     * Returns parameters.
      *
      * @return parameters map
      */
@@ -218,7 +217,7 @@ public class SavedRequest {
     private String queryString = null;
 
     /**
-     * Returns query string
+     * Returns query string.
      *
      * @return query string
      */
@@ -227,7 +226,7 @@ public class SavedRequest {
     }
 
     /**
-     * Sets query string
+     * Sets query string.
      *
      * @param queryString query string to set
      */
@@ -242,7 +241,7 @@ public class SavedRequest {
     private String requestURI = null;
 
     /**
-     * Returns request URI
+     * Returns request URI.
      *
      * @return request URI
      */
@@ -251,7 +250,7 @@ public class SavedRequest {
     }
 
     /**
-     * Sets request URI
+     * Sets request URI.
      *
      * @param requestURI request URI to set
      */
@@ -265,7 +264,7 @@ public class SavedRequest {
     private String pathInfo = null;
 
     /**
-     * Returns path info
+     * Returns path info.
      *
      * @return path info
      */
@@ -274,7 +273,7 @@ public class SavedRequest {
     }
 
     /**
-     * Sets path info
+     * Sets path info.
      *
      * @param pathInfo path info to set
      */
@@ -283,7 +282,7 @@ public class SavedRequest {
     }
 
     /**
-     * Gets uri with path info and query string
+     * Gets uri with path info and query string.
      *
      * @return uri with path info and query string
      */
@@ -303,7 +302,7 @@ public class SavedRequest {
     }
 
     /**
-     * This method provides ability to create SavedRequest from HttpServletRequest
+     * This method provides ability to create SavedRequest from HttpServletRequest.
      * @param request           request to be saved
      * @return saved request    resulting SavedRequest
      */

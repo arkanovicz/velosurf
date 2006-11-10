@@ -35,7 +35,7 @@ import velosurf.web.l10n.Localizer;
 
 /**
  * <p>This class is a servlet filter used to protect web pages behind an authentication mechanism. When a
- * non-authenticated user requests a protected page, (s)he is redirected towards the login page and thereafter,
+ * non-authenticated user requests a private page, (s)he is redirected towards the login page and thereafter,
  * if (s)he loggued in successfully, towards his(her) initially requested page.</p>
  *
  * <p>Authentication is performed via a CRAM (challenge-response authentication mechanism).
@@ -45,7 +45,7 @@ import velosurf.web.l10n.Localizer;
  * <p>This filter works in conjunction with an Authenticator object that must be present in the session scope
  * of the toolbox and with a javascript password encryption function.</p>
  *
- * <p>To use it, you just have to map protected urls (and especially, the target of the login form, this is
+ * <p>To use it, you just have to map private urls (and especially, the target of the login form, this is
  * very important for the authentication to work properly!) to go through this filter, as in :</p>
  * <xmp>
  *   <filter>
@@ -96,31 +96,48 @@ import velosurf.web.l10n.Localizer;
  *
  */
 
-
-// FIXME: check we are thread-safe
-
 public class AuthenticationFilter implements Filter {
 
-    protected FilterConfig config = null;
+    /** filter config. */
+    private FilterConfig config = null;
 
-    protected int maxInactive = 3600;
+    /** Max inactive interval. */
+    private int maxInactive = 3600;
 
-    protected String loginPage = "/login.html.vtl";
-    protected String authenticatedIndexPage = "/index.html.vtl";
+    /** Login page. */
+    private String loginPage = "/login.html.vtl";
 
-    protected String badLoginMessage = null;
-    protected String badLoginMsgKey = "badLogin";
-    protected static final String defaultBadLoginMessage = "Bad login or password.";
+    /** Index of the authenticated zone. */
+    private String authenticatedIndexPage = "/index.html.vtl";
 
-    protected String disconnectedMessage = null;
-    protected String disconnectedMsgKey = "disconnected";
-    protected static final String defaultDisconnectedMessage = "You have been disconnected.";
+    /** Message in case of bad login. */
+    private String badLoginMessage = null;
+
+    /** Message key in case of bad login. */
+    private String badLoginMsgKey = "badLogin";
+
+    /** Default bad login message. */
+    private static final String defaultBadLoginMessage = "Bad login or password.";
+
+    /** Message in case of disconnection. */
+    private String disconnectedMessage = null;
+
+    /** Message key in case of disconnection. */
+    private String disconnectedMsgKey = "disconnected";
+
+    /** Default message in case of disconnection. */
+    private static final String defaultDisconnectedMessage = "You have been disconnected.";
 
     /**
      * Whether indexPage, loginPage or authenticatedIndexPage contains a @ to be resolved.
      */
-    protected boolean resolveLocale = false;
+    private boolean resolveLocale = false;
 
+    /**
+     * Initialization.
+     * @param config filter config
+     * @throws ServletException
+     */
     public void init(FilterConfig config) throws ServletException {
         this.config = config;
 
@@ -156,6 +173,14 @@ public class AuthenticationFilter implements Filter {
         disconnectedMessage = this.config.getInitParameter("disconnected-message");
     }
 
+    /**
+     * Filtering.
+     * @param servletRequest request
+     * @param servletResponse response
+     * @param chain filter chain
+     * @throws IOException
+     * @throws ServletException
+     */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest)servletRequest;
@@ -233,7 +258,7 @@ public class AuthenticationFilter implements Filter {
                 session.removeAttribute("loginMessage");
 
                 /* try to find a localizer tool for login messages*/
-                localizer = ToolFinder.findTool(session,Localizer.class);
+                localizer = ToolFinder.findSessionTool(session,Localizer.class);
                 Logger.trace("auth: "+(localizer==null?"localizer not found.":" found a localizer with locale: "+localizer.getLocale()));
             }
             session.removeAttribute("velosurf.auth.user");
@@ -245,7 +270,7 @@ public class AuthenticationFilter implements Filter {
                 // a user is trying to log in
 
                 // get a reference to the authenticator tool
-                BaseAuthenticator auth = ToolFinder.findTool(session,BaseAuthenticator.class);
+                BaseAuthenticator auth = ToolFinder.findSessionTool(session,BaseAuthenticator.class);
 
                 if (auth == null) {
                     Logger.error("auth: cannot find any reference to the authenticator tool in the session!");
@@ -302,14 +327,25 @@ public class AuthenticationFilter implements Filter {
         }
     }
 
-    protected String getMessage(Localizer localizer,String key,String defaultMessage) {
+
+    /**
+     * Message getter.
+     * @param localizer localizer
+     * @param key key
+     * @param defaultMessage default message
+     * @return localized message or default message
+     */
+    private String getMessage(Localizer localizer,String key,String defaultMessage) {
         String message = null;
         if (localizer != null) {
             message = localizer.get(key);
         }
-        return message == null ? defaultMessage : message;
+        return message == null || message.equals(key) ? defaultMessage : message;
     }
 
+    /**
+     * Destroy the filter.
+     */
     public void destroy() {
     }
 

@@ -44,7 +44,7 @@ import velosurf.util.Logger;
  *  <pre>
  *    &lt;<i>column</i> type="email"/&gt;
  *  </pre>
- *<p>(Alas, unvalued attributes are not valid in XML...)<br>Or:</p>
+ * <p>Or:</p>
  *   <pre>
  *     &lt;<i>column</i>&gt;
  *       &lt;email [dns-check="true | <b>false</b>"] [smtp-check="true | <b>false</b>" ] [message="<i>error-message</i>"]&gt;
@@ -54,11 +54,11 @@ import velosurf.util.Logger;
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 public class Email extends FieldConstraint {
-
+    /** whether to check dns. */
     private boolean dnsCheck = false;
-
+    /** whether to check smtp server. */
     private boolean smtpCheck = false;
-
+    /** valid email pattern. */
     private static Pattern validEmail = null;
 
     static {
@@ -91,9 +91,9 @@ public class Email extends FieldConstraint {
     }
 
     /**
-     *
-     * @param data the data to be validated
-     * @return true if data matches the regex pattern
+     * Validate data against this constraint.
+     * @param data data to validate
+     * @return whether data is valid
      */
     public boolean validate(Object data) {
         if (data == null || data.toString().length() == 0) return true;
@@ -113,13 +113,21 @@ public class Email extends FieldConstraint {
         }
         return true;
     }
-
+    /**
+     * check DNS.
+     * @param hostname hostname
+     * @return true if valid
+     */
     private boolean checkDNS(String hostname) {
         List<String> mxs = resolveMXDNS(hostname);
         return mxs != null && mxs.size() > 0;
     }
 
-    /* TODO: move it in a helper class in velosurf.util "*/
+    /**
+     * Resolve MX DNS.
+     * @param hostname hostname
+     * @return list of MXs
+     */
     private List<String> resolveMXDNS(String hostname) {
         try {
             Logger.trace("email validation: resolving MX DNS for "+hostname);
@@ -154,7 +162,12 @@ public class Email extends FieldConstraint {
         }
 
     }
-
+    /**
+     * Check SMTP server.
+     * @param user username
+     * @param hostname hostname
+     * @return true if valid
+     */
     private boolean checkSMTP(String user,String hostname) {
         String response;
         Socket sock = null;
@@ -246,22 +259,43 @@ public class Email extends FieldConstraint {
         return false;
     }
 
+    /**
+     * A socket with short timeout.
+     */
     class FastTimeoutConnect implements Runnable {
-
+        /** host. */
         private String host;
+        /** port. */
         private int port;
+        /** connection successfull? */
         private boolean done = false;
+        /** timeout. */
         private int timeout;
+        /** wrapped socket. */
         private Socket socket = null;
+        /** thrown I/O exception. */
         private IOException ioe;
+        /** throws unknown host exception. */
         private UnknownHostException uhe;
 
+        /**
+         * Constructor.
+         * @param h host
+         * @param p port
+         * @param t timeout
+         */
         public FastTimeoutConnect(String h,int p,int t) {
             host = h;
             port = p;
             timeout = t;
         }
 
+        /**
+         * Connect.
+         * @return socket
+         * @throws IOException
+         * @throws UnknownHostException
+         */
         public Socket connect() throws IOException, UnknownHostException {
             int waited=0;
             Thread thread = new Thread(this);
@@ -283,7 +317,9 @@ public class Email extends FieldConstraint {
             return socket;
         }
 
-
+        /**
+         * connection process.
+         */
         public void run() {
             try {
                 socket = new Socket(host, port);
@@ -297,6 +333,10 @@ public class Email extends FieldConstraint {
         }
     }
 
+    /**
+     * return a string representation for this constraint.
+     * @return string
+     */
     public String toString() {
         return "type email, check-dns="+dnsCheck+", check-smtp="+smtpCheck;
 

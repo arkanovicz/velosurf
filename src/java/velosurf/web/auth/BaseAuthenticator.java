@@ -52,21 +52,46 @@ import sun.misc.BASE64Decoder;
 
 public abstract class BaseAuthenticator {
 
+    /**
+     * get the password corresponding to a login.
+     * @param login login
+     * @return password or null
+     */
     protected abstract String getPassword(String login);
+
+    /**
+     * Get the user object corresponding to a login
+     * @param login login
+     * @return user object
+     */
     protected abstract Object getUser(String login);
 
+    /** encryption method */
     private String method = null;
+
+    /** challenge value */
     private String challenge = null;
+
+    /** random number generator */
     private static Random random = new Random(System.currentTimeMillis());
 
+    /** length of challenge */
     private static final int CHALLENGE_LENGTH = 256; // bits
 
+    /**
+     * initialize this tool.
+     * @param initData a view context
+     */
     public void init(Object initData) {
         if (!(initData instanceof ViewContext)) {
             Logger.error("auth: authenticator tool should be used in a session scope!");
         }
     }
 
+    /**
+     * configure this tool.
+     * @param config map containing an optional "method" parameter
+     */
     public void configure(Map config) {
         method = (String)config.get("method");
     }
@@ -84,6 +109,12 @@ public abstract class BaseAuthenticator {
         return challenge;
     }
 
+    /** Check received answer.
+     *
+     * @param login  login
+     * @param answer received answer
+     * @return true if received answer is valid
+     */
     public boolean checkLogin(String login,String answer) {
         String password = getPassword(login);
         if(password == null) {
@@ -96,6 +127,11 @@ public abstract class BaseAuthenticator {
         return (correctAnswer != null && correctAnswer.equals(answer));
     }
 
+    /**
+     * Generate the correct answer.
+     * @param password
+     * @return encrypted answer
+     */
     private String generateAnswer(String password) {
         if(method == null) {
             return password;

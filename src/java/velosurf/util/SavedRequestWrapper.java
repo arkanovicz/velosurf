@@ -16,37 +16,31 @@
 
 package velosurf.util;
 
-import velosurf.util.Enumerator;
-import velosurf.util.FastHttpDateFormat;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.security.Principal;
-
-//import com.blandware.atleap.webapp.util.core.FastHttpDateFormat;
-//import com.blandware.atleap.webapp.util.core.Enumerator;
 
 /**
  * <p>This class provides request parameters, headers, cookies from original requrest or saved request.</p>
- * <p><a href="CustomContextHolderAwareRequestWrapper.java.html"><i>View Source</i></a></p>
  *
  * @author Andrey Grebnev <a href="mailto:andrey.grebnev@blandware.com">&lt;andrey.grebnev@blandware.com&gt;</a>
  */
 
 public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpServletRequestWrapper {
 
-    protected SavedRequest savedRequest = null;
+    /** the saved request. */
+    private SavedRequest savedRequest = null;
 
-    protected static final TimeZone GMT_ZONE = TimeZone.getTimeZone("GMT");
+    /** timezone. */
+    private static final TimeZone GMT_ZONE = TimeZone.getTimeZone("GMT");
 
     /**
      * The default Locale if none are specified.
      */
-    protected static final Locale defaultLocale = Locale.getDefault();
+    private static final Locale defaultLocale = Locale.getDefault();
 
     /**
      * The set of SimpleDateFormat formats to use in getDateHeader().
@@ -54,9 +48,12 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
      * Notice that because SimpleDateFormat is not thread-safe, we can't
      * declare formats[] as a static variable.
      */
-    protected SimpleDateFormat formats[] = new SimpleDateFormat[3];
+    private SimpleDateFormat formats[] = new SimpleDateFormat[3];
 
-    //~ Constructors ===========================================================
+    /**
+     * Constructor
+     * @param request to save
+     */
     public SavedRequestWrapper(HttpServletRequest request) {
         super(request);
 
@@ -89,6 +86,7 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
     /**
      * The default behavior of this method is to return getMethod()
      * on the wrapped request object.
+     * @return the HTTP method
      */
     public String getMethod() {
         if (savedRequest == null) {
@@ -101,6 +99,8 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
     /**
      * The default behavior of this method is to return getHeader(String name)
      * on the wrapped request object.
+     * @param name header name
+     * @return header value or null
      */
     public String getHeader(String name) {
         if (savedRequest == null) {
@@ -119,6 +119,8 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
     /**
      * The default behavior of this method is to return getIntHeader(String name)
      * on the wrapped request object.
+     * @param name integer header name
+     * @return integer header value or -1
      */
 
     public int getIntHeader(String name) {
@@ -137,6 +139,8 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
     /**
      * The default behavior of this method is to return getDateHeader(String name)
      * on the wrapped request object.
+     * @param name date header name
+     * @return date header value or null
      */
     public long getDateHeader(String name) {
         if (savedRequest == null) {
@@ -158,6 +162,7 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
     /**
      * The default behavior of this method is to return getHeaderNames()
      * on the wrapped request object.
+     * @return an enumeration of header names
      */
 
     public Enumeration getHeaderNames() {
@@ -172,6 +177,8 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
     /**
      * The default behavior of this method is to return getHeaders(String name)
      * on the wrapped request object.
+     * @param name multivalued header
+     * @return enumeration of values for this header
      */
     public Enumeration getHeaders(String name) {
         if (savedRequest == null) {
@@ -184,6 +191,7 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
     /**
      * The default behavior of this method is to return getCookies()
      * on the wrapped request object.
+     * @return cookies array
      */
     public Cookie[] getCookies() {
         if (savedRequest == null) {
@@ -197,6 +205,8 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
     /**
      * The default behavior of this method is to return getParameterValues(String name)
      * on the wrapped request object.
+     * @param name parameter name
+     * @value array of values
      */
     public String[] getParameterValues(String name) {
         if (savedRequest == null) {
@@ -209,6 +219,7 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
     /**
      * The default behavior of this method is to return getParameterNames()
      * on the wrapped request object.
+     * @return enumeration of parameter names
      */
 
     public Enumeration getParameterNames() {
@@ -222,6 +233,7 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
     /**
      * The default behavior of this method is to return getParameterMap()
      * on the wrapped request object.
+     * @return parameter map
      */
     public Map getParameterMap() {
         if (savedRequest == null) {
@@ -234,6 +246,8 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
     /**
      * The default behavior of this method is to return getParameter(String name)
      * on the wrapped request object.
+     * @param name parameter name
+     * @return  parameter value
      */
 
     public String getParameter(String name) {
@@ -275,6 +289,7 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
     /**
      * The default behavior of this method is to return getLocales()
      * on the wrapped request object.
+     * @return enumeration of locales
      */
 
     public Enumeration getLocales() {
@@ -295,6 +310,7 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
     /**
      * The default behavior of this method is to return getLocale()
      * on the wrapped request object.
+     * @return locale
      */
 
     public Locale getLocale() {

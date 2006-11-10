@@ -2,15 +2,16 @@
 
 v2.0 (November 2006)
 ----
- - added an ant/vpp example
+ - full code review (field accesses, javadoc, unused methods)
+ - added an ant/vpp example (thanks to Mike Kienenberger)
  - added a Logger.log2File(String file) method
- - changed the behaviour of the full caching method: now loads all the table into memory
+ - changed the behaviour of the 'full' caching method.
  - aliases tag for column names
  - manual definition of imported and exported keys
  - optimized reflection code in ExternalObjectWrapper
  - case used in context can now be set using the system property velosurf.case
  - cleaned behaviour of RowIterator: hasNext() can now be called sereval times per iteration
- - Velosurf now has a functional DTD - thenks to Mike Kienenberger
+ - Velosurf now has a functional DTD - thanks to Mike Kienenberger
  - suppressed the autofetching feature (can be implemented by a custom filter)
  - last inserted ID is now hold by the user context
  - localized messages can now have arguments

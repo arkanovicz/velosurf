@@ -154,7 +154,7 @@ Number of published books for year $db.publicationYear: $db.countBooks</div></di
 <tr><td><a href='#entity.rows'><code>$<i>entity</i>.rows</code></a></td><td>returns the list of this entity's instances</td></tr>
 <tr><td><a href='#entity.order'><code>#set( $<i>entity</i>.order = '<i>order</i>' )</code></a></td><td>specifies how to order this entity's instances</td></tr>
 <tr><td><a href='#entity.refine'><code>$<i>entity</i>.refine( '<i>condition</i>' )</code></a></td><td>adds a filtering condition on this entity's instances</td></tr>
-<tr><td><a href='#entity.clearRefinement'><code>$<i>entity</i>.clearRefinement()</code></a></td><td>clears any previously set refinement</td></tr>
+<tr><td><a href='#entity.clearrefinement'><code>$<i>entity</i>.clearRefinement()</code></a></td><td>clears any previously set refinement</td></tr>
 <tr><td><a href='#entity.newinstance'><code>$<i>entity</i>.newInstance()</code></a></td><td>returns a new empty instance for this entity</td></tr>
 <tr><td><a href='#entity.validate'><code>$<i>entity</i>.validate(Map<i>values</i>)</code></a></td><td>validate data against this entity's constraints, returns the boolean success status</td></tr>
 <tr><td><a href='#entity.insert'><code>$<i>entity</i>.insert(Map <i>values</i>)</code></a></td><td>inserts an instance of the entity, returns the boolean success status</td></tr>
@@ -193,7 +193,7 @@ several columns can be present in a comma separated list, and when postfixed to 
 <a name='entity.refine'/><h3>$<i>entity</i>.refine( '<i>condition</i>' )</h3>
 <div class="section"><p>Specifies an additional SQL condition before issuing a <code>#foreach</code> on this entity.
 This method can be called several times to accumulate conditions. The refinement is local to the current Velocity context.</p>
-<p>Refinements can be reset using the <code>clearRefinement()</code></p>
+<p>Refinements can be reset using the <code>clearRefinement()</code> method.</p>
 <p>Use of this method is not encouraged, as it breaks the principle of SQL code isolation. It may be removed from future versions of Velosurf.</p>
 <div class="source">Books written by $author:
 $db.book.refine("author_id = $autor.author_id")
@@ -265,7 +265,7 @@ Primary key values must be present in the map.</p>
 <tr><td><a href='#attribute.rows'><code>$<i>attribute</i>.rows</code></a></td><td>returns the list of this attribute's resulting instances</td></tr>
 <tr><td><a href='#attribute.order'><code>#set( $<i>attribute</i>.order = '<i>order</i>' )</code></a></td><td>specifies how to order this attribute's resulting instances</td></tr>
 <tr><td><a href='#attribute.refine'><code>$<i>attribute</i>.refine( '<i>condition</i>' )</code></a></td><td>adds a filtering condition on this entity's instances</td></tr>
-<tr><td><a href='#attribute.clearrefinement'><code>$<i>attribute</i>.clearRefinement()</code></a></td><td></td></tr>
+<tr><td><a href='#attribute.clearrefinement'><code>$<i>attribute</i>.clearRefinement()</code></a></td><td>clears any previously set refinement</td></tr>
 </table>
 </div>
 			<div class="section"><p>Only multivalued attributes (attributes that return a row set) can be referenced from
@@ -297,7 +297,7 @@ several columns can be present in a comma separated list, and when postfixed to 
 <a name='attribute.refine'/><h3>$<i>attribute</i>.refine( '<i>condition</i>' )</h3>
 <div class="section"><p>Specifies an additional SQL condition before issuing a <code>#foreach</code> on this attribute.
 This method can be called several times to accumulate conditions. The refinement is local to the current Velocity context.</p>
-<p>Refinements can be reset using the <code>clearRefinement()</code></p>
+<p>Refinements can be reset using the <code>clearRefinement()</code> method.</p>
 <p>Use of this method is not encouraged, as it breaks the principle of SQL code isolation. It may be removed from future versions of Velosurf.</p>
 <div class="source">Logged users for country $country.name:
 $db.logged_users.refine( "country = $country.id" )
@@ -306,7 +306,7 @@ $db.logged_users.refine( "country = $country.id" )
 #end</div>
 </div>
 
-<a name='attribute.clearRefinement'/><h3>$<i>attribute</i>.clearRefinement()</h3>
+<a name='attribute.clearrefinement'/><h3>$<i>attribute</i>.clearRefinement()</h3>
 <div class="section">Clears any previously set refinement.</div>
 
 

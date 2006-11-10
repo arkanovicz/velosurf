@@ -31,29 +31,41 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Content;
 import org.jdom.Text;
-import org.jdom.output.XMLOutputter;
 import org.jdom.input.SAXBuilder;
 
 /** <p>A basic JDOM XInclude resolver that will also work with a document base inside WEB-INF
- * and with war archives</p>
+ * and with war archives.</p>
  *
  * @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 
 public class XIncludeResolver {
-
+    /** base directory */
     private String base = null;
+    /** servlet context */
     private ServletContext context = null;
-
+    /**
+     * Constructor for a webapp resolver.
+     * @param base base directory
+     * @param ctx servlet context
+     */
     public XIncludeResolver(String base,ServletContext ctx) {
         this.base = base;
         this.context = ctx;
     }
-
+    /**
+     * Constructor outside a webapp.
+     * @param base base directory
+     */
     public XIncludeResolver(String base) {
         this.base = base;
     }
-
+    /**
+     * Resolve includes in the document.
+     * @param doc document to be resolved
+     * @return document with includes resolved
+     * @throws Exception
+     */
     public Document resolve(Document doc) throws Exception {
         Element root = doc.getRootElement();
         /* special case where the root element is an XInclude element */
@@ -67,13 +79,21 @@ public class XIncludeResolver {
         }
         return doc;
     }
-
+    /**
+     * Check whether this element is an include element.
+     * @param element element to check
+     * @return true if this element is an include element
+     */
     private boolean isXIncludeElement(Element element) {
         return element.getName().equals("include") && element.getNamespacePrefix().equals("xi");
     }
-
+    /**
+     * Resolve children XML elements.
+     * @param parent parent XML element
+     * @throws Exception
+     */
     private void resolveChildren(Element parent) throws Exception {
-        List<Element> children = parent.getChildren();
+        List<Element> children = (List<Element>)parent.getChildren();
         for(int i=0;i<children.size();i++) {
             Element child = (Element)children.get(i);
             if (isXIncludeElement((Element)child)) {
@@ -85,7 +105,12 @@ public class XIncludeResolver {
             }
         }
     }
-
+    /**
+     * Performs the real include.
+     * @param xinclude xinclude element
+     * @return included content
+     * @throws Exception
+     */
     private List<Content> include(Element xinclude) throws Exception {
         List<Content> result = null;
         String href = xinclude.getAttributeValue("href");
@@ -122,7 +147,12 @@ public class XIncludeResolver {
         }
         return result;
     }
-
+    /**
+     * Read a stream in a string.
+     * @param stream stream
+     * @return accumulated string
+     * @throws Exception
+     */
     private String readStream(InputStream stream) throws Exception {
         StringBuilder result = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));

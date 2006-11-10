@@ -3,13 +3,12 @@ This is the README file for Velosurf.
 WHAT IS IT ? 
 ------------
 
-Velosurf is a - thin but efficient - database access layer tool meant to be
-use with Velocity (http://jakarta.apache.org/velocity/index.html).
+Velosurf is a database access layer for the Apache Velocity template engine
+(http://velocity.apache.org). It provides an automatic database mapping
+of tables and relationships without any code generation.
 
-The aim of Velosurf is to provide template writers a set of context variables
-that automatically map database tables and relationships. In the context of
-a VelocityTools webapp, it also provides basic authentication and
-internalinalization.
+In the context of a Webapp, Velosurf also provides handy tools for
+authentication, localization and forms validation.
 
 WHY VELOSURF ?
 --------------
@@ -28,97 +27,23 @@ from a standard xml config for Velocity.
 
 Velosurf appears as such a tool.
 
-HOW TO INSTALL ?
+HOW TO USE ?
 ----------------
 
 Velosurf can be used either from a standard java application, or from a
 VelocityTools webapp.
 
-Steps to include Velosurf in a VelocityTools webapp :
-
-1 - Put velosurf-x.y.jar (found in ./bin) and dependency libraries
-	(found in ./lib) in your classpath or in the /WEB-INF/lib directory of
-    your web-app.
-
-2 - Inherit your 'templating' servlets from
-    org.apache.velocity.tools.view.servlet.VelocityViewServlet
-    (or VelocityLayoutServlet).
-    See the doc of the velocity-tools subproject for more informations.
-
-3 - Add the following context-param to your web.xml file :
-
-	<context-param>
-		<param-name>org.apache.velocity.toolbox</param-name>
-		<param-value>/WEB-INF/toolbox.xml</param-value>
-	</context-param>
-
-4 - Create the /WEB-INF/toolbox.xml file, that defines the tools to be
-    accessed from templates :
-
-	<?xml version="1.0"?>
-	<toolbox>
-	  <!-- http query parameters -->
-	  <tool>
-		<key>query</key>
-		<scope>request</scope>
-		<class>velosurf.tools.HttpQueryTool</class>
-	  </tool>
-	  <!-- database -->
-	  <tool>
-		<key>db</key>
-		<scope>request</scope>
-		<class>velosurf.tools.VelosurfTool</class>
-	  </tool>
-	</toolbox>
-
-5 - Create a /WEB-INF/velosurf.xml containing database access parameters, along
-	with the custom entities and attributes you need. The following example
-	correspond to the UML model : user ---* message
-
-	<?xml version="1.0" encoding="UTF-8"?>
-	<database user="toto" password="titi" url="jdbc:mysql://127.0.0.1/mydatabase" driver="org.gjt.mm.mysql.Driver" default-access="rw">
-
-		<!-- user table -->
-		<entity name="user">
-			<!-- get all user's messages -->
-			<attribute name="messages" result="rowset/message" xml:space="preserve">select * from message where msg_user=<user_id/></attribute>
-		</entity>
-
-		<!-- message table -->
-		<entity name="message">
-			<!-- get the user this message belons to -->
-			<attribute name="user" result="row/user" foreign-key="msg_user"/>
-		</entity>
-
-	</database>
-
-
-And on the VTL side, you'll be able to
-
+Please refer to docs/download.html and docs/installation.html.
 
 HOW TO BUILD ?
 ----------------
 
-Install Apache Ant
-
-Check the content of the build.properties file - you'll have at least to add the proper path towards
-the velocity and velocity-tools-view jar files.
-
-Then, "ant jar" is the appropriate make command.
-
-Any question or problem ? Feel free to contact me !
+First, you'll need to have Apache Ant installed.
+Then, go to the ./build/ directory and run 'ant jar'.
 
 HOW TO TEST ?
 -------------
 
-create a test database, edit build.properties to adapt jdcp.driver.jar and other constants, then run :
+With ant installed, you can test Velosurf with the 'ant test' command.
 
-"ant test"
-
-mmmmhhh... well... actually it won't work... the testcases aren't ready yet... wanna help ?
-
-
-CloD
-----
-claude@renegat.net
-
+Any question or problem ? Feel free to contact us on the mailing list!

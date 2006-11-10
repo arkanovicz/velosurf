@@ -32,36 +32,51 @@ import velosurf.util.Logger;
  *  <pre><code>
  *    &lt;<i>column</i> [type="date"] [after="<i>date-after</i>"] [before="<i>date-before</i>"] /&gt;
  *  </code></pre>
- *<p>The <code>type="date"</code> parameter is implied when <code>after</code> or <code>before</code> is found.<br>Or:</p>
+ *<p>The <code>type="date"</code> parameter is implied when <code>after</code> or <code>before</code> is found.<br><br>Or:</p>
  *   <pre>
  *     &lt;<i>column</i>&gt;
- *       &lt;date [after="<i>afer-date</i>"] [before="<i>before-date</i>"] [message="<i>error-message</i>"] /&gt;
+ *       &lt;date [after="<i>afer-date</i>"] [before="<i>before-date</i>"] [format="<i>{@link SimpleDateFormat} format</i>"] [message="<i>error-message</i>"] /&gt;
  *     &lt;/<i>column</i>&gt;
  *   </pre>
- * <br><p>The format used to specify after and before dates is yyyyMMdd. The format used to parse the input
- * is the short local date format (which depends upon the user locale).</p>
+ * <br><p>The format used to specify after and before dates is always <code>yyyyMMdd</code>. The format used to parse the input
+ * is by default the short local date format (which depends upon the user locale) but can be configured using the <i>format</i> attribute.</p>
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
 
 public class DateRange extends FieldConstraint {
-
+    /** before date */
     private Date before = null;
+    /** afer date */
     private Date after = null;
+    /** date format */
     private SimpleDateFormat dateFormat = null;
-
+    /**
+     * Constructor.
+     */
     public DateRange() {
         setMessage("field {0}: '{1}' is not a valid date or is outside range");
     }
-
+    /**
+     * Before date constraint setter.
+     * @param before before date
+     */
     public void setBeforeDate(Date before) {
         this.before = before;
     }
-
+    /**
+     * After date constraint setter.
+     * @param after afet date
+     */
     public void setAfterDate(Date after) {
         this.after = after;
     }
-
+    /**
+     * Validate data against this constraint.
+     * @param data data to validate
+     * @param locale locale to use
+     * @return whether data is valid
+     */
     public boolean validate(Object data,Locale locale) {
         SimpleDateFormat format = dateFormat;
         try {
@@ -89,10 +104,15 @@ public class DateRange extends FieldConstraint {
         }
     }
 
+    /** 'YYYY' date format. */
     private static final Pattern y4 = Pattern.compile("\\d{4}");
-
+    /**
+     * tries to reformat the date to match pattern conventions
+     * @param pattern date pattern
+     * @param date date
+     * @return reformatted date
+     */
     private static String reformat(String pattern,String date) {
-        /* tries to reformat the date to match pattern conventions */
         int patternLength = pattern.length();
         int dateLength = date.length();
         char patternSep,dateSep;
@@ -139,9 +159,13 @@ public class DateRange extends FieldConstraint {
         }
         return date;
     }
-
+    /** yyyyMMdd date format. */
     private static DateFormat ymd = new SimpleDateFormat("yyyyMMdd");
 
+    /**
+     * return a string representation for this constraint.
+     * @return string
+     */
     public String toString() {
         String ret = "type date";
         if(after != null) {
@@ -152,7 +176,10 @@ public class DateRange extends FieldConstraint {
         }
         return ret;
     }
-
+    /** date format setter.
+     *
+     * @param dateFormat date format
+     */
     public void setDateFormat(SimpleDateFormat dateFormat) {
         this.dateFormat = dateFormat;
     }

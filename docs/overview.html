@@ -66,14 +66,14 @@
 
 <div id="body">
 <a name="WhatisVelocity?"></a>
-<h2 align="left">Principles</h2>
+<h1 align="left">Principles</h1>
 
 <p align="left">Using the Velocity variable that
 references the Velosurf tool in the Velocity context, template writers
 can access all (or a subset of) the tables of a database, that are
 called Velosurf <b>entities</b>.&nbsp;Entities
 properties are <b>attributes</b> (that can be table
-columns as long as customized queries). Entities methods that trigger
+columns as well as customized queries). Entities methods that trigger
 database update/delete/insert queries are <b>actions</b>.
 Each realization of an entity is an <b>instance</b>.</p>
 
@@ -106,8 +106,8 @@ actions. </p>
 All queries are done via a pool of prepared statements automatically
 handled by Velosurf.<br>
 
-<h2 align="left">Entities, Instances, Attributes and
-Actions</h2>
+<h1 align="left">Entities, Instances, Attributes and
+Actions</h1>
 
 <ul>
 
@@ -151,8 +151,8 @@ action named 'startup' is executed at startup. </p>
 
 </ul>
 
-<h2 align="left"><a name="syntax"></a>What
-does the syntax look like?</h2>
+<h1 align="left"><a name="syntax"></a>What
+does the syntax look like?</h1>
 
 <p align="left"><b>Exampe #1: fetch a single value
 of the database and display it</b></p>
@@ -308,7 +308,7 @@ an update method:</p>
 
 </ul>
 
-<h2 align="left">A simple example</h2>
+<h1 align="left">A simple example</h1>
 
 <p align="left">Suppose we've got two joined tables <code>user (id integer primary key, name varchar(50))</code>
 and <code>message(id integer primary key autoincrement, userid integer references user(id),txt varchar(255))</code>.
@@ -357,7 +357,7 @@ Note that when using reverse engineering, you can still list entities here if yo
 </database></xmp></div>
 <p>Now, the template itself:</p>
 <div class="source"><xmp><body>
-<h3Very Simple Message Board</h3>
+<h3>Very Simple Message Board</h3>
 
 #if ($query.action == "insert")
   #set( $success = $db.message.insert($query) )

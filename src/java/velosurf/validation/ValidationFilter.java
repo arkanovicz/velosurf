@@ -40,24 +40,37 @@ import velosurf.context.EntityReference;
 import velosurf.context.DBReference;
 
 /**
- * <p>This class is an optional filter that will validate query data according to the "velosurf.entity" query parameter
+ * <p>This class is an optional filter that will validate query data according to the <code>velosurf.entity</code> query parameter
  * (may be multivalued).
  * If data pass all validation constraints, the filter will let the request pass towards the form action. Otherwise,
  * it will redirect back the user to the original form (using the referer query header). In this case, the filter will
- * populate the session with the given values (escaped) so that they can be put in the form.</p>
- *
- * // TODO example
+ * populate the session with the given values (escaped) so that they can be put back in the form.</p>
  *
  */
 public class ValidationFilter implements Filter {
-
+    /** filter config */
     private FilterConfig config;
+
+    /** key used to identity an entity to be validated in HTTP parameters */
     private static final String ENTITY_KEY = "velosurf.entity";
 
+    /**
+     * initialization.
+     * @param filterConfig filter config
+     * @throws ServletException
+     */
     public void init(FilterConfig filterConfig) throws ServletException {
         config = filterConfig;
     }
 
+    /**
+     * Filtering.
+     * @param servletRequest request
+     * @param servletResponse response
+     * @param filterChain filter chain
+     * @throws IOException
+     * @throws ServletException
+     */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
 
         HttpServletRequest request = (HttpServletRequest)servletRequest;
@@ -76,7 +89,7 @@ public class ValidationFilter implements Filter {
             UserContext userContext = (UserContext)session.getAttribute(UserContext.USER_CONTEXT_KEY);
             if(userContext == null) {
                 userContext = new UserContext();
-                Localizer localizer = ToolFinder.findTool(session,Localizer.class);
+                Localizer localizer = ToolFinder.findSessionTool(session,Localizer.class);
                 if (localizer != null) {
                     userContext.setLocalizer(localizer);
                 } else {
@@ -85,7 +98,8 @@ public class ValidationFilter implements Filter {
                 session.setAttribute(UserContext.USER_CONTEXT_KEY,userContext);
             }
 
-            /* TODO review VelosurfTool configfile parameter handling (servletcontext/toolbox.xml...) */
+            /* FIXME: the next call won't work when using a non-standard Velosurf config file
+               defined in toolbox.xml */
             DBReference db = VelosurfTool.getDefaultInstance(config.getServletContext(),userContext);
             if (db != null) {
                 Map params = request.getParameterMap();
@@ -133,6 +147,9 @@ public class ValidationFilter implements Filter {
         }
     }
 
+    /**
+     * Destroy the filter.
+     */
     public void destroy() {
     }
 }
