@@ -276,7 +276,7 @@ public class Database {
 
     /** Load the appropriate driver.
      */
-    protected @SuppressWarnings("deprecation") void loadDriver() {
+    @SuppressWarnings("deprecation") protected void loadDriver() {
 
         if (driverLoaded) return;
         if (Logger.getLogLevel() == Logger.TRACE_ID)
