@@ -262,7 +262,7 @@ public class ConfigLoader {
      * @param entity parent entity
      * @throws SQLException
      */
-    private void defineAttributes(Element parent,Entity entity) throws SQLException {
+    @SuppressWarnings("deprecation") private void defineAttributes(Element parent,Entity entity) throws SQLException {
         for (Iterator attributes = parent.getChildren("attribute").iterator();attributes.hasNext();) {
             Element element = (Element)attributes.next();
             String name = adaptCase(element.getAttributeValue("name"));
