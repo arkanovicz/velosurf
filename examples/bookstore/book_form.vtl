@@ -3,8 +3,7 @@
 <title>The Bookstore Sample</title>
 </head>
 <body>
-##not needed with autofetching : 
-##if($query.book_id) #set( $book = $db.book.fetch($query.book_id) ) #end
+#if($query.book_id) #set( $book = $db.book.fetch($query.book_id) ) #end
 
 #if($book)
 <h2>Edit book</h2>
@@ -12,7 +11,7 @@
 <h2>Add book</h2>
 #end
 <ul>
-<form method="post" action="./book_commit.vm">
+<form method="post" action="./book_commit.vtl">
 <input type="hidden" name="book_id" value="$!book.book_id">
 <li>Title : <input type="text" name="title" value="$!book.title">
 <li>Author :

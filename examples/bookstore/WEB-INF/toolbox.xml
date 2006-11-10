@@ -5,13 +5,13 @@
   <tool>
     <key>db</key>
     <scope>request</scope>
-    <class>velosurf.tools.VelosurfTool</class>
+    <class>velosurf.web.VelosurfTool</class>
   </tool>
 
   <tool>
     <key>query</key>
     <scope>request</scope>
-    <class>velosurf.tools.HttpQueryTool</class>
+    <class>velosurf.web.HttpQueryTool</class>
   </tool>
 
   <tool>

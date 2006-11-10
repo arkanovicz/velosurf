@@ -10,7 +10,7 @@
   #set($success = $db.book.update($query))
 #else
   ## automatic id generation is not standardized among DBMS
-  ## here we'll use random numbers
+  ## here since it's a demo we'll use random numbers
   ## and obfuscate it, since it will be deobfuscated...
   #set($query.book_id = $db.obfuscate($random.nextInt()))
   #set($success = $db.book.insert($query))
@@ -22,6 +22,6 @@
   Error encountered : $db.error
 #end
 <br>
-[<a href="./index.vm">home</a>]
+[<a href="./index.vtl">home</a>]
 </body>
 </html>
