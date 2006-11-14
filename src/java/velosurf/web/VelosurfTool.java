@@ -31,8 +31,8 @@ import velosurf.sql.Database;
 import velosurf.util.Logger;
 import velosurf.util.ServletLogWriter;
 import velosurf.util.ToolFinder;
-import velosurf.util.UserContext;
 import velosurf.util.XIncludeResolver;
+import velosurf.util.UserContext;
 import velosurf.web.l10n.Localizer;
 
 /** <p>This class is a tool meant to be referenced in toolbox.xml</p>
@@ -98,6 +98,7 @@ public class VelosurfTool extends DBReference
             Logger.setWriter(new ServletLogWriter(ctx));
         }
 
+Logger.debug("#### init -> "+configFile);
         // get config file
         if (configFile == null) { // if not already given by configure()
             configFile = findConfigFile(ctx);
@@ -132,7 +133,10 @@ public class VelosurfTool extends DBReference
         }
 
         /* initialize with a new or existing connection */
-        super.init(getConnection(configFile,ctx),userContext);
+        Database db = getConnection(configFile,ctx);
+        /* FIXME: null check? anyway this is a RuntimeException... */
+        db.setUserContext(userContext);
+        super.init(db);
 
     }
 
@@ -143,24 +147,30 @@ public class VelosurfTool extends DBReference
      */
     static String findConfigFile(ServletContext ctx) {
         /* tries with a servlet context parameter */
-        String configFile = ctx.getInitParameter(DATABASE_CONFIG_FILE_KEY);
+        String configFile = ctx.getInitParameter(WEBAPP_CONFIG_FILE_KEY);
         if (configFile != null) {
-//            Logger.warn("Use of the "+DATABASE_CONFIG_FILE_KEY+" servlet context parameter is deprecated.");
+//            Logger.warn("Use of the "+WEBAPP_CONFIG_FILE_KEY+" servlet context parameter is deprecated.");
+//            Logger.warn("Consider moving this parameter to toolbox.xml.");
+            return configFile;
+        }
+        configFile = ctx.getInitParameter(WEBAPP_CONFIG_FILE_KEY2);
+        if (configFile != null) {
+//            Logger.warn("Use of the "+WEBAPP_CONFIG_FILE_KEY+" servlet context parameter is deprecated.");
 //            Logger.warn("Consider moving this parameter to toolbox.xml.");
             return configFile;
         }
 
         // else try default
-        InputStream check = ctx.getResourceAsStream(DEFAULT_DATABASE_CONFIG_FILE);
+        InputStream check = ctx.getResourceAsStream(DEFAULT_CONFIG_FILE);
         if (check == null) {
-            check = ctx.getResourceAsStream(OLD_DEFAULT_DATABASE_CONFIG_FILE);
+            check = ctx.getResourceAsStream(OLD_DEFAULT_CONFIG_FILE);
             if (check == null) {
                 throw new RuntimeException("Velosurf config file not found! Please specify it using the servlet context or the toolbox parameters.");
             } else {
-                configFile = OLD_DEFAULT_DATABASE_CONFIG_FILE;
+                configFile = OLD_DEFAULT_CONFIG_FILE;
             }
         } else {
-            configFile = DEFAULT_DATABASE_CONFIG_FILE;
+            configFile = DEFAULT_CONFIG_FILE;
         }
         return configFile;
     }
@@ -174,15 +184,27 @@ public class VelosurfTool extends DBReference
 
     /** key used in the deployment descriptor (web.xml) to set the name of the config file.
      */
-    private static final String DATABASE_CONFIG_FILE_KEY = "velosurf.config";
+    private static final String WEBAPP_CONFIG_FILE_KEY = "velosurf.config";
+
+    /** alternate webapp key
+     */
+    private static final String WEBAPP_CONFIG_FILE_KEY2 = "velosurf.configuration";
+
+    /** key used in the toolbox (toolbox.xml) to set the name of the config file.
+     */
+    private static final String TOOLBOX_CONFIG_FILE_KEY = "config";
+
+    /** alternate key for the toolbox
+     */
+    private static final String TOOLBOX_CONFIG_FILE_KEY2 = "configuration";
 
     /** default database config file.
      */
-    private static final String DEFAULT_DATABASE_CONFIG_FILE = "/WEB-INF/model.xml";
+    private static final String DEFAULT_CONFIG_FILE = "/WEB-INF/model.xml";
 
     /** old default database config file.
      */
-    private static final String OLD_DEFAULT_DATABASE_CONFIG_FILE = "/WEB-INF/velosurf.xml";
+    private static final String OLD_DEFAULT_CONFIG_FILE = "/WEB-INF/velosurf.xml";
 
     /** path to the config file.
      */
@@ -196,8 +218,12 @@ public class VelosurfTool extends DBReference
      *
      * @param map parameters
      */
-    public void configure(Map map) {
-        configFile = (String)map.get("config");
+    public void configure(Map<String,String> map) {
+        configFile = map.get(TOOLBOX_CONFIG_FILE_KEY);
+        if(configFile == null) {
+            configFile = map.get(TOOLBOX_CONFIG_FILE_KEY2);
+        }
+Logger.debug("#### configure -> "+configFile);
     }
 
     /** return the existing Database for the specified config file, or null
@@ -218,7 +244,7 @@ public class VelosurfTool extends DBReference
     public static DBReference getInstance(String configFile,UserContext userContext) {
         if (!configFile.startsWith("/")) configFile = "/"+configFile;
         Database db = dbMap.get(configFile);
-        return db == null ? null : new DBReference(db,userContext);
+        return db == null ? null : new DBReference(db);
     }
 
     /** return a db reference on the existing Database for the specified config file, or null
@@ -277,7 +303,7 @@ public class VelosurfTool extends DBReference
      */
     public static DBReference getInstance(String configFile,ServletContext servletContext,UserContext userContext) {
         Database db = getConnection(configFile,servletContext);
-        return db == null ? null : new DBReference(db,userContext);
+        return db == null ? null : new DBReference(db);
     }
 
     /** return a db reference on the existing Database for the specified config file and servlet context,
@@ -296,7 +322,7 @@ public class VelosurfTool extends DBReference
      */
     private static Database getDefaultConnection()
     {
-        return (Database)dbMap.get(DEFAULT_DATABASE_CONFIG_FILE);
+        return (Database)dbMap.get(DEFAULT_CONFIG_FILE);
     }
 
     /** return a db reference the existing Database for the default config file, or null
@@ -305,7 +331,7 @@ public class VelosurfTool extends DBReference
      */
     public static DBReference getDefaultInstance(UserContext userContext) {
         Database db = getDefaultConnection();
-        return db == null ? null : new DBReference(db,userContext);
+        return db == null ? null : new DBReference(db);
     }
 
     /** return a db reference the existing Database for the default config file, or null
@@ -322,7 +348,7 @@ public class VelosurfTool extends DBReference
      */
     private static Database getDefaultConnection(ServletContext servletContext)
     {
-        return getConnection(DEFAULT_DATABASE_CONFIG_FILE,servletContext);
+        return getConnection(DEFAULT_CONFIG_FILE,servletContext);
     }
 
     /** return a db reference on the existing Database for the default config file and servlet context,
@@ -336,7 +362,7 @@ public class VelosurfTool extends DBReference
             throw new RuntimeException("VelosurfTool.getDefaultInstance: Configuration file not found! Please add a 'velosurf.config' servlet context parameter.");
         }
         Database db = getConnection(configFile,servletContext);
-        return db == null ? null : new DBReference(db,userContext);
+        return db == null ? null : new DBReference(db);
     }
 
     /** return a db reference on the existing Database for the default config file

@@ -30,7 +30,7 @@ import velosurf.sql.ReadOnlyMap;
 import velosurf.sql.Pooled;
 import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
-import velosurf.util.UserContext;
+//import velosurf.util.UserContext;
 
 /** This class is a context wrapper for ResultSets, and provides an iteration mecanism for #foreach loops, as long as getters for values of the current row.
  *
@@ -55,10 +55,21 @@ public class RowIterator implements Iterator,ReadOnlyMap {
      * @return <code>true</code> if the iterator has more elements.
      */
     public boolean hasNext() {
+        boolean ret;
         try {
-            pooledStatement.getConnection().enterBusyState();
-            boolean ret = !resultSet.isLast();
-            pooledStatement.getConnection().leaveBusyState();
+            /* always need to prefetch, as some JDBC drivers (like HSQLDB driver) seem buggued to this regard */
+            if(prefetch) {
+                pooledStatement.getConnection().enterBusyState();
+                ret = resultSet.isLast();
+                pooledStatement.getConnection().leaveBusyState();
+            } else {
+                pooledStatement.getConnection().enterBusyState();
+                ret = resultSet.next();
+                pooledStatement.getConnection().leaveBusyState();
+                if (ret) {
+                    prefetch = true;
+                }
+            }
             if (!ret) pooledStatement.notifyOver();
             return ret;
         } catch (SQLException e) {
@@ -75,15 +86,13 @@ public class RowIterator implements Iterator,ReadOnlyMap {
      */
     public Object next() {
         try {
-            if(!resultSet.next()) {
+            if(!prefetch && !resultSet.next()) {
                 return null;
             }
+            prefetch = false;
             if (resultEntity != null) {
                 Instance row = null;
                 row = resultEntity.getInstance((ReadOnlyMap)this);
-                if (userContext != null) {
-                    row.setUserContext(userContext);
-                }
                 return row;
             }
             else return new Instance(this);
@@ -121,15 +130,9 @@ public class RowIterator implements Iterator,ReadOnlyMap {
                         switch (attribute.getType()) {
                             case Attribute.ROWSET:
                                 result = attribute.query(this);
-                                if (result != null && userContext != null && result instanceof RowIterator) {
-                                    ((RowIterator)result).setUserContext(userContext);
-                                }
                                 break;
                             case Attribute.ROW:
                                 result = attribute.fetch(this);
-                                if (result != null && userContext != null && result instanceof Instance) {
-                                    ((Instance)result).setUserContext(userContext);
-                                }
                                 break;
                             case Attribute.SCALAR:
                                 result = attribute.evaluate(this);
@@ -164,17 +167,11 @@ public class RowIterator implements Iterator,ReadOnlyMap {
             if(resultEntity != null) {
                 while (!resultSet.isAfterLast() && resultSet.next()) {
                     Instance i = resultEntity.getInstance((ReadOnlyMap)this);
-                    if (/* i != null && */userContext != null) {
-                        i.setUserContext(userContext);
-                    }
                     ret.add(i);
                 }
             } else {
                 while (!resultSet.isAfterLast() && resultSet.next()) {
                     Instance i = new Instance(this);
-                    if (userContext != null) {
-                        i.setUserContext(userContext);
-                    }
                     ret.add(i);
                 }
             }
@@ -220,13 +217,6 @@ public class RowIterator implements Iterator,ReadOnlyMap {
         return true;
     }
 
-    /** Set the localizer to be used to build instances.
-     *
-     */
-    public void setUserContext(UserContext context) {
-        userContext = context;
-    }
-
     /** Source statement.
      */
     private Pooled pooledStatement = null;
@@ -237,7 +227,6 @@ public class RowIterator implements Iterator,ReadOnlyMap {
      */
     private Entity resultEntity = null;
 
-    /** User context.
-     */
-    private UserContext userContext = null;
+    /** whether we did prefetch a row */
+    private boolean prefetch = false;
 }

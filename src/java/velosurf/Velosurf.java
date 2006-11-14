@@ -18,7 +18,6 @@ package velosurf;
 
 import velosurf.context.DBReference;
 import velosurf.util.Logger;
-import velosurf.util.UserContext;
 import velosurf.util.XIncludeResolver;
 import velosurf.sql.Database;
 
@@ -137,7 +136,7 @@ public class Velosurf extends DBReference
      */
     private void init(InputStream config)  throws SQLException,IOException {
         Database db = Database.getInstance(config);
-        super.init(db,new UserContext());
+        super.init(db);
         initialized = true;
     }
 
@@ -164,7 +163,7 @@ public class Velosurf extends DBReference
             base = configFile.substring(0,i);
         }
         Database db = Database.getInstance(new FileInputStream(configFile),new XIncludeResolver(base));
-        super.init(db,new UserContext());
+        super.init(db);
         initialized = true;
     }
 

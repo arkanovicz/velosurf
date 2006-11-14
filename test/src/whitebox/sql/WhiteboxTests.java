@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.io.PrintWriter;
 
 import org.junit.*;
@@ -15,6 +16,7 @@ import velosurf.sql.PooledPreparedStatement;
 import velosurf.sql.ReadOnlyWrapper;
 import velosurf.context.RowIterator;
 import velosurf.context.Instance;
+import velosurf.context.EntityReference;
 import velosurf.model.Entity;
 import velosurf.model.Transaction;
 import velosurf.model.Attribute;
@@ -35,6 +37,7 @@ public class WhiteboxTests
         RowIterator iterator = database.query("select * from publisher order by publisher_id");
         assertTrue(iterator.hasNext());
         Object row = iterator.next();
+        assertFalse(iterator.hasNext());
         assertNotNull(row);
         assertTrue(row instanceof Instance);
         Instance i = (Instance)row;
@@ -44,17 +47,33 @@ for(Object k:i.keySet()){Logger.debug("### "+k+" -> "+i.get(k));}
     }
 
     public @Test void testQuery2() throws SQLException {
-        Entity publisher = database.getEntity("publisher");
-        assertNotNull(publisher);
-        RowIterator iterator = database.query("select * from publisher order by publisher_id",publisher);
+        Entity book = database.getEntity("book");
+        assertNotNull(book);
+        RowIterator iterator = book.query();
         assertTrue(iterator.hasNext());
         Object row = iterator.next();
         assertNotNull(row);
         assertTrue(row instanceof Instance);
         Instance instance = (Instance)row;
         assertTrue(instance.getEntity() != null);
+        assertTrue(instance.get("book_id") != null);
+        assertTrue(instance.get("title") != null);
+        assertTrue(instance.get("isbn") != null);
         assertTrue(instance.get("publisher_id") != null);
-        assertTrue(instance.get("name") != null);
+        assertTrue(instance.get("author_id") != null);
+        assertTrue(iterator.hasNext());
+        row = iterator.next();
+        assertNotNull(row);
+        instance = (Instance)row;
+        assertTrue(instance.getEntity() != null);
+        assertTrue(instance.get("book_id") != null);
+        assertTrue(instance.get("title") != null);
+        assertTrue(instance.get("isbn") != null);
+        assertTrue(instance.get("publisher_id") != null);
+        assertTrue(instance.get("author_id") != null);
+        assertFalse(iterator.hasNext());
+        row = iterator.next();
+        assertNull(row);
     }
 
     public @Test void testEvaluate() throws SQLException {
@@ -66,6 +85,24 @@ for(Object k:i.keySet()){Logger.debug("### "+k+" -> "+i.get(k));}
         PooledPreparedStatement prep = database.prepare("select * from publisher where publisher_id=?");
         Object result = prep.fetch(Arrays.asList(new String[] {"1"}),database.getEntity("publisher"));
         assertTrue(result != null && result instanceof Instance);
+    }
+
+    public @Test void testEmptyTable() throws SQLException {
+        Entity empty = database.getEntity("empty");
+        assertNotNull(empty);
+        RowIterator iterator = empty.query();
+        assertFalse(iterator.hasNext());
+        Object row = iterator.next();
+        assertNull(row);
+    }
+
+    public @Test void testInsert() throws SQLException {
+        Entity user = database.getEntity("user");
+        assertNotNull(user);
+        Map<String,String> row = new HashMap<String,String>();
+        row.put("login","donald");
+        row.put("password","duck");
+        assertTrue(user.insert(row));
     }
 
     public @Test void testSuccessfullTransaction() throws SQLException {

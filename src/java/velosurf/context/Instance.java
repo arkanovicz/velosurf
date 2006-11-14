@@ -72,7 +72,7 @@ public class Instance extends TreeMap<String,Object> implements ReadOnlyMap
      * @return this Instance's Entity.
      */
     public EntityReference getEntity() {
-        return new EntityReference(entity,userContext.get());
+        return new EntityReference(entity);
     }
 
     /** <p>Returns an ArrayList of two-entries maps ('name' & 'value'), meant to be use in a #foreach loop to build form fields.</p>
@@ -136,8 +136,8 @@ public class Instance extends TreeMap<String,Object> implements ReadOnlyMap
                         if (action != null) result = Integer.valueOf(action.perform(this));
                     }
                 }
-            } else if (localized && entity.isLocalized(key) && userContext.get() != null) {
-                result = userContext.get().localize(result.toString());
+            } else if (localized && entity.isLocalized(key)) {
+                result = db.getUserContext().localize(result.toString());
             }
         }
         catch (SQLException sqle) {
@@ -334,7 +334,7 @@ public class Instance extends TreeMap<String,Object> implements ReadOnlyMap
                 throw new SQLException("Instance.insert: Error: Entity is null!");
             }
 
-            if (!entity.validate(this,userContext.get())) {
+            if (!entity.validate(this)) {
                 return false;
             }
             List<String> colsClause = new ArrayList<String>();
@@ -356,7 +356,7 @@ public class Instance extends TreeMap<String,Object> implements ReadOnlyMap
             List<String> keys = entity.getPKCols();
             if (keys.size() == 1) {
                 /* What if the ID is not autoincremented? TODO check it. => reverse engineering of autoincrement */
-                userContext.get().setLastInsertedID(entity,statement.getLastInsertID());
+                db.getUserContext().setLastInsertedID(entity,statement.getLastInsertID());
             }
             return true;
         }
@@ -370,7 +370,7 @@ public class Instance extends TreeMap<String,Object> implements ReadOnlyMap
      */
     public boolean validate() {
         try {
-            return entity.validate(this,userContext.get());
+            return entity.validate(this);
         } catch(SQLException sqle) {
             handleSQLException(sqle);
             return false;
@@ -382,22 +382,8 @@ public class Instance extends TreeMap<String,Object> implements ReadOnlyMap
      */
     private void handleSQLException(SQLException sqle) {
         Logger.log(sqle);
-        UserContext uc = userContext.get();
-        if (uc != null) {
-            uc.setError(sqle.getMessage());
-        }
+        db.setError(sqle.getMessage());
     }
-
-    /** Set this instance user context (thread local).
-     *
-     */
-    protected void setUserContext(UserContext userContext) {
-        this.userContext.set(userContext);
-    }
-
-    /** Thread-local user context.
-     */
-    private ThreadLocal<UserContext> userContext = new ThreadLocal<UserContext>();
 
     /** This Instance's Entity.
      */

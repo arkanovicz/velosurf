@@ -1,5 +1,11 @@
 **** Changes ****
 
+v2.0.1 (November 2006)
+------
+ - simplified UserContext handling: now it is a thread-local member of sql.Database
+ - fix: RowIterator behaviour is now ok for empty result sets with bugged JDBC drivers like HSQLDB
+ - docfix: parameter 'config' was named 'configuration' in the documentation
+
 v2.0 (November 2006)
 ----
  - full code review (field accesses, javadoc, unused methods)

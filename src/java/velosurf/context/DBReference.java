@@ -49,15 +49,7 @@ public class DBReference extends HashMap implements ReadOnlyMap
      * @param db the wrapped database connection
      */
     public DBReference(Database db) {
-        init(db,null);
-    }
-
-    /** Constructs a new database reference.
-     *
-     * @param db the wrapped database connection
-     */
-    public DBReference(Database db,UserContext userContext) {
-        init(db,userContext);
+        init(db);
     }
 
     /** Protected initialization method.
@@ -65,21 +57,9 @@ public class DBReference extends HashMap implements ReadOnlyMap
      * @param db database connection
      */
     protected void init(Database db) {
-        init(db,null);
-    }
-
-    /** Protected initialization method.
-     *
-     * @param db database connection
-     */
-    protected void init(Database db,UserContext userContext) {
        this. db = db;
         cache = new HashMap<String,Object>();
         externalParams = new HashMap<String,Object>();
-        if(userContext == null) {
-            userContext = new UserContext();
-        }
-        this.userContext = userContext;
     }
 
     /** <p>Generic getter, used to access entities or root attributes by their name.</p>
@@ -109,16 +89,13 @@ public class DBReference extends HashMap implements ReadOnlyMap
             if (attribute!=null) {
                 switch (attribute.getType()) {
                     case Attribute.ROWSET:
-                        result = new AttributeReference(this,attribute,userContext);
+                        result = new AttributeReference(this,attribute);
                         break;
                     case Attribute.SCALAR:
                         result = attribute.evaluate(this);
                         break;
                     case Attribute.ROW:
                         result = attribute.fetch(this);
-                        if (result instanceof Instance) {
-                            ((Instance)result).setUserContext(userContext);
-                        }
                         break;
                     default:
                         Logger.error("Unknown attribute type encountered: db."+property);
@@ -135,7 +112,7 @@ public class DBReference extends HashMap implements ReadOnlyMap
             /* 4) try to get an entity */
             Entity entity = db.getEntity(property);
             if (entity!=null) {
-                result = new EntityReference(entity,userContext);
+                result = new EntityReference(entity);
                 cache.put(property,result);
                 return result;
             }
@@ -145,14 +122,14 @@ public class DBReference extends HashMap implements ReadOnlyMap
             if (result != null) return result;
 
             /* 6) try with the user context */
-            result = userContext.get(property);
+            result = db.getUserContext().get(property);
             if (result != null) return result;
 
             /* Sincerely, I don't see... */
             return null;
         }
         catch (SQLException sqle) {
-            userContext.setError(sqle.getMessage());
+            db.setError(sqle.getMessage());
             Logger.log(sqle);
             return null;
         }
@@ -219,8 +196,4 @@ public class DBReference extends HashMap implements ReadOnlyMap
      /** The map of external query parameters used by children attributes.
       */
     private Map<String,Object> externalParams = null;
-
-    /** A reference to the user context.
-     */
-    private UserContext userContext = null;
 }
