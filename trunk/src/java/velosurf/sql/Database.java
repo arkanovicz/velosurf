@@ -30,6 +30,7 @@ import velosurf.util.Logger;
 import velosurf.util.LineWriterOutputStream;
 import velosurf.util.Cryptograph;
 import velosurf.util.XIncludeResolver;
+import velosurf.util.UserContext;
 
 /** This class encapsulates  a connection to the database and contains all the stuff relative to it.
  *
@@ -810,6 +811,31 @@ public class Database {
         }
     }
 
+    /** Set this database user context (thread local)
+     *  @param userContext user context
+     */
+    public void setUserContext(UserContext userContext) {
+        this.userContext.set(userContext);
+    }
+
+    /** Get this database user context (thread local)
+     *
+     * @return the thread local user context
+     */
+    public UserContext getUserContext() {
+        UserContext ret = userContext.get();
+        if (ret == null) {
+            /* create one */
+            ret = new UserContext();
+            userContext.set(ret);
+        }
+        return ret;
+    }
+
+    public void setError(String errormsg) {
+        getUserContext().setError(errormsg);
+    }
+
     /** map parameters -> instances. */
     private static Map<Integer,Database> connectionsByParams = new HashMap<Integer,Database>();
 
@@ -825,5 +851,9 @@ public class Database {
      * Reverse engineer.
      */
     private ReverseEngineer reverseEngineer = new ReverseEngineer(this);
+
+    /** Thread-local user context.
+     */
+    private ThreadLocal<UserContext> userContext = new ThreadLocal<UserContext>();
 
 }

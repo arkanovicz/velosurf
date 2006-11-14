@@ -25,7 +25,6 @@ import java.util.List;
 import velosurf.model.Attribute;
 import velosurf.sql.ReadOnlyMap;
 import velosurf.util.Logger;
-import velosurf.util.UserContext;
 
 /** Context wrapper for attributes.
  *
@@ -40,19 +39,8 @@ public class AttributeReference extends AbstractList
      * @param attribute the wrapped attribute
      */
     public AttributeReference(ReadOnlyMap readOnlyMap,Attribute attribute) {
-        this(readOnlyMap,attribute,null);
-    }
-
-    /** Constructor.
-     *
-     * @param readOnlyMap the data accessor this attribute reference applies to
-     * @param attribute the wrapped attribute
-     * @param usrCtx user context
-     */
-    public AttributeReference(ReadOnlyMap readOnlyMap,Attribute attribute,UserContext usrCtx) {
         this.readOnlyMap = readOnlyMap;
         this.attribute = attribute;
-        this.userContext = usrCtx;
     }
 
     /** <p>Refines this attribute's reference result. The provided criterium will be added to the 'where' clause (or a 'where' clause will be added).</p>
@@ -91,14 +79,11 @@ public class AttributeReference extends AbstractList
     public Iterator iterator() {
         try {
             RowIterator iterator = attribute.query(readOnlyMap,refineCriteria,order);
-            if (userContext != null) iterator.setUserContext(userContext);
             return iterator;
         }
         catch (SQLException sqle) {
             Logger.log(sqle);
-            if (userContext != null) {
-                userContext.setError(sqle.getMessage());
-            }
+            attribute.getDB().setError(sqle.getMessage());
             return null;
         }
     }
@@ -109,7 +94,6 @@ public class AttributeReference extends AbstractList
      */
     public List getRows() throws SQLException {
         RowIterator iterator = attribute.query(readOnlyMap,refineCriteria,order);
-        if (userContext != null) iterator.setUserContext(userContext);
         return iterator.getRows();
     }
 
@@ -149,8 +133,4 @@ public class AttributeReference extends AbstractList
     /** The wrapped attribute.
      */
     private Attribute attribute = null;
-
-    /** User context.
-     */
-    private UserContext userContext = null;
 }

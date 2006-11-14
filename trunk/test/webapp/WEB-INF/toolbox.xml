@@ -6,6 +6,7 @@
     <key>db</key>
     <scope>request</scope>
     <class>velosurf.web.VelosurfTool</class>
+    <parameter name='config' value='/WEB-INF/db.xml'/>
   </tool>
 
   <tool>

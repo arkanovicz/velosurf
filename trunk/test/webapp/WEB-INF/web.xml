@@ -149,7 +149,7 @@
   </context-param>
   <context-param>
     <param-name>velosurf.config</param-name>
-    <param-value>/WEB-INF/model.xml</param-value>
+    <param-value>/WEB-INF/db.xml</param-value>
   </context-param>
 
   <servlet>

@@ -127,13 +127,18 @@ For other environments, you should refer to the <a href="./faq.html">FAQ</a>.</p
     &lt;class&gt;velosurf.tools.VelosurfTool&lt;/class&gt;
     &lt;-- uncomment the next comment if you want to specify a configuration file which is not one
            of the default values (./WEB-INF/model.xml or ./WEB-INF/velosurf.xml) --&gt;
-    &lt;--&lt;param name='configuration' value='./WEB-INF/mymodel.xml'/&gt;--&gt;
+    &lt;--&lt;param name='config' value='./WEB-INF/mymodel.xml'/&gt;--&gt;
   &lt;/tool&gt;
 
 &lt;/toolbox&gt;</pre></div>
 
-<p>Alternatively, the configuration file is also searched in the <code>velosurf.configuration</code> servlet context parameter,
-but this method is deprecated.</p>
+<p>Alternatively, the name of the configuration file can also be specified in the <code>velosurf.config</code> servlet context parameter
+(this latter method must be chosen when using Velosurf authentication or localization filters that rely on the database since the toolbox
+is not yet initialized at the time the filters are initialized). In that case, you'll have to put the following declaration in <code>/WEB-INF/web.xml</code>:</p>
+<div class="source"><xmp>  <context-param>
+    <param-name>velosurf.config</param-name>
+    <param-value>/WEB-INF/db.xml</param-value>
+  </context-param></xmp></div>
 
 					<h2>Configuring Velosurf</h2>
 					<p>By default, the database will be reverse engineered and each table becomes an entity, each column an attribute,

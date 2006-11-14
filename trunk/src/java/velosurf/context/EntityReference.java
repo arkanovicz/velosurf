@@ -34,21 +34,13 @@ import velosurf.sql.ReadOnlyWrapper;
  */
 public class EntityReference extends AbstractList {
         /* extends AbstractList so that Velocity will call iterator() from within a #foreach directive */
-    /** Builds a new EntityReference.
-     *
-     * @param entity the wrapped entity
-     */
-    public EntityReference(Entity entity) {
-        this(entity,null);
-    }
 
     /** Builds a new EntityReference.
      *
      * @param entity the wrapped entity
      */
-    public EntityReference(Entity entity,UserContext userContext) {
+    public EntityReference(Entity entity) {
         this.entity = entity;
-        this.userContext = userContext;
     }
 
     /** gets the name of the wrapped entity
@@ -67,9 +59,7 @@ public class EntityReference extends AbstractList {
             return entity.insert(new ReadOnlyWrapper(values));
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            if (userContext != null) {
-                userContext.setError(sqle.getMessage());
-            }
+            entity.getDB().setError(sqle.getMessage());
             return false;
         }
     }
@@ -79,7 +69,7 @@ public class EntityReference extends AbstractList {
      * @return last insert ID
      */
     public Object getLastInsertID() {
-        long id = userContext.getLastInsertedID(entity);
+        long id = entity.getDB().getUserContext().getLastInsertedID(entity);
         return entity.filterID(id);
     }
 
@@ -114,15 +104,10 @@ public class EntityReference extends AbstractList {
     public Instance fetch(List<Object> values) {
         try {
             Instance instance = entity.fetch(values);
-            if (userContext != null) {
-                instance.setUserContext(userContext);
-            }
             return instance;
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            if(userContext != null) {
-                userContext.setError(sqle.getMessage());
-            }
+            entity.getDB().setError(sqle.getMessage());
             return null;
         }
     }
@@ -136,15 +121,10 @@ public class EntityReference extends AbstractList {
     public Instance fetch(Map values) {
         try {
             Instance instance = entity.fetch(new ReadOnlyWrapper(values));
-            if (userContext != null) {
-                instance.setUserContext(userContext);
-            }
             return instance;
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            if(userContext != null) {
-                userContext.setError(sqle.getMessage());
-            }
+            entity.getDB().setError(sqle.getMessage());
             return null;
         }
     }
@@ -158,15 +138,10 @@ public class EntityReference extends AbstractList {
     public Instance fetch(String keyValue) {
         try {
             Instance instance = entity.fetch(keyValue);
-            if (userContext != null) {
-                instance.setUserContext(userContext);
-            }
             return instance;
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            if(userContext != null) {
-                userContext.setError(sqle.getMessage());
-            }
+            entity.getDB().setError(sqle.getMessage());
             return null;
         }
     }
@@ -180,15 +155,10 @@ public class EntityReference extends AbstractList {
     public Instance fetch(Number keyValue) {
         try {
             Instance instance = entity.fetch(keyValue);
-            if (userContext != null) {
-                instance.setUserContext(userContext);
-            }
             return instance;
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            if(userContext != null) {
-                userContext.setError(sqle.getMessage());
-            }
+            entity.getDB().setError(sqle.getMessage());
             return null;
         }
     }
@@ -201,15 +171,10 @@ public class EntityReference extends AbstractList {
     public Iterator iterator() {
         try {
             RowIterator iterator =  entity.query(refineCriteria,order);
-            if (userContext != null) {
-                iterator.setUserContext(userContext);
-            }
             return iterator;
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            if(userContext != null) {
-                userContext.setError(sqle.getMessage());
-            }
+            entity.getDB().setError(sqle.getMessage());
             return null;
         }
     }
@@ -221,15 +186,10 @@ public class EntityReference extends AbstractList {
     public List getRows() {
         try {
             RowIterator iterator = entity.query(refineCriteria,order);
-            if (userContext != null) {
-                iterator.setUserContext(userContext);
-            }
             return iterator.getRows();
         } catch(SQLException sqle) {
             Logger.log(sqle);
-            if(userContext != null) {
-                userContext.setError(sqle.getMessage());
-            }
+            entity.getDB().setError(sqle.getMessage());
             return null;
         }
     }
@@ -294,18 +254,15 @@ public class EntityReference extends AbstractList {
      */
     public Instance newInstance() {
         Instance instance = entity.newInstance();
-        if (userContext != null) {
-            instance.setUserContext(userContext);
-        }
         return instance;
     }
 
     public boolean validate(Map values) {
         try {
-            return entity.validate(new ReadOnlyWrapper(values),userContext);
+            return entity.validate(new ReadOnlyWrapper(values));
         } catch(SQLException sqle) {
             Logger.error("could not check data validity!");
-            userContext.addValidationError("internal errror");
+            entity.getDB().getUserContext().addValidationError("internal errror");
             Logger.log(sqle);
             return false;
         }
@@ -346,8 +303,4 @@ public class EntityReference extends AbstractList {
      */
     private List<String> refineCriteria = null;
 
-    /** User context to be given to created instances.
-     *
-     */
-    private UserContext userContext = null;
 }

@@ -271,6 +271,16 @@ public class Entity
         }
     }
 
+    /** Build a new instance from a Map object.
+     *
+     * @param values the ReadOnlyMap object containing the values
+     * @return the newly created instance
+     */
+    public Instance newInstance(Map<String,Object> values) {
+        return newInstance(new ReadOnlyWrapper(values));
+    }
+
+
     /** Get an instance from its values contained in a ReadOnlyMap object.
      * By default, update all fields based on the values in the ReadOnlyMap if the instance has been found in the cache.
      *
@@ -292,6 +302,15 @@ public class Entity
         }
     }
 
+    /** Get an instance from its values contained in a ReadOnlyMap object.
+     * By default, update all fields based on the values in the ReadOnlyMap if the instance has been found in the cache.
+     *
+     * @param values the ReadOnlyMap object containing the values
+     * @return the instance
+     */
+    public Instance getInstance(Map<String,Object> values) {
+        return getInstance(new ReadOnlyWrapper(values));
+    }
     /**
      * Invalidate an instance in the cache.
      * @param instance instance
@@ -371,7 +390,7 @@ public class Entity
         return columns;
     }
 
-    /** Insert a new row based on values of a map.
+    /** Insert a new row based on values of a read only map.
      *
      * @param values the  Map object containing the values
      * @return success indicator
@@ -386,9 +405,18 @@ public class Entity
         return instance.insert();
     }
 
-    /** Update a row based on a set of values that must contain kety values.
+    /** Insert a new row based on values of a map.
      *
-     * @param values the Map object containing the values
+     * @param values the  Map object containing the values
+     * @return success indicator
+     */
+    public boolean insert(Map<String,Object> values) throws SQLException {
+        return insert(new ReadOnlyWrapper(values));
+    }
+
+    /** Update a row based on a set of values that must contain key values.
+     *
+     * @param values the read only Map object containing the values
      * @return success indicator
      */
     public boolean update(ReadOnlyMap values) {
@@ -398,6 +426,15 @@ public class Entity
         }
         Instance instance = newInstance(values);
         return instance.update();
+    }
+
+    /** Update a row based on a set of values that must contain key values.
+     *
+     * @param values the read only Map object containing the values
+     * @return success indicator
+     */
+    public boolean update(Map<String,Object> values) {
+        return update(new ReadOnlyWrapper(values));
     }
 
     /** Delete a row based on (key) values.
@@ -412,6 +449,15 @@ public class Entity
         }
         Instance instance = newInstance(values);
         return instance.delete();
+    }
+
+    /** Delete a row based on (key) values.
+     *
+     * @param values the Map containing the values
+     * @return success indicator
+     */
+    public boolean delete(Map values) {
+        return delete(new ReadOnlyWrapper(values));
     }
 
     /** Fetch an instance from key values stored in a List in natural order.
@@ -463,6 +509,15 @@ public class Entity
             instance = (Instance)statement.fetch(values,this);
         }
         return instance;
+    }
+
+    /** Fetch an instance from key values stored in a Map.
+     *
+     * @param values the Map containing the key values
+     * @return the fetched instance
+     */
+    public Instance fetch(Map values) throws SQLException {
+        return fetch(new ReadOnlyWrapper(values));
     }
 
     /** Fetch an instance from its key value as a string.
@@ -682,15 +737,15 @@ public class Entity
 
     /** Validate a set of values.
      */
-    public boolean validate(ReadOnlyMap row,UserContext userContext) throws SQLException {
+    public boolean validate(ReadOnlyMap row) throws SQLException {
         boolean ret = true;
-        if(userContext != null) {
-            /* Is it a good choice to clear it now?
-               We may want to validate several entities
-               before displaying errors to the user.
-               */
-            userContext.clearValidationErrors();
-        }
+
+        UserContext userContext = db.getUserContext();
+        /* FIXME Is it a good choice to clear the user context now?
+           We may want to validate several entities
+           before displaying errors to the user.
+           */
+        userContext.clearValidationErrors();
         for(FieldConstraintInfo info:constraints) {
             Object data = row.get(info.column);
             if (!info.constraint.validate(data, userContext.getLocale())) {

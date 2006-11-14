@@ -47,6 +47,11 @@ CREATE TABLE validation (
   FOREIGN KEY(book_id) REFERENCES book(book_id)
 );
 
+CREATE TABLE empty (
+  id INTEGER IDENTITY,
+  data VARCHAR(255)
+);
+
 INSERT INTO publisher (publisher_id,name) VALUES (1,'Addison Wesley Professional');
 
 INSERT INTO author (author_id,first_name,last_name) VALUES (1,'Joshua','Bloch');
