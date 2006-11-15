@@ -2,6 +2,7 @@
 
 v2.0.1 (November 2006)
 ------
+ - added some new testcases
  - fix: template name filter cache resetting produced a wrong output
  - cleaned and reduced the use of ReadOnlyMap
  - fix: NPE in Entity.insert

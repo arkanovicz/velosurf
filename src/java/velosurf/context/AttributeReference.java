@@ -25,6 +25,7 @@ import java.util.Map;
 
 import velosurf.model.Attribute;
 import velosurf.util.Logger;
+import velosurf.util.StringLists;
 
 /** Context wrapper for attributes.
  *
@@ -39,7 +40,7 @@ public class AttributeReference extends AbstractList
      * @param attribute the wrapped attribute
      */
     public AttributeReference(Map<String,Object> params,Attribute attribute) {
-        this.params = this.params;
+        this.params = params;
         this.attribute = attribute;
     }
 
@@ -127,7 +128,7 @@ public class AttributeReference extends AbstractList
     /** Specified 'order by' clause specified for this attribute reference.
      */
     private String order = null;
-    /** The data accessor this attribute reference applies to.
+    /** The map this attribute reference applies to.
      */
     private Map<String,Object> params = null;
     /** The wrapped attribute.

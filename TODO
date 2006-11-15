@@ -1,5 +1,6 @@
 TODO
 ----
+ - test cache reset
  - get rid of the ReadOnlyMap interface => 2.0.1
  - change /** ... \n */ to /** ... */
  - parse conditions in refine and columns in order to apply aliases

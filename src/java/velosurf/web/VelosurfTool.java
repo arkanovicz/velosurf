@@ -98,7 +98,6 @@ public class VelosurfTool extends DBReference
             Logger.setWriter(new ServletLogWriter(ctx));
         }
 
-Logger.debug("#### init -> "+configFile);
         // get config file
         if (configFile == null) { // if not already given by configure()
             configFile = findConfigFile(ctx);
@@ -223,7 +222,6 @@ Logger.debug("#### init -> "+configFile);
         if(configFile == null) {
             configFile = map.get(TOOLBOX_CONFIG_FILE_KEY2);
         }
-Logger.debug("#### configure -> "+configFile);
     }
 
     /** return the existing Database for the specified config file, or null
