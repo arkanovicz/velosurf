@@ -225,7 +225,7 @@ public class DriverInfo
             if (lastInsertIDQuery == null) {
                 Logger.error("getLastInsertID is not [yet] implemented for your dbms... Contribute!");
             } else {
-                ResultSet rs = statement.executeQuery(lastInsertIDQuery);
+                ResultSet rs = statement.getConnection().createStatement().executeQuery(lastInsertIDQuery);
                 rs.next();
                 ret = rs.getLong(1);
             }

@@ -27,7 +27,7 @@ public class WhiteboxTests
     protected static Database database = null;
 
 	public static @BeforeClass void openDatabase() throws Exception {
-        Logger.setWriter(new PrintWriter("log/velosurf.log"));
+        Logger.setWriter(new PrintWriter("log/whitebox.log"));
         database = Database.getInstance(MODEL_FILE);
     }
 
@@ -146,7 +146,7 @@ for(Object k:i.keySet()){Logger.debug("### "+k+" -> "+i.get(k));}
 
     public @Test void testXInclude() throws SQLException {
         /* testing the included attribute */
-        Attribute attribute = database.getRootEntity().getAttribute("count_users");
+        Attribute attribute = database.getRootEntity().getAttribute("count_publishers");
         Object result = attribute.evaluate(null);
         assertEquals("java.lang.Integer",result.getClass().getName());
         assertEquals(1,result);
