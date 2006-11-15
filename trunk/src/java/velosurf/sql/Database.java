@@ -361,7 +361,7 @@ public class Database {
      * @return return the resulting row iterator
      */
     public RowIterator query(String query,Entity entity) throws SQLException {
-        PooledStatement statement = null;
+        PooledSimpleStatement statement = null;
         statement=statementPool.getStatement();
         return statement.query(query,entity);
     }
@@ -372,7 +372,7 @@ public class Database {
      * @return the resulting scalar
      */
     public Object evaluate(String query) {
-        PooledStatement statement = null;
+        PooledSimpleStatement statement = null;
         try {
             statement=statementPool.getStatement();
             return statement.evaluate(query);
@@ -424,7 +424,7 @@ public class Database {
      */
     public int update(String query) {
         try {
-               PooledStatement statement = statementPool.getStatement();
+               PooledSimpleStatement statement = statementPool.getStatement();
             return statement.update(query);
         }
         catch (SQLException sqle) {
@@ -440,7 +440,7 @@ public class Database {
      */
     public int transactionUpdate(String query) {
         try {
-            PooledStatement statement = transactionStatementPool.getStatement();
+            PooledSimpleStatement statement = transactionStatementPool.getStatement();
             return statement.update(query);
         }
         catch (SQLException sqle) {

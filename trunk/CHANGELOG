@@ -2,6 +2,9 @@
 
 v2.0.1 (November 2006)
 ------
+ - fix: template name filter cache resetting produced a wrong output
+ - cleaned and reduced the use of ReadOnlyMap
+ - fix: NPE in Entity.insert
  - simplified UserContext handling: now it is a thread-local member of sql.Database
  - fix: RowIterator behaviour is now ok for empty result sets with bugged JDBC drivers like HSQLDB
  - docfix: parameter 'config' was named 'configuration' in the documentation

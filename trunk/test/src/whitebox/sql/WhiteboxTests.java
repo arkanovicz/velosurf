@@ -13,10 +13,8 @@ import static org.junit.Assert.*;
 
 import velosurf.sql.Database;
 import velosurf.sql.PooledPreparedStatement;
-import velosurf.sql.ReadOnlyWrapper;
 import velosurf.context.RowIterator;
 import velosurf.context.Instance;
-import velosurf.context.EntityReference;
 import velosurf.model.Entity;
 import velosurf.model.Transaction;
 import velosurf.model.Attribute;
@@ -99,7 +97,7 @@ for(Object k:i.keySet()){Logger.debug("### "+k+" -> "+i.get(k));}
     public @Test void testInsert() throws SQLException {
         Entity user = database.getEntity("user");
         assertNotNull(user);
-        Map<String,String> row = new HashMap<String,String>();
+        Map<String,Object> row = new HashMap<String,Object>();
         row.put("login","donald");
         row.put("password","duck");
         assertTrue(user.insert(row));
@@ -120,7 +118,7 @@ for(Object k:i.keySet()){Logger.debug("### "+k+" -> "+i.get(k));}
         params.add(new ArrayList<String>());
         params.add(new ArrayList<String>());
         transaction.setParamNamesLists(params);
-        transaction.perform(new ReadOnlyWrapper(new HashMap()));
+        transaction.perform(new HashMap<String,Object>());
     }
 
     public @Test(expected=SQLException.class) void testUnsuccessfullTransaction() throws SQLException {
@@ -139,7 +137,7 @@ for(Object k:i.keySet()){Logger.debug("### "+k+" -> "+i.get(k));}
             params.add(new ArrayList<String>());
             params.add(new ArrayList<String>());
             transaction.setParamNamesLists(params);
-            transaction.perform(new ReadOnlyWrapper(new HashMap()));
+            transaction.perform(new HashMap<String,Object>());
         } finally {
             Instance row = database.getEntity("publisher").fetch(201);
             assertNull(row);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE velosurf>
-<database user="sa" password="" url="jdbc:hsqldb:hsql://127.0.0.1/test" read-only="false" loglevel="trace" reverse="full" xmlns:xi="http://www.w3.org/2001/XInclude">
+<database user="sa" password="" url="jdbc:hsqldb:hsql://127.0.0.1/test" read-only="false" loglevel="info" reverse="full" xmlns:xi="http://www.w3.org/2001/XInclude">
     <!-- entities -->
 
     <entity name="publisher" obfuscate="publisher_id" autofetch="publisher_id">

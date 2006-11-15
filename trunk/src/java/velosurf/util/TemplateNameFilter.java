@@ -25,7 +25,10 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.Set;
@@ -129,14 +132,14 @@ public class TemplateNameFilter implements Filter {
         }
 
         /* builds the cache */
-        buildsTemplateNamesList();
+        buildsTemplateNamesList(null);
     }
 
     /**
      * Build the cache, which consists of a hash set containing all template names.
      *
      */
-    private synchronized void buildsTemplateNamesList() {
+    private synchronized void buildsTemplateNamesList(HttpServletResponse response) {
         /* check again if the reset is necessary, the current thread may have been
         waiting to enter this method during the last reset */
         if ((resetMethod & RESET_PERIODIC) != 0 && System.currentTimeMillis() - lastReset < resetPeriod && templates != null) {
@@ -168,6 +171,15 @@ public class TemplateNameFilter implements Filter {
         }
         templates = result;
         lastReset = System.currentTimeMillis();
+
+        if (response != null) {
+            try {
+                PrintWriter writer = response.getWriter();
+                writer.println("<html><body>Cache reseted.</body></html>");
+            } catch(IOException ioe) {
+
+            }
+        }
     }
 
     /**
@@ -181,6 +193,7 @@ public class TemplateNameFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws ServletException, IOException {
 
         HttpServletRequest request = (HttpServletRequest)servletRequest;
+        HttpServletResponse response = (HttpServletResponse)servletResponse;
 
         String path = request.getRequestURI();
 
@@ -200,19 +213,19 @@ public class TemplateNameFilter implements Filter {
         long now = System.currentTimeMillis();
         if ((resetMethod & RESET_MANUAL) != 0 && path.equals(resetUri)) {
             lastReset = now - 2*resetPeriod;
-            buildsTemplateNamesList();
+            buildsTemplateNamesList(response);
         } else if ((resetMethod & RESET_PERIODIC) != 0 && now - lastReset > resetPeriod) {
-            buildsTemplateNamesList();
-        }
-
-        if(templates.contains(path)) {
-            /* forward the request with extension added */
-            Logger.trace("vtl: forwarding request towards "+path+templateExtension);
-            RequestDispatcher dispatcher = servletContext.getRequestDispatcher(path+templateExtension);
-            dispatcher.forward(request,servletResponse);
+            buildsTemplateNamesList(response);
         } else {
-            /* normal processing */
-            filterChain.doFilter(servletRequest,servletResponse);
+            if(templates.contains(path)) {
+                /* forward the request with extension added */
+                Logger.trace("vtl: forwarding request towards "+path+templateExtension);
+                RequestDispatcher dispatcher = servletContext.getRequestDispatcher(path+templateExtension);
+                dispatcher.forward(request,servletResponse);
+            } else {
+                /* normal processing */
+                filterChain.doFilter(servletRequest,servletResponse);
+            }
         }
     }
 

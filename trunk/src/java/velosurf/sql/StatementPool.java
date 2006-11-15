@@ -45,10 +45,10 @@ public class StatementPool implements Runnable,Pool {
      * @exception SQLException thrown by the database engine
      * @return a valid statement
      */
-    public synchronized PooledStatement getStatement() throws SQLException {
-        PooledStatement statement = null;
+    public synchronized PooledSimpleStatement getStatement() throws SQLException {
+        PooledSimpleStatement statement = null;
         ConnectionWrapper connection = null;
-        for (Iterator<PooledStatement> it=statements.iterator();it.hasNext();) {
+        for (Iterator<PooledSimpleStatement> it=statements.iterator();it.hasNext();) {
             statement = it.next();
             if (statement.isValid()) {
                 if (!statement.isInUse() && !(connection = (ConnectionWrapper)statement.getConnection()).isBusy()) {
@@ -68,7 +68,7 @@ public class StatementPool implements Runnable,Pool {
         }
         if (count == maxStatements) throw new SQLException("Error: Too many opened statements!");
         connection = connectionPool.getConnection();
-        statement = new PooledStatement(connection,connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY));
+        statement = new PooledSimpleStatement(connection,connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY));
         statements.add(statement);
         statement.notifyInUse();
         return statement;
@@ -83,7 +83,7 @@ public class StatementPool implements Runnable,Pool {
                 Thread.sleep(checkDelay);
             } catch (InterruptedException e) {}
             long now = System.currentTimeMillis();
-            for(PooledStatement statement:statements) {
+            for(PooledSimpleStatement statement:statements) {
                 if (statement.isInUse() && now-statement.getTagTime() > timeout)
                     statement.notifyOver();
             }
@@ -96,7 +96,7 @@ public class StatementPool implements Runnable,Pool {
      */
     public int[] getUsageStats() {
         int [] stats = new int[] {0,0};
-        for(PooledStatement statement:statements) {
+        for(PooledSimpleStatement statement:statements) {
             if (!statement.isInUse())
                 stats[0]++;
         }
@@ -108,7 +108,7 @@ public class StatementPool implements Runnable,Pool {
      */
     public void clear() {
         // close all statements
-        for(PooledStatement statement:statements) {
+        for(PooledSimpleStatement statement:statements) {
             try {
                 statement.close();
             }
@@ -125,7 +125,7 @@ public class StatementPool implements Runnable,Pool {
      */
     private void dropConnection(Connection connection) {
         for (Iterator it=statements.iterator();it.hasNext();) {
-            PooledStatement statement = (PooledStatement)it.next();
+            PooledSimpleStatement statement = (PooledSimpleStatement)it.next();
             try { statement.close(); } catch(SQLException sqle) {}
             statement.setInvalid();
         }
@@ -147,7 +147,7 @@ public class StatementPool implements Runnable,Pool {
     private int count = 0;
     /** statements.
      */
-    private List<PooledStatement> statements = new ArrayList<PooledStatement>();
+    private List<PooledSimpleStatement> statements = new ArrayList<PooledSimpleStatement>();
     /** timeout checking thread.
      */
     private Thread checkTimeoutThread = null;

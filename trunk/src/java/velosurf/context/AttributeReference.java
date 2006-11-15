@@ -21,9 +21,9 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import velosurf.model.Attribute;
-import velosurf.sql.ReadOnlyMap;
 import velosurf.util.Logger;
 
 /** Context wrapper for attributes.
@@ -35,11 +35,11 @@ public class AttributeReference extends AbstractList
 
     /** Constructor.
      *
-     * @param readOnlyMap the data accessor this attribute reference applies to
+     * @param params the parameters map this attribute reference applies to
      * @param attribute the wrapped attribute
      */
-    public AttributeReference(ReadOnlyMap readOnlyMap,Attribute attribute) {
-        this.readOnlyMap = readOnlyMap;
+    public AttributeReference(Map<String,Object> params,Attribute attribute) {
+        this.params = this.params;
         this.attribute = attribute;
     }
 
@@ -78,7 +78,7 @@ public class AttributeReference extends AbstractList
      */
     public Iterator iterator() {
         try {
-            RowIterator iterator = attribute.query(readOnlyMap,refineCriteria,order);
+            RowIterator iterator = attribute.query(params,refineCriteria,order);
             return iterator;
         }
         catch (SQLException sqle) {
@@ -93,7 +93,7 @@ public class AttributeReference extends AbstractList
      * @return a list of all the rows
      */
     public List getRows() throws SQLException {
-        RowIterator iterator = attribute.query(readOnlyMap,refineCriteria,order);
+        RowIterator iterator = attribute.query(params,refineCriteria,order);
         return iterator.getRows();
     }
 
@@ -129,7 +129,7 @@ public class AttributeReference extends AbstractList
     private String order = null;
     /** The data accessor this attribute reference applies to.
      */
-    private ReadOnlyMap readOnlyMap = null;
+    private Map<String,Object> params = null;
     /** The wrapped attribute.
      */
     private Attribute attribute = null;
