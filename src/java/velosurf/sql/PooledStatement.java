@@ -16,194 +16,96 @@
 
 package velosurf.sql;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.TreeMap;
 
-import velosurf.context.RowIterator;
-import velosurf.model.Entity;
-import velosurf.util.Logger;
-
-/** this class encapsulates a jdbc Statement.
+/** This abstract class represents a pooled object.<p>
+ * It has two booleans : inUse and useOver (understand : usageOver).<p>
+ * The cycle of those two booleans is the following :<p>
+ * states (inUse - useOver) : (false-false) -> (true-false) -> (true-true) -> [delay] (false-false)
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
-public class PooledStatement extends Pooled implements ReadOnlyMap {
+public abstract class PooledStatement implements RowHandler {
 
-    /** build a new PooledStatement.
-     *
-     * @param connection database connection
-     * @param statement wrapped Statement
+    /** build a new pooled object.
      */
-    public PooledStatement(ConnectionWrapper connection,Statement statement) {
-        this.connection = connection;
-        this.statement = statement;
+    public PooledStatement() {
+        tagTime = System.currentTimeMillis();
     }
 
-    /** get the resultset for this statement.
+    /** get the time tag of this pooled object.
      *
-     * @param query SQL query
-     * @exception SQLException thrown by the database engine
-     * @return resulting RowIterator
+     * @return the time tag
      */
-    public synchronized RowIterator query(String query) throws SQLException {    return query(query,null); }
-    /** get the resultset for this statement, specifying the entity the results belong to.
-     *
-     * @param query SQL query
-     * @param resultEntity entity
-     * @exception SQLException thrown by the database engine
-     * @return the resulting RowIterator
-     */
-    public synchronized RowIterator query(String query,Entity resultEntity) throws SQLException {
-        notifyInUse();
-        Logger.debug("query-"+query);
-        connection.enterBusyState();
-        RowIterator result = new RowIterator(this,statement.executeQuery(query),resultEntity);
-        connection.leaveBusyState();
-        return result;
+    public long getTagTime() {
+        return tagTime;
     }
 
-    /** fetch a single row.
-     *
-     * @param query SQL query
-     * @exception SQLException thrown by the database engine
-     * @return fetched row
+    /** reset the time tag.
      */
-    public synchronized Object fetch(String query) throws SQLException { return fetch(query,null); }
-    /** fetch a single row, specyfing the entity it belongs to.
-     *
-     * @param query SQL query
-     * @param resultEntity entity
-     * @exception SQLException thrown by the database engine
-     * @return the fetched Instance
-     */
-    public synchronized Object fetch(String query,Entity resultEntity) throws SQLException {
-        notifyInUse();
-        Logger.debug("fetch-"+query);
-        connection.enterBusyState();
-        resultSet = statement.executeQuery(query);
-        boolean hasNext = resultSet.next();
-        connection.leaveBusyState();
-        Map<String,Object> row = null;
-        if (hasNext) {
-            if (resultEntity!=null) row = resultEntity.getInstance(this);
-            else {
-                row = new TreeMap<String,Object>();
-                if (columnNames == null) {
-                    columnNames = SqlUtil.getColumnNames(resultSet);
-                }
-                for (String column:columnNames) {
-                    Object value = resultSet.getObject(column);
-                    row.put(Database.adaptContextCase(column),value);
-                }
-            }
-        }
-        notifyOver();
-        return row;
+    public void resetTagTime() {
+        tagTime = System.currentTimeMillis();
     }
 
-    /** get specified column as an object.
-     *
-     * @param key column
-     * @exception SQLException thrown by the database engine
-     * @return object value
+    /** notify this object that it is in use.
      */
-    public Object get(Object key) throws SQLException {
-        if (!(key instanceof String)) return null;
-        return resultSet.getObject((String)key);
+    public void notifyInUse() {
+        inUse = true;
+        resetTagTime();
     }
 
-    public Set keySet() throws SQLException {
-        return new HashSet<String>(SqlUtil.getColumnNames(resultSet));
-    }
-
-
-    /** evaluates the SQL query as  a scalar.
-     *
-     * @param query SQL query
-     * @exception SQLException thrown by the database engine
-     * @return found scalar
-     */
-    public synchronized Object evaluate(String query) throws SQLException {
-        notifyInUse();
-        Logger.debug("evaluate-"+query);
-        Object result = null;
-        ResultSet rs = null;
-        try {
-            connection.enterBusyState();
-            rs = statement.executeQuery(query);
-            boolean hasNext = rs.next();
-            connection.leaveBusyState();
-            if (hasNext) result=rs.getObject(1);
-        }
-        finally {
-            if (rs != null) rs.close();
-            notifyOver();
-        return result;
-        }
-    }
-
-    /** issue the update contained in the query.
-     *
-     * @param query SQL query
-     * @exception SQLException thrown by the database engine
-     * @return number of affected rows
-     */
-    public synchronized int update(String query) throws SQLException {
-        Logger.debug("update-"+query);
-        connection.enterBusyState();
-        int result = statement.executeUpdate(query);
-        connection.leaveBusyState();
-        return result;
-    }
-
-    /** close this statement.
-     *
-     * @exception SQLException thrown by the database engine
-     */
-    public void close() throws SQLException {
-        if (statement!=null) statement.close();
-    }
-
-    /** notify this statement is no more used and can be recycled.
+    /** notify this object that it is no more in use.
      */
     public void notifyOver() {
-        super.notifyOver();
+        inUse = false;
     }
 
-    /** gets the last insert id.
+    /** check whether this pooled object is in use.
      *
-     * @exception SQLException thrown by the database engine
-     * @return last insert id
+     * @return whether this object is in use
      */
-    public long getLastInsertID() throws SQLException {
-        return ((ConnectionWrapper)connection).getLastInsertId(statement);
+    public boolean isInUse() {
+        return inUse;
     }
 
-    /** get statement's Connection.
+    /** check whether this pooled object is marked as valid or invalid.
+     * (used in the recovery process)
      *
-     *  @return the Connection object (usually a ConnectionWrapper object)
+     * @return whether this object is in use
      */
-    public ConnectionWrapper getConnection() {
-        return connection;
+    public boolean isValid() {
+        return valid;
     }
 
-    /** database connection.
+    /** definitely mark this statement as meant to be deleted.
      */
-    private ConnectionWrapper connection = null;
-    /** result set.
+    public void setInvalid() {
+        valid = false;
+    }
+
+    /** get the connection used by this statement.
+     *
+     * @return the connection used by this statement
      */
-    private ResultSet resultSet = null;
-    /** column names in natural order.
+    public abstract ConnectionWrapper getConnection();
+
+    /** close this pooled object.
+     *
+     * @exception SQLException when thrown by the database engine
      */
-    private List<String> columnNames = null;
-    /** wrapped statement.
+    public abstract void close() throws SQLException;
+
+    /** time tag.
      */
-    private Statement statement = null;
+    private long tagTime = 0;
+    // states (inUse - useOver) : (false-false) -> (true-false) -> (true-true) -> [delay] (false-false)
+
+    /** valid statement?
+     */
+    private boolean valid = true;
+
+    /** is this object in use?
+     */
+    private boolean inUse = false;
 }

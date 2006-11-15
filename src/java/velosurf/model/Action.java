@@ -20,9 +20,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import velosurf.sql.Database;
-import velosurf.sql.ReadOnlyMap;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
 
@@ -66,7 +66,7 @@ public class Action
      * @exception SQLException an SQL problem occurs
      * @return number of impacted rows
      */
-    public int perform(ReadOnlyMap source) throws SQLException {
+    public int perform(Map<String,Object> source) throws SQLException {
         List params = buildArrayList(source);
         return db.prepare(query).update(params);
     }
@@ -78,7 +78,7 @@ public class Action
      * @exception SQLException thrown by the ReadOnlyMap
      * @return the list of values
      */
-    public List<Object> buildArrayList(ReadOnlyMap source) throws SQLException {
+    public List<Object> buildArrayList(Map<String,Object> source) throws SQLException {
         List<Object> result = new ArrayList<Object>();
         if (source!=null)
             for (Iterator i = paramNames.iterator();i.hasNext();) {

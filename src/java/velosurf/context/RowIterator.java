@@ -23,12 +23,14 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Map;
 
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
-import velosurf.sql.ReadOnlyMap;
-import velosurf.sql.Pooled;
+import velosurf.sql.PooledStatement;
 import velosurf.sql.SqlUtil;
+import velosurf.sql.RowHandler;
+import velosurf.sql.ReadOnlyMap;
 import velosurf.util.Logger;
 //import velosurf.util.UserContext;
 
@@ -36,7 +38,7 @@ import velosurf.util.Logger;
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
-public class RowIterator implements Iterator,ReadOnlyMap {
+public class RowIterator implements Iterator, RowHandler {
 
     /** Build a new RowIterator.
      *
@@ -44,7 +46,7 @@ public class RowIterator implements Iterator,ReadOnlyMap {
      * @param resultSet the resultset
      * @param resultEntity the resulting entity (may be null)
      */
-    public RowIterator(Pooled pooledStatement,ResultSet resultSet,Entity resultEntity) {
+    public RowIterator(PooledStatement pooledStatement,ResultSet resultSet,Entity resultEntity) {
         this.pooledStatement = pooledStatement;
         this.resultSet = resultSet;
         this.resultEntity = resultEntity;
@@ -92,10 +94,10 @@ public class RowIterator implements Iterator,ReadOnlyMap {
             prefetch = false;
             if (resultEntity != null) {
                 Instance row = null;
-                row = resultEntity.getInstance((ReadOnlyMap)this);
+                row = resultEntity.getInstance(new ReadOnlyMap(this));
                 return row;
             }
-            else return new Instance(this);
+            else return new Instance(new ReadOnlyMap(this));
         } catch(SQLException sqle) {
             Logger.log(sqle);
             pooledStatement.notifyOver();
@@ -129,13 +131,13 @@ public class RowIterator implements Iterator,ReadOnlyMap {
                 if (attribute != null)
                         switch (attribute.getType()) {
                             case Attribute.ROWSET:
-                                result = attribute.query(this);
+                                result = attribute.query(new ReadOnlyMap(this));
                                 break;
                             case Attribute.ROW:
-                                result = attribute.fetch(this);
+                                result = attribute.fetch(new ReadOnlyMap(this));
                                 break;
                             case Attribute.SCALAR:
-                                result = attribute.evaluate(this);
+                                result = attribute.evaluate(new ReadOnlyMap(this));
                                 break;
                             default:
                                 Logger.error("Unknown attribute type for "+resultEntity.getName()+"."+property+"!");
@@ -166,12 +168,12 @@ public class RowIterator implements Iterator,ReadOnlyMap {
             pooledStatement.getConnection().enterBusyState();
             if(resultEntity != null) {
                 while (!resultSet.isAfterLast() && resultSet.next()) {
-                    Instance i = resultEntity.getInstance((ReadOnlyMap)this);
+                    Instance i = resultEntity.getInstance(new ReadOnlyMap(this));
                     ret.add(i);
                 }
             } else {
                 while (!resultSet.isAfterLast() && resultSet.next()) {
-                    Instance i = new Instance(this);
+                    Instance i = new Instance(new ReadOnlyMap(this));
                     ret.add(i);
                 }
             }
@@ -219,7 +221,7 @@ public class RowIterator implements Iterator,ReadOnlyMap {
 
     /** Source statement.
      */
-    private Pooled pooledStatement = null;
+    private PooledStatement pooledStatement = null;
     /** Wrapped result set.
      */
     private ResultSet resultSet = null;

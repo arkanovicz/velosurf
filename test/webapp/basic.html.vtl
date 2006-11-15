@@ -2,12 +2,25 @@
 <head><title>Basic tests</title></head>
 <body>
 Basic tests
+<br>
+Fetch a publisher by key<br>
 #set($publisher = $db.publisher.fetch($db.obfuscate(1)))
 <div id="test1">$publisher.name</div>
+<br>
+<br>
+Foreach on books:
+<ul>
+$logger.setLogLevel(0)
 #foreach($book in $publisher.books)
-<div id="test2.$velocityCount">$book.title</div>
+<li><div id="test2.$velocityCount">$book.title</div></li>
 #end
+$logger.setLogLevel(2)
+</ul>
+<br>
+<br>
+Fetch a book<br>
 #set($book = $db.book.fetch($db.obfuscate(1)))
-<div id="test3">$book.title</div>
-<div id="test4">$book.author.full_name</div>
+title: <div id="test3">$book.title</div>
+<br>
+author: <div id="test4">$book.author.full_name</div>
 </body>

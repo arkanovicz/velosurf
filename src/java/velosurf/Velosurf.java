@@ -190,7 +190,7 @@ public class Velosurf extends DBReference
      * @param value
      * @return old value
      */
-    public Object put(Object key,Object value) {
+    public Object put(String key,Object value) {
         if (!initialized) {
             try {
                 init();

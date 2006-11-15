@@ -26,7 +26,6 @@ import java.sql.SQLException;
 import velosurf.model.Entity;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;
-import velosurf.sql.ReadOnlyWrapper;
 
 /** Context wrapper for an entity.
  *
@@ -54,9 +53,9 @@ public class EntityReference extends AbstractList {
      * @param values col -> value map
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
-    public boolean insert(Map values) {
+    public boolean insert(Map<String,Object> values) {
         try {
-            return entity.insert(new ReadOnlyWrapper(values));
+            return entity.insert(values);
         } catch(SQLException sqle) {
             Logger.log(sqle);
             entity.getDB().setError(sqle.getMessage());
@@ -80,8 +79,8 @@ public class EntityReference extends AbstractList {
      * @param values col -> value map
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
-    public boolean update(Map values) {
-        return entity.update(new ReadOnlyWrapper(values));
+    public boolean update(Map<String,Object> values) {
+        return entity.update(values);
     }
 
     /** <p>Detele a row from this entity's table.</p>
@@ -91,8 +90,8 @@ public class EntityReference extends AbstractList {
      * @param values col -> value map
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
-    public boolean delete(Map values) {
-        return entity.delete(new ReadOnlyWrapper(values));
+    public boolean delete(Map<String,Object> values) {
+        return entity.delete(values);
     }
 
     /** Fetch an Instance of this entity, specifying the values of its key columns in their natural order.
@@ -118,9 +117,9 @@ public class EntityReference extends AbstractList {
      * @return an Instance, or null if an error occured (in which case
      *     $db.error can be checked)
      */
-    public Instance fetch(Map values) {
+    public Instance fetch(Map<String,Object> values) {
         try {
-            Instance instance = entity.fetch(new ReadOnlyWrapper(values));
+            Instance instance = entity.fetch(values);
             return instance;
         } catch(SQLException sqle) {
             Logger.log(sqle);
@@ -257,9 +256,9 @@ public class EntityReference extends AbstractList {
         return instance;
     }
 
-    public boolean validate(Map values) {
+    public boolean validate(Map<String,Object> values) {
         try {
-            return entity.validate(new ReadOnlyWrapper(values));
+            return entity.validate(values);
         } catch(SQLException sqle) {
             Logger.error("could not check data validity!");
             entity.getDB().getUserContext().addValidationError("internal errror");

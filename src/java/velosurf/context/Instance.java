@@ -23,7 +23,6 @@ import velosurf.model.Action;
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
 import velosurf.sql.Database;
-import velosurf.sql.ReadOnlyMap;
 import velosurf.sql.PooledPreparedStatement;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
@@ -33,7 +32,7 @@ import velosurf.util.UserContext;
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  */
-public class Instance extends TreeMap<String,Object> implements ReadOnlyMap
+public class Instance extends TreeMap<String,Object>
 {
     /** Build an empty instance for the given entity.
      *
@@ -47,14 +46,9 @@ public class Instance extends TreeMap<String,Object> implements ReadOnlyMap
      * Builds a generic instance using <code>values</code>.
      * @param values
      */
-    public Instance(ReadOnlyMap values) {
-        try {
-            for(Object key:values.keySet()) {
-                put(Database.adaptContextCase((String)key),values.get(key));
-            }
-        } catch(SQLException sqle) {
-            Logger.error("Instance constructor: SQLException!");
-            Logger.log(sqle);
+    public Instance(Map<String,Object> values) {
+        for(Object key:values.keySet()) {
+            put(Database.adaptContextCase((String)key),values.get(key));
         }
     }
 

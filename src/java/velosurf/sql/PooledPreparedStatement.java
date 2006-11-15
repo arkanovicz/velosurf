@@ -37,7 +37,7 @@ import velosurf.model.Entity;
  *
  */
 
-public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
+public class PooledPreparedStatement extends PooledStatement  implements RowHandler {
 
     /** org.apache.velocity.tools.generic.ValueParser$ValueParserSub class, if found in the classpath. */
     private static Class valueParserSubClass = null;
@@ -86,7 +86,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
         entity = resultEntity;
         Map<String,Object> row = null;
         if (hasNext) {
-            if (resultEntity!=null) row = resultEntity.getInstance(this);
+            if (resultEntity!=null) row = resultEntity.getInstance(new ReadOnlyMap(this));
             else {
                 row = new TreeMap<String,Object>();
                 if (columnNames == null) columnNames = SqlUtil.getColumnNames(resultSet);
@@ -109,7 +109,7 @@ public class PooledPreparedStatement extends Pooled implements ReadOnlyMap {
      * @exception SQLException thrown by the database engine
      * @return the fetched Instance
      */
-    public synchronized Object fetch(ReadOnlyMap params,Entity resultEntity) throws SQLException {
+    public synchronized Object fetch(Map<String,Object> params,Entity resultEntity) throws SQLException {
         List<Object> values = new ArrayList<Object>();
         for (Iterator i = resultEntity.getPKCols().iterator();i.hasNext();) {
             String key = (String)i.next();

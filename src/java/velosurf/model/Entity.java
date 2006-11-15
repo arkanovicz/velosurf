@@ -24,9 +24,7 @@ import velosurf.cache.Cache;
 import velosurf.context.Instance;
 import velosurf.context.RowIterator;
 import velosurf.context.ExternalObjectWrapper;
-import velosurf.sql.ReadOnlyMap;
 import velosurf.sql.Database;
-import velosurf.sql.ReadOnlyWrapper;
 import velosurf.sql.PooledPreparedStatement;
 import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
@@ -253,12 +251,12 @@ public class Entity
         return result;
     }
 
-    /** Build a new instance from a ReadOnlyMap object.
+    /** Build a new instance from a Map object.
      *
-     * @param values the ReadOnlyMap object containing the values
+     * @param values the Map object containing the values
      * @return the newly created instance
      */
-    public Instance newInstance(ReadOnlyMap values) {
+    public Instance newInstance(Map<String,Object> values) {
         try {
             Instance result = newInstance();
             extractColumnValues(values,result);
@@ -271,23 +269,14 @@ public class Entity
         }
     }
 
-    /** Build a new instance from a Map object.
-     *
-     * @param values the ReadOnlyMap object containing the values
-     * @return the newly created instance
-     */
-    public Instance newInstance(Map<String,Object> values) {
-        return newInstance(new ReadOnlyWrapper(values));
-    }
 
-
-    /** Get an instance from its values contained in a ReadOnlyMap object.
-     * By default, update all fields based on the values in the ReadOnlyMap if the instance has been found in the cache.
+    /** Get an instance from its values contained in a Map object.
+     * By default, update all fields based on the values in the Map if the instance has been found in the cache.
      *
-     * @param values the ReadOnlyMap object containing the values
+     * @param values the Map object containing the values
      * @return the instance
      */
-    public Instance getInstance(ReadOnlyMap values) {
+    public Instance getInstance(Map<String,Object> values) {
         Instance ret = null;
         try {
             if (cachingMethod != Cache.NO_CACHE)
@@ -302,33 +291,25 @@ public class Entity
         }
     }
 
-    /** Get an instance from its values contained in a ReadOnlyMap object.
-     * By default, update all fields based on the values in the ReadOnlyMap if the instance has been found in the cache.
-     *
-     * @param values the ReadOnlyMap object containing the values
-     * @return the instance
-     */
-    public Instance getInstance(Map<String,Object> values) {
-        return getInstance(new ReadOnlyWrapper(values));
-    }
     /**
      * Invalidate an instance in the cache.
      * @param instance instance
      * @throws SQLException
      */
-    public void invalidateInstance(ReadOnlyMap instance) throws SQLException {
+    public void invalidateInstance(Map<String,Object> instance) throws SQLException {
         if (cachingMethod != Cache.NO_CACHE) {
             cache.invalidate(buildKey(instance));
         }
     }
 
-    /** Extract column values from an input ReadOnlyMap source and store result in target.
+    /** Extract column values from an input Map source and store result in target.
      *
-     * @param source ReadOnlyMap source object
+     * @param source Map source object
      * @param target Map target object
      */
-    private void extractColumnValues(ReadOnlyMap source,Map<String,Object> target) throws SQLException {
+    private void extractColumnValues(Map<String,Object> source,Map<String,Object> target) throws SQLException {
         /* TODO: cache a case-insensitive version of the columns list and iterate on source keys, with equalsIgnoreCase (or more efficient) funtion */
+Logger.debug("### Entity extract");
         for(Iterator i=columns.iterator();i.hasNext();) {
             String col = (String)i.next();
             Object val = source.get(col);
@@ -343,6 +324,7 @@ public class Entity
                         break;
                 }
             }
+Logger.debug("    ### "+col+" -> "+val);            
             /* avoid null and multivalued attributes */
             if (val != null && !(val.getClass().isArray())) {
                 target.put(col,val);
@@ -350,14 +332,14 @@ public class Entity
         }
     }
 
-    /** Build the key for the Cache from a ReadOnlyMap.
+    /** Build the key for the Cache from a Map.
      *
-     * @param values the ReadOnlyMap containing all values
-     * @exception SQLException the getter of the ReadOnlyMap throws an
+     * @param values the Map containing all values
+     * @exception SQLException the getter of the Map throws an
      *     SQLException
      * @return an array containing all key values
      */
-    private Object buildKey(ReadOnlyMap values) throws SQLException {
+    private Object buildKey(Map<String,Object> values) throws SQLException {
 
         // build key
         Object [] key = new Object[keyCols.size()];
@@ -390,12 +372,12 @@ public class Entity
         return columns;
     }
 
-    /** Insert a new row based on values of a read only map.
+    /** Insert a new row based on values of a map.
      *
      * @param values the  Map object containing the values
      * @return success indicator
      */
-    public boolean insert(ReadOnlyMap values) throws SQLException {
+    public boolean insert(Map<String,Object> values) throws SQLException {
         if (readOnly) {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
@@ -405,21 +387,12 @@ public class Entity
         return instance.insert();
     }
 
-    /** Insert a new row based on values of a map.
-     *
-     * @param values the  Map object containing the values
-     * @return success indicator
-     */
-    public boolean insert(Map<String,Object> values) throws SQLException {
-        return insert(new ReadOnlyWrapper(values));
-    }
-
     /** Update a row based on a set of values that must contain key values.
      *
-     * @param values the read only Map object containing the values
+     * @param values the Map object containing the values
      * @return success indicator
      */
-    public boolean update(ReadOnlyMap values) {
+    public boolean update(Map<String,Object> values) {
         if (readOnly) {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
@@ -428,36 +401,18 @@ public class Entity
         return instance.update();
     }
 
-    /** Update a row based on a set of values that must contain key values.
-     *
-     * @param values the read only Map object containing the values
-     * @return success indicator
-     */
-    public boolean update(Map<String,Object> values) {
-        return update(new ReadOnlyWrapper(values));
-    }
-
-    /** Delete a row based on (key) values.
-     *
-     * @param values the Map containing the values
-     * @return success indicator
-     */
-    public boolean delete(ReadOnlyMap values) {
-        if (readOnly) {
-            Logger.error("Error: Entity "+getName()+" is read-only!");
-            return false;
-        }
-        Instance instance = newInstance(values);
-        return instance.delete();
-    }
-
     /** Delete a row based on (key) values.
      *
      * @param values the Map containing the values
      * @return success indicator
      */
     public boolean delete(Map values) {
-        return delete(new ReadOnlyWrapper(values));
+        if (readOnly) {
+            Logger.error("Error: Entity "+getName()+" is read-only!");
+            return false;
+        }
+        Instance instance = newInstance(values);
+        return instance.delete();
     }
 
     /** Fetch an instance from key values stored in a List in natural order.
@@ -490,7 +445,7 @@ public class Entity
      * @param values the Map containing the key values
      * @return the fetched instance
      */
-    public Instance fetch(ReadOnlyMap values) throws SQLException {
+    public Instance fetch(Map values) throws SQLException {
         Instance instance = null;
         if (cachingMethod != Cache.NO_CACHE)
             // try in cache
@@ -504,20 +459,10 @@ public class Entity
                     Object value = values.get(key);
                     map.put( Database.adaptContextCase((String)key), isObfuscated((String)key) ? deobfuscate(value) : value );
                 }
-                values = new ReadOnlyWrapper(map);
             }
             instance = (Instance)statement.fetch(values,this);
         }
         return instance;
-    }
-
-    /** Fetch an instance from key values stored in a Map.
-     *
-     * @param values the Map containing the key values
-     * @return the fetched instance
-     */
-    public Instance fetch(Map values) throws SQLException {
-        return fetch(new ReadOnlyWrapper(values));
     }
 
     /** Fetch an instance from its key value as a string.
@@ -737,7 +682,7 @@ public class Entity
 
     /** Validate a set of values.
      */
-    public boolean validate(ReadOnlyMap row) throws SQLException {
+    public boolean validate(Map<String,Object> row) throws SQLException {
         boolean ret = true;
 
         UserContext userContext = db.getUserContext();

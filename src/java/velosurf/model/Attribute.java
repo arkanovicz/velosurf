@@ -20,10 +20,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import velosurf.context.RowIterator;
 import velosurf.sql.Database;
-import velosurf.sql.ReadOnlyMap;
 import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
@@ -114,7 +114,7 @@ public class Attribute
      * @exception SQLException when thrown by the database
      * @return instance fetched
      */
-    public Object fetch(ReadOnlyMap source) throws SQLException {
+    public Object fetch(Map<String,Object> source) throws SQLException {
         if (type != ROW) throw new SQLException("cannot call fetch: result of attribute '"+name+"' is not a row");
         return db.prepare(getQuery()).fetch(buildArrayList(source),db.getEntity(resultEntity));
     }
@@ -125,7 +125,7 @@ public class Attribute
      * @exception SQLException when thrown from the database
      * @return the resulting row iterator
      */
-    public RowIterator query(ReadOnlyMap source) throws SQLException {
+    public RowIterator query(Map<String,Object> source) throws SQLException {
         return query(source,null,null);
     }
 
@@ -137,7 +137,7 @@ public class Attribute
      * @exception SQLException when thrown by the database
      * @return the resulting row iterator
      */
-    public RowIterator query(ReadOnlyMap source,List refineCriteria,String order) throws SQLException {
+    public RowIterator query(Map<String,Object> source,List refineCriteria,String order) throws SQLException {
         if (type != ROWSET) throw new SQLException("cannot call query: result of attribute '"+name+"' is not a rowset");
         String query = getQuery();
         if (refineCriteria != null) query = SqlUtil.refineQuery(query,refineCriteria);
@@ -152,7 +152,7 @@ public class Attribute
      * @exception SQLException when thrown from the database
      * @return the resulting scalar
      */
-    public Object evaluate(ReadOnlyMap source) throws SQLException {
+    public Object evaluate(Map<String,Object> source) throws SQLException {
         if (type != SCALAR) throw new SQLException("cannot call evaluate: result of attribute '"+name+"' is not a scalar");
         return db.prepare(getQuery()).evaluate(buildArrayList(source));
     }
@@ -171,7 +171,7 @@ public class Attribute
      * @exception SQLException thrown by the database engine
      * @return the built list
      */
-    private List<Object> buildArrayList(ReadOnlyMap source) throws SQLException {
+    private List<Object> buildArrayList(Map<String,Object> source) throws SQLException {
         List<Object> result = new ArrayList<Object>();
         if (source!=null)
             for (Iterator i = paramNames.iterator();i.hasNext();) {

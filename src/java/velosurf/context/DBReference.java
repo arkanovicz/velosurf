@@ -25,7 +25,6 @@ import velosurf.model.Attribute;
 import velosurf.model.Entity;
 import velosurf.model.Action;
 import velosurf.sql.Database;
-import velosurf.sql.ReadOnlyMap;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;
 
@@ -37,7 +36,7 @@ import velosurf.util.UserContext;
 
  // FIXME : right now, extends HashMap bkoz velocity wants a HashMap for setters
 
-public class DBReference extends HashMap implements ReadOnlyMap
+public class DBReference extends HashMap<String,Object>
 {
     /** Default constructor for use by derived classes.
      */
@@ -141,7 +140,7 @@ public class DBReference extends HashMap implements ReadOnlyMap
      * @param value value given to the external parameter
      * @return the previous value, if any
      */
-    public Object put(Object key,Object value) {
+    public Object put(String key,Object value) {
         /*
          * Clear actual values in the cache, because the value of attributes may change...
          */

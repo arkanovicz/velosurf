@@ -16,43 +16,26 @@
 
 package velosurf.sql;
 
-import java.util.Map;
 import java.util.Set;
 import java.sql.SQLException;
 
-/** This class encapsulates a Map as a ReadOnlyMap.
+/** This interface represents objects having read-only properties
  *
  *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
  *
  */
-public class ReadOnlyWrapper implements ReadOnlyMap {
-
-    /** build a new MapReadOnlyMap.
+public interface RowHandler
+{
+    /** get the property named key.
      *
-     * @param innerMap the Map object to encapsulate
+     * @param key the name of the property to return
+     * @return the value of the property, or null if not found
      */
-    public ReadOnlyWrapper(Map innerMap){
-        this.innerMap = innerMap;
-    }
-    /** get the property named key in the wrapped Map.
-     *
-     * @param key the name of the property
-     * @return the property value or null if not found
-     * @see velosurf.sql.ReadOnlyMap#get(java.lang.Object)
-     */
-    public Object get(Object key) {
-        return innerMap.get(key);
-    }
+    public Object get(Object key) throws SQLException;
     /**
-     * Get the keys set.
+     * Get keys set.
      * @return keys set
-     * @throws SQLException
      */
-    public Set keySet() throws SQLException {
-        return innerMap.keySet();
-    }
+    public Set<String> keySet() throws SQLException;
 
-    /** the wrapped Map.
-     */
-    private Map innerMap = null;
 }

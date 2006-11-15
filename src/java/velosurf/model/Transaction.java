@@ -19,8 +19,8 @@ package velosurf.model;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Map;
 
-import velosurf.sql.ReadOnlyMap;
 import velosurf.sql.ConnectionWrapper;
 import velosurf.sql.PooledPreparedStatement;
 import velosurf.util.StringLists;
@@ -63,7 +63,7 @@ public class Transaction extends Action
      * @exception SQLException thrown from the database
      * @return number of affected rows (addition of all the partial counts)
      */
-    public int perform(ReadOnlyMap source) throws SQLException {
+    public int perform(Map<String,Object> source) throws SQLException {
 
         ConnectionWrapper conn = db.getTransactionConnection();
         try {
