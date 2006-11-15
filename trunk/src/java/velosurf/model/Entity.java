@@ -309,7 +309,6 @@ public class Entity
      */
     private void extractColumnValues(Map<String,Object> source,Map<String,Object> target) throws SQLException {
         /* TODO: cache a case-insensitive version of the columns list and iterate on source keys, with equalsIgnoreCase (or more efficient) funtion */
-Logger.debug("### Entity extract");
         for(Iterator i=columns.iterator();i.hasNext();) {
             String col = (String)i.next();
             Object val = source.get(col);
@@ -324,7 +323,6 @@ Logger.debug("### Entity extract");
                         break;
                 }
             }
-Logger.debug("    ### "+col+" -> "+val);            
             /* avoid null and multivalued attributes */
             if (val != null && !(val.getClass().isArray())) {
                 target.put(col,val);

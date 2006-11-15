@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 /** This static class gathers utilities for lists of strings.
  *
