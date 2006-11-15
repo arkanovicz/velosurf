@@ -19,6 +19,7 @@ import velosurf.model.Entity;
 import velosurf.model.Transaction;
 import velosurf.model.Attribute;
 import velosurf.util.Logger;
+import velosurf.util.UserContext;
 
 public class WhiteboxTests
 {
@@ -95,12 +96,16 @@ for(Object k:i.keySet()){Logger.debug("### "+k+" -> "+i.get(k));}
     }
 
     public @Test void testInsert() throws SQLException {
+        UserContext ctx = new UserContext();
+        database.setUserContext(ctx);
         Entity user = database.getEntity("user");
         assertNotNull(user);
         Map<String,Object> row = new HashMap<String,Object>();
         row.put("login","donald");
         row.put("password","duck");
         assertTrue(user.insert(row));
+        long id = ctx.getLastInsertedID(user);
+        assertTrue(id == 2);
     }
 
     public @Test void testSuccessfullTransaction() throws SQLException {
