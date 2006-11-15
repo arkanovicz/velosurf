@@ -1,1 +1,1 @@
-<attribute name="count_users" result="scalar"><xi:include href="included2.xml"/></attribute>
+<attribute name="count_publishers" result="scalar"><xi:include href="included2.xml"/></attribute>
