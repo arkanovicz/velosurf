@@ -127,7 +127,7 @@ Please specify a target among :
     <delete dir="${test.output.dir}"/>
     <delete dir="${test.rst.dir}"/>
     <delete dir="${test.log.dir}"/>
-    <delete dir="${test.jetty.dir}/log"/>
+    <delete dir="${test.jetty.dir}/logs"/>
     <delete dir="${test.webapp.dir}/WEB-INF/lib"/>
     <delete dir="${test.webapp.dir}/WEB-INF/log"/>
   </target>
