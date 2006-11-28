@@ -390,7 +390,7 @@ public class Entity
      * @param values the Map object containing the values
      * @return success indicator
      */
-    public boolean update(Map<String,Object> values) {
+    public boolean update(Map<String,Object> values) throws SQLException {
         if (readOnly) {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
@@ -404,7 +404,7 @@ public class Entity
      * @param values the Map containing the values
      * @return success indicator
      */
-    public boolean delete(Map<String,Object> values) {
+    public boolean delete(Map<String,Object> values) throws SQLException {
         if (readOnly) {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
@@ -412,6 +412,45 @@ public class Entity
         Instance instance = newInstance(values);
         return instance.delete();
     }
+
+    /** Delete a row based on the unique key string value.
+     *
+     * @param keyValue key value
+     * @return success indicator
+     */
+    public boolean delete(String keyValue) throws SQLException {
+        if (readOnly) {
+            Logger.error("Error: Entity "+getName()+" is read-only!");
+            return false;
+        }
+        if (keyCols.size()!=1) {
+            if (keyCols.size()==0) throw new SQLException("Entity.delete: Error: Entity '"+name+"' has no primary key!");
+            else throw new SQLException("Entity.delete: Error: Entity '"+name+"' has a multi-column primary key!");
+        }
+        Instance instance = newInstance();
+        instance.put(keyCols.get(0),keyValue);
+        return instance.delete();
+    }
+
+    /** Delete a row based on the unique key string value.
+     *
+     * @param keyValue key value
+     * @return success indicator
+     */
+    public boolean delete(Number keyValue) throws SQLException {
+        if (readOnly) {
+            Logger.error("Error: Entity "+getName()+" is read-only!");
+            return false;
+        }
+        if (keyCols.size()!=1) {
+            if (keyCols.size()==0) throw new SQLException("Entity.delete: Error: Entity '"+name+"' has no primary key!");
+            else throw new SQLException("Entity.delete: Error: Entity '"+name+"' has a multi-column primary key!");
+        }
+        Instance instance = newInstance();
+        instance.put(keyCols.get(0),keyValue);
+        return instance.delete();
+    }
+
 
     /** Fetch an instance from key values stored in a List in natural order.
      *

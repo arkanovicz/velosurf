@@ -80,7 +80,13 @@ public class EntityReference extends AbstractList {
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
     public boolean update(Map<String,Object> values) {
-        return entity.update(values);
+        try {
+            return entity.update(values);
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            entity.getDB().setError(sqle.getMessage());
+            return false;
+        }
     }
 
     /** <p>Detele a row from this entity's table.</p>
@@ -91,8 +97,47 @@ public class EntityReference extends AbstractList {
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
     public boolean delete(Map<String,Object> values) {
-        return entity.delete(values);
+        try {
+            return entity.delete(values);
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            entity.getDB().setError(sqle.getMessage());
+            return false;
+        }
     }
+
+    /** <p>Detele a row from this entity's table, specifying the value of its unique key column.</p>
+     *
+     * @param keyValue key value
+     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
+     */
+    public boolean delete(String keyValue) {
+        try {
+            return entity.delete(keyValue);
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            entity.getDB().setError(sqle.getMessage());
+            return false;
+        }
+    }
+
+    /** <p>Detele a row from this entity's table, specifying the value of its unique key column.</p>
+     *
+     * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
+     *
+     * @param keyValue key value
+     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
+     */
+    public boolean delete(Number keyValue) {
+        try {
+            return entity.delete(keyValue);
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            entity.getDB().setError(sqle.getMessage());
+            return false;
+        }
+    }
+
 
     /** Fetch an Instance of this entity, specifying the values of its key columns in their natural order.
      *
