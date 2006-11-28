@@ -67,6 +67,13 @@ public class Attribute
         this.type = type;
     }
 
+    /** Gets the parent entity
+     * @return parent entity
+     */
+    public Entity getEntity() {
+        return entity;
+    }
+
     /** Gets the result type.
      *
      * @return a string describing the result type.
@@ -215,7 +222,7 @@ public class Attribute
         return result;
     }
 
-    private String getQuery()
+    protected String getQuery()
     {
         return query == null ? db.getEntity(resultEntity).getFetchQuery() : query;
     }
