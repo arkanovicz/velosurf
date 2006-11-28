@@ -1,6 +1,20 @@
 **** Changes ****
 
-v2.0.1 (November 2006)
+v2.2
+----
+ - configLoader should know FATAL error level, even if very unfrequent
+ - Entity.fetch(Map) now checks for key values instead of throwing an exception if they are not present
+ - added the missing EntityReference.newInstance(Map) method
+ - fix: some methods of UserContext had to be synchronized
+ - UserContext.getValidationErrors() now clears the validation errors for the next call
+ - made login and passworf form field names configurable in AuthenticationFilter
+ - added the getter BaseAuthenticator.getLoggedUser()
+ - fix: web.VelosurfTool now avoid overwriting a previously thread-locally initialized user context in the database
+ - removed all VelosurfTool methods taking an unused UserContext argument
+ - made the LocalizationFilter less verbose
+ - fix: SimpleDBLocalizer no longer throws an exception when the 'localized' table is not found
+
+v2.1 (November 2006)
 ------
  - fix: bug in last insert id feature (at least for hsqldb, not for mysql)
  - added some new testcases

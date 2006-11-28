@@ -1,5 +1,10 @@
 TODO
 ----
+ - document newInstance(Map) and getLoggedUser
+ - put version and debugging options in build.properties
+ - validation: form values should be put as request attributes after the redirect!
+ - docs: separate read-only methods and others
+ - move auth, l10n and template name filter to an extension module (in the source tree & the docs)
  - test cache reset
  - change /** ... \n */ to /** ... */
  - parse conditions in refine and columns in order to apply aliases
