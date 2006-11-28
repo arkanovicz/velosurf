@@ -253,18 +253,25 @@ public class LocalizationFilter implements Filter {
             String newUri = match.replaceFirst(rewriteUri);
             RequestDispatcher dispatcher;
 
+            String query = request.getQueryString();
+            if (query == null) {
+                query = "";
+            } else {
+                query = "?" + query;
+            }
+
             switch(l10nMethod) {
                 case REDIRECT:
-                    Logger.trace("l10n: redirecting request to "+newUri);
-                    response.sendRedirect(newUri);
+                    Logger.trace("l10n: redirecting request to "+newUri+query);
+                    response.sendRedirect(newUri+query);
                     break;
                 case FORWARD:
-                    dispatcher = config.getServletContext().getRequestDispatcher(newUri);
+                    dispatcher = config.getServletContext().getRequestDispatcher(newUri+query);
                     if (dispatcher == null) {
                         Logger.error("l10n: cannot find a request dispatcher for path '"+newUri+"'");
                         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     } else {
-                        Logger.trace("l10n: forwarding request to "+newUri);
+                        Logger.trace("l10n: forwarding request to "+newUri+query);
                         request.setAttribute("velosurf.l10n.l10n-forwarded",Boolean.valueOf(shouldAct));
                         dispatcher.forward(request,response);
                     }
