@@ -86,10 +86,13 @@ public class ValidationFilter implements Filter {
 
         if (filter) {
             session = request.getSession(true);
+            /* FIXME: the next call won't work when using a non-standard Velosurf config file
+               defined in toolbox.xml */
+            DBReference db = VelosurfTool.getDefaultInstance(config.getServletContext());
             map = new HashMap();
             UserContext userContext = (UserContext)session.getAttribute(UserContext.USER_CONTEXT_KEY);
             if(userContext == null) {
-                userContext = new UserContext();
+                userContext = db.getUserContext();
                 Localizer localizer = ToolFinder.findSessionTool(session,Localizer.class);
                 if (localizer != null) {
                     userContext.setLocalizer(localizer);
@@ -99,13 +102,10 @@ public class ValidationFilter implements Filter {
                 session.setAttribute(UserContext.USER_CONTEXT_KEY,userContext);
             }
 
-            /* FIXME: the next call won't work when using a non-standard Velosurf config file
-               defined in toolbox.xml */
-            DBReference db = VelosurfTool.getDefaultInstance(config.getServletContext(),userContext);
             if (db != null) {
-                Map params = request.getParameterMap();
+                Map<String,Object> params = request.getParameterMap();
                 Object[] array;
-                for(Map.Entry entry:(Set<Map.Entry>)params.entrySet()) {
+                for(Map.Entry entry:(Set<Map.Entry<String,Object>>)params.entrySet()) {
                     array = (Object[])entry.getValue();
                     map.put(entry.getKey(), array.length == 1 ? array[0] : array);
                 }
@@ -138,6 +138,7 @@ public class ValidationFilter implements Filter {
                 for(String entity:entities) {
                     session.setAttribute(entity,map);
                 }
+                Logger.trace("validation: redirecting request towards "+referer);
                 response.sendRedirect(referer);
             }
         } else {
