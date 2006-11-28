@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
+import java.text.MessageFormat;
 
 import velosurf.web.l10n.Localizer;
 import velosurf.model.Entity;
@@ -40,13 +41,14 @@ public class UserContext {
      * Constructor.
      */
     public UserContext() {
-
+        Logger.trace("### UC C'tor");
+        Logger.dumpStack();
     }
     /**
      * Last error setter.
      * @param err error
      */
-    public void setError(String err) {
+    public synchronized void setError(String err) {
         error = err;
     }
     /**
@@ -60,14 +62,14 @@ public class UserContext {
      *
      * @param loc localizer
      */
-    public void setLocalizer(Localizer loc) {
+    public synchronized void setLocalizer(Localizer loc) {
         localizer = loc;
     }
     /** Locale setter.
      *
      * @param loc Locale
      */
-    public void setLocale(Locale loc) {
+    public synchronized void setLocale(Locale loc) {
         locale = loc;
     }
     /**
@@ -78,42 +80,40 @@ public class UserContext {
      */
     public String localize(String str,Object ... params) {
         if (localizer == null) {
-            if(params.length > 0) {
-                Logger.warn("user context localization: localizer not found, ignoring arguments "+StringLists.join(Arrays.asList(params),",")+" for message "+str);
-            }
-            return str;
+            return MessageFormat.format(str,params);
+        } else if (params.length == 0) {
+            return localizer.get(str);
+        } else {
+            return localizer.get(str,params);
         }
-        switch(params.length) {
-            case 0: return localizer.get(str);
-            case 1: return localizer.get(str,params[0]);
-            case 2: return localizer.get(str,params[0],params[1]);
-            case 3: return localizer.get(str,params[0],params[1],params[2]);
-            default:
-                Logger.error("user context localization: too many parameters for message "+str);
-                return localizer.get(str,params[0],params[1],params[2]);
-        }
-
     }
     /**
      * Clear validation errors.
      */
-    public void clearValidationErrors() {
+    public synchronized void clearValidationErrors() {
         validationErrors.clear();
     }
     /**
      * Add a validation error.
      * @param err validation error
      */
-    public void addValidationError(String err) {
+    public synchronized void addValidationError(String err) {
+Logger.debug("#### addValidationError -> "+err);
         validationErrors.add(err);
     }
     /** Get all validation error messages.
      *
      * @return validation error messages
      */
-    public List<String> getValidationErrors() {
+    public synchronized List<String> getValidationErrors() {
         /* returning null allows a test like "#if($db.validationErrors)" */
-        return validationErrors.size()>0 ? validationErrors : null;
+Logger.debug("#### getValidationErrors -> size = "+validationErrors.size());
+        if(validationErrors.size() == 0) {
+            return null;
+        }
+        List<String> ret = new ArrayList<String>(validationErrors);
+        validationErrors.clear();
+        return ret;
     }
 
     /** generic getter.
@@ -147,7 +147,7 @@ public class UserContext {
      * @param entity entity
      * @param id last inserted id
      */
-    public void setLastInsertedID(Entity entity,long id) {
+    public synchronized void setLastInsertedID(Entity entity,long id) {
         lastInsertedIDs.put(entity,id);
     }
     /**
