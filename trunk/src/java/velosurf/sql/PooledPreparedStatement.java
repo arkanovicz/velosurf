@@ -30,6 +30,7 @@ import java.util.TreeMap;
 
 import velosurf.context.RowIterator;
 import velosurf.model.Entity;
+import velosurf.util.Logger;
 
 /** this class encapsulates a jdbc PreparedStatement.
  *

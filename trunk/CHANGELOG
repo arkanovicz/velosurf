@@ -2,6 +2,8 @@
 
 v2.2
 ----
+ - added entityref.delete(string) and entityref.delete(number) for unique primary cols
+ - fix: exported keys were broken.
  - fix: do not forget query string when redirecting!
  - fix: validation: unecessary user context re-creations avoided
  - added user context getter and setter to DBReference

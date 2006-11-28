@@ -120,6 +120,7 @@ public class RowIterator implements Iterator, RowHandler {
      * @return an entity, an attribute reference, an instance, a string or null
      */
     public Object get(Object key) {
+Logger.debug("### RowIterator.get key "+key);        
         String property = (String)key;
         Object result = null;
         boolean shouldNotifyOver = false;
