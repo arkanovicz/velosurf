@@ -55,7 +55,7 @@ public class EntityReference extends AbstractList {
      */
     public boolean insert(Map<String,Object> values) {
         try {
-            return entity.insert(values);
+           return entity.insert(values);
         } catch(SQLException sqle) {
             Logger.log(sqle);
             entity.getDB().setError(sqle.getMessage());
@@ -249,13 +249,28 @@ public class EntityReference extends AbstractList {
 
     /** Create a new instance for this entity.
      *
-     * @return null
+     * @return the newly created instance
      */
     public Instance newInstance() {
         Instance instance = entity.newInstance();
         return instance;
     }
 
+    /** Build a new instance from a Map object.
+     *
+     * @param values the Map object containing the values
+     * @return the newly created instance
+     */
+    public Instance newInstance(Map<String,Object> values) {
+        Instance instance = entity.newInstance(values);
+        return instance;
+    }
+
+    /**
+     * Validate values of this instance.
+     * @param values
+     * @return true if values are valid with respect to defined column constraints
+     */
     public boolean validate(Map<String,Object> values) {
         try {
             return entity.validate(values);
