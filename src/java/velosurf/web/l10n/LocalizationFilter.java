@@ -159,7 +159,6 @@ public class LocalizationFilter implements Filter {
      */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
-
         HttpServletRequest request = (HttpServletRequest)servletRequest;
         HttpSession session = request.getSession(true); /* we'll store the active locale in it */
         HttpServletResponse response = (HttpServletResponse)servletResponse;
@@ -176,7 +175,7 @@ public class LocalizationFilter implements Filter {
            Guess #4 is from the Accepted-Language header.
         */
 
-        Logger.trace("l10n: URI ="+request.getRequestURI());
+  //      Logger.trace("l10n: URI ="+request.getRequestURI());
 
         /* Guess #1 - if using redirect method, deduce from URI (and, while looking at URI, fills the shouldAct vairable) */
         if (l10nMethod == REDIRECT) {
@@ -188,9 +187,9 @@ public class LocalizationFilter implements Filter {
                     shouldAct = false;
                 }
             }
-            Logger.trace("l10n: URI locale = "+locale);
+//            Logger.trace("l10n: URI locale = "+locale);
         } else {
-            /* for the forward method, shouldAct rule is: always only when already forwarded */
+            /* for the forward method, shouldAct rule is: always only when not already forwarded */
             Boolean forwarded = (Boolean)request.getAttribute("velosurf.l10n.l10n-forwarded");
             if(forwarded != null && forwarded.booleanValue()) {
                 shouldAct = false;
@@ -200,7 +199,7 @@ public class LocalizationFilter implements Filter {
         if (locale == null) {
             /* Guess #2 - is there an attribute in the session? */
             locale = (Locale)session.getAttribute("velosurf.l10n.active-locale");
-            Logger.trace("l10n: session locale = "+locale);
+//            Logger.trace("l10n: session locale = "+locale);
 
             if (locale == null) {
                 /* Guess #3 - is there a cookie?*/
@@ -212,7 +211,7 @@ public class LocalizationFilter implements Filter {
                         }
                     }
                 }
-                Logger.trace("l10n: cookies locale = "+locale);
+//                Logger.trace("l10n: cookies locale = "+locale);
 
                 if(locale == null) {
                     /* Guess #4 - use the Accepted-Language HTTP header */
@@ -226,7 +225,7 @@ public class LocalizationFilter implements Filter {
         if (locale == null && defaultLocale != null) {
             locale = defaultLocale;
         }
-
+/* not needed - the tool should find the active locale in the session
         if (locale != null) {
             Localizer tool = ToolFinder.findSessionTool(session,Localizer.class);
             if (tool != null) {
@@ -235,19 +234,23 @@ public class LocalizationFilter implements Filter {
                 Logger.warn("l10n: cannot find any Localizer tool!");
             }
         }
-
+*/
         /* sets the session atribute and the cookies */
+  //      Logger.trace("l10n: setting session current locale to "+locale);
         session.setAttribute("velosurf.l10n.active-locale",locale);
         Cookie localeCookie = new Cookie("velosurf.l10n.active-locale",locale.toString());
         localeCookie.setPath("/");
         localeCookie.setMaxAge(SECONDS_IN_YEAR);
         response.addCookie(localeCookie);
 
+        Matcher match = matchUri.matcher(request.getRequestURI());
+        shouldAct &= match.find();
+
         if (shouldAct) {
             //  && (i = rewriteUri.indexOf("@")) != -1) ?
 
             String rewriteUri = this.rewriteUri.replaceFirst("@",locale.toString());
-            String newUri = matchUri.matcher(request.getRequestURI()).replaceFirst(rewriteUri);
+            String newUri = match.replaceFirst(rewriteUri);
             RequestDispatcher dispatcher;
 
             switch(l10nMethod) {
@@ -268,7 +271,7 @@ public class LocalizationFilter implements Filter {
                     break;
             }
         } else {
-            Logger.trace("l10n: letting request pass towards "+request.getRequestURI());
+//            Logger.trace("l10n: letting request pass towards "+request.getRequestURI());
             chain.doFilter(request,response);
         }
     }
