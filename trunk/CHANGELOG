@@ -2,6 +2,9 @@
 
 v2.2
 ----
+ - fix: do not forget query string when redirecting!
+ - fix: validation: unecessary user context re-creations avoided
+ - added user context getter and setter to DBReference
  - configLoader should know FATAL error level, even if very unfrequent
  - Entity.fetch(Map) now checks for key values instead of throwing an exception if they are not present
  - added the missing EntityReference.newInstance(Map) method
