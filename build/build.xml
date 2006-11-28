@@ -141,7 +141,10 @@ Please specify a target among :
   
   <target name="download-if-needed" unless="skip.jar.loading">
     <condition property="jar.present">
-      <available file="${download.dir}/${download.jarname}-${download.jarversion}.jar"/>
+      <and>
+        <isfalse value="${force.jar.loading}"/>
+        <available file="${download.dir}/${download.jarname}-${download.jarversion}.jar"/>
+      </and>
     </condition>
     <antcall target="http-download"/>
   </target>
