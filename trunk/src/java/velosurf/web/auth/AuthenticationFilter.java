@@ -77,15 +77,18 @@ import velosurf.web.l10n.Localizer;
  * The presence of this localizer is optional.</p>
  *
  * <p>Optional configuration parameters:
- * <ul><li>max-inactive: delay upon which an inactive user is disconnected in seconds.
+ * <ul>
+ * <li><code>login-field</code>: name of the login form field.</li>
+ * <li><code>password-field</code>: name of the password field.</li>
+ * <li><code>max-inactive</code>: delay upon which an inactive user is disconnected in seconds.
  * The default value is one hour.</li>
- * <li>login-page: the login page URI. The "<code>@</code>" pattern applies as well. Default is '/login.html'.</li>
- * <li>authenticated-index-page: the default page once authenticated. The "<code>@</code>" pattern applies as well.
+ * <li><code>login-page</code>: the login page URI. The "<code>@</code>" pattern applies as well. Default is '/login.html'.</li>
+ * <li><code>authenticated-index-page</code>: the default page once authenticated. The "<code>@</code>" pattern applies as well.
  * Default is '/loggued.html'.</li>
- * <li>bad-login-message: the message to be displayed in case of bad login. If this parameter is not
+ * <li><code>bad-login-message</code>: the message to be displayed in case of bad login. If this parameter is not
  * specified, the filter will try to get a reference from the localizer tool and ask it for a "badLogin"
  * message, and if this fails, it will simply use "Bad login or password.".</li>
- * <li>disconnected-message: the message to be displayed when the user is disconnected after a period
+ * <li><code>disconnected-message</code>: the message to be displayed when the user is disconnected after a period
  * of inactivity on the site. Same remark if this parameter is not supplied: the filter will search
  * for a "disconnected" message in the localizer tool if present, and otherwise display "You have been disconnected."</li>
  * </ul>
@@ -103,6 +106,12 @@ public class AuthenticationFilter implements Filter {
 
     /** Max inactive interval. */
     private int maxInactive = 3600;
+
+    /** Login field. */
+    private String loginField = "login";
+
+    /** Password field. */
+    private String passwordField = "password";
 
     /** Login page. */
     private String loginPage = "/login.html.vtl";
@@ -155,6 +164,19 @@ public class AuthenticationFilter implements Filter {
                 Logger.error("AuthenticationFilter: bad format for the max-inactive parameter: "+param);
             }
         }
+
+        /* login field */
+        param = this.config.getInitParameter("login-field");
+        if (param != null) {
+            loginField = param;
+        }
+
+        /* password field */
+        param = this.config.getInitParameter("password-field");
+        if (param != null) {
+            passwordField = param;
+        }
+
         /* login page */
         param = this.config.getInitParameter("login-page");
         if (param != null) {
@@ -262,10 +284,9 @@ public class AuthenticationFilter implements Filter {
                 Logger.trace("auth: "+(localizer==null?"localizer not found.":" found a localizer with locale: "+localizer.getLocale()));
             }
             session.removeAttribute("velosurf.auth.user");
-
             if ( uri.endsWith("/login.do")
-                    && (login = request.getParameter("login")) != null
-                    && (password = request.getParameter("password")) != null
+                    && (login = request.getParameter(loginField)) != null
+                    && (password = request.getParameter(passwordField)) != null
                     && session.getId().equals(request.getRequestedSessionId())) {
                 // a user is trying to log in
 
