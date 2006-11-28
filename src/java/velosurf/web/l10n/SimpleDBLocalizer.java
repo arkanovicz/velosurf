@@ -176,7 +176,8 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
             }
             initialized = true;
         } catch (Exception e) {
-            Logger.log(e);
+//            Logger.log(e);
+            Logger.error(e.getMessage());
         }
     }
 
@@ -199,7 +200,9 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
             return;
         }
         super.setLocale(locale);
-        currentStrings = localeStrings.get(getLocale());
+        if(localeStrings != null) {
+            currentStrings = localeStrings.get(getLocale());
+        }
         if (currentStrings == null) {
             Logger.warn("l10n: no strings found for locale "+getLocale());
         }
