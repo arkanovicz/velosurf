@@ -183,6 +183,20 @@ public class DBReference extends HashMap<String,Object>
         return db.deobfuscate(value);
     }
 
+    /** User context getter
+     * @return current user context
+     */
+    public UserContext getUserContext() {
+        return db.getUserContext();
+    }
+
+    /** User context setter
+     * @param userContext user context
+     */
+    public void setUserContext(UserContext userContext) {
+        db.setUserContext(userContext);
+    }
+
     /** The wrapped database connection.
      */
     private Database db = null;
