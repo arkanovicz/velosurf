@@ -77,7 +77,7 @@ public class ValidationFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest)servletRequest;
         HttpServletResponse response = (HttpServletResponse)servletResponse;
         HttpSession session = null;
-        Map map = null;
+        Map<String,Object> map = null;
         String[] entities = null;
 
         boolean filter =  (request.getParameter(ENTITY_KEY) != null);
@@ -100,12 +100,14 @@ public class ValidationFilter implements Filter {
                     userContext.setLocale(request.getLocale());
                 }
                 session.setAttribute(UserContext.USER_CONTEXT_KEY,userContext);
+            } else {
+                db.setUserContext(userContext);
             }
 
             if (db != null) {
                 Map<String,Object> params = request.getParameterMap();
                 Object[] array;
-                for(Map.Entry entry:(Set<Map.Entry<String,Object>>)params.entrySet()) {
+                for(Map.Entry<String,Object> entry:(Set<Map.Entry<String,Object>>)params.entrySet()) {
                     array = (Object[])entry.getValue();
                     map.put(entry.getKey(), array.length == 1 ? array[0] : array);
                 }
