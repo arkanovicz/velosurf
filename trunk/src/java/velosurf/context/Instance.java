@@ -349,7 +349,7 @@ public class Instance extends TreeMap<String,Object>
             statement.update(params);
             List<String> keys = entity.getPKCols();
             if (keys.size() == 1) {
-                /* What if the ID is not autoincremented? TODO check it. => reverse engineering of autoincrement */
+                /* What if the ID is not autoincremented? TODO check it. => reverse engineering of autoincrement, and set the value in the instance itself */
                 db.getUserContext().setLastInsertedID(entity,statement.getLastInsertID());
             }
             return true;
@@ -361,6 +361,7 @@ public class Instance extends TreeMap<String,Object>
     }
 
     /** Validate this instance against declared contraints.
+     * @return a boolean stating whether this instance data are valid in regard to declared constraints
      */
     public boolean validate() {
         try {
