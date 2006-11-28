@@ -1,5 +1,7 @@
 TODO
 ----
+ - when SQL exceptions are thrown from context objects, would it be possible to display line/col position in template?
+ - clarify user context scope and life cycle
  - document newInstance(Map) and getLoggedUser
  - put version and debugging options in build.properties
  - validation: form values should be put as request attributes after the redirect!
