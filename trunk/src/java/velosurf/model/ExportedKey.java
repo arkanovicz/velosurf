@@ -19,6 +19,7 @@ package velosurf.model;
 import java.util.List;
 
 import velosurf.util.StringLists;
+import velosurf.util.Logger;
 
 /** An exported key (aka primary key used in a foreign key) attribute.
  *
@@ -65,13 +66,14 @@ public class ExportedKey extends Attribute {
      * Query getter.
      * @return the SQL query
      */
-    public String getQuery() {
+    protected String getQuery() {
         if(query == null) {
             Entity fkEntity = db.getEntity(resultEntity);
-            for(String param:db.getEntity(resultEntity).getPKCols()) {
+            for(String param:getEntity().getPKCols()) {
                 addParamName(param);
             }
             query = "SELECT * FROM " + fkEntity.getTableName() + " WHERE " + StringLists.join(fkEntity.aliasToColumn(fkCols)," = ? AND ") + " = ?";
+//          Logger.debug(getEntity().getName()+"."+getName()+" = "+query+" [ with params "+StringLists.join(getEntity().getPKCols(),",")+" ]" );
         }
         return query;
     }
