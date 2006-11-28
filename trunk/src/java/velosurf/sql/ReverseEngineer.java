@@ -332,7 +332,7 @@ public class ReverseEngineer {
             }
             Entity fkEntity = db.getEntity(fkEntityName);
             fkCols = sortColumns(entity.getPKCols(),pkCols,fkCols);
-            Logger.trace("reverse: found exported key: "+entity.getName()+"("+StringLists.join(pkCols,",")+") <- "+fkTable+"("+StringLists.join(fkCols,",")+")");
+//            Logger.trace("reverse: found exported key: "+entity.getName()+"("+StringLists.join(pkCols,",")+") <- "+fkTable+"("+StringLists.join(fkCols,",")+")");
             ExportedKey definedKey = entity.findExportedKey(fkEntity,fkCols);
             if (definedKey == null) {
                 entity.addAttribute(new ExportedKey(getExportedKeyName(fkEntityName),entity,fkTable,fkCols));
@@ -359,7 +359,7 @@ public class ReverseEngineer {
             }
             Entity pkEntity = db.getEntity(pkEntityName);
             fkCols = sortColumns(pkEntity.getPKCols(),pkCols,fkCols);
-            Logger.trace("reverse: found imported key: "+entity.getName()+"("+StringLists.join(fkCols,",")+") -> "+pkTable+"("+StringLists.join(pkCols,",")+")");
+  //          Logger.trace("reverse: found imported key: "+entity.getName()+"("+StringLists.join(fkCols,",")+") -> "+pkTable+"("+StringLists.join(pkCols,",")+")");
             ImportedKey definedKey = entity.findImportedKey(pkEntity,fkCols);
             if (definedKey == null) {
                 entity.addAttribute(new ImportedKey(pkEntityName,entity,pkEntityName,fkCols));
