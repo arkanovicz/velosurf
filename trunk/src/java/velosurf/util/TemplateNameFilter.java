@@ -200,8 +200,14 @@ public class TemplateNameFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse)servletResponse;
 
         String path = request.getRequestURI();
+        String query = request.getQueryString();
+        if(query == null) {
+            query = "";
+        } else {
+            query = "?" + query;
+        }
 Logger.trace("--------------------------------");
-Logger.trace("URI = "+path);
+Logger.trace("URI = "+path+query);
         /* I've been said some buggy containers where leaving the query string in the uri */
         int i;
         if ((i = path.indexOf("?")) != -1) {
@@ -224,8 +230,8 @@ Logger.trace("URI = "+path);
         } else {
             if(templates.contains(path)) {
                 /* forward the request with extension added */
-                Logger.trace("vtl: forwarding request towards "+path+templateExtension);
-                RequestDispatcher dispatcher = servletContext.getRequestDispatcher(path+templateExtension);
+                Logger.trace("vtl: forwarding request towards "+path+templateExtension+query);
+                RequestDispatcher dispatcher = servletContext.getRequestDispatcher(path+templateExtension+query);
                 dispatcher.forward(request,servletResponse);
             } else {
                 /* normal processing */
