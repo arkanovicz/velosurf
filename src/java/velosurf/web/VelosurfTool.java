@@ -102,7 +102,6 @@ public class VelosurfTool extends DBReference
         if (configFile == null) { // if not already given by configure()
             configFile = findConfigFile(ctx);
         }
-
         UserContext userContext = null;
 
         /* user context */
@@ -112,7 +111,13 @@ public class VelosurfTool extends DBReference
                 synchronized(session) {
                     userContext = (UserContext)session.getAttribute(UserContext.USER_CONTEXT_KEY);
                     if (userContext == null) {
-                        userContext = new UserContext();
+                        /* check in the database if already connected */
+                        Database db = dbMap.get(configFile);
+                        if (db != null) {
+                            userContext = db.getUserContext();
+                        } else {
+                            userContext = new UserContext();
+                        }
                         session.setAttribute(UserContext.USER_CONTEXT_KEY,userContext);
                         if (fetchLocalizer) {
                             Localizer localizer = ToolFinder.findSessionTool(session,Localizer.class);
@@ -239,19 +244,10 @@ public class VelosurfTool extends DBReference
      * @param configFile
      * @return a DBReference
      */
-    public static DBReference getInstance(String configFile,UserContext userContext) {
+    public static DBReference getInstance(String configFile) {
         if (!configFile.startsWith("/")) configFile = "/"+configFile;
         Database db = dbMap.get(configFile);
         return db == null ? null : new DBReference(db);
-    }
-
-    /** return a db reference on the existing Database for the specified config file, or null
-     * if it isn't already open.
-     * @param configFile
-     * @return a DBReference
-     */
-    public static DBReference getInstance(String configFile) {
-        return getInstance(configFile,(UserContext)null);
     }
 
 
@@ -286,7 +282,7 @@ public class VelosurfTool extends DBReference
                 db = Database.getInstance(is,new XIncludeResolver(base,servletContext));
                 dbMap.put(configFile,db);
             }
-            catch(Exception e) {
+            catch(Throwable e) {
                 Logger.error("Could not get a connection!");
                 Logger.log(e);
             }
@@ -299,18 +295,9 @@ public class VelosurfTool extends DBReference
      * @param configFile
      * @return a DBReference
      */
-    public static DBReference getInstance(String configFile,ServletContext servletContext,UserContext userContext) {
+    public static DBReference getInstance(String configFile,ServletContext servletContext) {
         Database db = getConnection(configFile,servletContext);
         return db == null ? null : new DBReference(db);
-    }
-
-    /** return a db reference on the existing Database for the specified config file and servlet context,
-     * or null if an error occurs.
-     * @param configFile
-     * @return a DBReference
-     */
-    public static DBReference getInstance(String configFile,ServletContext servletContext) {
-        return getInstance(configFile,servletContext,null);
     }
 
 
@@ -327,17 +314,9 @@ public class VelosurfTool extends DBReference
      * if it does not already exist.
      * @return a DBReference
      */
-    public static DBReference getDefaultInstance(UserContext userContext) {
+    public static DBReference getDefaultInstance() {
         Database db = getDefaultConnection();
         return db == null ? null : new DBReference(db);
-    }
-
-    /** return a db reference the existing Database for the default config file, or null
-     * if it does not already exist.
-     * @return a DBReference
-     */
-    public static DBReference getDefaultInstance() {
-        return getDefaultInstance((UserContext)null);
     }
 
     /** return the existing Database for the default config file and servlet context,
@@ -349,11 +328,11 @@ public class VelosurfTool extends DBReference
         return getConnection(DEFAULT_CONFIG_FILE,servletContext);
     }
 
-    /** return a db reference on the existing Database for the default config file and servlet context,
+    /** return a db reference on the existing Database for the default config file
      * or null if an error occurs.
      * @return a Database
      */
-    public static DBReference getDefaultInstance(ServletContext servletContext,UserContext userContext)
+    public static DBReference getDefaultInstance(ServletContext servletContext)
     {
         String configFile = findConfigFile(servletContext);
         if (configFile == null) {
@@ -361,15 +340,6 @@ public class VelosurfTool extends DBReference
         }
         Database db = getConnection(configFile,servletContext);
         return db == null ? null : new DBReference(db);
-    }
-
-    /** return a db reference on the existing Database for the default config file
-     * or null if an error occurs.
-     * @return a Database
-     */
-    public static DBReference getDefaultInstance(ServletContext servletContext)
-    {
-        return getDefaultInstance(servletContext,(UserContext)null);
     }
 
     /**
