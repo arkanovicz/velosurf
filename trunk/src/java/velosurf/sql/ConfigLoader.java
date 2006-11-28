@@ -137,12 +137,14 @@ public class ConfigLoader {
 
         /* log level */
         String loglevel = database.getAttributeValue("loglevel");
-        if (checkSyntax("loglevel",loglevel,new String[]{"trace","debug","info","warn","error"})) {
+        if (checkSyntax("loglevel",loglevel,new String[]{"trace","debug","info","warn","error","fatal"})) {
             if ("trace".equalsIgnoreCase(loglevel)) Logger.setLogLevel(Logger.TRACE_ID);
             else if ("debug".equalsIgnoreCase(loglevel)) Logger.setLogLevel(Logger.DEBUG_ID);
             else if ("info".equalsIgnoreCase(loglevel)) Logger.setLogLevel(Logger.INFO_ID);
             else if ("warn".equalsIgnoreCase(loglevel)) Logger.setLogLevel(Logger.WARN_ID);
             else if ("error".equalsIgnoreCase(loglevel)) Logger.setLogLevel(Logger.ERROR_ID);
+            else if ("fatal".equalsIgnoreCase(loglevel)) Logger.setLogLevel(Logger.FATAL_ID);
+            else Logger.error("Invalid loglevel. Should be one of: trace, debug, info, warn, error, fatal.");
         }
 
         /* default-access - deprecated - for compatibility only, replaced with read-only=true|false */
