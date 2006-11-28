@@ -97,6 +97,10 @@ public class TemplateNameFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         servletContext = filterConfig.getServletContext();
 
+        if (!Logger.isInitialized() && servletContext != null) {
+            Logger.setWriter(new ServletLogWriter(servletContext));
+        }
+
         /* init parameters */
         String param,value;
         Enumeration params = filterConfig.getInitParameterNames();
@@ -196,7 +200,8 @@ public class TemplateNameFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse)servletResponse;
 
         String path = request.getRequestURI();
-
+Logger.trace("--------------------------------");
+Logger.trace("URI = "+path);
         /* I've been said some buggy containers where leaving the query string in the uri */
         int i;
         if ((i = path.indexOf("?")) != -1) {
