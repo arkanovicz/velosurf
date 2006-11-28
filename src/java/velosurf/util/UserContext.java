@@ -41,7 +41,7 @@ public class UserContext {
      * Constructor.
      */
     public UserContext() {
-        Logger.dumpStack();
+//        Logger.dumpStack();
     }
     /**
      * Last error setter.
