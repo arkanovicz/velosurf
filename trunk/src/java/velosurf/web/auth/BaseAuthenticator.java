@@ -27,6 +27,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Key;
 import java.security.InvalidKeyException;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 
 import org.apache.velocity.tools.view.context.ViewContext;
 
@@ -78,6 +79,9 @@ public abstract class BaseAuthenticator {
     /** length of challenge */
     private static final int CHALLENGE_LENGTH = 256; // bits
 
+    /** keep a reference on the session */
+    private WeakReference<HttpSession> session = null;
+
     /**
      * initialize this tool.
      * @param initData a view context
@@ -86,6 +90,7 @@ public abstract class BaseAuthenticator {
         if (!(initData instanceof ViewContext)) {
             Logger.error("auth: authenticator tool should be used in a session scope!");
         }
+        session = new WeakReference<HttpSession>(((ViewContext)initData).getRequest().getSession(true));
     }
 
     /**
@@ -159,5 +164,16 @@ public abstract class BaseAuthenticator {
             }
         }
         return null;
+    }
+
+    public Object getLoggedUser() {
+        if (session == null) {
+            return null;
+        }
+        HttpSession sess = session.get();
+        if (sess == null) {
+            return null;
+        }
+        return sess.getAttribute("velosurf.auth.user");
     }
 }
