@@ -706,7 +706,6 @@ public class Entity
                         formatted = formatted.substring(0,MAX_DATA_DISPLAY_LENGTH)+"...";
                     }
                     formatted = StringEscapeUtils.escapeHtml(formatted);
-Logger.debug("### formatted = "+formatted);
                     userContext.addValidationError(userContext.localize(info.constraint.getMessage(),info.column,formatted));
                 }
                 ret = false;

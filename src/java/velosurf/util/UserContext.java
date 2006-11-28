@@ -41,7 +41,6 @@ public class UserContext {
      * Constructor.
      */
     public UserContext() {
-        Logger.trace("### UC C'tor");
         Logger.dumpStack();
     }
     /**
@@ -98,7 +97,6 @@ public class UserContext {
      * @param err validation error
      */
     public synchronized void addValidationError(String err) {
-Logger.debug("#### addValidationError -> "+err);
         validationErrors.add(err);
     }
     /** Get all validation error messages.
@@ -107,7 +105,6 @@ Logger.debug("#### addValidationError -> "+err);
      */
     public synchronized List<String> getValidationErrors() {
         /* returning null allows a test like "#if($db.validationErrors)" */
-Logger.debug("#### getValidationErrors -> size = "+validationErrors.size());
         if(validationErrors.size() == 0) {
             return null;
         }
