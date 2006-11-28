@@ -404,7 +404,7 @@ public class Entity
      * @param values the Map containing the values
      * @return success indicator
      */
-    public boolean delete(Map values) {
+    public boolean delete(Map<String,Object> values) {
         if (readOnly) {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
@@ -443,8 +443,15 @@ public class Entity
      * @param values the Map containing the key values
      * @return the fetched instance
      */
-    public Instance fetch(Map values) throws SQLException {
+    public Instance fetch(Map<String,Object> values) throws SQLException {
         Instance instance = null;
+        /* check key values are present */
+        for(String keyCol:keyCols) {
+            if (!values.containsKey(keyCol)) {
+                Logger.debug("tried to fetch an instance without key value '"+keyCol+"'...");
+                return null;
+            }
+        }
         if (cachingMethod != Cache.NO_CACHE)
             // try in cache
             instance = (Instance)cache.get(buildKey(values));
@@ -452,7 +459,7 @@ public class Entity
             if (fetchQuery == null) buildFetchQuery();
             PooledPreparedStatement statement = db.prepare(fetchQuery);
             if (obfuscate) {
-                Map<String,Object> map =  new HashMap();
+                Map<String,Object> map =  new HashMap<String,Object>();
                 for(Object key:values.keySet()) {
                     Object value = values.get(key);
                     map.put( Database.adaptContextCase((String)key), isObfuscated((String)key) ? deobfuscate(value) : value );
@@ -699,6 +706,7 @@ public class Entity
                         formatted = formatted.substring(0,MAX_DATA_DISPLAY_LENGTH)+"...";
                     }
                     formatted = StringEscapeUtils.escapeHtml(formatted);
+Logger.debug("### formatted = "+formatted);
                     userContext.addValidationError(userContext.localize(info.constraint.getMessage(),info.column,formatted));
                 }
                 ret = false;
