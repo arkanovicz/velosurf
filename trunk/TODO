@@ -1,5 +1,7 @@
 TODO
 ----
+ - reporting facility
+ - AttributeReference.delete() ? Or deleteRows() to avoid misuses
  - when/how is $db.error cleared?
  - review policy when column name clashes with attribute name: maybe add a RowIterator.internalGet called from ReadOnlyMap.
    Plus, RowIterator get javadoc is wrong for now.

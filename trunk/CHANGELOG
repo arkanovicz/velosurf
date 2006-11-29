@@ -2,6 +2,8 @@
 
 v2.2
 ----
+ - fix: authentication filter now also remembers the query string of the saved request
+ - $query now displays a nice content as a map
  - added entityref.delete(string) and entityref.delete(number) for unique primary cols
  - fix: exported keys were broken.
  - fix: do not forget query string when redirecting!
