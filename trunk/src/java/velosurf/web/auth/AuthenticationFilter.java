@@ -264,7 +264,13 @@ public class AuthenticationFilter implements Filter {
                     response.sendRedirect(authenticatedIndexPage);
                 } else {
                     Logger.trace("auth: user is authenticated.");
-                    chain.doFilter(new SavedRequestWrapper(request),response);
+                    SavedRequest saved = (SavedRequest)session.getAttribute("velosurf.auth.saved-request");
+                    if (saved != null && saved.getRequestURL().equals(request.getRequestURL())) {
+                        session.removeAttribute("velosurf.auth.saved-request");
+                        chain.doFilter(new SavedRequestWrapper(request,saved),response);
+                    } else {
+                        chain.doFilter(request,response);
+                    }
                 }
             }
         } else {
@@ -317,9 +323,12 @@ public class AuthenticationFilter implements Filter {
                         Logger.trace("auth: redirecting newly loggued user to "+authenticatedIndexPage);
                         response.sendRedirect(authenticatedIndexPage);
                     } else {
-                        String formerUri = savedRequest.getRequestURI();
-                        Logger.trace("auth: redirecting newly loggued user to "+formerUri);
-                        response.sendRedirect(formerUri);
+                        String formerUrl = savedRequest.getRequestURI();
+                        String query =  savedRequest.getQueryString();
+                        query = (query == null ? "" : "?"+query);
+                        formerUrl += query;
+                        Logger.trace("auth: redirecting newly loggued user to "+formerUrl);
+                        response.sendRedirect(formerUrl);
                     }
                 } else {
                     Logger.warn("auth: user "+login+" made an unsuccessfull login attempt.");
