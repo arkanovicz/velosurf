@@ -164,16 +164,52 @@ import velosurf.util.Logger;
         Collection ret = new HashSet();
         Collection coll = context.getRequest().getParameterMap().values();
         for(Object value:coll) {
-            array=(String[])value;
-            ret.add( array.length==1 ?  (Object)array[0] : array);
+            if(value.getClass().isArray()) {
+                array=(String[])value;
+                ret.add( array.length==1 ?  (Object)array[0] : array);
+            } else {
+                ret.add(value);
+            }
         }
         ret.addAll(extraValues.values());
         return ret;
     }
 
     public Set<Entry> entrySet() {
-        Set<Entry> ret = context.getRequest().getParameterMap().entrySet();
+Logger.debug("### sentrySet()");
+        Map map = new HashMap();
+        Set<Entry> coll = context.getRequest().getParameterMap().entrySet();
+        for(Entry entry:coll) {
+            Object value = entry.getValue();
+Logger.debug("### got value "+value.getClass().getName()+" isarray = "+value.getClass().isArray());
+if(value.getClass().isArray()) {
+    Logger.debug("### array length = "+((String[])value).length);
+for(int i=0;i<((String[])value).length;i++){
+Logger.debug("### #"+i+" = "+((String[])value)[i]);    
+}
+}
+            if (value.getClass().isArray() && ((String[])value).length == 1) {
+Logger.debug("### it is an array of 1");
+                value = ((String[])value)[0];
+Logger.debug("### underlying value = "+value.getClass().getName());
+            }
+            map.put(entry.getKey(),value);
+        }
+        Set<Entry> ret = map.entrySet();
         ret.addAll(extraValues.entrySet());
         return ret;
+    }
+
+    public String toString() {
+        StringBuilder ret = new StringBuilder("{ ");
+        for(Entry entry:entrySet()) {
+            ret.append((String)entry.getKey());
+            ret.append('=');
+            Object value =
+            ret.append(entry.getValue().toString());
+            ret.append(' ');
+        }
+        ret.append('}');
+        return ret.toString();
     }
 }
