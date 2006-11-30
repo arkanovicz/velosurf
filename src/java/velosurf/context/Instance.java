@@ -151,6 +151,9 @@ public class Instance extends TreeMap<String,Object>
         if(db != null) {
             key = db.adaptCase(key);
         }
+        if(entity != null) {
+            value = entity.filterIncomingValue(key,value);
+        }
         return super.put(key,value);
     }
 

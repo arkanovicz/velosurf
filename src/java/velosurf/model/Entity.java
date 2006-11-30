@@ -18,6 +18,7 @@ package velosurf.model;
 
 import java.lang.reflect.Constructor;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.*;
 
 import velosurf.cache.Cache;
@@ -62,9 +63,11 @@ public class Entity
      *
      * @param colName column name
      */
-    public void addColumn(String colName) {
+    public void addColumn(String colName,int sqlType) {
         /* remember the alias */
-        columns.add(columnToAlias(colName));
+        String alias = columnToAlias(colName);
+        columns.add(alias);
+        types.put(alias,sqlType);
     }
 
     /**
@@ -795,6 +798,25 @@ public class Entity
         return null;
     }
 
+    public Object filterIncomingValue(String column,Object value) {
+        if(value == null) {
+            return null;
+        }
+        /* for now, only filter boolean values */
+        Integer type = types.get(column);
+        if(type == Types.BOOLEAN || type == Types.BIT) {
+            if(String.class.isAssignableFrom(value.getClass())) {
+                String s = (String)value;
+                if("true".equalsIgnoreCase(s) || "on".equalsIgnoreCase(s) || "1".equalsIgnoreCase(s) || "yes".equalsIgnoreCase(s)) {
+                    value = new Boolean(true);
+                } else {
+                    value = new Boolean(false);
+                }
+            }
+        }
+        return value;
+    }
+
     /** Name.
      */
     private String name = null;
@@ -804,6 +826,9 @@ public class Entity
     /** Column names in natural order.
      */
     private List<String> columns = new ArrayList<String>(); // list<String>
+    /** Column types
+     */
+    private Map<String,Integer> types = new HashMap<String,Integer>();
     /** Key column names in natural order.
      */
     private List<String> keyCols = new ArrayList<String>();

@@ -150,7 +150,7 @@ public class ReverseEngineer {
                         }
                         readTableMetaData(meta,entity,tableName);
                     }
-/* not any more valid since entityByTableName does now keep mappings
+/* not any more valid since entityByTableName does now keep mappings TODO alternative
                     for(Iterator e = entityByTableName.keySet().iterator();e.hasNext();)
                     {
                         Logger.warn("table '"+(String)e.next()+"' not found!");
@@ -210,7 +210,7 @@ public class ReverseEngineer {
             cols = meta.getColumns(null,db.getSchema(),tableName,null);
             while (cols.next()) {
                 String column = adaptCase(cols.getString("COLUMN_NAME"));
-                entity.addColumn(column);
+                entity.addColumn(column,cols.getInt("DATA_TYPE"));
             }
         }
         finally {
