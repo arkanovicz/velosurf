@@ -176,22 +176,12 @@ import velosurf.util.Logger;
     }
 
     public Set<Entry> entrySet() {
-Logger.debug("### sentrySet()");
         Map map = new HashMap();
         Set<Entry> coll = context.getRequest().getParameterMap().entrySet();
         for(Entry entry:coll) {
             Object value = entry.getValue();
-Logger.debug("### got value "+value.getClass().getName()+" isarray = "+value.getClass().isArray());
-if(value.getClass().isArray()) {
-    Logger.debug("### array length = "+((String[])value).length);
-for(int i=0;i<((String[])value).length;i++){
-Logger.debug("### #"+i+" = "+((String[])value)[i]);    
-}
-}
             if (value.getClass().isArray() && ((String[])value).length == 1) {
-Logger.debug("### it is an array of 1");
                 value = ((String[])value)[0];
-Logger.debug("### underlying value = "+value.getClass().getName());
             }
             map.put(entry.getKey(),value);
         }
