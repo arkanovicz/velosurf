@@ -110,7 +110,7 @@ public abstract class BaseAuthenticator {
         BigInteger bigint = new BigInteger(CHALLENGE_LENGTH,random);
         challenge = new sun.misc.BASE64Encoder().encode(bigint.toByteArray());
         challenge = challenge.replace("\n","");
-        Logger.trace("auth: challenge="+challenge);
+//        Logger.trace("auth: challenge="+challenge);
         return challenge;
     }
 
@@ -140,7 +140,11 @@ public abstract class BaseAuthenticator {
     private String generateAnswer(String password) {
         if(method == null) {
             return password;
-        } else {
+        } else if (challenge == null) {
+            /* return something that will never match any password */
+            return getChallenge();
+        }
+        else {
             Logger.debug("auth: using method "+method);
             try {
                 /* TODO: use utf8 (and find a way to convert an utf8 string into
