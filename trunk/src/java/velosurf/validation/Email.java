@@ -18,10 +18,7 @@ package velosurf.validation;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import java.util.Hashtable;
-import java.util.Locale;
 import java.util.List;
-import java.util.ArrayList;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.io.IOException;
@@ -29,14 +26,8 @@ import java.io.PrintStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.DirContext;
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
-
 import velosurf.util.Logger;
+import velosurf.util.DNSResolver;
 
 /**
  * <p>An 'email' constraint. Syntax is:</p>
@@ -64,8 +55,8 @@ public class Email extends FieldConstraint {
     static {
         /* Do we really want to allow all those strange characters in emails?
            Well, that's what the RFC2822 seems to allow... */
-        String atom = "[a-z0-9!#$%&'*+-/=?^_`{|}~]";
-        String domain = "(?:[a-z0-9](?:[-a-z0-9]*[a-z0-9]+)?)";
+        String atom = "[a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]";
+        String domain = "(?:[a-zA-Z0-9](?:[-a-zA-Z0-9]*[a-zA-Z0-9]+)?)";
         validEmail = Pattern.compile(
                 "(^" + atom + "+" + "(?:\\."+atom+")*)" +
                 "@((?:" + domain + "{1,63}\\.)+" + domain + "{2,63})$",Pattern.CASE_INSENSITIVE
@@ -104,7 +95,7 @@ public class Email extends FieldConstraint {
         String user = matcher.group(1);
         String hostname = matcher.group(2);
         /* first, DNS validation */
-        if (dnsCheck && !checkDNS(hostname)) {
+        if (dnsCheck && !DNSResolver.checkDNS(hostname,"MX")) {
             return false;
         }
         /* then, SMTP */
@@ -113,55 +104,7 @@ public class Email extends FieldConstraint {
         }
         return true;
     }
-    /**
-     * check DNS.
-     * @param hostname hostname
-     * @return true if valid
-     */
-    private boolean checkDNS(String hostname) {
-        List<String> mxs = resolveMXDNS(hostname);
-        return mxs != null && mxs.size() > 0;
-    }
 
-    /**
-     * Resolve MX DNS.
-     * @param hostname hostname
-     * @return list of MXs
-     */
-    private List<String> resolveMXDNS(String hostname) {
-        try {
-            Logger.trace("email validation: resolving MX DNS for "+hostname);
-            Hashtable env = new Hashtable();
-            env.put("java.naming.factory.initial",
-                    "com.sun.jndi.dns.DnsContextFactory");
-            env.put("com.sun.jndi.dns.timeout.initial", "3000"); /* quite short... too short? */
-            env.put("com.sun.jndi.dns.timeout.retries", "1");
-            DirContext ictx = new InitialDirContext( env );
-            Attributes attrs = ictx.getAttributes(hostname, new String[] { "MX" });
-            Attribute attr = attrs.get( "MX" );
-            if (attr != null && attr.size() > 0) {
-                List<String> result = new ArrayList<String>();
-                NamingEnumeration e = attr.getAll();
-                while(e.hasMore()) {
-                    String mx = (String)e.next();
-                    String f[] = mx.split( "\\s+" );
-                    for (int i=0;i<f.length;i++) {
-                        if (f[i].endsWith(".")) {
-                            result.add(f[i].substring(0,f[i].length()-1));
-                        }
-                    }
-                }
-                return result;
-            } else {
-                Logger.trace("email validation: DNS MX query failed");
-                return null;
-            }
-        } catch(NamingException ne) {
-            Logger.trace("email validation: DNS MX query failed: "+ne.getMessage());
-            return null;
-        }
-
-    }
     /**
      * Check SMTP server.
      * @param user username
@@ -172,7 +115,7 @@ public class Email extends FieldConstraint {
         String response;
         Socket sock = null;
         Logger.trace("email validation: checking SMTP for <"+user+"@"+hostname+">");
-        List<String> mxs = resolveMXDNS(hostname);
+        List<String> mxs = DNSResolver.resolveDNS(hostname,"MX");
         if (mxs == null || mxs.size() == 0) {
             return false;
         }
