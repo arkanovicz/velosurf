@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.*;
 import java.text.MessageFormat;
+import java.lang.ref.WeakReference;
 
 import velosurf.util.Logger;
 
@@ -46,6 +47,7 @@ public abstract class HTTPLocalizerTool implements Localizer {
         if (initData instanceof ViewContext) {
             HttpSession session = ((ViewContext)initData).getRequest().getSession();
             if (session != null) {
+                this.session = new WeakReference<HttpSession>(session);
                 Locale locale = (Locale)session.getAttribute("velosurf.l10n.active-locale");
                 if (locale == null) {
                     /* means the localization filter did not intercept this query */
@@ -118,7 +120,21 @@ public abstract class HTTPLocalizerTool implements Localizer {
      * @return current locale
      */
     public Locale getLocale() {
+        checkLocaleChange();
         return locale;
+    }
+
+    /**
+     *  Check that the locale has not changed in the session.
+     */
+    public void checkLocaleChange() {
+        HttpSession s = session.get();
+        if (s != null) {
+            Locale l = (Locale)s.getAttribute("velosurf.l10n.active-locale");
+            if (l != null && !l.equals(locale)) {
+                setLocale(l);
+            }
+        }
     }
 
     /**
@@ -139,6 +155,9 @@ public abstract class HTTPLocalizerTool implements Localizer {
         String message = get(id).replaceAll("'","''");
         return MessageFormat.format(message,params);
     }
+
+    /** keep a reference on the session */
+    private WeakReference<HttpSession> session = null;
 
     /** current locale */
     private Locale locale = null;
