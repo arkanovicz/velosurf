@@ -204,7 +204,7 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
             currentStrings = localeStrings.get(getLocale());
         }
         if (currentStrings == null) {
-            Logger.warn("l10n: no strings found for locale "+getLocale());
+            Logger.warn("l10n: no strings found for locale "+locale);
         }
     }
 
