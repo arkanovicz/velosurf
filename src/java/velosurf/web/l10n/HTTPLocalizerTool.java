@@ -160,5 +160,5 @@ public abstract class HTTPLocalizerTool implements Localizer {
     private WeakReference<HttpSession> session = null;
 
     /** current locale */
-    private Locale locale = null;
+    protected Locale locale = null;
 }
