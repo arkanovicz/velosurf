@@ -195,7 +195,7 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
      * @param locale locale
      */
     public void setLocale(Locale locale) {
-        if (locale == null && getLocale() == null || locale != null && locale.equals(getLocale())) {
+        if (locale == null && this.locale == null || locale != null && locale.equals(this.locale)) {
             /* no change */
             return;
         }
