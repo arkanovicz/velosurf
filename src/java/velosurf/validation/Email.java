@@ -95,7 +95,7 @@ public class Email extends FieldConstraint {
         String user = matcher.group(1);
         String hostname = matcher.group(2);
         /* first, DNS validation */
-        if (dnsCheck && !DNSResolver.checkDNS(hostname,"MX")) {
+        if (dnsCheck && !DNSResolver.checkDNS(hostname,true)) {
             return false;
         }
         /* then, SMTP */
@@ -115,7 +115,7 @@ public class Email extends FieldConstraint {
         String response;
         Socket sock = null;
         Logger.trace("email validation: checking SMTP for <"+user+"@"+hostname+">");
-        List<String> mxs = DNSResolver.resolveDNS(hostname,"MX");
+        List<String> mxs = DNSResolver.resolveDNS(hostname,true);
         if (mxs == null || mxs.size() == 0) {
             return false;
         }
