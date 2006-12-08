@@ -2,6 +2,8 @@
 
 v2.2
 ----
+ - fix: aliases were not taken into account in Entity.extractColumnValues
+ - fix: aliases were never read by the ConfigLoader
  - the localizer tool now checks if the locale changes in the session
  - fix: authentication filter now also remembers the query string of the saved request
  - $query now displays a nice content as a map
