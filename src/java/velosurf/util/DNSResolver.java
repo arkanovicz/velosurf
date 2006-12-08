@@ -44,11 +44,11 @@ public class DNSResolver {
     public static List<String> resolveDNS(String hostname,boolean mx) {
         List<String> result = new ArrayList<String>();
         try {
-            Logger.trace("email validation: resolving MX DNS for "+hostname);
+            Logger.trace("DNS validation: resolving DNS for "+hostname+" "+(mx?"(MX)":"(A/CNAME)"));
             Hashtable env = new Hashtable();
             env.put("java.naming.factory.initial",
                     "com.sun.jndi.dns.DnsContextFactory");
-            env.put("com.sun.jndi.dns.timeout.initial", "3000"); /* quite short... too short? */
+            env.put("com.sun.jndi.dns.timeout.initial", "5000"); /* quite short... too short? */
             env.put("com.sun.jndi.dns.timeout.retries", "1");
             DirContext ictx = new InitialDirContext( env );
             String[] ids = ( mx ? new String [] { "MX" } : new String [] { "A","CNAME"} );
@@ -68,7 +68,7 @@ public class DNSResolver {
                     }
                     return result;
                 } else {
-                    Logger.trace("email validation: DNS query of '"+hostname+"' failed");
+                    Logger.trace("DNS validation: DNS query of '"+hostname+"' failed");
                     return null;
                 }
             } else {
@@ -88,17 +88,18 @@ public class DNSResolver {
                             if(h.endsWith(".")) {
                                 h = h.substring(0,h.lastIndexOf('.'));
                             }
+                            Logger.trace("DNS validation: recursing on CNAME record towards host "+h);
                             result.addAll(resolveDNS(h,false));
                         }
                         return result;
                     } else {
-                        Logger.trace("email validation: DNS query of '"+hostname+"' failed");
+                        Logger.trace("DNS validation: DNS query of '"+hostname+"' failed");
                         return null;
                     }
                 }
             }
         } catch(NamingException ne) {
-            Logger.trace("email validation: DNS MX query failed: "+ne.getMessage());
+            Logger.trace("DNS validation: DNS MX query failed: "+ne.getMessage());
             return null;
         }
     }
