@@ -519,14 +519,22 @@ public class Database {
      */
     public String adaptCase(String identifier) {
         if (identifier == null) return null;
+        String ret;
         switch(caseSensivity) {
-            case CASE_SENSITIVE: return identifier;
-            case UPPERCASE: return identifier.toUpperCase();
-            case LOWERCASE: return identifier.toLowerCase();
+            case CASE_SENSITIVE:
+                ret = identifier;
+                break;
+            case UPPERCASE:
+                ret = identifier.toUpperCase();
+                break;
+            case LOWERCASE:
+                ret = identifier.toLowerCase();
+                break;
             default:
                 Logger.error("bad case-sensivity!");
-                return identifier;
+                ret = identifier;
         }
+        return ret;
     }
 
     /** Add a new entity.
