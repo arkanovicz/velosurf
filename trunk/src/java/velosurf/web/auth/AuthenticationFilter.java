@@ -323,6 +323,7 @@ public class AuthenticationFilter implements Filter {
                         Logger.trace("auth: redirecting newly loggued user to "+authenticatedIndexPage);
                         response.sendRedirect(authenticatedIndexPage);
                     } else {
+                        session.removeAttribute("velosurf.auth.saved-request");
                         String formerUrl = savedRequest.getRequestURI();
                         String query =  savedRequest.getQueryString();
                         query = (query == null ? "" : "?"+query);
