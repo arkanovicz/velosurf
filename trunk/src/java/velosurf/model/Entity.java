@@ -71,11 +71,14 @@ public class Entity
     }
 
     /**
-     * Add a column alis.
+     * Add a column alias.
      * @param alias alias
      * @param column column
      */
     public void addAlias(String alias, String column) {
+        alias = db.adaptCase(alias);
+        column = db.adaptCase(column);
+        Logger.trace("added alias "+name+"."+alias+" -> "+name+"."+column);
         aliasByColumn.put(column,alias);
         columnByAlias.put(alias,column);
     }
@@ -86,6 +89,7 @@ public class Entity
      * @return column name
      */
     public String aliasToColumn(String alias) {
+        alias = db.adaptCase(alias);
         String col = columnByAlias.get(alias);
         return col == null ? alias : col;
     }
@@ -111,6 +115,7 @@ public class Entity
      * @return alias
      */
     public String columnToAlias(String column) {
+        column = db.adaptCase(column);
         String alias = aliasByColumn.get(column);
         return alias == null ? column : alias;
     }
@@ -260,33 +265,21 @@ public class Entity
      * @return the newly created instance
      */
     public Instance newInstance(Map<String,Object> values) {
-        try {
-            Instance result = newInstance();
-            extractColumnValues(values,result);
-            if (cachingMethod != Cache.NO_CACHE) cache.put(buildKey(values),result);
-            return result;
-        }
-        catch (SQLException sqle) {
-            Logger.log(sqle);
-            return null;
-        }
+        return newInstance(values,false);
     }
 
-
-    /** Get an instance from its values contained in a Map object.
-     * By default, update all fields based on the values in the Map if the instance has been found in the cache.
+    /** Build a new instance from a Map object.
      *
      * @param values the Map object containing the values
-     * @return the instance
+     * @param useSQLnames map keys use SQL column names that must be translated to aliases
+     * @return the newly created instance
      */
-    public Instance getInstance(Map<String,Object> values) {
-        Instance ret = null;
+    public Instance newInstance(Map<String,Object> values,boolean useSQLnames) {
         try {
-            if (cachingMethod != Cache.NO_CACHE)
-                // try in cache
-                ret = (Instance)cache.get(buildKey(values));
-            if (ret == null) ret = newInstance(values);
-            return ret;
+            Instance result = newInstance();
+            extractColumnValues(values,result,useSQLnames);
+            if (cachingMethod != Cache.NO_CACHE) cache.put(buildKey(values),result);
+            return result;
         }
         catch (SQLException sqle) {
             Logger.log(sqle);
@@ -309,20 +302,22 @@ public class Entity
      *
      * @param source Map source object
      * @param target Map target object
+     * @param SQLNames the source uses SQL names
      */
-    private void extractColumnValues(Map<String,Object> source,Map<String,Object> target) throws SQLException {
+    private void extractColumnValues(Map<String,Object> source,Map<String,Object> target,boolean SQLNames) throws SQLException {
         /* TODO: cache a case-insensitive version of the columns list and iterate on source keys, with equalsIgnoreCase (or more efficient) funtion */
         for(Iterator i=columns.iterator();i.hasNext();) {
             String col = (String)i.next();
-            Object val = source.get(col);
+            String name = SQLNames ? aliasToColumn(col) : col;
+            Object val = source.get(name);
             if (val == null) {
                 switch(db.getCaseSensivity()) {
                     /* for now, only try with different letter case... */
                     case Database.UPPERCASE:
-                        val = source.get(col.toLowerCase());
+                        val = source.get(name.toLowerCase());
                         break;
                     case Database.LOWERCASE:
-                        val = source.get(col.toUpperCase());
+                        val = source.get(name.toUpperCase());
                         break;
                 }
             }
