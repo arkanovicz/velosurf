@@ -543,7 +543,7 @@ public class ConfigLoader {
             /* aliases */
             Element aliases = element.getChild("aliases");
             if (aliases != null) {
-                for(org.jdom.Attribute att:(List<org.jdom.Attribute>)element.getAttributes()) {
+                for(org.jdom.Attribute att:(List<org.jdom.Attribute>)aliases.getAttributes()) {
                     String column = att.getValue();
                     String alias = att.getName();
                     entity.addAlias(alias,column);
