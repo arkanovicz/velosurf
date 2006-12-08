@@ -87,7 +87,7 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
         entity = resultEntity;
         Map<String,Object> row = null;
         if (hasNext) {
-            if (resultEntity!=null) row = resultEntity.getInstance(new ReadOnlyMap(this));
+            if (resultEntity!=null) row = resultEntity.newInstance(new ReadOnlyMap(this),true);
             else {
                 row = new TreeMap<String,Object>();
                 if (columnNames == null) columnNames = SqlUtil.getColumnNames(resultSet);

@@ -94,7 +94,7 @@ public class RowIterator implements Iterator, RowHandler {
             prefetch = false;
             if (resultEntity != null) {
                 Instance row = null;
-                row = resultEntity.getInstance(new ReadOnlyMap(this));
+                row = resultEntity.newInstance(new ReadOnlyMap(this),true);
                 return row;
             }
             else return new Instance(new ReadOnlyMap(this));
@@ -168,7 +168,7 @@ public class RowIterator implements Iterator, RowHandler {
             pooledStatement.getConnection().enterBusyState();
             if(resultEntity != null) {
                 while (!resultSet.isAfterLast() && resultSet.next()) {
-                    Instance i = resultEntity.getInstance(new ReadOnlyMap(this));
+                    Instance i = resultEntity.newInstance(new ReadOnlyMap(this),true);
                     ret.add(i);
                 }
             } else {
