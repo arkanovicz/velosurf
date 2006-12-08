@@ -31,7 +31,7 @@ import velosurf.util.UserContext;
 /** <p>A context wrapper for the main database connection object.</p>
  * <p>The "<code>$db</code>" context variable is assigned a new instance of this class at each velocity parsing.</p>
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
 
  // FIXME : right now, extends HashMap bkoz velocity wants a HashMap for setters

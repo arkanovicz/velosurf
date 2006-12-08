@@ -3,7 +3,7 @@ package velosurf.util;
 /**
  * Cryptograph - used to encrypt and decrypt strings.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
 public interface Cryptograph {
     /**

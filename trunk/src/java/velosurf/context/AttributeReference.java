@@ -29,7 +29,7 @@ import velosurf.util.StringLists;
 
 /** Context wrapper for attributes.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
 public class AttributeReference extends AbstractList
 {

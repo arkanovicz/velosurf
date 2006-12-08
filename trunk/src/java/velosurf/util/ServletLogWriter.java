@@ -23,7 +23,7 @@ import javax.servlet.ServletContext;
 
 /** This class implements a writer towards the servlet log.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
 public class ServletLogWriter extends Writer
 {

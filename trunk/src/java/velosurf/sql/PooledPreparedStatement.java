@@ -34,7 +34,7 @@ import velosurf.util.Logger;
 
 /** this class encapsulates a jdbc PreparedStatement.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
 

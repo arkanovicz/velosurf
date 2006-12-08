@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
  * A null servlet, provided here for convenience, that will redirect the user to the forbidden uri (if provided
  * in the init parameter "forbidden-uri") or respond with the FORBIDDEN error code.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
 
 public class NullServlet extends HttpServlet

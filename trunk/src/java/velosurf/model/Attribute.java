@@ -30,7 +30,7 @@ import velosurf.util.StringLists;
 
 /** This class represents an attribute in the object model.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
 public class Attribute

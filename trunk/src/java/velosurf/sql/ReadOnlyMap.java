@@ -27,7 +27,7 @@ import velosurf.util.Logger;
  * A wrapper implementing the Map interface for some objets having only getters.
  * Only <code>get(key)</code> and <code>keySet()</code> are implemented.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
 
 public class ReadOnlyMap implements Map<String,Object> {

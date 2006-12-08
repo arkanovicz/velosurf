@@ -30,7 +30,7 @@ import velosurf.util.UserContext;
 
 /** An Instance provides field values by their name.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
 public class Instance extends TreeMap<String,Object>
 {

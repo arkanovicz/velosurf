@@ -20,7 +20,7 @@ import java.util.Locale;
 
 /** To be implemented by localizers used by the engine to get localized strings from their database id.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  **/
 

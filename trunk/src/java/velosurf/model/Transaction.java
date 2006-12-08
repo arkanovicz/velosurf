@@ -27,7 +27,7 @@ import velosurf.util.StringLists;
 
 /** This class is an action that gather several consecutive update/delete/insert queries.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
 public class Transaction extends Action
