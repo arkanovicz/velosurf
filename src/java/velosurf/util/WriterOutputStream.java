@@ -18,7 +18,7 @@ package velosurf.util;
 
 /** an output stream wrapping a writer.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
 
 import java.io.IOException;

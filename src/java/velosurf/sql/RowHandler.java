@@ -21,7 +21,7 @@ import java.sql.SQLException;
 
 /** This interface represents objects having read-only properties
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
 public interface RowHandler

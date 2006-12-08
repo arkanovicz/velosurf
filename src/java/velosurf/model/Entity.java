@@ -37,7 +37,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 /** The Entity class represents an entity in the data model.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
 public class Entity

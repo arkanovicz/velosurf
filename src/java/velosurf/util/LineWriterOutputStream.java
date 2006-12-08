@@ -19,7 +19,7 @@ package velosurf.util;
 /**
  * Bufferize chars written on the wrapped writer into lines.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
 

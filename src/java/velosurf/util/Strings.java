@@ -18,7 +18,7 @@ package velosurf.util;
 
 /** this class gathers static utility methods for strings
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
 public class Strings
 {

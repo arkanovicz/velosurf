@@ -35,7 +35,7 @@ import java.util.Map;
  * <p>This caching mechanism is meant for straightforward optimizations in simple situations, for instance to
  * avoid re-fetching the loggued user at each request.</p>
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
 public class Cache {

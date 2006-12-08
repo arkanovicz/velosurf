@@ -29,7 +29,7 @@ import velosurf.util.UserContext;
 
 /** Context wrapper for an entity.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
 public class EntityReference extends AbstractList {
         /* extends AbstractList so that Velocity will call iterator() from within a #foreach directive */

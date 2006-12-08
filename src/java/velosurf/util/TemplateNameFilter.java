@@ -207,7 +207,7 @@ public class TemplateNameFilter implements Filter {
             query = "?" + query;
         }
 Logger.trace("--------------------------------");
-Logger.trace("URI = "+path+query);
+Logger.trace("URI = "+path+query+" (Referer: "+request.getHeader("Referer")+")");        
         /* I've been said some buggy containers where leaving the query string in the uri */
         int i;
         if ((i = path.indexOf("?")) != -1) {

@@ -29,7 +29,7 @@ import velosurf.util.Logger;
  *
  * It is meant for the query scope.
  *
- *  @author <a href=mailto:claude.brisson.com>Claude Brisson</a>
+ *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  **/
  public class HttpQueryTool extends ParameterParser implements Map
