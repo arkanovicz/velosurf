@@ -12,6 +12,10 @@
 	</attribute>
   </entity>
 
+  <entity name="book">
+    <aliases ref="isbn"/>
+  </entity>
+
   <xi:include href="included.xml"/>
 
 </database>

@@ -40,7 +40,6 @@ public class WhiteboxTests
         assertNotNull(row);
         assertTrue(row instanceof Instance);
         Instance i = (Instance)row;
-for(Object k:i.keySet()){Logger.debug("### "+k+" -> "+i.get(k));}        
         assertTrue(i.get("publisher_id") != null);
         assertTrue(i.get("name") != null);
     }
@@ -57,7 +56,7 @@ for(Object k:i.keySet()){Logger.debug("### "+k+" -> "+i.get(k));}
         assertTrue(instance.getEntity() != null);
         assertTrue(instance.get("book_id") != null);
         assertTrue(instance.get("title") != null);
-        assertTrue(instance.get("isbn") != null);
+        assertTrue(instance.get("ref") != null);
         assertTrue(instance.get("publisher_id") != null);
         assertTrue(instance.get("author_id") != null);
         assertTrue(iterator.hasNext());
@@ -67,7 +66,7 @@ for(Object k:i.keySet()){Logger.debug("### "+k+" -> "+i.get(k));}
         assertTrue(instance.getEntity() != null);
         assertTrue(instance.get("book_id") != null);
         assertTrue(instance.get("title") != null);
-        assertTrue(instance.get("isbn") != null);
+        assertTrue(instance.get("ref") != null);
         assertTrue(instance.get("publisher_id") != null);
         assertTrue(instance.get("author_id") != null);
         assertFalse(iterator.hasNext());
