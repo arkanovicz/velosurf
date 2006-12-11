@@ -1,5 +1,7 @@
 TODO
 ----
+ - facilitates acces to Database objects from Java
+ - RowIterator has to be splitted: one core object in sql (with more advanced accessors like InputStreams), one wrapper in context
  - tool for one-shot messages
  - should newInstance(map) call validation?
  - reporting facility on errors => DBErrorListener or the like...
