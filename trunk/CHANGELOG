@@ -2,6 +2,7 @@
 
 v2.2
 ----
+ - added an experimental DBResourceLoader Velocity resource loader
  - fix: aliases were not taken into account in Entity.extractColumnValues
  - fix: aliases were never read by the ConfigLoader
  - the localizer tool now checks if the locale changes in the session
