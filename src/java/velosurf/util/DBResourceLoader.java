@@ -37,25 +37,34 @@ import velosurf.web.VelosurfTool;
 
 public class DBResourceLoader extends ResourceLoader {
 
-    private DBReference db = null;
-    private EntityReference table = null;
+    protected DBReference db = null;
+    protected EntityReference table = null;
 
-    private String entity = null;
-    private String dataField = null;
-    private String timestampField = null;
+    protected String entity = null;
+    protected String dataField = null;
+    protected String timestampField = null;
 
     public void init(ExtendedProperties configuration) {
-        /* for now... */
-        db = VelosurfTool.getDefaultInstance();
-
         entity = configuration.getString("entity","template");
         dataField = configuration.getString("data","data");
         timestampField = configuration.getString("lastmodified","lastmodified");
 
-        table = (EntityReference)db.get(entity);
+        initdb();
+    }
+
+    protected synchronized void initdb() {
+        if (db == null) {
+            db = VelosurfTool.getDefaultInstance();
+            if (db != null) {
+                table = (EntityReference)db.get(entity);
+            }
+        }
     }
 
     public InputStream getResourceStream(String id) throws ResourceNotFoundException {
+        if (db == null) {
+            initdb();
+        }
         String template = (String)table.fetch(id).get(dataField);
         return new ReaderInputStream(new StringReader(template));
     }
