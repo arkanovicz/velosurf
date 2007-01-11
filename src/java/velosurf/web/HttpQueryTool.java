@@ -34,8 +34,6 @@ import velosurf.util.Logger;
  **/
  public class HttpQueryTool extends ParameterParser implements Map
 {
-    /** view context. */
-    private ViewContext context = null;
     /** extra values map. */
     private Map extraValues = new HashMap();
 
@@ -57,7 +55,6 @@ import velosurf.util.Logger;
             Logger.error("HttpQueryTool.init: can't initialize... bad scope ? (query scope expected)");
             throw new IllegalArgumentException("expecting a ViewContext argument");
         }
-        context = (ViewContext)viewContext;
     }
 
     /**
@@ -90,7 +87,7 @@ import velosurf.util.Logger;
      * @return number of parameters
      */
     public int size() {
-        return context.getRequest().getParameterMap().size() + extraValues.size();
+        return getRequest().getParameterMap().size() + extraValues.size();
     }
 
     /**
@@ -98,7 +95,7 @@ import velosurf.util.Logger;
      * @return true if empty
      */
     public boolean isEmpty() {
-        return context.getRequest().getParameterMap().isEmpty() && extraValues.isEmpty();
+        return getRequest().getParameterMap().isEmpty() && extraValues.isEmpty();
     }
 
     /**
@@ -107,7 +104,7 @@ import velosurf.util.Logger;
      * @return true if present
      */
     public boolean containsKey(Object key) {
-        return context.getRequest().getParameterMap().containsKey(key) || extraValues.containsKey(key);
+        return getRequest().getParameterMap().containsKey(key) || extraValues.containsKey(key);
     }
 
     /**
@@ -118,7 +115,7 @@ import velosurf.util.Logger;
     public boolean containsValue(Object value) {
         String[] array = new String[1];
         array[0] = (String)value;
-        return context.getRequest().getParameterMap().containsValue(array) || extraValues.containsValue(value);
+        return getRequest().getParameterMap().containsValue(array) || extraValues.containsValue(value);
     }
 
     /**
@@ -150,7 +147,7 @@ import velosurf.util.Logger;
      * @return set of names
      */
     public Set keySet() {
-        Set ret = context.getRequest().getParameterMap().keySet();
+        Set ret = getRequest().getParameterMap().keySet();
         ret.addAll(extraValues.keySet());
         return ret;
     }
@@ -162,7 +159,7 @@ import velosurf.util.Logger;
     public Collection values() {
         String[] array;
         Collection ret = new HashSet();
-        Collection coll = context.getRequest().getParameterMap().values();
+        Collection coll = getRequest().getParameterMap().values();
         for(Object value:coll) {
             if(value.getClass().isArray()) {
                 array=(String[])value;
@@ -177,7 +174,7 @@ import velosurf.util.Logger;
 
     public Set<Entry> entrySet() {
         Map map = new HashMap();
-        Set<Entry> coll = context.getRequest().getParameterMap().entrySet();
+        Set<Entry> coll = getRequest().getParameterMap().entrySet();
         for(Entry entry:coll) {
             Object value = entry.getValue();
             if (value.getClass().isArray() && ((String[])value).length == 1) {
