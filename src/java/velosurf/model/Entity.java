@@ -79,7 +79,7 @@ public class Entity
         alias = db.adaptCase(alias);
         column = db.adaptCase(column);
         Logger.trace("added alias "+name+"."+alias+" -> "+name+"."+column);
-        aliases.put(column,alias);
+        aliases.put(alias,column);
     }
 
     /**
