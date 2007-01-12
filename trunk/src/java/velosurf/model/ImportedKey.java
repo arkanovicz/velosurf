@@ -57,7 +57,7 @@ public class ImportedKey extends Attribute {
             for(String param:fkCols) {
                 addParamName(param);
             }
-            query = "SELECT * FROM " + pkEntity.getTableName() + " WHERE " + StringLists.join(pkEntity.aliasToColumn(pkEntity.getPKCols())," = ? AND ") + " = ?";
+            query = "SELECT * FROM " + pkEntity.getTableName() + " WHERE " + StringLists.join(pkEntity.getPKCols()," = ? AND ") + " = ?";
 //          Logger.debug(getEntity().getName()+"."+getName()+" = "+query+" [ with params "+StringLists.join(fkCols,",")+" ]" );
         }
         return query;

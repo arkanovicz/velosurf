@@ -126,7 +126,7 @@ public class RowIterator implements Iterator, RowHandler {
         try {
             if (!dataAvailable()) return null;
             if (resultEntity!=null) {
-                property = resultEntity.aliasToColumn(property);
+                property = resultEntity.resolveName(property);
                 Attribute attribute = resultEntity.getAttribute(property);
                 if (attribute != null)
                         switch (attribute.getType()) {

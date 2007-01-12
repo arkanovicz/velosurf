@@ -72,7 +72,7 @@ public class ExportedKey extends Attribute {
             for(String param:getEntity().getPKCols()) {
                 addParamName(param);
             }
-            query = "SELECT * FROM " + fkEntity.getTableName() + " WHERE " + StringLists.join(fkEntity.aliasToColumn(fkCols)," = ? AND ") + " = ?";
+            query = "SELECT * FROM " + fkEntity.getTableName() + " WHERE " + StringLists.join(fkCols," = ? AND ") + " = ?";
 //          Logger.debug(getEntity().getName()+"."+getName()+" = "+query+" [ with params "+StringLists.join(getEntity().getPKCols(),",")+" ]" );
         }
         return query;
