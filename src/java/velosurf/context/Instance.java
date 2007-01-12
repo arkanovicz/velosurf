@@ -153,14 +153,12 @@ public class Instance extends TreeMap<String,Object>
      */
     public synchronized Object put(String key, Object value)
     {
-        if(db != null) {
-            key = db.adaptCase(key);
-        }
-        if(entity != null) {
-            key = entity.resolveName(key);
+        key = db.adaptCase(key);
+        key = entity.resolveName(key);
+        if (entity.isColumn(key)) {
             value = entity.filterIncomingValue(key,value);
+            return super.put(key,value);
         }
-        return super.put(key,value);
     }
 
     public synchronized void put(Map<String,Object> values) {
