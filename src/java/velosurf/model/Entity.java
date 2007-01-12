@@ -64,10 +64,10 @@ public class Entity
      * @param colName column name
      */
     public void addColumn(String colName,int sqlType) {
-        /* remember the alias */
-        String alias = columnToAlias(colName);
-        columns.add(alias);
-        types.put(alias,sqlType);
+        colName = db.adaptCase(colName);
+        columns.add(colName);
+        types.put(colName,sqlType);
+        /* if (colnames as aliases) */ aliases.put(colName,colName);
     }
 
     /**
@@ -79,8 +79,7 @@ public class Entity
         alias = db.adaptCase(alias);
         column = db.adaptCase(column);
         Logger.trace("added alias "+name+"."+alias+" -> "+name+"."+column);
-        aliasByColumn.put(column,alias);
-        columnByAlias.put(alias,column);
+        aliases.put(column,alias);
     }
 
     /**
@@ -88,36 +87,9 @@ public class Entity
      * @param alias alias
      * @return column name
      */
-    public String aliasToColumn(String alias) {
+    public String resolveName(String alias) {
         alias = db.adaptCase(alias);
-        String col = columnByAlias.get(alias);
-        return col == null ? alias : col;
-    }
-
-    /**
-     * Translate a list of aliases to a list of column names.
-     * @param aliases list of aliases
-     * @return list of column names
-     */
-    public List<String> aliasToColumn(List<String> aliases) {
-        if(columnByAlias.size() > 0) {
-            List<String> ret = new ArrayList<String>();
-            for(String alias:aliases) {
-                ret.add(aliasToColumn(alias));
-            }
-            return ret;
-        } else return aliases;
-    }
-
-    /**
-     * Translate a column name to an alias.
-     * @param column column
-     * @return alias
-     */
-    public String columnToAlias(String column) {
-        column = db.adaptCase(column);
-        String alias = aliasByColumn.get(column);
-        return alias == null ? column : alias;
+        return aliases.get(alias);
     }
 
     /** Add a key column to the sequential list of the key columns. Called during the reverse-engeenering of the database.
@@ -126,7 +98,7 @@ public class Entity
      */
     public void addPKColumn(String colName) {
         /* remember the alias */
-        keyCols.add(columnToAlias(colName));
+        keyCols.add(colName);
     }
 
     /** Add a new attribute.
@@ -306,24 +278,42 @@ public class Entity
      */
     private void extractColumnValues(Map<String,Object> source,Map<String,Object> target,boolean SQLNames) throws SQLException {
         /* TODO: cache a case-insensitive version of the columns list and iterate on source keys, with equalsIgnoreCase (or more efficient) funtion */
-        for(Iterator i=columns.iterator();i.hasNext();) {
-            String col = (String)i.next();
-            String name = SQLNames ? aliasToColumn(col) : col;
-            Object val = source.get(name);
-            if (val == null) {
-                switch(db.getCaseSensivity()) {
-                    /* for now, only try with different letter case... */
-                    case Database.UPPERCASE:
-                        val = source.get(name.toLowerCase());
-                        break;
-                    case Database.LOWERCASE:
-                        val = source.get(name.toUpperCase());
-                        break;
+        if (SQLNames) {
+            /* the source uses sql names (and if it is a rowset wrapped in a read-only map,
+              we don't have the entrySet() method on the source object) */
+            for(Iterator i=columns.iterator();i.hasNext();) {
+                String col = (String)i.next();
+                Object val = source.get(col);
+                if (val == null) {
+                    switch(db.getCaseSensivity()) {
+                        /* for now, only try with different letter case... */
+                        case Database.UPPERCASE:
+                            val = source.get(col.toLowerCase());
+                            break;
+                        case Database.LOWERCASE:
+                            val = source.get(col.toUpperCase());
+                            break;
+                    }
                 }
-            }
-            /* avoid null and multivalued attributes */
-            if (val != null && !(val.getClass().isArray())) {
+                /* avoid null and multivalued attributes */
+                if (val == null || (val.getClass().isArray())) {
+                    continue;
+                }
                 target.put(col,val);
+            }
+        } else {
+            /* the source uses aliased names */
+            for (Map.Entry<String,Object> entry : source.entrySet()) {
+                String col = resolveName(db.adaptCase(entry.getKey()));
+                /* only keep valid aliases */
+                if (col != null) {
+                    Object val = entry.getValue();
+                    /* avoid null and multivalued attributes */
+                    if (val == null || (val.getClass().isArray())) {
+                        continue;
+                    }
+                    target.put(col,val);
+                }
             }
         }
     }
@@ -336,7 +326,6 @@ public class Entity
      * @return an array containing all key values
      */
     private Object buildKey(Map<String,Object> values) throws SQLException {
-
         // build key
         Object [] key = new Object[keyCols.size()];
         int c=0;
@@ -578,7 +567,7 @@ public class Entity
     private void buildFetchQuery() {
         List<String> whereClause = new ArrayList<String>();
         for(String column:keyCols) {
-            whereClause.add(aliasToColumn(column)+"=?");
+            whereClause.add(column+"=?");
         }
         fetchQuery = "select * from "+table+" where "+StringLists.join(whereClause," and ");
     }
@@ -843,14 +832,9 @@ public class Entity
      */
 
     /**
-     * Alias by column map.
-     */
-    private Map<String,String> aliasByColumn = new HashMap<String,String>();
-
-    /**
      * Column by alias map.
      */
-    private Map<String,String> columnByAlias = new HashMap<String,String>();
+    private Map<String,String> aliases = new HashMap<String,String>();
 
     /** Attribute map.
      *
