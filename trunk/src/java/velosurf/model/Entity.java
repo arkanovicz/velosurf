@@ -175,7 +175,7 @@ public class Entity
      */
     public void addConstraint(String column,FieldConstraint constraint) {;
         Logger.trace("adding constraint on column "+Database.adaptContextCase(getName())+"."+column+": "+constraint);
-        constraints.add(new FieldConstraintInfo(column,constraint));
+        constraints.add(new FieldConstraintInfo(resolveName(column),constraint));
     }
 
     /** Used by the framework to notify this entity that its reverse enginering is over.
@@ -251,7 +251,9 @@ public class Entity
         try {
             Instance result = newInstance();
             extractColumnValues(values,result,useSQLnames);
-            if (cachingMethod != Cache.NO_CACHE) cache.put(buildKey(values),result);
+            if (cachingMethod != Cache.NO_CACHE) {
+                cache.put(buildKey(result),result);
+            }
             return result;
         }
         catch (SQLException sqle) {
@@ -356,6 +358,22 @@ public class Entity
      */
     public List<String> getColumns() {
         return columns;
+    }
+
+    /** Check if the provided map contains all key columns
+     *
+     * @param values map of values to check
+     * @return true if all key columns are present
+     */
+    public boolean hasKey(Map<String,Object> values) {
+        if(keyCols.size() == 0) {
+            return false; /* could be 'true' but indicates that 'fetch' cannot be called */
+        }
+        List<String> cols = new ArrayList<String>();
+        for(String key:values.keySet()) {
+            cols.add(resolveName(key));
+        }
+        return (cols.containsAll(keyCols));
     }
 
     /** Insert a new row based on values of a map.
@@ -464,7 +482,7 @@ public class Entity
         }
         return instance;
     }
-
+        
     /** Fetch an instance from key values stored in a Map.
      *
      * @param values the Map containing the key values
