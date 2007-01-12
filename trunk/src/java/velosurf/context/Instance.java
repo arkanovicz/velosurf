@@ -75,6 +75,7 @@ public class Instance extends TreeMap<String,Object>
      * #foreach ($field in $product.primaryKey)<br>
      * &nbsp;&nbsp;&lt;input type=hidden name='$field.name' value='$field.value'&gt;<br>
      * #end</code>
+     * <p>Please note that this method won't be of any help if you are using column aliases.</p>
      *
      * @return an ArrayList of two-entries maps ('name' & 'value')
      */
@@ -102,6 +103,21 @@ public class Instance extends TreeMap<String,Object>
     public Object get(String key) {
         if (db != null) {
             key = db.adaptCase((String)key);
+            /* TODO review use-case where entity is null */
+            /* check key containing a dot: get(foo.bar) = get(foo).get(bar) (TODO: testcase)*/
+            int dot = key.indexOf('.');
+            if (dot > 0 && dot < key.length()-1) {
+                Object value = get(key.substring(0,dot));
+                if (value != null && value instanceof Instance) {
+                    return ((Instance)value).get(key.substring(dot+1));
+                }
+            }
+            if (entity != null) {
+                key = entity.resolveName(key);
+                if (key == null) {
+                    return null;
+                }
+            }
         }
         Object result = null;
         try {
@@ -152,9 +168,31 @@ public class Instance extends TreeMap<String,Object>
             key = db.adaptCase(key);
         }
         if(entity != null) {
+            key = entity.resolveName(key);
             value = entity.filterIncomingValue(key,value);
         }
         return super.put(key,value);
+    }
+
+    public synchronized void put(Map<String,Object> values) {
+        for(Map.Entry<String,Object> entry:values.entrySet()) {
+            String key = entry.getKey();
+            /* check for dots inside key */
+            int dot = key.indexOf('.');
+            if( dot > 0 && dot < key.length()-1) {
+                Object val = get(key.substring(0,dot));
+                if (val != null && val instanceof Instance) {
+                    ((Instance)val).put(key.substring(dot+1),entry.getValue());
+                    continue;
+                }
+            }
+            /* resolveName will also be called by put(key,val)
+               but we need to filter known keys here to avoid an NPE */
+            key = entity.resolveName(key);
+            if(key != null) {
+                put(key,entry.getValue());
+            }
+        }
     }
 
     /** Internal getter. First tries on the external object then on the Map interface.
@@ -186,20 +224,6 @@ public class Instance extends TreeMap<String,Object>
      */
     public boolean equals(Object o) {
         return super.equals(o);
-/*
-            if (entity != null) {
-                // compare only keys
-                List keys = entity.getKeys();
-                Instance other = (Instance)o;
-                if (keys.size() > 0) {
-                    for(Iterator i = keys.iterator();i.hasNext();) {
-                        if (getInternal(i.next()) != other.getInternal(i.next()))
-                            return false;
-                    }
-                    return true;
-                }
-            }
-*/
     }
 
     /** <p>Update the row associated with this Instance from passed values.</p>
@@ -234,7 +258,10 @@ public class Instance extends TreeMap<String,Object>
             }
             if (values != null && values != this) {
                 for(Map.Entry<String,Object> entry:values.entrySet()) {
-                    newvalues.put(db.adaptCase(entry.getKey()),entry.getValue());
+                    String key = entity.resolveName(db.adaptCase(entry.getKey()));
+                    if(key != null) {
+                        newvalues.put(db.adaptCase(entry.getKey()),entry.getValue());
+                    }
                 }
             }
             List<String> updateClause = new ArrayList<String>();
@@ -245,7 +272,7 @@ public class Instance extends TreeMap<String,Object>
             for (String col:cols) {
                 Object value = newvalues.get(col);
                 if (value!=null) {
-                    updateClause.add(entity.aliasToColumn(col)+"=?");
+                    updateClause.add(col+"=?");
                     if (entity.isObfuscated(col)) value = entity.deobfuscate(value);
                     params.add(value);
                 }
@@ -255,7 +282,7 @@ public class Instance extends TreeMap<String,Object>
                 if (value == null) throw new SQLException("field '"+col+"' belongs to primary key and cannot be null!");
                 if (entity.isObfuscated(col)) value = entity.deobfuscate(value);
 //                if (entity.isLocalized(col)) value = entity.unlocalize(value); ???
-                whereClause.add(entity.aliasToColumn(col)+"=?");
+                whereClause.add(col+"=?");
                 params.add(value);
             }
             String query = "update "+entity.getTableName()+" set "+StringLists.join(updateClause,",")+" where "+StringLists.join(whereClause," and ");
@@ -295,7 +322,7 @@ public class Instance extends TreeMap<String,Object>
                 Object value = getInternal(col);
                 if (value == null) throw new SQLException("Instance.delete: Error: field '"+col+"' belongs to primary key and cannot be null!");
                 if (entity.isObfuscated(col)) value = entity.deobfuscate(value);
-                whereClause.add(entity.aliasToColumn(col)+"=?");
+                whereClause.add(col+"=?");
                 params.add(value);
             }
             String query = "delete from "+entity.getTableName()+" where "+StringLists.join(whereClause," and ");
@@ -341,7 +368,7 @@ public class Instance extends TreeMap<String,Object>
             for (String col:cols) {
                 Object value = getInternal(col);
                 if (value!=null) {
-                    colsClause.add(entity.aliasToColumn(col));
+                    colsClause.add(col);
                     valsClause.add("?");
                     if (entity.isObfuscated(col)) value = entity.deobfuscate(value);
                     params.add(value);
