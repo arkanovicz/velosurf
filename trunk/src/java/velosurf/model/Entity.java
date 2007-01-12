@@ -89,7 +89,8 @@ public class Entity
      */
     public String resolveName(String alias) {
         alias = db.adaptCase(alias);
-        return aliases.get(alias);
+        String name = aliases.get(alias);
+        return name == null ? alias : name;
     }
 
     /** Add a key column to the sequential list of the key columns. Called during the reverse-engeenering of the database.
@@ -788,6 +789,9 @@ public class Entity
         }
         /* for now, only filter boolean values */
         Integer type = types.get(column);
+        if (type == null) {
+            return value;
+        }
         if(type == Types.BOOLEAN || type == Types.BIT) {
             if(String.class.isAssignableFrom(value.getClass())) {
                 String s = (String)value;

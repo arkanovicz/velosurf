@@ -104,19 +104,8 @@ public class Instance extends TreeMap<String,Object>
         if (db != null) {
             key = db.adaptCase((String)key);
             /* TODO review use-case where entity is null */
-            /* check key containing a dot: get(foo.bar) = get(foo).get(bar) (TODO: testcase)*/
-            int dot = key.indexOf('.');
-            if (dot > 0 && dot < key.length()-1) {
-                Object value = get(key.substring(0,dot));
-                if (value != null && value instanceof Instance) {
-                    return ((Instance)value).get(key.substring(dot+1));
-                }
-            }
             if (entity != null) {
                 key = entity.resolveName(key);
-                if (key == null) {
-                    return null;
-                }
             }
         }
         Object result = null;
@@ -176,22 +165,7 @@ public class Instance extends TreeMap<String,Object>
 
     public synchronized void put(Map<String,Object> values) {
         for(Map.Entry<String,Object> entry:values.entrySet()) {
-            String key = entry.getKey();
-            /* check for dots inside key */
-            int dot = key.indexOf('.');
-            if( dot > 0 && dot < key.length()-1) {
-                Object val = get(key.substring(0,dot));
-                if (val != null && val instanceof Instance) {
-                    ((Instance)val).put(key.substring(dot+1),entry.getValue());
-                    continue;
-                }
-            }
-            /* resolveName will also be called by put(key,val)
-               but we need to filter known keys here to avoid an NPE */
-            key = entity.resolveName(key);
-            if(key != null) {
-                put(key,entry.getValue());
-            }
+            put(entry.getKey(),entry.getValue());
         }
     }
 
@@ -233,17 +207,6 @@ public class Instance extends TreeMap<String,Object>
      *     occurs (in which case $db.error can be checked).
      */
     public synchronized boolean update() {
-        return update(null);
-    }
-
-    /** <p>Update the row associated with this Instance from actual values.</p>
-     * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
-     *
-     * @param values values to be used for the update
-     * @return <code>true</code> if successfull, <code>false</code> if an error
-     *      occurs (in which case $db.error can be checked).
-     */
-    public synchronized boolean update(Map<String,Object> values) {
         try {
             if (entity == null) {
                 throw new SQLException("Cannot update an instance whose Entity is null.");
@@ -251,26 +214,14 @@ public class Instance extends TreeMap<String,Object>
             if (entity.isReadOnly()) {
                 throw new SQLException("Entity "+entity.getName()+" is read-only.");
             }
-            Map<String,Object> newvalues = new HashMap<String,Object>();
-            for(Iterator it = keySet().iterator();it.hasNext();) {
-                String key = (String)it.next();
-                newvalues.put(db.adaptCase(key),getInternal(key));
-            }
-            if (values != null && values != this) {
-                for(Map.Entry<String,Object> entry:values.entrySet()) {
-                    String key = entity.resolveName(db.adaptCase(entry.getKey()));
-                    if(key != null) {
-                        newvalues.put(db.adaptCase(entry.getKey()),entry.getValue());
-                    }
-                }
-            }
+            
             List<String> updateClause = new ArrayList<String>();
             List<String> whereClause = new ArrayList<String>();
             List<Object> params = new ArrayList<Object>();
             List<String> cols = new ArrayList<String>(entity.getColumns());
             cols.removeAll(entity.getPKCols());
             for (String col:cols) {
-                Object value = newvalues.get(col);
+                Object value = getInternal(col);
                 if (value!=null) {
                     updateClause.add(col+"=?");
                     if (entity.isObfuscated(col)) value = entity.deobfuscate(value);
@@ -278,7 +229,7 @@ public class Instance extends TreeMap<String,Object>
                 }
             }
             for (String col:entity.getPKCols()) {
-                Object value = newvalues.get(col);
+                Object value = getInternal(col);
                 if (value == null) throw new SQLException("field '"+col+"' belongs to primary key and cannot be null!");
                 if (entity.isObfuscated(col)) value = entity.deobfuscate(value);
 //                if (entity.isLocalized(col)) value = entity.unlocalize(value); ???
@@ -305,6 +256,20 @@ public class Instance extends TreeMap<String,Object>
             handleSQLException(sqle);
             return false;
         }
+    }
+
+    /** <p>Update the row associated with this Instance from actual values.</p>
+     * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
+     *
+     * @param values values to be used for the update
+     * @return <code>true</code> if successfull, <code>false</code> if an error
+     *      occurs (in which case $db.error can be checked).
+     */
+    public synchronized boolean update(Map<String,Object> values) {
+        if (values != null && values != this) {
+            put(values);
+        }
+        return update();
     }
 
     /** <p>Delete the row associated with this Instance.</p>
