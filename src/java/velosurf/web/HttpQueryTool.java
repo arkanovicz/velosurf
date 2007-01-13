@@ -62,9 +62,12 @@ import velosurf.util.Logger;
                 if (value.getClass().isArray() && ((String[])value).length == 1) {
                     value = ((String[])value)[0];
                 }
-                Map map = new HashMap();
+                Map map = (Map)extraValues.get(parentKey);
+                if (map == null) {
+                    map = new HashMap();
+                    extraValues.put(parentKey,map);
+                }
                 map.put(subKey,value);
-                extraValues.put(parentKey,map);
             }
         }
     }

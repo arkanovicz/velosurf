@@ -1,5 +1,7 @@
 TODO
 ----
+ - TagCloudTool
+ - Instances should check external POJOs for some additional methods, like "validate"
  - facilitates acces to Database objects from Java
  - RowIterator has to be splitted: one core object in sql (with more advanced accessors like InputStreams), one wrapper in context
  - tool for one-shot messages
