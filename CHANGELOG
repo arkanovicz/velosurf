@@ -2,6 +2,7 @@
 
 v2.2
 ----
+ - added instance.putAll and instance.putColumns
  - HttpQueryTool now interpret dots in keys as parent key and subkey pair
  - fix: cache key calculation was not always right
  - internal instance values are now stored using sql column values
