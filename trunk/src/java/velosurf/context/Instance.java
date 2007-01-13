@@ -154,9 +154,21 @@ public class Instance extends TreeMap<String,Object>
         return super.put(key,value);
     }
 
-    public synchronized void put(Map<String,Object> values) {
+    public synchronized void putAll(Map<String,Object> values) {
         for(Map.Entry<String,Object> entry:values.entrySet()) {
             put(entry.getKey(),entry.getValue());
+        }
+    }
+
+    public synchronized void putColumns(Map<String,Object> values) {
+        if(entity == null) {
+            Logger.warn("instance.putColumn(map) cannot be used when entity is null");
+            return;
+        }
+        for(Map.Entry<String,Object> entry:values.entrySet()) {
+            if(entity.isColumn(entity.resolveName(entry.getKey()))) {
+                put(entry.getKey(),entry.getValue());
+            }
         }
     }
 
@@ -378,7 +390,7 @@ public class Instance extends TreeMap<String,Object>
 
     /** This Instance's Entity.
      */
-    private Entity entity = null;
+    protected Entity entity = null;
 
     /** Is there a column to localize?
      */
@@ -386,6 +398,6 @@ public class Instance extends TreeMap<String,Object>
 
     /** The main database connection.
      */
-    private Database db = null;
+    protected Database db = null;
 
 }
