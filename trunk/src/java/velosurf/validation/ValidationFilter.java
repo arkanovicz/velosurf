@@ -120,7 +120,13 @@ public class ValidationFilter implements Filter {
                             response.sendError(HttpServletResponse.SC_BAD_REQUEST,"validation: entity '"+entity+"' does not exist!");
                             return;
                         } else {
-                            accept &= entityRef.validate(map);
+                            try {
+                                accept &= entityRef.validate(map);
+                            } catch(Exception e) {
+                                Logger.error("validation: validation of entity '"+entity+"' throwed exception:");
+                                Logger.log(e);
+                                response.sendError(HttpServletResponse.SC_BAD_REQUEST,"validation: validation of entity '"+entity+"' throwed exception "+e.getMessage());                                
+                            }
                         }
                     }
                 }

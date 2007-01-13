@@ -101,13 +101,7 @@ public class Instance extends TreeMap<String,Object>
      *      occurs
      */
     public Object get(String key) {
-        if (db != null) {
-            key = db.adaptCase((String)key);
-            /* TODO review use-case where entity is null */
-            if (entity != null) {
-                key = entity.resolveName(key);
-            }
-        }
+        key = resolveName(key);
         Object result = null;
         try {
             result = super.get(key);
@@ -153,12 +147,11 @@ public class Instance extends TreeMap<String,Object>
      */
     public synchronized Object put(String key, Object value)
     {
-        key = db.adaptCase(key);
-        key = entity.resolveName(key);
-        if (entity.isColumn(key)) {
+        key = resolveName(key);
+        if (entity != null && entity.isColumn(key)) {
             value = entity.filterIncomingValue(key,value);
-            return super.put(key,value);
         }
+        return super.put(key,value);
     }
 
     public synchronized void put(Map<String,Object> values) {
@@ -371,6 +364,16 @@ public class Instance extends TreeMap<String,Object>
     private void handleSQLException(SQLException sqle) {
         Logger.log(sqle);
         db.setError(sqle.getMessage());
+    }
+    
+    protected String resolveName(String name) {
+        if(entity != null) {
+            return entity.resolveName(name);
+        } else if (db != null) {
+            return db.adaptCase(name);
+        } else {
+            return name;
+        }
     }
 
     /** This Instance's Entity.

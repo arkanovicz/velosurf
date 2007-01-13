@@ -174,8 +174,14 @@ public class Entity
      * @param constraint constraint
      */
     public void addConstraint(String column,FieldConstraint constraint) {;
+        column = resolveName(column);
         Logger.trace("adding constraint on column "+Database.adaptContextCase(getName())+"."+column+": "+constraint);
-        constraints.add(new FieldConstraintInfo(resolveName(column),constraint));
+        List<FieldConstraint> list = constraints.get(column);
+        if (list == null) {
+            list = new ArrayList<FieldConstraint>();
+            constraints.put(column,list);
+        }
+        list.add(constraint);
     }
 
     /** Used by the framework to notify this entity that its reverse enginering is over.
@@ -307,7 +313,7 @@ public class Entity
         } else {
             /* the source uses aliased names */
             for (Map.Entry<String,Object> entry : source.entrySet()) {
-                String col = resolveName(db.adaptCase(entry.getKey()));
+                String col = resolveName(entry.getKey());
                 /* only keep valid aliases */
                 if (col != null) {
                     Object val = entry.getValue();
@@ -323,26 +329,27 @@ public class Entity
 
     /** Build the key for the Cache from a Map.
      *
-     * @param values the Map containing all values
+     * @param values the Map containing all values (unaliased)
      * @exception SQLException the getter of the Map throws an
      *     SQLException
      * @return an array containing all key values
      */
     private Object buildKey(Map<String,Object> values) throws SQLException {
-        // build key
         Object [] key = new Object[keyCols.size()];
         int c=0;
-        for(Iterator i = keyCols.iterator(); i.hasNext();)
-            key[c++] = values.get(i.next());
+        for(String keycol:keyCols) {
+            key[c++] = values.get(keycol);
+        }
         return key;
     }
-
 
     /** Getter for the name of this entity.
      *
      * @return the name of the entity
      */
-    public String getName() { return name; }
+    public String getName() { 
+        return name; 
+    }
 
     /** Getter for the list of key column names.
      *
@@ -359,15 +366,20 @@ public class Entity
     public List<String> getColumns() {
         return columns;
     }
+    
+    public boolean isColumn(String name) {
+        return columns.contains(name);
+    }
 
     /** Check if the provided map contains all key columns
      *
      * @param values map of values to check
      * @return true if all key columns are present
      */
+/* not used     
     public boolean hasKey(Map<String,Object> values) {
         if(keyCols.size() == 0) {
-            return false; /* could be 'true' but indicates that 'fetch' cannot be called */
+            return false; // could be 'true' but indicates that 'fetch' cannot be called
         }
         List<String> cols = new ArrayList<String>();
         for(String key:values.keySet()) {
@@ -375,7 +387,7 @@ public class Entity
         }
         return (cols.containsAll(keyCols));
     }
-
+*/
     /** Insert a new row based on values of a map.
      *
      * @param values the  Map object containing the values
@@ -489,28 +501,39 @@ public class Entity
      * @return the fetched instance
      */
     public Instance fetch(Map<String,Object> values) throws SQLException {
+        if(keyCols.size() == 0) {
+            throw new SQLException("entity "+name+": cannot fetch an instance for an entity without key!");
+        }
         Instance instance = null;
-        /* check key values are present */
-        for(String keyCol:keyCols) {
-            if (!values.containsKey(keyCol)) {
-                Logger.debug("tried to fetch an instance without key value '"+keyCol+"'...");
-                return null;
+        /* extract key values */
+        Object key[] = new Object[keyCols.size()];
+        int n = 0;
+        for(Map.Entry<String,Object> entry:values.entrySet()) {
+            String col = resolveName(entry.getKey());
+            int i = keyCols.indexOf(col);
+            if (i>0) {
+                key[i] = entry.getValue();
+                n++;
             }
         }
-        if (cachingMethod != Cache.NO_CACHE)
+        if (n != keyCols.size() ) {
+            throw new SQLException("entity "+name+".fetch(): missing key values!");
+        }
+        if (cachingMethod != Cache.NO_CACHE) {
             // try in cache
-            instance = (Instance)cache.get(buildKey(values));
+            instance = (Instance)cache.get(key);
+        }
         if (instance == null) {
             if (fetchQuery == null) buildFetchQuery();
             PooledPreparedStatement statement = db.prepare(fetchQuery);
             if (obfuscate) {
-                Map<String,Object> map =  new HashMap<String,Object>();
-                for(Object key:values.keySet()) {
-                    Object value = values.get(key);
-                    map.put( Database.adaptContextCase((String)key), isObfuscated((String)key) ? deobfuscate(value) : value );
+                for(int c=0;c<keyCols.size();c++) {
+                    if (isObfuscated(keyCols.get(c))) {
+                        key[c] = deobfuscate(key[c]);
+                    }
                 }
             }
-            instance = (Instance)statement.fetch(values,this);
+            instance = (Instance)statement.fetch(Arrays.asList(key),this);
         }
         return instance;
     }
@@ -741,23 +764,50 @@ public class Entity
            before displaying errors to the user.
            */
         userContext.clearValidationErrors();
-        for(FieldConstraintInfo info:constraints) {
-            Object data = row.get(info.column);
-            if (!info.constraint.validate(data, userContext.getLocale())) {
-                if(userContext != null) {
-                    String stringData = data.toString();
-                    String formatted = (data==null || stringData.length() == 0 ? "empty value" : stringData);
-                    if (formatted.length() > MAX_DATA_DISPLAY_LENGTH) {
-                        formatted = formatted.substring(0,MAX_DATA_DISPLAY_LENGTH)+"...";
+        List<ValidationError> errors = new ArrayList<ValidationError>();
+        for(Map.Entry<String,Object> entry:row.entrySet()) {
+            String col = resolveName(entry.getKey());
+            Object data = entry.getValue();
+            List<FieldConstraint> list = constraints.get(col);
+            if(list != null) {
+                for(FieldConstraint constraint:list) {
+                    if (!constraint.validate(data, userContext.getLocale())) {
+                        String stringData = data.toString();
+                        String formatted = (data==null || stringData.length() == 0 ? "empty value" : stringData);
+                        if (formatted.length() > MAX_DATA_DISPLAY_LENGTH) {
+                            formatted = formatted.substring(0,MAX_DATA_DISPLAY_LENGTH)+"...";
+                        }
+                        formatted = StringEscapeUtils.escapeHtml(formatted);
+                        errors.add(new ValidationError(col,userContext.localize(constraint.getMessage(),Database.adaptContextCase(col),formatted)));
+                        ret = false;
                     }
-                    formatted = StringEscapeUtils.escapeHtml(formatted);
-                    userContext.addValidationError(userContext.localize(info.constraint.getMessage(),info.column,formatted));
                 }
-                ret = false;
+            }
+        }
+        if(errors.size()>0) {
+            /* sort in columns natural order... better than nothing.
+               The ideal ordering would be the order of the form fields,
+               but it is unreachable. */
+            Collections.sort(errors);
+            for(ValidationError error:errors) {
+                userContext.addValidationError(error.message);
             }
         }
         return ret;
     }
+    
+    class ValidationError implements Comparable<ValidationError> {
+        ValidationError(String column,String message) {
+            index = columns.indexOf(column);
+            this.message = message;
+        }
+        public int compareTo(ValidationError cmp) {
+            return index - cmp.index;
+        }
+        String message;
+        int index;
+    }
+    
 
     /**
      * Check for the existence of an imported key with the same columns.
@@ -883,32 +933,8 @@ public class Entity
     /** the cache.
      */
     private Cache cache = null;
-
-    /** constraints.
+    
+    /** Constraint by column name map.
      */
-
-    private class FieldConstraintInfo {
-       /** Field constraint info constructor.
-        *
-        * @param col column name
-        * @param constr constraint
-        */
-        private FieldConstraintInfo(String col,FieldConstraint constr) {
-            column = col;
-            constraint = constr;
-        }
-        /**
-         * column.
-         */
-        private String column;
-        /**
-         * constraint.
-         */
-        private FieldConstraint constraint;
-    }
-
-    /**
-     * Constraint by column name map.
-     */
-    private List<FieldConstraintInfo> constraints = new ArrayList<FieldConstraintInfo>();
+    private Map<String,List<FieldConstraint>> constraints = new HashMap<String,List<FieldConstraint>>();
 }
