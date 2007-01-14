@@ -349,12 +349,12 @@ public class ConfigLoader {
             List<String> fkCols = null;
             String foreignCols = keyelem.getAttributeValue("foreign-cols");
             if (foreignCols != null) {
-                fkCols = Arrays.asList(foreignCols.split(","));
-                /* just check... */
-                for(String col:fkCols) {
-                    if(!entity.columnToAlias(col).equals(col)) {
-                       Logger.error("entity "+entity.getName()+": column '"+col+"' is aliased as '"+entity.columnToAlias(col)+"', use the alias name when defining the imported-key '"+name+"'!");
-                    }
+                fkCols = new ArrayList<String>();
+                List<String> aliases = Arrays.asList(foreignCols.split(","));
+                
+                /* resolve names */
+                for(String col:aliases) {
+                    fkCols.add(entity.resolveName(col));
                 }
             }
             entity.addAttribute(new ImportedKey(name,entity,pkEntity,fkCols));
@@ -374,12 +374,12 @@ public class ConfigLoader {
             List<String> fkCols = null;
             String foreignCols = keyelem.getAttributeValue("foreign-cols");
             if (foreignCols != null) {
-                fkCols = Arrays.asList(foreignCols.split(","));
-                /* just check... */
-                for(String col:fkCols) {
-                    if(!entity.columnToAlias(col).equals(col)) {
-                       Logger.error("entity "+entity.getName()+": column '"+col+"' is aliased as '"+entity.columnToAlias(col)+"', use the alias name when defining the exported-key '"+name+"'!");
-                    }
+                fkCols = new ArrayList<String>();
+                List<String> aliases = Arrays.asList(foreignCols.split(","));
+
+                /* resolve names */
+                for(String col:aliases) {
+                    fkCols.add(entity.resolveName(col));
                 }
             }
             entity.addAttribute(new ExportedKey(name,entity,pkEntity,fkCols));

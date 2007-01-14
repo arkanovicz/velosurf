@@ -790,6 +790,7 @@ public class Entity
                but it is unreachable. */
             Collections.sort(errors);
             for(ValidationError error:errors) {
+                Logger.trace("validation: new message: "+error.message);
                 userContext.addValidationError(error.message);
             }
         }
