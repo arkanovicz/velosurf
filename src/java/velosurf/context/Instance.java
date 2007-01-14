@@ -154,12 +154,6 @@ public class Instance extends TreeMap<String,Object>
         return super.put(key,value);
     }
 
-    public synchronized void putAll(Map<String,Object> values) {
-        for(Map.Entry<String,Object> entry:values.entrySet()) {
-            put(entry.getKey(),entry.getValue());
-        }
-    }
-
     public synchronized void putColumns(Map<String,Object> values) {
         if(entity == null) {
             Logger.warn("instance.putColumn(map) cannot be used when entity is null");
@@ -270,7 +264,7 @@ public class Instance extends TreeMap<String,Object>
      */
     public synchronized boolean update(Map<String,Object> values) {
         if (values != null && values != this) {
-            put(values);
+            putColumns(values);
         }
         return update();
     }

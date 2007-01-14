@@ -56,18 +56,6 @@ public class Length extends FieldConstraint {
     }
 
     /**
-     * Constructor.
-     * @param minLen the minimum length allowed (inclusive)
-     * @param maxLen the maximum length allowed (inclusive)
-     * @param msg a string like "is not of the proper length"
-     */
-    public Length(int minLen,int maxLen,String msg) {
-        this.minLen = minLen;
-        this.maxLen = maxLen;
-        setMessage(msg);
-    }
-
-    /**
      * Min length setter.
      * @param minLen minimum length
      */
