@@ -34,9 +34,19 @@ import velosurf.util.UserContext;
  */
 public class Instance extends TreeMap<String,Object>
 {
+
+    /** Build an empty instance for the given entity.
+     *  The method initialize(Entity) should be called afterwards.
+     * @param entity Entity this instance is a realisation of
+     */
+    public Instance() {
+    }
+
+
     /** Build an empty instance for the given entity.
      *
      * @param entity Entity this instance is a realisation of
+     * @deprecated
      */
     public Instance(Entity entity) {
         initialize(entity);
