@@ -315,7 +315,7 @@ public class Entity
             for (Map.Entry<String,Object> entry : source.entrySet()) {
                 String col = resolveName(entry.getKey());
                 /* only keep valid aliases */
-                if (col != null) {
+                if (isColumn(col)) {
                     Object val = entry.getValue();
                     /* avoid null and multivalued attributes */
                     if (val == null || (val.getClass().isArray())) {

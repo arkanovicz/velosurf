@@ -280,7 +280,7 @@ public class Instance extends TreeMap<String,Object>
      */
     public synchronized boolean update(Map<String,Object> values) {
         if (values != null && values != this) {
-            putColumns(values);
+            setColumns(values);
         }
         return update();
     }
