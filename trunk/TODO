@@ -1,5 +1,8 @@
 TODO
 ----
+ - naming collisions detection for aliases
+ - subkeys ("foo.bar"): httpquery tool policy (split or not) should be configurable
+ - configloader doesn't allow old form instance constructors with (entity) as param
  - TagCloudTool
  - Instances should check external POJOs for some additional methods, like "validate"
  - facilitates acces to Database objects from Java
