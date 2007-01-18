@@ -52,9 +52,10 @@ import velosurf.util.Logger;
         super.init(viewContext);
 
         /* review all parameter keys to interpret "dots" inside keynames (only one level for now - FIXME: implement a recursive behaviour) */
-        for(Map.Entry<String,Object> entry:(Set<Map.Entry<String,Object>>)getAll().entrySet()) {
+        for(Map.Entry<String,Object> entry:(Set<Map.Entry<String,Object>>)getSource().entrySet()) {
             String key = entry.getKey();
             int dot = key.indexOf('.');
+Logger.debug(">> found a dot in "+key);                        
             if (dot > 0 && dot < key.length()-1) {
                 String parentKey = key.substring(0,dot);
                 String subKey = key.substring(dot+1);
@@ -68,6 +69,7 @@ import velosurf.util.Logger;
                     extraValues.put(parentKey,map);
                 }
                 map.put(subKey,value);
+Logger.debug("<< got extra value "+subKey);
             }
         }
     }
@@ -197,7 +199,7 @@ import velosurf.util.Logger;
             }
             map.put(entry.getKey(),value);
         }
-        Set<Entry> ret = map.entrySet();
+        Set<Entry> ret = new HashSet(map.entrySet());
         ret.addAll(extraValues.entrySet());
         return ret;
     }
