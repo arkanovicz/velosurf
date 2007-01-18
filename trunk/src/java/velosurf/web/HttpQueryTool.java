@@ -55,7 +55,6 @@ import velosurf.util.Logger;
         for(Map.Entry<String,Object> entry:(Set<Map.Entry<String,Object>>)getSource().entrySet()) {
             String key = entry.getKey();
             int dot = key.indexOf('.');
-Logger.debug(">> found a dot in "+key);                        
             if (dot > 0 && dot < key.length()-1) {
                 String parentKey = key.substring(0,dot);
                 String subKey = key.substring(dot+1);
@@ -69,7 +68,6 @@ Logger.debug(">> found a dot in "+key);
                     extraValues.put(parentKey,map);
                 }
                 map.put(subKey,value);
-Logger.debug("<< got extra value "+subKey);
             }
         }
     }
