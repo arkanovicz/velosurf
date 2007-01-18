@@ -164,6 +164,12 @@ public class Instance extends TreeMap<String,Object>
         return super.put(key,value);
     }
 
+    /** Global setter that will only set values the correspond to actual
+     * columns (otherwise, use putAll(Map values)).
+     *
+     * @param values corresponding values
+     */
+
     public synchronized void putColumns(Map<String,Object> values) {
         if(entity == null) {
             Logger.warn("instance.putColumn(map) cannot be used when entity is null");
