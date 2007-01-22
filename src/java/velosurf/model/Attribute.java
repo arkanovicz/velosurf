@@ -183,7 +183,19 @@ public class Attribute
         if (source!=null)
             for (Iterator i = paramNames.iterator();i.hasNext();) {
                 String paramName = (String)i.next();
-                Object value = source.get(paramName);
+                Object value = null;
+                int dot = paramName.indexOf('.');
+                if (dot > 0 && dot < paramName.length()-1) {
+                    String parentKey = paramName.substring(0,dot);
+                    String subKey = paramName.substring(dot+1);
+                    value = source.get(parentKey);
+                    if(value != null && value instanceof Map) {
+                        value = ((Map)value).get(subKey);
+                    }
+                }
+                if (value == null) {
+                    value = source.get(paramName);
+                }
                 if (entity.isObfuscated(paramName)) value = db.deobfuscate(value);
                 if (value == null) Logger.warn("Query "+query+": param "+paramName+" is null!");
                 result.add(value);
