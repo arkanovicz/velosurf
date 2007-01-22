@@ -1,5 +1,9 @@
 TODO
 ----
+ - review obfuscation vs. foreign keys 
+ - testcases for "parentkey.subkey" attributes parameters
+ - testcases for multiple aliases
+ - display build # in logs at startup
  - naming collisions detection for aliases
  - subkeys ("foo.bar"): httpquery tool policy (split or not) should be configurable
  - configloader doesn't allow old form instance constructors with (entity) as param
