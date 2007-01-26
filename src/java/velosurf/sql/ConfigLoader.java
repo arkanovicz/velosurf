@@ -196,16 +196,19 @@ public class ConfigLoader {
             this.database.getReverseEngineer().setReverseMode(mode);
         }
 
-        this.database.setUser(database.getAttributeValue("user"));
-        this.database.setPassword(database.getAttributeValue("password"));
-        this.database.setURL(database.getAttributeValue("url"));
-        this.database.setDriver(database.getAttributeValue("driver"));
+        Element credentials = database.getChild("credentials");
+        if (credentials == null) {
+            credentials = database;
+        }
 
-        String schema = adaptCase(database.getAttributeValue("schema"));
+        this.database.setUser(credentials.getAttributeValue("user"));
+        this.database.setPassword(credentials.getAttributeValue("password"));
+        this.database.setURL(credentials.getAttributeValue("url"));
+        this.database.setDriver(credentials.getAttributeValue("driver"));
+        String schema = adaptCase(credentials.getAttributeValue("schema"));
         if (schema != null) {
             this.database.setSchema(schema);
         }
-
 
         /* load driver now so as to know default behaviours */
         this.database.loadDriver();
