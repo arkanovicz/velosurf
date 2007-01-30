@@ -187,9 +187,12 @@ public class Attribute
                 int dot = paramName.indexOf('.');
                 if (dot > 0 && dot < paramName.length()-1) {
                     String parentKey = paramName.substring(0,dot);
-                    String subKey = paramName.substring(dot+1);
                     value = source.get(parentKey);
+					if(value == null) {
+						value=source.get(entity.resolveName(parentKey));
+					}
                     if(value != null && value instanceof Map) {
+                        String subKey = paramName.substring(dot+1);
                         value = ((Map)value).get(subKey);
                     }
                 }
