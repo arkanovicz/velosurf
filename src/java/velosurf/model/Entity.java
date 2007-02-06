@@ -287,43 +287,25 @@ public class Entity
      */
     private void extractColumnValues(Map<String,Object> source,Map<String,Object> target,boolean SQLNames) throws SQLException {
         /* TODO: cache a case-insensitive version of the columns list and iterate on source keys, with equalsIgnoreCase (or more efficient) funtion */
-        if (SQLNames) {
-            /* the source uses sql names (and if it is a rowset wrapped in a read-only map,
-              we don't have the entrySet() method on the source object) */
-            for(Iterator i=columns.iterator();i.hasNext();) {
-                String col = (String)i.next();
-                Object val = source.get(col);
-                if (val == null) {
-                    switch(db.getCaseSensivity()) {
-                        /* for now, only try with different letter case... */
-                        case Database.UPPERCASE:
-                            val = source.get(col.toLowerCase());
-                            break;
-                        case Database.LOWERCASE:
-                            val = source.get(col.toUpperCase());
-                            break;
-                    }
-                }
-                /* avoid null and multivalued attributes */
-                if (val == null || (val.getClass().isArray())) {
-                    continue;
-                }
-                target.put(col,val);
+        /* We use keySet and not entrySet here because if the source map is a ReadOnlyMap, entrySet is not available */
+        for(String key:source.keySet()) {
+
+            /* resove anyway */
+            String col = resolveName(key);
+            /* this is more or less a hack: we do filter columns
+               only when SQLNames is fale. The purpose of this
+               is to allow additionnal fields in SQL attributes
+               returning rowsets of entities. */
+
+            if(!SQLNames && !isColumn(col)) {
+                continue;
             }
-        } else {
-            /* the source uses aliased names */
-            for (Map.Entry<String,Object> entry : source.entrySet()) {
-                String col = resolveName(entry.getKey());
-                /* only keep valid aliases */
-                if (isColumn(col)) {
-                    Object val = entry.getValue();
-                    /* avoid null and multivalued attributes */
-                    if (val == null || (val.getClass().isArray())) {
-                        continue;
-                    }
-                    target.put(col,val);
-                }
+
+            Object val = source.get(key);
+            if (val == null || (val.getClass().isArray())) {
+                continue;
             }
+            target.put(col,val);
         }
     }
 
