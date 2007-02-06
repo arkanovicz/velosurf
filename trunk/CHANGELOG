@@ -2,6 +2,8 @@
 
 v2.2
 ----
+ - Entity.extractColumnValues now allows additionnal columns when comming from the sql side
+ - fix: HttpQueryTool needed a get(String) method besides the get(Object) one to properly override parent generic getter
  - added a <credentials> element
  - added method instance.setColumns
  - HttpQueryTool now interpret dots in keys as parent key and subkey pair
