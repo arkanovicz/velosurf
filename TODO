@@ -1,5 +1,6 @@
 TODO
 ----
+ - introspection of Instance subclasses for specific getters and setters (avoid loops!)
  - review obfuscation vs. foreign keys 
  - testcases for "parentkey.subkey" attributes parameters
  - testcases for multiple aliases
