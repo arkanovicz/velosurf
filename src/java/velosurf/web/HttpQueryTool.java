@@ -88,6 +88,16 @@ import velosurf.util.Logger;
     }
 
     /**
+     * Generic getter with String argument (necessary to properly overload super getter).
+     * @param key key
+     * @return value or null
+     */
+    public Object get(String key)
+    {
+        return get((Object)key);
+    }
+
+    /**
      * Generic setter.
      * @param key key
      * @param value value
@@ -119,7 +129,7 @@ import velosurf.util.Logger;
      * @return true if present
      */
     public boolean containsKey(Object key) {
-        return containsKey(key) || extraValues.containsKey(key);
+        return getSource().containsKey(key) || extraValues.containsKey(key);
     }
 
     /**
@@ -162,7 +172,8 @@ import velosurf.util.Logger;
      * @return set of names
      */
     public Set keySet() {
-        Set ret = getSource().keySet();
+        Set ret = new HashSet();
+        ret.addAll(getSource().keySet());
         ret.addAll(extraValues.keySet());
         return ret;
     }
