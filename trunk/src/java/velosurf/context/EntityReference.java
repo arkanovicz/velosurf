@@ -259,7 +259,8 @@ public class EntityReference extends AbstractList {
     public void refine(String criterium) {
         Logger.trace("refine: "+criterium);
         /* protect from SQL query injection */
-        if (criterium.indexOf('\'') != -1 || criterium.indexOf(';') != -1 || criterium.indexOf("--") != -1) {
+        // FIXME: check that there is an even number of "'"
+        if (/*criterium.indexOf('\'') != -1 || */criterium.indexOf(';') != -1 || criterium.indexOf("--") != -1) {
             Logger.error("bad refine string: "+criterium);
         } else {
             if (refineCriteria == null) {
