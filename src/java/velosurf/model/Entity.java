@@ -111,7 +111,7 @@ public class Entity
             Logger.warn("Ignoring second definition for attribute "+name+"!");
         } else {
             attributeMap.put(db.adaptCase(name),attribute);
-            Logger.debug("defined attribute "+this.name+"."+name+" = "+attribute);
+            Logger.trace("defined attribute "+this.name+"."+name+" = "+attribute);
         }
     }
 
