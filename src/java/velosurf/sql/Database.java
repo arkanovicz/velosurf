@@ -650,7 +650,7 @@ public class Database {
         // recover exact encoded string
         ret = ret.replace('.','=');
         ret = ret.replace('_','/');
-        ret = ret.replace('*','+');
+        ret = ret.replace('-','+');
 
         ret = cryptograph.decrypt(ret);
 
