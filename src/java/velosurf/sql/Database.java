@@ -631,7 +631,7 @@ public class Database {
         // we want to avoid some characters fot HTTP GET
         encoded = encoded.replace('=','.');
         encoded = encoded.replace('/','_');
-        encoded = encoded.replace('+','*');
+        encoded = encoded.replace('+','-');
 
         return encoded;
     }
