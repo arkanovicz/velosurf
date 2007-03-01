@@ -158,4 +158,11 @@ public class BlackboxTests
         checkText(resp,"result","1");
     }
 
+    public @Test void testinsert() throws Exception {
+        WebConversation wc = new WebConversation();
+        WebRequest req = new GetMethodWebRequest("http://localhost:"+SERVER_PORT+"/insert.html");
+        WebResponse resp = wc.getResponse(req);
+        checkText(resp,"result","3");
+    }
+
 }
