@@ -2,6 +2,7 @@
 
 v2.2
 ----
+ - populate last inserted IDs in instances when needed on insertion
  - Entity.extractColumnValues now allows additionnal columns when comming from the sql side
  - fix: HttpQueryTool needed a get(String) method besides the get(Object) one to properly override parent generic getter
  - added a <credentials> element
