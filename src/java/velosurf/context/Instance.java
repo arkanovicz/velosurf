@@ -358,11 +358,11 @@ public class Instance extends TreeMap<String,Object>
             List<String> keys = entity.getPKCols();
             if (keys.size() == 1) {
                 /* What if the ID is not autoincremented? TODO check it. => reverse engineering of autoincrement, and set the value in the instance itself */
+                String keycol = keys.get(0);
 				long newid = statement.getLastInsertID();
                 db.getUserContext().setLastInsertedID(entity,newid);
-				String keycol = keys.get(0);
 				if(getInternal(keycol) == null) {
-					put(keycol,newid);
+					put(keycol,entity.isObfuscated(keycol)?entity.obfuscate(newid):newid);
 				}
             }
             return true;
