@@ -136,8 +136,12 @@ public class XIncludeResolver {
                 }
                 href = base + href;
             }
-            Logger.info("XInclude: including element "+href);
-            content = (context == null ? readStream(new FileInputStream(href)) : readStream(context.getResourceAsStream(href)));
+            Logger.info("XInclude: including element "+href +(context==null?" (using absolute pathname)":" (using provided servlet context, pathname is relative to Webapp root)"));
+            InputStream stream = (context == null ? new FileInputStream(href) : context.getResourceAsStream(href));
+            if(stream == null) {
+                throw new Exception ("XInclude: included file "+href+" not found!");
+            }
+            content = readStream(stream);
         }
         if (parse) {
             content = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><root xmlns:xi=\"http://www.w3.org/2001/XInclude\">"+content+"</root>";
