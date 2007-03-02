@@ -125,6 +125,7 @@ public class XIncludeResolver {
         int i = href.indexOf(':');
         if(i != -1) {
             /* absolute URL... */
+            Logger.info("XInclude: including element "+href);
             content = readStream(new URL(href).openStream());
         } else {
             if (!href.startsWith("/")) {
@@ -135,6 +136,7 @@ public class XIncludeResolver {
                 }
                 href = base + href;
             }
+            Logger.info("XInclude: including element "+href);
             content = (context == null ? readStream(new FileInputStream(href)) : readStream(context.getResourceAsStream(href)));
         }
         if (parse) {
