@@ -146,7 +146,7 @@ public class Database {
     public static Database getInstance(InputStream config,XIncludeResolver xincludeResolver) throws SQLException {
         Database instance = new Database();
         instance.readConfigFile(config,xincludeResolver);
-		initCryptograph();
+		instance.initCryptograph();
         instance.connect();
         instance.getReverseEngineer().readMetaData();
         return instance;
