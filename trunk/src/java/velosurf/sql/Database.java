@@ -146,6 +146,7 @@ public class Database {
     public static Database getInstance(InputStream config,XIncludeResolver xincludeResolver) throws SQLException {
         Database instance = new Database();
         instance.readConfigFile(config,xincludeResolver);
+		initCryptograph();
         instance.connect();
         instance.getReverseEngineer().readMetaData();
         return instance;
@@ -167,6 +168,7 @@ public class Database {
         this.url = url;
         this.schema = schema;
         driverClass = driver;
+		initCryptograph();
         connect();
     }
     /** Connect the database.

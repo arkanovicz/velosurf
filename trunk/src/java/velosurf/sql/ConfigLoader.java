@@ -66,8 +66,6 @@ public class ConfigLoader {
     private Database database = null;
     /** &lt;<code>xi:include</code>&gt; tag resolver. */
     private XIncludeResolver xincludeResolver = null;
-    /** Obfuscation needed? */
-    private boolean needObfuscator = false;
     /** Syntax checker pattern for the <code>result</code> attribute of &lt;<code>attribute</code>&gt; tags. */
     private static final Pattern attributeResultSyntax = Pattern.compile("^scalar|(?:(?:row|rowset)(?:/.+)?)$");
     /**
@@ -114,8 +112,6 @@ public class ConfigLoader {
 
         /* define entities */
         defineEntities(database);
-
-        if (needObfuscator) this.database.initCryptograph();
 
         Logger.info("Config file successfully read.");
     }
@@ -522,7 +518,6 @@ public class ConfigLoader {
             String obfuscate = element.getAttributeValue("obfuscate");
             element.removeAttribute("obfuscate");
             if (obfuscate != null) {
-                needObfuscator = true;
                 List<String> obfuscatedCols = new ArrayList<String>();
                 StringTokenizer tokenizer = new StringTokenizer(obfuscate,", ");
                 while(tokenizer.hasMoreTokens()) {
