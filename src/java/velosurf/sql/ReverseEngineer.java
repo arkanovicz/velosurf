@@ -335,7 +335,7 @@ public class ReverseEngineer {
 //            Logger.trace("reverse: found exported key: "+entity.getName()+"("+StringLists.join(pkCols,",")+") <- "+fkTable+"("+StringLists.join(fkCols,",")+")");
             ExportedKey definedKey = entity.findExportedKey(fkEntity,fkCols);
             if (definedKey == null) {
-                entity.addAttribute(new ExportedKey(getExportedKeyName(fkEntityName),entity,fkTable,fkCols));
+                entity.addAttribute(new ExportedKey(getExportedKeyName(fkEntityName),entity,fkTable,new ArrayList<String>(fkCols)));
             } else if (definedKey.getFKCols() == null) {
                 definedKey.setFKCols(fkCols);
             }
@@ -362,7 +362,7 @@ public class ReverseEngineer {
   //          Logger.trace("reverse: found imported key: "+entity.getName()+"("+StringLists.join(fkCols,",")+") -> "+pkTable+"("+StringLists.join(pkCols,",")+")");
             ImportedKey definedKey = entity.findImportedKey(pkEntity,fkCols);
             if (definedKey == null) {
-                entity.addAttribute(new ImportedKey(pkEntityName,entity,pkEntityName,fkCols));
+                entity.addAttribute(new ImportedKey(pkEntityName,entity,pkEntityName,new ArrayList<String>(fkCols)));
             } else if (definedKey.getFKCols() == null) {
                     definedKey.setFKCols(fkCols);
             }
