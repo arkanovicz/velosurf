@@ -631,11 +631,12 @@ public class Database {
         String encoded = cryptograph.encrypt(value.toString());
 
         // we want to avoid some characters fot HTTP GET
-        encoded = encoded.replace('=','.');
+//        encoded = encoded.replace('=','.');
         encoded = encoded.replace('/','_');
         encoded = encoded.replace('+','-');
 
-        return encoded;
+		// strip the last character (always a '=')
+        return encoded.substring(0,encoded.length()-1);
     }
 
     /** De-obfuscate the given value.
@@ -647,10 +648,11 @@ public class Database {
     {
         if (value == null) return null;
 
-        String ret = value.toString();
+		// recover the last character
+        String ret = value.toString() + "=";
 
         // recover exact encoded string
-        ret = ret.replace('.','=');
+//        ret = ret.replace('.','=');
         ret = ret.replace('_','/');
         ret = ret.replace('-','+');
 
