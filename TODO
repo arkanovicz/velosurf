@@ -1,13 +1,7 @@
 TODO
 ----
- - Java API: try to do better than:
-            Attribute root = db.getAttribute("root");
-            Map params = new HashMap();
-            params.put("param",date);
-		    return (Long)root.evaluate(params) == 1;
-
+ - automatically propagate obfuscation along foreign keys
  - introspection of Instance subclasses for specific getters and setters (avoid loops!)
- - review obfuscation vs. foreign keys 
  - testcases for "parentkey.subkey" attributes parameters
  - testcases for multiple aliases
  - display build # in logs at startup

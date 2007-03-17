@@ -2,9 +2,12 @@
 
 v2.2
 ----
+ - fix: Instance.get(key) now takes an Object argument to propery inherit parent's generic getter
+ - added the debugging method $query.queryString
+ - url, driver and schema can now be part of <database> or of <credentials>
  - populate last inserted IDs in instances when needed on insertion
  - Entity.extractColumnValues now allows additionnal columns when comming from the sql side
- - fix: HttpQueryTool needed a get(String) method besides the get(Object) one to properly override parent generic getter
+ - fix: HttpQueryTool needed a get(String) method besides the get(Object) one to properly override inherited generic getter
  - added a <credentials> element
  - added method instance.setColumns
  - HttpQueryTool now interpret dots in keys as parent key and subkey pair
@@ -27,7 +30,7 @@ v2.2
  - added the missing EntityReference.newInstance(Map) method
  - fix: some methods of UserContext had to be synchronized
  - UserContext.getValidationErrors() now clears the validation errors for the next call
- - made login and passworf form field names configurable in AuthenticationFilter
+ - made login and password form field names configurable in AuthenticationFilter
  - added the getter BaseAuthenticator.getLoggedUser()
  - fix: web.VelosurfTool now avoid overwriting a previously thread-locally initialized user context in the database
  - removed all VelosurfTool methods taking an unused UserContext argument
