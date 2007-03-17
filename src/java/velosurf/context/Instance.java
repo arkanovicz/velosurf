@@ -110,8 +110,8 @@ public class Instance extends TreeMap<String,Object>
      * @return a String, an Instance, an AttributeReference or null if an error
      *      occurs
      */
-    public Object get(String key) {
-        key = resolveName(key);
+    public Object get(Object k) {
+        String key = resolveName((String)k);
         Object result = null;
         try {
             result = super.get(key);
