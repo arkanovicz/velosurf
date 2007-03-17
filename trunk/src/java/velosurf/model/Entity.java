@@ -131,7 +131,7 @@ public class Entity
     public void addAction(Action action) {
         String name = action.getName();
         actionMap.put(db.adaptCase(name),action);
-        Logger.debug("action "+this.name+"."+name+" = "+action);
+        Logger.trace("defined action "+this.name+"."+name+" = "+action);
     }
 
     /** get an action.
@@ -293,7 +293,7 @@ public class Entity
             /* resove anyway */
             String col = resolveName(key);
             /* this is more or less a hack: we do filter columns
-               only when SQLNames is fale. The purpose of this
+               only when SQLNames is false. The purpose of this
                is to allow additionnal fields in SQL attributes
                returning rowsets of entities. */
 
@@ -381,7 +381,7 @@ public class Entity
             return false;
         }
         Instance instance = newInstance(values);
-        /* if found in cache because it exists, driver will issue a SQLException */
+        /* if found in cache because it exists, driver will issue a SQLException TODO review this*/
         return instance.insert();
     }
 
