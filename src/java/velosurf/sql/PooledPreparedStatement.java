@@ -78,28 +78,31 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
      * @return the fetched Instance
      */
     public synchronized Object fetch(List params,Entity resultEntity) throws SQLException {
-        notifyInUse();
-        setParams(params);
-        connection.enterBusyState();
-        resultSet = preparedStatement.executeQuery();
-        boolean hasNext = resultSet.next();
-        connection.leaveBusyState();
-        entity = resultEntity;
         Map<String,Object> row = null;
-        if (hasNext) {
-            if (resultEntity!=null) row = resultEntity.newInstance(new ReadOnlyMap(this),true);
-            else {
-                row = new TreeMap<String,Object>();
-                if (columnNames == null) columnNames = SqlUtil.getColumnNames(resultSet);
-                for (Iterator it=columnNames.iterator();it.hasNext();) {
-                    String column = (String)it.next();
-                    Object value = resultSet.getObject(column);
-                    if (value != null && !resultSet.wasNull())
-                        row.put(column,value);
+        try {
+            notifyInUse();
+            setParams(params);
+            connection.enterBusyState();
+            resultSet = preparedStatement.executeQuery();
+            boolean hasNext = resultSet.next();
+            connection.leaveBusyState();
+            entity = resultEntity;
+           if (hasNext) {
+                if (resultEntity!=null) row = resultEntity.newInstance(new ReadOnlyMap(this),true);
+                else {
+                    row = new TreeMap<String,Object>();
+                    if (columnNames == null) columnNames = SqlUtil.getColumnNames(resultSet);
+                    for (Iterator it=columnNames.iterator();it.hasNext();) {
+                        String column = (String)it.next();
+                        Object value = resultSet.getObject(column);
+                        if (value != null && !resultSet.wasNull())
+                            row.put(column,value);
+                    }
                 }
             }
+        } finally {
+            notifyOver();
         }
-        notifyOver();
         return row;
     }
 
@@ -155,8 +158,8 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
     public synchronized Object evaluate(List params) throws SQLException {
         Object value = null;
         ResultSet rs = null;
-        notifyInUse();
         try {
+            notifyInUse();
             if (params != null) {
                 setParams(params);
             }
