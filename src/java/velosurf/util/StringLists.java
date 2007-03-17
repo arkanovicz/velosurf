@@ -57,7 +57,7 @@ public class StringLists
 
         while (i.hasNext()) {
             result.append(joinString);
-            result.append((String)i.next());
+            result.append(i.next().toString());
         }
         return result.toString();
     }
