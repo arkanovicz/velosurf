@@ -62,7 +62,7 @@ public class PooledSimpleStatement extends PooledStatement {
      */
     public synchronized RowIterator query(String query,Entity resultEntity) throws SQLException {
         notifyInUse();
-        Logger.debug("query-"+query);
+        Logger.trace("query-"+query);
         connection.enterBusyState();
         RowIterator result = new RowIterator(this,statement.executeQuery(query),resultEntity);
         connection.leaveBusyState();
@@ -85,7 +85,7 @@ public class PooledSimpleStatement extends PooledStatement {
      */
     public synchronized Object fetch(String query,Entity resultEntity) throws SQLException {
         notifyInUse();
-        Logger.debug("fetch-"+query);
+        Logger.trace("fetch-"+query);
         connection.enterBusyState();
         resultSet = statement.executeQuery(query);
         boolean hasNext = resultSet.next();
@@ -132,7 +132,7 @@ public class PooledSimpleStatement extends PooledStatement {
      */
     public synchronized Object evaluate(String query) throws SQLException {
         notifyInUse();
-        Logger.debug("evaluate-"+query);
+        Logger.trace("evaluate-"+query);
         Object result = null;
         ResultSet rs = null;
         try {
@@ -156,7 +156,7 @@ public class PooledSimpleStatement extends PooledStatement {
      * @return number of affected rows
      */
     public synchronized int update(String query) throws SQLException {
-        Logger.debug("update-"+query);
+        Logger.trace("update-"+query);
         connection.enterBusyState();
         int result = statement.executeUpdate(query);
         connection.leaveBusyState();
