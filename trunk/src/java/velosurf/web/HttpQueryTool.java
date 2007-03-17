@@ -225,4 +225,23 @@ import velosurf.util.Logger;
         ret.append('}');
         return ret.toString();
     }
+
+    /**
+     * Debugging method: returns a query string corresponding to query parameters
+     * Warning: it also includes POST parameters (so strictly speaking 
+     *  it's not the real query string)
+     * @return reconstitued query string
+     */
+    public String getQueryString() {
+        StringBuffer result = new StringBuffer();
+        for(Map.Entry entry:entrySet()) {
+            if(result.length() > 0) {
+                result.append('&');
+            }
+            result.append(String.valueOf(entry.getKey()));
+            result.append('=');
+            result.append(String.valueOf(entry.getValue()));
+        }
+        return result.toString();
+    }
 }
