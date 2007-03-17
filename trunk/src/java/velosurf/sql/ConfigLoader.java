@@ -125,6 +125,7 @@ public class ConfigLoader {
         return database.adaptCase(str);
     }
 
+
     /**
      * Parses database XML attributes.
      * @param database parent element
@@ -199,9 +200,23 @@ public class ConfigLoader {
 
         this.database.setUser(credentials.getAttributeValue("user"));
         this.database.setPassword(credentials.getAttributeValue("password"));
-        this.database.setURL(credentials.getAttributeValue("url"));
-        this.database.setDriver(credentials.getAttributeValue("driver"));
+
+		String url = credentials.getAttributeValue("url");
+        if (url == null) {
+            url = database.getAttributeValue("url");
+        }
+        this.database.setURL(url);
+
+        String driver = credentials.getAttributeValue("driver");
+        if (driver == null) {
+            driver = database.getAttributeValue("driver");
+        }
+        this.database.setDriver(driver);
+
         String schema = adaptCase(credentials.getAttributeValue("schema"));
+        if (schema == null) {
+            schema = adaptCase(database.getAttributeValue("schema"));
+        }
         if (schema != null) {
             this.database.setSchema(schema);
         }
