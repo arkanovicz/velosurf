@@ -31,6 +31,7 @@ import java.util.TreeMap;
 import velosurf.context.RowIterator;
 import velosurf.model.Entity;
 import velosurf.util.Logger;
+import velosurf.util.StringLists;
 
 /** this class encapsulates a jdbc PreparedStatement.
  *
@@ -81,6 +82,7 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
         Map<String,Object> row = null;
         try {
             notifyInUse();
+//Logger.trace("fetch-params="+StringLists.join(params,","));
             setParams(params);
             connection.enterBusyState();
             resultSet = preparedStatement.executeQuery();
@@ -140,6 +142,7 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
      */
     public synchronized RowIterator query(List params,Entity resultEntity) throws SQLException {
         notifyInUse();
+//Logger.trace("query-params="+StringLists.join(params,","));
         if (params != null) {
             setParams(params);
         }
@@ -160,6 +163,7 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
         ResultSet rs = null;
         try {
             notifyInUse();
+//Logger.trace("evaluate-params="+StringLists.join(params,","));
             if (params != null) {
                 setParams(params);
             }
@@ -187,6 +191,7 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
      */
     public synchronized int update(List params) throws SQLException {
         notifyInUse();
+//Logger.trace("update-params="+StringLists.join(params,","));
         setParams(params);
         connection.enterBusyState();
         int rows = preparedStatement.executeUpdate();
