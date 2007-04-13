@@ -382,7 +382,14 @@ public class Entity
         }
         Instance instance = newInstance(values);
         /* if found in cache because it exists, driver will issue a SQLException TODO review this*/
-        return instance.insert();
+        boolean success = instance.insert();
+		if (success && keyCols.size() == 1) {			
+			/* update last insert id */
+			/* TODO review usecase, this should maybe be forbidden sometimes */
+			String pk = keyCols.get(0);
+			values.put(pk,instance.get(pk));
+		}
+		return success;
     }
 
     /** Update a row based on a set of values that must contain key values.
