@@ -1,5 +1,7 @@
 TODO
 ----
+ - doc: doc caching attribute
+ - docfix: DBRef.get => AttrRef, Instance or *native type* (instead of string)
  - automatically propagate obfuscation along foreign keys
  - introspection of Instance subclasses for specific getters and setters (avoid loops!)
  - testcases for "parentkey.subkey" attributes parameters
