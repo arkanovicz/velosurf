@@ -250,6 +250,20 @@ public class Attribute
         return db;
     }
 
+	/** Gets caching state
+	 * @return caching state
+	 */
+	public boolean getCaching() {
+		return caching;
+	}
+
+	/** Sets caching on or off
+	 *  @param c caching state
+	 */
+	public void setCaching(boolean c) {
+		caching = c;
+	}
+
 
     /** Database connection.
      */
@@ -280,4 +294,7 @@ public class Attribute
     /** Attribute type.
      */
     private int type = UNDEFINED;
+	/** Caching
+	*/
+	private boolean caching = false;
 }
