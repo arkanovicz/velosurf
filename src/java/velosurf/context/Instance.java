@@ -118,7 +118,7 @@ public class Instance extends TreeMap<String,Object>
             if (result == null) {
                 if (entity!=null) {
                     Attribute attribute = entity.getAttribute(key);
-                    if (attribute != null)
+                    if (attribute != null) {
                         switch (attribute.getType()) {
                             case Attribute.ROWSET:
                                 result = new AttributeReference(this,attribute);
@@ -127,14 +127,20 @@ public class Instance extends TreeMap<String,Object>
                                 break;
                             case Attribute.ROW:
                                 result = attribute.fetch(this);
+								if(attribute.getCaching()) {
+									super.put(key,result);
+								}
                                 break;
                             case Attribute.SCALAR:
                                 result = attribute.evaluate(this);
+								if(attribute.getCaching()) {
+									super.put(key,result);
+								}
                                 break;
                             default:
                                 Logger.error("Unknown attribute type for "+entity.getName()+"."+key+"!");
                         }
-                    else {
+                    } else {
                         Action action = entity.getAction(key);
                         if (action != null) result = Integer.valueOf(action.perform(this));
                     }
