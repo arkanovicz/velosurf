@@ -338,6 +338,13 @@ public class ConfigLoader {
                 query = Pattern.compile(";\\s*\\Z").matcher(query).replaceFirst("");
                 attribute.setQuery(query);
             }
+
+            /* caching */
+            String caching = element.getAttributeValue("caching");
+            if (checkSyntax("caching",caching,new String[] {"no","yes"})) {
+                attribute.setCaching(caching.equals("yes"));
+			}
+
             entity.addAttribute(attribute);
         }
     }
@@ -371,7 +378,16 @@ public class ConfigLoader {
                     fkCols.add(entity.resolveName(col));
                 }
             }
-            entity.addAttribute(new ImportedKey(name,entity,pkEntity,fkCols));
+
+			ImportedKey importedKey = new ImportedKey(name,entity,pkEntity,fkCols);
+
+            /* caching */
+            String caching = keyelem.getAttributeValue("caching");
+            if (checkSyntax("caching",caching,new String[] {"no","yes"})) {
+                importedKey.setCaching(caching.equals("yes"));
+			}
+
+            entity.addAttribute(importedKey);
         }
         for (Iterator exported = parent.getChildren("exported-key").iterator();exported.hasNext();) {
             Element keyelem = (Element)exported.next();
@@ -396,7 +412,16 @@ public class ConfigLoader {
                     fkCols.add(entity.resolveName(col));
                 }
             }
-            entity.addAttribute(new ExportedKey(name,entity,pkEntity,fkCols));
+
+            ExportedKey exportedKey = new ExportedKey(name,entity,pkEntity,fkCols);
+
+            /* caching */
+            String caching = keyelem.getAttributeValue("caching");
+            if (checkSyntax("caching",caching,new String[] {"no","yes"})) {
+                exportedKey.setCaching(caching.equals("yes"));
+			}
+
+            entity.addAttribute(exportedKey);
         }
     }
 
