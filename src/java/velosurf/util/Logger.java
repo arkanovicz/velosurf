@@ -205,6 +205,9 @@ public class Logger
                 break;
         }
         log(prefix+s);
+		if (notify && level >= notifLevel && notifier != null) {
+			notifier.sendNotification(prefix+s,prefix+s); /* same subject and boy for now... */
+		}
         lines++;
         // no more than 100 lines in asynchronous mode
         if (asyncLog != null && lines >asyncLimit) {
@@ -383,5 +386,43 @@ public class Logger
             e.printStackTrace(log);
         }
     }
+
+	static private MailNotifier notifier = null;
+	static private int notifLevel = ERROR_ID;
+	static private boolean notify = false;
+
+    static public void setNotificationParams(String host,String sender,String recipient) {
+		if(notifier != null) {
+			notifier.stop();
+		}
+		notifier = new MailNotifier(host,sender,recipient);
+	}
+
+	static public void setNotificationLevel(int level) {
+		notifLevel = level;
+	}
+
+	static public int getNotificationLevel(int level) {
+		return notifLevel;
+	}
+
+	static public void enableNotifications(boolean enable) {
+		if (enable == notify) {
+			return;
+		}
+		if (enable) {
+			if (notifier == null) {
+				Logger.error("Please set notification params before enabling notification!");
+				return;
+			}
+System.out.println("@@@ Starting notifications...");
+			notifier.start();
+		} else {
+			if (notifier != null) {
+				notifier.stop();
+			}
+		}
+		notify = enable;
+	}
 
 }

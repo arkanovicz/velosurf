@@ -164,6 +164,7 @@ Please specify a target among :
    <antcall target="commons-beanutils-download"/>
    <antcall target="commons-collections-download"/>
    <antcall target="commons-lang-download"/>
+   <antcall target="commons-net-download"/>
    <antcall target="crimson-download"/>
    <antcall target="jdom-download"/>
    <antcall target="servletapi-download"/>
@@ -188,6 +189,12 @@ Please specify a target among :
   <target name="commons-lang-download">
    <property name="download.jarname" value="commons-lang" />
    <property name="download.jarversion" value="${jar.commons-lang.version}" />
+   <antcall target="download-if-needed"/>
+  </target>
+
+  <target name="commons-net-download">
+   <property name="download.jarname" value="commons-net" />
+   <property name="download.jarversion" value="${jar.commons-net.version}" />
    <antcall target="download-if-needed"/>
   </target>
 
