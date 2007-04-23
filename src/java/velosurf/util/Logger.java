@@ -206,7 +206,10 @@ public class Logger
         }
         log(prefix+s);
 		if (notify && level >= notifLevel && notifier != null) {
-			notifier.sendNotification(prefix+s,prefix+s); /* same subject and boy for now... */
+			String msg = prefix + s;
+			int cr = msg.indexOf('\n');
+			String subject = ( cr == -1 ? msg : msg.substring(0,cr));
+			notifier.sendNotification(subject,msg);
 		}
         lines++;
         // no more than 100 lines in asynchronous mode
@@ -415,7 +418,6 @@ public class Logger
 				Logger.error("Please set notification params before enabling notification!");
 				return;
 			}
-System.out.println("@@@ Starting notifications...");
 			notifier.start();
 		} else {
 			if (notifier != null) {
