@@ -90,7 +90,9 @@ public class Velosurf extends DBReference
      * Initializes the logger.
      */
     private void initLogging() {
-        Logger.log2Stderr();
+		if(!Logger.isInitialized()) {
+	        Logger.log2Stderr();
+		}
     }
 
     /**
