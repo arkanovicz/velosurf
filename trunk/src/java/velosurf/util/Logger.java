@@ -16,6 +16,7 @@
 
 package velosurf.util;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -344,8 +345,10 @@ public class Logger
 
     /** log to file.
      */
-    static public void log2File(String file) throws FileNotFoundException {
-        log = new PrintWriter(file);
+    static public void log2File(String file) throws FileNotFoundException,IOException {
+        log = new PrintWriter(new FileWriter(file,true));
+		log.println();
+		log.println("=================================================");
         flushAsyncLog();
     }
 
