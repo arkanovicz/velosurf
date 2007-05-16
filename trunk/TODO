@@ -1,5 +1,8 @@
 TODO
 ----
+ - kill the broken pipe mysql bug (occurs sometimes with mysql - rare but tedious)
+   workaround: set a very long timeout in my.cnf : [mysqld] wait_timeout = 288000
+ - implement caching also for root attributes
  - doc: doc caching attribute
  - docfix: DBRef.get => AttrRef, Instance or *native type* (instead of string)
  - automatically propagate obfuscation along foreign keys
