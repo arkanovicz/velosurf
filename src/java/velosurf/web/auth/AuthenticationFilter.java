@@ -31,7 +31,6 @@ import javax.servlet.http.HttpSession;
 
 import velosurf.util.*;
 import velosurf.web.l10n.Localizer;
-import velosurf.web.l10n.Localizer;
 
 /**
  * <p>This class is a servlet filter used to protect web pages behind an authentication mechanism. When a
@@ -138,11 +137,6 @@ public class AuthenticationFilter implements Filter {
     private static final String defaultDisconnectedMessage = "You have been disconnected.";
 
     /**
-     * Whether indexPage, loginPage or authenticatedIndexPage contains a @ to be resolved.
-     */
-    private boolean resolveLocale = false;
-
-    /**
      * Initialization.
      * @param config filter config
      * @throws ServletException
@@ -181,13 +175,11 @@ public class AuthenticationFilter implements Filter {
         param = this.config.getInitParameter("login-page");
         if (param != null) {
             loginPage = param;
-            resolveLocale |= loginPage.indexOf("@") != -1;
         }
         /* authenticated index page */
         param = this.config.getInitParameter("authenticated-index-page");
         if (param != null) {
             authenticatedIndexPage = param;
-            resolveLocale |= authenticatedIndexPage.indexOf("@") != -1;
         }
         /* bad login message */
         badLoginMessage = this.config.getInitParameter("bad-login-message");
@@ -211,41 +203,7 @@ public class AuthenticationFilter implements Filter {
 
         String uri = request.getRequestURI();
 
-        /* check to see if the current user has been disconnected
-           note that this test will fail when the servlet container
-           reuses session ids */
-        boolean disconnected = false;
-        String reqId = request.getRequestedSessionId();
-        if (reqId != null && (session == null || !session.getId().equals(reqId))) {
-            disconnected = true;
-        }
-
-        String login=null,password = null;
-        Localizer localizer = null;
-        String loginPage;
-        String authenticatedIndexPage;
-
-        if (resolveLocale) {
-            /* means the pages uris need the current locale */
-            Locale locale = null;
-
-            if (session != null) {
-                locale = (Locale)session.getAttribute("velosurf.l10n.active-locale"); /* TODO: gather 'active-locale' handling in HTTPLocalizerTool */
-            }
-
-            if (locale == null)
-            {
-                Logger.error("auth: cannot find the active locale in the session!");
-                Logger.error("auth: the LocalizationFilter must reside before this filter in the filters chain.");
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                return;
-            }
-            loginPage = this.loginPage.replaceAll("@",locale.toString());
-            authenticatedIndexPage = this.authenticatedIndexPage.replaceAll("@",locale.toString());
-        } else {
-            loginPage = this.loginPage;
-            authenticatedIndexPage = this.authenticatedIndexPage;
-        }
+        String login = null, password = null;
 
         if (session != null
                 && session.getId().equals(request.getRequestedSessionId()) /* not needed in theory */
@@ -254,28 +212,13 @@ public class AuthenticationFilter implements Filter {
 
             /* if asked to logout, well, logout! */
             if (uri.endsWith("/logout.do")) {
-                Logger.trace("auth: user logged out");
-                session.removeAttribute("velosurf.auth.user");
-                response.sendRedirect(loginPage);
+				doLogout(request,response,chain);
             } else {
-                /* if the request is still pointing on /login.html, redirect to /auth/index.html */
-                if (uri.equals(loginPage)) {
-                    Logger.trace("auth: redirecting loggued user to "+authenticatedIndexPage);
-                    response.sendRedirect(authenticatedIndexPage);
-                } else {
-                    Logger.trace("auth: user is authenticated.");
-                    SavedRequest saved = (SavedRequest)session.getAttribute("velosurf.auth.saved-request");
-                    if (saved != null && saved.getRequestURL().equals(request.getRequestURL())) {
-                        session.removeAttribute("velosurf.auth.saved-request");
-                        chain.doFilter(new SavedRequestWrapper(request,saved),response);
-                    } else {
-                        chain.doFilter(request,response);
-                    }
-                }
+                doProcessAuthentified(request,response,chain);
             }
         } else {
             /* never protect the login page itself */
-            if (uri.equals(loginPage)) {
+            if (uri.equals(resolveLocalizedUri(request,loginPage))) {
                 chain.doFilter(request,response);
                 return;
             }
@@ -284,10 +227,6 @@ public class AuthenticationFilter implements Filter {
             } else {
                 /* clear any previous loginMessage */
                 session.removeAttribute("loginMessage");
-
-                /* try to find a localizer tool for login messages*/
-                localizer = ToolFinder.findSessionTool(session,Localizer.class);
-                Logger.trace("auth: "+(localizer==null?"localizer not found.":" found a localizer with locale: "+localizer.getLocale()));
             }
             session.removeAttribute("velosurf.auth.user");
             if ( uri.endsWith("/login.do")
@@ -302,62 +241,147 @@ public class AuthenticationFilter implements Filter {
                 if (auth == null) {
                     Logger.error("auth: cannot find any reference to the authenticator tool in the session!");
                     /* Maybe the current user tried to validate an expired login form... well... ask him again... */
-                    response.sendRedirect(loginPage);
+                    response.sendRedirect(resolveLocalizedUri(request,loginPage));
                     return;
                 }
                 // check answer
                 if (auth.checkLogin(login,password)) {
                     // login ok
-                    Logger.info("auth: user '"+login+"' successfully loggued in.");
-                    session.setAttribute("velosurf.auth.user",auth.getUser(login));
-                    if (maxInactive > 0) {
-                        Logger.trace("auth: setting session max inactive interval to "+maxInactive);
-                        session.setMaxInactiveInterval(maxInactive);
-                    }
-                    session.removeAttribute("challenge");
-                    session.removeAttribute("authenticator");
-                    // then handle the former request if not null
-                    SavedRequest savedRequest = (SavedRequest)session.getAttribute("velosurf.auth.saved-request");
-                    if (savedRequest == null) {
-                        // redirect to /auth/index.html
-                        Logger.trace("auth: redirecting newly loggued user to "+authenticatedIndexPage);
-                        response.sendRedirect(authenticatedIndexPage);
-                    } else {
-                        session.removeAttribute("velosurf.auth.saved-request");
-                        String formerUrl = savedRequest.getRequestURI();
-                        String query =  savedRequest.getQueryString();
-                        query = (query == null ? "" : "?"+query);
-                        formerUrl += query;
-                        Logger.trace("auth: redirecting newly loggued user to "+formerUrl);
-                        response.sendRedirect(formerUrl);
-                    }
+                    doLogin(request,response,chain);
                 } else {
-                    Logger.warn("auth: user "+login+" made an unsuccessfull login attempt.");
-                    String message = badLoginMessage != null ?
-                            badLoginMessage :
-                            getMessage(localizer,badLoginMsgKey,defaultBadLoginMessage);
-                    session.setAttribute("loginMessage",message);
-                    // redirect to login page
-                    Logger.trace("auth: redirecting unauthenticated user to "+loginPage);
-                    response.sendRedirect(loginPage);
+                    badLogin(request,response,chain);
                 }
             } else {
-                /* save the original request */
-                Logger.trace("auth: saving request towards "+uri);
-                session.setAttribute("velosurf.auth.saved-request",SavedRequest.saveRequest(request));
-                if(disconnected) {
-                    String message = disconnectedMessage != null ?
-                            disconnectedMessage :
-                            getMessage(localizer,disconnectedMsgKey,defaultDisconnectedMessage);
-                    session.setAttribute("loginMessage",message);
-                }
-                // redirect to login page
-                Logger.trace("auth: redirecting unauthenticated user to "+loginPage);
-                response.sendRedirect(loginPage);
+                doRedirect(request,response,chain);
             }
         }
     }
 
+    protected void doRedirect(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
+            throws IOException, ServletException {
+        /* save the original request */
+        String uri = request.getRequestURI();
+        Logger.trace("auth: saving request towards "+uri);
+        HttpSession session = request.getSession();
+        session.setAttribute("velosurf.auth.saved-request",SavedRequest.saveRequest(request));
+
+        /* check to see if the current user has been disconnected
+           note that this test will fail when the servlet container
+           reuses session ids */
+        boolean disconnected = false;
+        String reqId = request.getRequestedSessionId();
+        if (reqId != null && (session == null || !session.getId().equals(reqId))) {
+            disconnected = true;
+        }
+
+        if(disconnected) {
+             String message = disconnectedMessage != null ?
+                 disconnectedMessage :
+                 getMessage(ToolFinder.findSessionTool(session,Localizer.class),disconnectedMsgKey,defaultDisconnectedMessage);
+             session.setAttribute("loginMessage",message);
+        }
+        // redirect to login page
+        String loginPage = resolveLocalizedUri(request,this.loginPage);
+        Logger.trace("auth: redirecting unauthenticated user to "+loginPage);
+        response.sendRedirect(loginPage);
+    }
+
+
+    protected void doLogin(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
+            throws IOException, ServletException {
+        String login = request.getParameter(loginField);
+        Logger.info("auth: user '"+login+"' successfully loggued in.");
+        HttpSession session = request.getSession();
+        session.setAttribute("velosurf.auth.user", ToolFinder.findSessionTool(session,BaseAuthenticator.class).getUser(login));
+        if (maxInactive > 0) {
+            Logger.trace("auth: setting session max inactive interval to "+maxInactive);
+             session.setMaxInactiveInterval(maxInactive);
+        }
+        session.removeAttribute("challenge");
+        session.removeAttribute("authenticator");
+        // then handle the former request if not null
+        SavedRequest savedRequest = (SavedRequest)session.getAttribute("velosurf.auth.saved-request");
+        if (savedRequest == null) {
+            // redirect to /auth/index.html
+            String authenticatedIndexPage = resolveLocalizedUri(request,this.authenticatedIndexPage);
+            Logger.trace("auth: redirecting newly loggued user to "+authenticatedIndexPage);
+            response.sendRedirect(authenticatedIndexPage);
+        } else {
+            session.removeAttribute("velosurf.auth.saved-request");
+            String formerUrl = savedRequest.getRequestURI();
+            String query =  savedRequest.getQueryString();
+            query = (query == null ? "" : "?"+query);
+            formerUrl += query;
+            Logger.trace("auth: redirecting newly loggued user to "+formerUrl);
+            response.sendRedirect(formerUrl);
+        }
+    }
+
+    protected void badLogin(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
+            throws IOException, ServletException {
+        Logger.warn("auth: user " + request.getParameter(loginField) + " made an unsuccessfull login attempt.");
+        HttpSession session = request.getSession();
+        String message = badLoginMessage != null ?
+            badLoginMessage :
+            getMessage(ToolFinder.findSessionTool(session,Localizer.class),badLoginMsgKey,defaultBadLoginMessage);
+        session.setAttribute("loginMessage",message);
+        // redirect to login page
+        String loginPage = resolveLocalizedUri(request,this.loginPage);
+        Logger.trace("auth: redirecting unauthenticated user to "+loginPage);
+        response.sendRedirect(loginPage);
+    }
+
+    protected void doProcessAuthentified(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
+            throws IOException, ServletException {
+        /* if the request is still pointing on /login.html, redirect to /auth/index.html */
+        String uri = request.getRequestURI();
+        HttpSession session = request.getSession();
+        if (uri.equals(resolveLocalizedUri(request,loginPage))) {
+            String authenticatedIndexPage = resolveLocalizedUri(request,this.authenticatedIndexPage);
+            Logger.trace("auth: redirecting loggued user to "+authenticatedIndexPage);
+            response.sendRedirect(authenticatedIndexPage);
+        } else {
+            Logger.trace("auth: user is authenticated.");
+            SavedRequest saved = (SavedRequest)session.getAttribute("velosurf.auth.saved-request");
+            if (saved != null && saved.getRequestURL().equals(request.getRequestURL())) {
+                session.removeAttribute("velosurf.auth.saved-request");
+                chain.doFilter(new SavedRequestWrapper(request,saved),response);
+            } else {
+               chain.doFilter(request,response);
+            }
+        }
+    }
+
+    protected void doLogout(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
+            throws IOException, ServletException {
+        HttpSession session = request.getSession();
+        Logger.trace("auth: user logged out");
+        session.removeAttribute("velosurf.auth.user");
+        String loginPage = resolveLocalizedUri(request,this.loginPage);
+        response.sendRedirect(loginPage);
+    }
+
+
+    protected String resolveLocalizedUri(HttpServletRequest request,String uri) {
+        if (uri.indexOf('@')!=-1) {
+            /* means the uri need the current locale */
+            Locale locale = null;
+            HttpSession session = request.getSession();
+            if (session != null) {
+                locale = (Locale)session.getAttribute("velosurf.l10n.active-locale"); /* TODO: gather 'active-locale' handling in HTTPLocalizerTool */
+            }
+
+            if (locale == null)
+            {
+                Logger.error("auth: cannot find the active locale in the session!");
+                Logger.error("auth: the LocalizationFilter must reside before this filter in the filters chain.");
+                //response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                return uri;
+            }
+            uri = uri.replaceAll("@",locale.toString());
+        }
+        return uri;
+    }
 
     /**
      * Message getter.
@@ -379,5 +403,4 @@ public class AuthenticationFilter implements Filter {
      */
     public void destroy() {
     }
-
 }
