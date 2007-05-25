@@ -124,6 +124,7 @@ public abstract class BaseAuthenticator {
         String password = getPassword(login);
         if(password == null) {
             /* password not found */
+            Logger.trace("auth: login "+login+" does not exist");
             return false;
         }
         String correctAnswer = generateAnswer(password);
