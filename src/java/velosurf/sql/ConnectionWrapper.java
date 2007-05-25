@@ -16,10 +16,12 @@
 
 package velosurf.sql;
 
-import velosurf.util.Logger;
-
+import java.lang.reflect.Method;
 import java.sql.*;
 import java.util.Map;
+import java.util.Properties;
+
+import velosurf.util.Logger;
 
 /** Connection wrapper class. Allows the handling of a busy state
  *
@@ -29,6 +31,7 @@ import java.util.Map;
 public class ConnectionWrapper
     implements Connection
 {
+
     /**
      * Constructor.
      * @param driver infos on the driver
@@ -577,4 +580,260 @@ public class ConnectionWrapper
     /** statement used to check connection ("select 1").
      */
     private PreparedStatement checkStatement = null;
+
+    /*
+     * stores new 1.6 methods using reflection api to ensure backward compatibility
+     */
+
+    static Method _createClob = null;
+    static Method _createBlob = null;
+    static Method _createNClob = null;
+    static Method _createSQLXML = null;
+    static Method _isValid = null;
+    static Method _setClientInfo = null;
+    static Method _setClientInfo2 = null;
+    static Method _getClientInfo = null;
+    static Method _getClientInfo2 = null;
+    static Method _createArrayOf = null;
+    static Method _createStruct = null;
+    static Method _isWrapperFor = null;
+
+    static {
+        try {
+            _createClob = getConnectionMethod("createClob",new Class[]{});
+            _createBlob = getConnectionMethod("createBlob",new Class[]{});
+            _createNClob = getConnectionMethod("createNClob",new Class[]{});
+            _createSQLXML = getConnectionMethod("createSQLXML",new Class[]{});
+            _isValid = getConnectionMethod("isValid",new Class[]{int.class});
+            _setClientInfo = getConnectionMethod("setClientInfo",new Class[]{String.class,String.class});
+            _setClientInfo2 = getConnectionMethod("setClientInfo",new Class[]{Properties.class});
+            _getClientInfo = getConnectionMethod("getClientInfo",new Class[]{});
+            _getClientInfo2 = getConnectionMethod("getClientInfo",new Class[]{String.class});
+            _createArrayOf = getConnectionMethod("createArrayOf",new Class[]{String.class,Class.forName("[Ljava.lang.Object;")});
+            _createStruct = getConnectionMethod("createStruct",new Class[]{String.class,Class.forName("[Ljava.lang.Object;")});
+            _isWrapperFor = getConnectionMethod("isWrapperFor",new Class[]{Class.class});
+        } catch(Exception e) {
+        }
+    }
+
+    static private Method getConnectionMethod(String name,Class[] parameterTypes) {
+        try {
+            return Connection.class.getMethod(name,parameterTypes);
+        } catch(NoSuchMethodException nsme) {
+            return null;
+        }
+    }
+
+	public Clob createClob() throws SQLException {
+        if(_createClob == null) {
+            throw new SQLException("Unsupported method.");
+        } else {
+            try {
+                return (Clob)_createClob.invoke(connection, new Object[] {});
+            } catch(Exception e) {
+                Throwable cause = e.getCause();
+                if (cause == null) {
+                    cause = e;
+                }
+                if(cause instanceof SQLException) {
+                    throw (SQLException)cause;
+                } else {
+                    throw new SQLException(cause);
+                }
+            }
+        }
+    }
+
+	public Blob createBlob() throws SQLException {
+        if(_createBlob == null) {
+            throw new SQLException("Unsupported method.");
+        } else {
+            try {
+                return (Blob)_createBlob.invoke(connection, new Object[] {});
+            } catch(Exception e) {
+                Throwable cause = e.getCause();
+                if (cause == null) {
+                    cause = e;
+                }
+                if(cause instanceof SQLException) {
+                    throw (SQLException)cause;
+                } else {
+                    throw new SQLException(cause);
+                }
+            }
+        }
+    }
+
+    public NClob createNClob() throws SQLException {
+        if(_createNClob == null) {
+            throw new SQLException("Unsupported method.");
+        } else {
+            try {
+                return (NClob)_createNClob.invoke(connection, new Object[] {});
+            } catch(Exception e) {
+                Throwable cause = e.getCause();
+                if (cause == null) {
+                    cause = e;
+                }
+                if(cause instanceof SQLException) {
+                    throw (SQLException)cause;
+                } else {
+                    throw new SQLException(cause);
+                }
+            }
+        }
+    }
+
+	public SQLXML createSQLXML() throws SQLException {
+        if(_createSQLXML == null) {
+            throw new SQLException("Unsupported method.");
+        } else {
+            try {
+                return (SQLXML)_createSQLXML.invoke(connection, new Object[] {});
+            } catch(Exception e) {
+                Throwable cause = e.getCause();
+                if (cause == null) {
+                    cause = e;
+                }
+                if(cause instanceof SQLException) {
+                    throw (SQLException)cause;
+                } else {
+                    throw new SQLException(cause);
+                }
+            }
+        }
+    }
+
+	public boolean isValid(int timeout) throws SQLException {
+        if(_isValid == null) {
+            throw new SQLException("Unsupported method.");
+        } else {
+            try {
+                return (Boolean)_isValid.invoke(connection, new Object[] {timeout});
+            } catch(Exception e) {
+                Throwable cause = e.getCause();
+                if (cause == null) {
+                    cause = e;
+                }
+                if(cause instanceof SQLException) {
+                    throw (SQLException)cause;
+                } else {
+                    throw new SQLException(cause);
+                }
+            }
+        }
+    }
+
+	public void setClientInfo(String name,String value) {
+        if(_setClientInfo == null) {
+            throw new RuntimeException("Unsupported method.");
+        } else {
+            try {
+                _setClientInfo.invoke(connection, new Object[] {name,value});
+            } catch(Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+	public void setClientInfo(Properties properties) {
+        if(_setClientInfo2 == null) {
+            throw new RuntimeException("Unsupported method.");
+        } else {
+            try {
+                _setClientInfo2.invoke(connection, new Object[] {properties});
+            } catch(Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+	public Properties getClientInfo() throws SQLException {
+        if(_getClientInfo == null) {
+            throw new SQLException("Unsupported method.");
+        } else {
+            try {
+                return (Properties)_getClientInfo.invoke(connection, new Object[] {});
+            } catch(Exception e) {
+                Throwable cause = e.getCause();
+                if (cause == null) {
+                    cause = e;
+                }
+                if(cause instanceof SQLException) {
+                    throw (SQLException)cause;
+                } else {
+                    throw new SQLException(cause);
+                }
+            }
+        }
+    }
+
+	public String getClientInfo(String name) throws SQLException {
+        if(_getClientInfo2 == null) {
+            throw new SQLException("Unsupported method.");
+        } else {
+            try {
+                return (String)_getClientInfo2.invoke(connection, new Object[] {name});
+            } catch(Exception e) {
+                Throwable cause = e.getCause();
+                if (cause == null) {
+                    cause = e;
+                }
+                if(cause instanceof SQLException) {
+                    throw (SQLException)cause;
+                } else {
+                    throw new SQLException(cause);
+                }
+            }
+        }
+    }
+
+	public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
+        if(_createArrayOf == null) {
+            throw new SQLException("Unsupported method.");
+        } else {
+            try {
+                return (Array)_createArrayOf.invoke(connection, new Object[] {typeName,elements});
+            } catch(Exception e) {
+                Throwable cause = e.getCause();
+                if (cause == null) {
+                    cause = e;
+                }
+                if(cause instanceof SQLException) {
+                    throw (SQLException)cause;
+                } else {
+                    throw new SQLException(cause);
+                }
+            }
+        }
+    }
+
+	public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
+        if(_createStruct == null) {
+            throw new SQLException("Unsupported method.");
+        } else {
+            try {
+                return (Struct)_createStruct.invoke(connection, new Object[] {typeName,attributes});
+            } catch(Exception e) {
+                Throwable cause = e.getCause();
+                if (cause == null) {
+                    cause = e;
+                }
+                if(cause instanceof SQLException) {
+                    throw (SQLException)cause;
+                } else {
+                    throw new SQLException(cause);
+                }
+            }
+        }
+    }
+
+	public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        throw new SQLException("Unsupported method.");
+    }
+
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+        throw new SQLException("Unsupported method.");
+    }
+
 }
