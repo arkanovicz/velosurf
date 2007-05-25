@@ -182,7 +182,7 @@ public class VelosurfTool extends DBReference
     /** initialization from a servlet context
      *
      */
-    private void initialize(ServletContext ctx) {
+    protected void initialize(ServletContext ctx) {
 
     }
 
@@ -234,7 +234,7 @@ public class VelosurfTool extends DBReference
      * @param configFile
      * @return a Database
      */
-    private static Database getConnection(String configFile) {
+    protected static Database getConnection(String configFile) {
         if (!configFile.startsWith("/")) configFile = "/"+configFile;
         return dbMap.get(configFile);
     }
@@ -256,7 +256,7 @@ public class VelosurfTool extends DBReference
      * @param configFile
      * @return a Database
      */
-    private static Database getConnection(String configFile,ServletContext servletContext) {
+    protected static Database getConnection(String configFile,ServletContext servletContext) {
         if (!configFile.startsWith("/")) {
             configFile = "/"+configFile;
         }
@@ -305,7 +305,7 @@ public class VelosurfTool extends DBReference
      * if it does not already exist.
      * @return a Database
      */
-    private static Database getDefaultConnection()
+    protected static Database getDefaultConnection()
     {
         return (Database)dbMap.get(DEFAULT_CONFIG_FILE);
     }
@@ -323,7 +323,7 @@ public class VelosurfTool extends DBReference
      * or null if an error occurs.
      * @return a Database
      */
-    private static Database getDefaultConnection(ServletContext servletContext)
+    protected static Database getDefaultConnection(ServletContext servletContext)
     {
         return getConnection(DEFAULT_CONFIG_FILE,servletContext);
     }
