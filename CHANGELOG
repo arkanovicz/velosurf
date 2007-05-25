@@ -2,6 +2,7 @@
 
 v2.2
 ----
+ - fix: compilation under java 1.6 now works
  - new: mail notifications (see Logger.java api)
  - new: caching attribute for entity attributes
  - fix: Instance.get(key) now takes an Object argument to propery inherit parent's generic getter
