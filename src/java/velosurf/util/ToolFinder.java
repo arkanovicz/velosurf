@@ -16,8 +16,11 @@
 
 package velosurf.util;
 
-import javax.servlet.http.HttpSession;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
+
+import javax.servlet.http.HttpSession;
 
 /**
  * An utility class used to find a tool in the toolbox. For now, it is only implemented for session tools.
@@ -27,7 +30,29 @@ import java.util.Map;
 
 public class ToolFinder  {
 
-    private static final String toolsMapKey = "org.apache.velocity.tools.view.servlet.ServletToolboxManager:session-tools";
+    private static String toolsMapKey = null;
+	private static int toolsLibraryVersion = 0;
+    private static Method _getAll = null;
+
+    static {
+        try {
+			Class.forName("org.apache.velocity.tools.view.VelocityView");
+            // tools v2.x
+            toolsLibraryVersion = 2;
+            toolsMapKey = "org.apache.velocity.tools.Toolbox";
+            try {
+                Class toolboxClass = Class.forName(toolsMapKey);
+                _getAll = toolboxClass.getMethod("getAll",new Class[] {Map.class});
+            } catch(Exception e) {
+                Logger.log(e);
+            }
+        
+        } catch(ClassNotFoundException cnfe) {
+            // tools v1.x
+            toolsLibraryVersion = 1;
+            toolsMapKey = "org.apache.velocity.tools.view.servlet.ServletToolboxManager:session-tools";
+        }
+    }
 
     /**
      * Find a session tool.
@@ -36,15 +61,44 @@ public class ToolFinder  {
      */
     public static <T> T findSessionTool(HttpSession session, Class<T> toolClass) {
         if (session != null) {
-            Map sessionTools = (Map)session.getAttribute(toolsMapKey);
-            if (sessionTools != null) {
-                for(Object t:sessionTools.values()) {
-                    if (toolClass.isAssignableFrom(t.getClass())) {
-                        return (T)t;
+            if(toolsLibraryVersion == 1) {
+                // tools v1.x
+                Map sessionTools = (Map)session.getAttribute(toolsMapKey);
+                if (sessionTools != null) {
+                    for(Object t:sessionTools.values()) {
+                        if (toolClass.isAssignableFrom(t.getClass())) {
+                            return (T)t;
+                        }
                     }
+                    Logger.warn("findtool: requested tool ("+toolClass.getName()+") not found!");
+                } else {
+                    Logger.warn("findtool: no tools map found in session!");
                 }
             } else {
-                Logger.warn("findtool: no tools map found in session!");
+                // tools v2.x - use reflection
+                Object toolbox = session.getAttribute(toolsMapKey);
+                if (toolbox != null) {
+                    Map<String,Object> sessionTools;
+                    try {
+                        sessionTools = (Map<String,Object>)_getAll.invoke(toolbox,new Object[] {new HashMap()});
+                    } catch(Exception e) {
+                        Logger.error("findtool: error getting tool "+toolClass.getName());
+                        Logger.log(e);
+                        return null;
+                    }
+                    if (sessionTools != null) {
+                        for(Object t:sessionTools.values()) {
+                            if (toolClass.isAssignableFrom(t.getClass())) {
+                                return (T)t;
+                            }
+                        }
+                        Logger.warn("findtool: requested tool ("+toolClass.getName()+") not found!");
+                    } else {
+                        Logger.warn("findtool: could not retrieve the map of session tools!");
+                    }
+                } else {
+                    Logger.warn("fintool: session toolbox not found!");
+                }
             }
         }
         return null;
