@@ -205,9 +205,9 @@ public class Entity
         }
     }
 
-    /** Clear the cache.
+    /** Clear the cache (not used for now).
      */
-    public void clearCache() {
+    protected void clearCache() {
         if (cache != null) cache.clear();
     }
 
@@ -258,7 +258,10 @@ public class Entity
             Instance result = newInstance();
             extractColumnValues(values,result,useSQLnames);
             if (cachingMethod != Cache.NO_CACHE) {
-                cache.put(buildKey(result),result);
+                Object key = buildKey(result);
+                if (key != null) {
+                    cache.put(key,result);
+                }
             }
             return result;
         }
@@ -275,7 +278,10 @@ public class Entity
      */
     public void invalidateInstance(Map<String,Object> instance) throws SQLException {
         if (cachingMethod != Cache.NO_CACHE) {
-            cache.invalidate(buildKey(instance));
+            Object key = buildKey(instance);
+            if(key != null) {
+                cache.invalidate(key);
+            }
         }
     }
 
@@ -317,9 +323,14 @@ public class Entity
      * @return an array containing all key values
      */
     private Object buildKey(Map<String,Object> values) throws SQLException {
+        if(keyCols.size() == 0) return null;
         Object [] key = new Object[keyCols.size()];
         int c=0;
         for(String keycol:keyCols) {
+            Object v = values.get(keycol);
+            if ( v == null ) {
+                return null;
+            }
             key[c++] = values.get(keycol);
         }
         return key;
@@ -389,6 +400,15 @@ public class Entity
 			String pk = keyCols.get(0);
 			values.put(pk,instance.get(pk));
 		}
+        /* try again to put it in the cache since previous attempt may have failed
+           in case there are auto-incremented columns */
+        if (success && cachingMethod != Cache.NO_CACHE) {
+            Object key = buildKey(result);
+            if (key != null) {
+                cache.put(key,result);
+            }
+        }
+
 		return success;
     }
 
