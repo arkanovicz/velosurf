@@ -403,9 +403,9 @@ public class Entity
         /* try again to put it in the cache since previous attempt may have failed
            in case there are auto-incremented columns */
         if (success && cachingMethod != Cache.NO_CACHE) {
-            Object key = buildKey(result);
+            Object key = buildKey(instance);
             if (key != null) {
-                cache.put(key,result);
+                cache.put(key,instance);
             }
         }
 
