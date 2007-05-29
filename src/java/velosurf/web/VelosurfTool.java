@@ -133,6 +133,8 @@ public class VelosurfTool extends DBReference
                         }
                     }
                 }
+                session.setAttribute(VelosurfTool.class.getName(),this);
+
             }
         }
 
@@ -141,7 +143,6 @@ public class VelosurfTool extends DBReference
         /* FIXME: null check? anyway this is a RuntimeException... */
         db.setUserContext(userContext);
         super.init(db);
-
     }
 
     /**
