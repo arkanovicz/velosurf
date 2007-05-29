@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Iterator;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
 
 import org.apache.velocity.tools.view.context.ViewContext;
 
@@ -133,6 +134,11 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
                 (ServletContext)initData   :
                 ((ViewContext)initData).getServletContext();
             readLocales(ctx);
+
+            if(initData instanceof ViewContext) {
+                HttpSession session = ((ViewContext)initData).getRequest().getSession(true);
+                session.setAttribute(Localizer.class.getName(),this);
+            }
         }
         super.init(initData);
     }

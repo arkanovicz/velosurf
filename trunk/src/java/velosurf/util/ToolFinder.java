@@ -16,7 +16,6 @@
 
 package velosurf.util;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,21 +31,12 @@ public class ToolFinder  {
 
     private static String toolsMapKey = null;
 	private static int toolsLibraryVersion = 0;
-    private static Method _getAll = null;
 
     static {
         try {
 			Class.forName("org.apache.velocity.tools.view.VelocityView");
             // tools v2.x
             toolsLibraryVersion = 2;
-            toolsMapKey = "org.apache.velocity.tools.Toolbox";
-            try {
-                Class toolboxClass = Class.forName(toolsMapKey);
-                _getAll = toolboxClass.getMethod("getAll",new Class[] {Map.class});
-            } catch(Exception e) {
-                Logger.log(e);
-            }
-        
         } catch(ClassNotFoundException cnfe) {
             // tools v1.x
             toolsLibraryVersion = 1;
@@ -61,6 +51,12 @@ public class ToolFinder  {
      */
     public static <T> T findSessionTool(HttpSession session, Class<T> toolClass) {
         if (session != null) {
+            // check first in attributes if the tool registered itself
+            Object registered = session.getAttribute(toolClass.getName());
+            if(registered != null && toolClass.isAssignableFrom(registered.getClass())) {
+                return (T)registered;
+            }
+
             if(toolsLibraryVersion == 1) {
                 // tools v1.x
                 Map sessionTools = (Map)session.getAttribute(toolsMapKey);
@@ -75,8 +71,10 @@ public class ToolFinder  {
                     Logger.warn("findtool: no tools map found in session!");
                 }
             } else {
-                // tools v2.x - use reflection
-                Object toolbox = session.getAttribute(toolsMapKey);
+                // tools v2.x - TODO find a way...
+                Logger.warn("findtool: no way to find requested tool: "+toolClass.getName());
+
+/*                Object toolbox = session.getAttribute(toolsMapKey);
                 if (toolbox != null) {
                     Map<String,Object> sessionTools;
                     try {
@@ -99,6 +97,7 @@ public class ToolFinder  {
                 } else {
                     Logger.warn("fintool: session toolbox not found!");
                 }
+*/
             }
         }
         return null;

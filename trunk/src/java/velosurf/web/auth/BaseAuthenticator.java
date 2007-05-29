@@ -90,7 +90,9 @@ public abstract class BaseAuthenticator {
         if (!(initData instanceof ViewContext)) {
             Logger.error("auth: authenticator tool should be used in a session scope!");
         }
-        session = new WeakReference<HttpSession>(((ViewContext)initData).getRequest().getSession(true));
+		HttpSession s = ((ViewContext)initData).getRequest().getSession(true);
+        session = new WeakReference<HttpSession>(s);
+		s.setAttribute(BaseAuthenticator.class.getName(),this);
     }
 
     /**
