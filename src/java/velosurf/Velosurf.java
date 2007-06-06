@@ -201,7 +201,7 @@ public class Velosurf extends DBReference
                 return null;
             }
         }
-        return super.get(key);
+        return super.put(key);
     }
 
     /**
