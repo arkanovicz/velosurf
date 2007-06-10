@@ -631,7 +631,7 @@ public class Database {
         String encoded = cryptograph.encrypt(value.toString());
 
         // we want to avoid some characters fot HTTP GET
-        encoded = encoded.replace('=','.');
+        encoded = encoded.replace('=','$');
         encoded = encoded.replace('/','_');
         encoded = encoded.replace('+','-');
 
@@ -650,7 +650,7 @@ public class Database {
         String ret = value.toString();
 
         // recover exact encoded string
-        ret = ret.replace('.','=');
+        ret = ret.replace('$','=');
         ret = ret.replace('_','/');
         ret = ret.replace('-','+');
 
