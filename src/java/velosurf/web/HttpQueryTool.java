@@ -35,7 +35,7 @@ import velosurf.util.Logger;
  public class HttpQueryTool extends ParameterParser implements Map
 {
     /** extra values map. */
-    private Map extraValues = new HashMap();
+    private Map<String,Object> extraValues = new HashMap<String,Object>();
 
     /**
      * Constructor.
@@ -104,7 +104,7 @@ import velosurf.util.Logger;
      * @return previous value
      */
     public Object put(Object key, Object value) {
-        return extraValues.put(key,value);
+        return extraValues.put((String)key,value);
     }
 
     /**
@@ -225,6 +225,10 @@ import velosurf.util.Logger;
         ret.append('}');
         return ret.toString();
     }
+
+	public Set<String> getExtraKeys() {
+		return extraValues.keySet();
+	}
 
     /**
      * Debugging method: returns a query string corresponding to query parameters
