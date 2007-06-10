@@ -1,9 +1,14 @@
 TODO
 ----
+ - "mangle" attribute to mangle table and/or field prefixes
+ - review extractColumnValues usage (how to choose to use source or destination column names, in regard to aliases)
+ - make foreign-key attribute optionnal (=> use natural join)
+ - optionnaly use foreign key names when reverse enginering
+ - serialization issues (for session persistance)
  - kill the broken pipe mysql bug (occurs sometimes with mysql - rare but tedious)
    workaround: set a very long timeout in my.cnf : [mysqld] wait_timeout = 288000
  - implement caching also for root attributes
- - doc: doc caching attribute
+ - doc: doc caching attribute + exported-key.order (in fact, review all config doc)
  - docfix: DBRef.get => AttrRef, Instance or *native type* (instead of string)
  - automatically propagate obfuscation along foreign keys
  - introspection of Instance subclasses for specific getters and setters (avoid loops!)

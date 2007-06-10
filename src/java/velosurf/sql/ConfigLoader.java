@@ -412,7 +412,6 @@ public class ConfigLoader {
                     fkCols.add(entity.resolveName(col));
                 }
             }
-
             ExportedKey exportedKey = new ExportedKey(name,entity,pkEntity,fkCols);
 
             /* caching */
@@ -420,6 +419,10 @@ public class ConfigLoader {
             if (checkSyntax("caching",caching,new String[] {"no","yes"})) {
                 exportedKey.setCaching(caching.equals("yes"));
 			}
+            String order = keyelem.getAttributeValue("order");
+            if(order != null) {
+                exportedKey.setOrder(order);
+            }
 
             entity.addAttribute(exportedKey);
         }
