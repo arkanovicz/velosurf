@@ -2,6 +2,8 @@
 
 v2.2
 ----
+ - new: added an 'order' attribute to <exported-key>
+ - new: method HttpQueryTool.getExtraKeys()
  - fix: compilation under java 1.6 now works
  - new: mail notifications (see Logger.java api)
  - new: caching attribute for entity attributes

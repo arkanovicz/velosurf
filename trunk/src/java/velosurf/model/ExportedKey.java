@@ -33,6 +33,11 @@ public class ExportedKey extends Attribute {
     private List<String> fkCols = null;
 
     /**
+     * Order
+     */
+    private String order = null;
+
+    /**
      * Exported key constructor.
      * @param name name of this exported key
      * @param entity parent entity
@@ -63,6 +68,13 @@ public class ExportedKey extends Attribute {
     }
 
     /**
+     * Set order
+     */
+	public void setOrder(String order) {
+        this.order = order;
+    }
+
+    /**
      * Query getter.
      * @return the SQL query
      */
@@ -73,6 +85,9 @@ public class ExportedKey extends Attribute {
                 addParamName(param);
             }
             query = "SELECT * FROM " + fkEntity.getTableName() + " WHERE " + StringLists.join(fkCols," = ? AND ") + " = ?";
+            if(order != null) {
+                query += " ORDER BY "+order;
+            }
 //          Logger.debug(getEntity().getName()+"."+getName()+" = "+query+" [ with params "+StringLists.join(getEntity().getPKCols(),",")+" ]" );
         }
         return query;
