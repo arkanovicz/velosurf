@@ -1,5 +1,6 @@
 TODO
 ----
+ - document HttpQueryTool.getExtraKeys
  - "mangle" attribute to mangle table and/or field prefixes
  - review extractColumnValues usage (how to choose to use source or destination column names, in regard to aliases)
  - make foreign-key attribute optionnal (=> use natural join)

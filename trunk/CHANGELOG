@@ -2,6 +2,7 @@
 
 v2.2
 ----
+ - fix: corrected a concurrency problem in statement pools
  - new: added an 'order' attribute to <exported-key>
  - new: method HttpQueryTool.getExtraKeys()
  - fix: compilation under java 1.6 now works
@@ -13,7 +14,7 @@ v2.2
  - populate last inserted IDs in instances when needed on insertion
  - Entity.extractColumnValues now allows additionnal columns when comming from the sql side
  - fix: HttpQueryTool needed a get(String) method besides the get(Object) one to properly override inherited generic getter
- - added a <credentials> element
+ - added an optional <credentials> element in the config file to gather credentials out of the <database> element
  - added method instance.setColumns
  - HttpQueryTool now interpret dots in keys as parent key and subkey pair
  - fix: cache key calculation was not always right
