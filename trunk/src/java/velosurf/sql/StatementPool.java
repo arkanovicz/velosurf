@@ -54,6 +54,7 @@ public class StatementPool implements Runnable,Pool {
                 if (!statement.isInUse() && !(connection = (ConnectionWrapper)statement.getConnection()).isBusy()) {
                     // check connection
                     if (connection.check()) {
+                        statement.notifyInUse();
                         return statement;
                     }
                     else {
