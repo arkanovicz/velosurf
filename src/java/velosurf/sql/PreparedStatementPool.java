@@ -59,7 +59,10 @@ public class PreparedStatementPool implements Runnable,Pool {
             if (statement.isValid()) {
                 if (!statement.isInUse() && !(connection=(ConnectionWrapper)statement.getConnection()).isBusy()) {
                     // check connection
-                    if (connection.check()) return statement;
+                    if (connection.check()) {
+                        statement.notifyInUse();
+                        return statement;
+                    }
                     else {
                         dropConnection(connection);
                         it.remove();
