@@ -520,7 +520,7 @@ public class Entity
         for(Map.Entry<String,Object> entry:values.entrySet()) {
             String col = resolveName(entry.getKey());
             int i = keyCols.indexOf(col);
-            if (i>0) {
+            if (i != -1) {
                 key[i] = entry.getValue();
                 n++;
             }
