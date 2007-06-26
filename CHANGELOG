@@ -2,6 +2,7 @@
 
 v2.2
 ----
+ - fix: Entity.fetch(Map) could fail without reason
  - fix: corrected a concurrency problem in statement pools
  - new: added an 'order' attribute to <exported-key>
  - new: method HttpQueryTool.getExtraKeys()
