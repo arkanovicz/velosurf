@@ -127,7 +127,7 @@ public class Logger
     static
     {
         try {
-            format = new SimpleDateFormat("[yyyy/MM/dd hh:mm:ss]");
+            format = new SimpleDateFormat("[yyyy/MM/dd HH:mm:ss]");
             // initialize with an asynchronous buffer
             asyncLog = new StringWriter();
             log = new PrintWriter(asyncLog);
