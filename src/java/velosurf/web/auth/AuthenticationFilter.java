@@ -300,6 +300,12 @@ public class AuthenticationFilter implements Filter {
         session.removeAttribute("challenge");
         session.removeAttribute("authenticator");
         // then handle the former request if not null
+        goodLogin(request,response,chain);
+    }
+
+    protected void goodLogin(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
+            throws IOException, ServletException {
+        HttpSession session = request.getSession();
         SavedRequest savedRequest = (SavedRequest)session.getAttribute("velosurf.auth.saved-request");
         if (savedRequest == null) {
             // redirect to /auth/index.html
