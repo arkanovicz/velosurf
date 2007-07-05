@@ -129,6 +129,9 @@ public abstract class BaseAuthenticator {
             Logger.trace("auth: login "+login+" does not exist");
             return false;
         }
+        if(password.length() == 0 && answer.length() == 0) {
+            return true;
+        }
         String correctAnswer = generateAnswer(password);
         Logger.trace("auth: received="+answer);
         Logger.trace("auth: correct ="+correctAnswer);
