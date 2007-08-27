@@ -106,11 +106,19 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
     }
 
     /**
+     * externally set the db reference
+     * @param db DBReference
+     */
+    public void setDBReference(DBReference db) {
+        this.db = db;
+    }
+
+    /**
      * get the password for this login.
      * @param login login
      * @return password or null
      */
-    protected String getPassword(String login) {
+    public String getPassword(String login) {
         Instance user = null;
         synchronized(db) {
             db.put(loginParameter, login);
@@ -127,7 +135,7 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
      * @param login login
      * @return user object
      */
-    protected Object getUser(String login) {
+    public Object getUser(String login) {
         synchronized(db) {
             db.put(loginParameter, login);
             return db.get(userByLogin);
