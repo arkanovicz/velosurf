@@ -409,6 +409,14 @@ public class Instance extends TreeMap<String,Object>
         }
     }
 
+    public boolean containsKey(Object key) {
+        return super.containsKey(resolveName((String)key));
+    }
+
+    public Object remove(Object key) {
+        return super.remove(resolveName((String)key));
+    }
+
     /** This Instance's Entity.
      */
     protected Entity entity = null;

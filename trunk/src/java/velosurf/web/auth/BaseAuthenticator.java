@@ -58,14 +58,14 @@ public abstract class BaseAuthenticator {
      * @param login login
      * @return password or null
      */
-    protected abstract String getPassword(String login);
+    public abstract String getPassword(String login);
 
     /**
      * Get the user object corresponding to a login
      * @param login login
      * @return user object
      */
-    protected abstract Object getUser(String login);
+    public abstract Object getUser(String login);
 
     /** encryption method */
     private String method = null;
