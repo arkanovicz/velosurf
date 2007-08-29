@@ -18,6 +18,8 @@ package velosurf.web.auth;
 
 import java.util.Map;
 
+import javax.servlet.ServletContext;
+
 import org.apache.velocity.tools.view.context.ViewContext;
 
 import velosurf.web.VelosurfTool;
@@ -42,7 +44,7 @@ import velosurf.util.Logger;
 public class SimpleDBAuthenticator extends BaseAuthenticator {
 
     /** database. */
-    private DBReference db = null;
+    protected DBReference db = null;
 
     /** key used in toolbox.xml to indicate the "user by login" root attribute. */
     private static final String USER_BY_LOGIN_KEY = "user-by-login";
@@ -84,7 +86,7 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
         // init only if there was no error in super class
         if (initData instanceof ViewContext) {
             if (db == null) {
-                db = VelosurfTool.getDefaultInstance(((ViewContext)initData).getServletContext());
+                initDB(((ViewContext)initData).getServletContext());
             }
         }
 
@@ -103,6 +105,10 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
                loginParameter = value;
             }
         }
+    }
+
+    protected void initDB(ServletContext ctx) {
+        db = VelosurfTool.getDefaultInstance(ctx);
     }
 
     /**
