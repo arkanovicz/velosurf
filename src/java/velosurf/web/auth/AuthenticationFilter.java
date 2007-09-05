@@ -389,6 +389,10 @@ public class AuthenticationFilter implements Filter {
         return uri;
     }
 
+    protected String getAuthenticatedIndexPage() {
+        return authenticatedIndexPage;
+    }
+
     /**
      * Message getter.
      * @param localizer localizer
@@ -396,7 +400,7 @@ public class AuthenticationFilter implements Filter {
      * @param defaultMessage default message
      * @return localized message or default message
      */
-    private String getMessage(Localizer localizer,String key,String defaultMessage) {
+    protected String getMessage(Localizer localizer,String key,String defaultMessage) {
         String message = null;
         if (localizer != null) {
             message = localizer.get(key);
