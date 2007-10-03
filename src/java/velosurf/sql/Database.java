@@ -496,6 +496,7 @@ public class Database {
      */
     public synchronized ConnectionWrapper getTransactionConnection() throws SQLException {
         ConnectionWrapper ret = transactionConnectionPool.getConnection();
+        ret.setReadOnly(readOnly);
         ret.enterBusyState();
         return ret;
     }
