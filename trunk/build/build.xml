@@ -98,6 +98,7 @@ Please specify a target among :
   </target>
 
   <target name="prepare">
+
     <!-- MAKE THE DIRECTORIES IF NEEDED -->
     <mkdir dir="${lib.dir}"/>
     <mkdir dir="${output.dir}"/>
@@ -113,11 +114,43 @@ Please specify a target among :
     <mkdir dir="${test.webapp.dir}/WEB-INF/lib"/>
     <mkdir dir="${test.webapp.dir}/WEB-INF/log"/>
     <tstamp />
+
+    <!-- CHECK JAVA VERSION -->
+    <echo message="java version: ${ant.java.version}"/>
+    <condition property="java.version.ok">
+      <not>
+        <or>
+          <equals arg1="${ant.java.version}" arg2="1.1"/>
+          <equals arg1="${ant.java.version}" arg2="1.2"/>
+          <equals arg1="${ant.java.version}" arg2="1.3"/>
+          <equals arg1="${ant.java.version}" arg2="1.4"/>
+        </or>
+      </not>
+    </condition>
+    <fail message="Velosurf requires at least Java 1.5" unless="java.version.ok"/>
+
+    <condition property="use.java.1.5">
+      <equals arg1="${ant.java.version}" arg2="1.5"/>
+    </condition>
+    <antcall target="prepare.java.1.5"/>
+    <condition property="use.java.1.6">
+      <equals arg1="${ant.java.version}" arg2="1.6"/>
+    </condition>
+    <antcall target="prepare.java.1.6"/>
+    
     <!-- DOWNLOAD LIBRARIES IF NEEDED -->
     <antcall target="download" />
     <copy todir="${lib.dir}">
       <fileset dir="${build.dir}/lib"/>
     </copy>
+  </target>
+
+  <target name="prepare.java.1.5" if="use.java.1.5">
+    <copy file="${src.dir}/velosurf/sql/ConnectionWrapper.java.jdk5" tofile="${src.dir}/velosurf/sql/ConnectionWrapper.java" overwrite="true"/>
+  </target>
+
+  <target name="prepare.java.1.6" if="use.java.1.6">
+    <copy file="${src.dir}/velosurf/sql/ConnectionWrapper.java.jdk6" tofile="${src.dir}/velosurf/sql/ConnectionWrapper.java" overwrite="true"/>
   </target>
 
   <target name="clean">
