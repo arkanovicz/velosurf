@@ -158,9 +158,9 @@ public class ConfigLoader {
         String ro = database.getAttributeValue("read-only");
         if (ro != null) {
             /* check syntax but continue anyway with read-only database if the syntax is bad */
-            checkSyntax("read-only",ro,new String[] {"true","false"});
+            checkSyntax("read-only",ro,new String[] {"true","false","yes","no"});
             /* default to true - using Boolean.parseBoolean is not possible */
-            this.database.setReadOnly(!ro.equalsIgnoreCase("false"));
+            this.database.setReadOnly(!ro.equalsIgnoreCase("false") && !ro.equalsIgnoreCase("no"));
         }
 
         String caching = database.getAttributeValue("default-caching");
