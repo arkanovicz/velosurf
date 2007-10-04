@@ -252,7 +252,12 @@ public class AuthenticationFilter implements Filter {
                     badLogin(request,response,chain);
                 }
             } else {
-                doRedirect(request,response,chain);
+                /* do not redirect to the logout */
+                if (uri.endsWith("/logout.do")) {
+                    response.sendRedirect(resolveLocalizedUri(request,loginPage));
+                } else {
+                    doRedirect(request,response,chain);
+                }
             }
         }
     }
