@@ -15,6 +15,7 @@ import velosurf.sql.Database;
 import velosurf.sql.PooledPreparedStatement;
 import velosurf.context.RowIterator;
 import velosurf.context.Instance;
+import velosurf.model.Action;
 import velosurf.model.Entity;
 import velosurf.model.Transaction;
 import velosurf.model.Attribute;
@@ -128,7 +129,7 @@ public class WhiteboxTests
     public @Test(expected=SQLException.class) void testUnsuccessfullTransaction() throws SQLException {
         try {
             Entity root = database.getRootEntity();
-            Transaction transaction = new Transaction("testSuccessfullTransaction",root);
+            Transaction transaction = new Transaction("testUnsuccessfullTransaction",root);
             transaction.setQueries(
                     Arrays.asList(
                             new String[] {

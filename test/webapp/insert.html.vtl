@@ -6,7 +6,7 @@
 #set($user = $db.user.newInstance())
 #set($user.login = "John")
 #set($user.password = "Secret")
-#set($error = $user.insert())
-<div id="result">#if($error)$error#else $user.id#end</div>
+#set($ok = $user.insert())
+<div id="result">#if(!$ok)ERROR:$db.error#else $user.id#end</div>
 </body>
 </html>

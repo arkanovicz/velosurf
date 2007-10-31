@@ -12,7 +12,7 @@
 	</attribute>
   </entity>
 
-  <entity name="book">
+  <entity name="book" readonly="true"> <!-- made read-only to test failure on updates -->
     <aliases ref="isbn"/>
   </entity>
 
