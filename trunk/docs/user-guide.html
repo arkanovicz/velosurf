@@ -86,6 +86,7 @@
 <li><a href='#modifications'>Issuing modifications to the database</a></li>
 <li><a href='#validation'>Data validation</a></li>
 <li><a href='#foreign-keys'>Imported and exported keys</a></li>
+<li><a href='#httpquery'>HTTP Query parameters</a></li>
 <li><a href='#localization'>Localization</a></li>
 <li><a href='#authentication'>Authentication</a></li>
 <li><a href='#templatenamefilter'>Template name filter</a></li>
@@ -152,12 +153,12 @@ inside text data, it may break the syntax of such SQL queries. To remedy to this
 <a name='pooling'/>
 <h1>Connections/Statements Pooling and Recovery</h1>
 <p>Connections and statements pooling is transparent. There are two connections pools, one with autocommit connections
-for queries and single statement updates and one without autocommit for transactions containing several requests. Those pools
+for queries and single statement updates and one without autocommit for transactions (actions containing several update requests). Those pools
 grow according to the rate of requests.</p>
 <p>The automatic connection recovery will transparently care for broken or timed out connections.</p>
 <p>Needed statements are created on the fly when needed, that is when there isn't any previous instance of a particular statement
 or when such an instance is already busy. The statements pool will thus grow as needed.</p>
-<p>Concurrent accesses are of course taken into account.</p>
+<p>Concurrent accesses are of course taken into account: Velosurf maintains a <i>busy</i> state for each connection.</p>
 
 <a name='reverse'/>
 <h1>Reverse Engineering</h1>
@@ -341,6 +342,21 @@ populated if data is not valid.</p>
 foreign keys you need using the <code>&lt;imported-key&gt;</code> and <code>&lt;exported-key&gt;</code> tags. You can
 still use those tags in <b>full</b> reverse engineering mode to customize the name of the generated attributes.</p>
 
+<a name='httpquery'/>
+<h1>HTTP Query parameters</h1>
+<p>Velosurf provides an <a href='http://velosurf.sourceforge.net/api/velosurf/web/HttpQueryTool.html'>HTTP query parameter parser</a>, traditionally mapped to the <code>$query</code> key in the toolbox. It is very similar to the <a href='http://velocity.apache.org/tools/releases/1.3/javadoc/index.html'>VelocityTools parameter parser</a> (from which it inherits), but adds a few features:</p>
+<ul>
+<li>it adds a generic setter, this allows adding some key/value pairs in its map before using <code>$query</code> as an argument to one of the Velosurf methods expecting a map.</li>
+<li>it permits to gather in a submap all form parameters that share a common prefix. For instance, given the following form:
+<div class="source"><xmp>
+<form>
+	<input type=... name='foo.firstname' />
+	<input type=... name='foo.lastname' />	
+	...
+</form>
+</xmp></div>then <code>$query.foo</code> will return a map containing two keys, <i>firstname</i> and <i>lastname</i></li>
+</ul>
+
 <a name='localization'/>
 <h1>Localization</h1>
 <p>Velosurf provides a localization mechanism. It consists of:
@@ -409,14 +425,14 @@ URL correspond to different web pages, thus bugging search engines.</p>
 <a name='authentication'/>
 <h1>Authentication</h1>
 <p>Velosurf is shipped with some utility classes that allow one to easily plug a session based CRAM (Challenge Response Authentication Mechanism)
-in a Webapp. It consists of three classes:
+in a Webapp. It consists of three classes and a javascript module:
 <ul>
-<li>an <code><a href='api/velosurf/web/auth/AuthenticationFilter.html'>velosurf.web.auth.AuthenticationFilter</a></code> that is meant to be mapped to pages needing authentication.</li>
+<li>a <code><a href='api/velosurf/web/auth/AuthenticationFilter.html'>velosurf.web.auth.AuthenticationFilter</a></code> that is meant to be mapped to pages needing authentication.</li>
 <li>an abstract <code><a href='api/velosurf/web/auth/BaseAuthenticator.html'>velosurf.web.auth.BaseAuthenticator</a></code> tool that takes a <code>method</code> configuration parameter
 (the encryption method to be used). Omitting this <code>method</code> parameter means that passwords will be transmitted in clear (which is
 not a problem if you use HTTPS, which you should really use if you want security).</li>
 <li>a simple implementation of this abstract tool, <code><a href='api/velosurf/web/auth/SimpleDBAuthenticator.html'>velosurf.web.auth.SimpleDBAuthenticator</a></code>, that implements the two abstract
-methods <code>getUser(<i>login</i>)</code> and <code>getPassword(<i>login</i>)</code> using a configurable <code>user(id,login,password)</code> SQL table.</li>
+methods <code>getUser(<i>login</i>)</code> and <code>getPassword(<i>login</i>)</code> using a configurable <code>user(id,login,password)</code> SQL table. If you use this authenticator, you'll have to define a root attribute that returns a user instance given its login, as detailed on the javadoc page.</li>
 <li>a Javascript <code>/src/javascript/md5.js</code> (BSD license) implementing the client-side encryption for the <code>HmacMD5</code> method.</li>
 </ul></p>
 <p>Please refer to the provided javadoc links for further information regarding the configuration parameters.</p>
@@ -494,6 +510,7 @@ Identification:<br>
 </html></xmp></div>
 <li>loging out link: <code>&lt;a href="logout.do"&gt;Logout&lt;/a&gt;</code></li>
 </ul>
+<p>Once a user has logged on, $auth.loggedUser will contain the user's instance.</p>
 
 <a name='templatenamefilter'/>
 <h1>Template name filter</h1>
