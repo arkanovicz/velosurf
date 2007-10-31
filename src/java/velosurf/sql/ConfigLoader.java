@@ -308,7 +308,7 @@ public class ConfigLoader {
 
             String foreignKey = element.getAttributeValue("foreign-key");
             if(foreignKey != null) {
-                Logger.warn("use of the foreign-key attribute for the <attribute> tag is deprecated. Please use <import-key>");
+                Logger.warn("use of the foreign-key attribute for the <attribute> tag is deprecated. Please use <imported-key>");
                 if(attribute.getResultEntity() == null) {
                     throw new SQLException("Attribute '"+name+"' is a foreign key, Velosurf needs to know its result entity!");
                 }
@@ -359,12 +359,12 @@ public class ConfigLoader {
             Element keyelem = (Element)imported.next();
             String name = keyelem.getAttributeValue("name");
             if (name == null) {
-                Logger.error("tag <imported-keyelem> needs a 'name' attribute!");
+                Logger.error("tag <imported-key> needs a 'name' attribute!");
                 continue;
             }
             String pkEntity = keyelem.getAttributeValue("entity");
             if (pkEntity == null) {
-                Logger.error("tag <imported-keyelem> needs an 'entity' attribute (name='"+name+"')!");
+                Logger.error("tag <imported-key> needs an 'entity' attribute (name='"+name+"')!");
                 continue;
             }
             List<String> fkCols = null;
@@ -393,12 +393,12 @@ public class ConfigLoader {
             Element keyelem = (Element)exported.next();
             String name = keyelem.getAttributeValue("name");
             if (name == null) {
-                Logger.error("tag <exported-keyelem> needs a 'name' attribute!");
+                Logger.error("tag <exported-key> needs a 'name' attribute!");
                 continue;
             }
             String pkEntity = keyelem.getAttributeValue("entity");
             if (pkEntity == null) {
-                Logger.error("tag <exported-keyelem> needs an 'entity' attribute (name='"+name+"')!");
+                Logger.error("tag <exported-key> needs an 'entity' attribute (name='"+name+"')!");
                 continue;
             }
             List<String> fkCols = null;
