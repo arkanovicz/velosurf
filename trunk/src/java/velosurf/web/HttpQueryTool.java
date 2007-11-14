@@ -248,4 +248,22 @@ import velosurf.util.Logger;
         }
         return result.toString();
     }
+
+    public Integer getInteger(String key)
+    {
+        Integer ret = super.getInteger(key);
+        /* try in extraValues */
+        if(ret == null) {
+            Object v = extraValues.get(key);
+            if (v != null)
+            {
+                try {
+                    ret = Integer.parseInt(String.valueOf(v));
+                } catch(NumberFormatException nfe) {}
+            }
+        }
+        return ret;
+    }
+
+    /* TODO subclass other getXXX() methods */
 }
