@@ -125,10 +125,10 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
      * @return password or null
      */
     public String getPassword(String login) {
-        Instance user = null;
+        Map user = null;
         synchronized(db) {
             db.put(loginParameter, login);
-            user = (Instance)db.get(userByLogin);
+            user = (Map)db.get(userByLogin);
         }
         if (user != null) {
             return (String)user.get(passwordField);
