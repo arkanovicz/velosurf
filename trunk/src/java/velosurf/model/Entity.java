@@ -397,8 +397,16 @@ public class Entity
 		if (success && keyCols.size() == 1) {			
 			/* update last insert id */
 			/* TODO review usecase, this should maybe be forbidden sometimes */
-			String pk = keyCols.get(0);
-			values.put(pk,instance.get(pk));
+            /* FIXME for now, we catch some exceptions */
+            try {
+    			String pk = keyCols.get(0);
+	    		values.put(pk,instance.get(pk));
+//            catch(UnsupportedOperationException uoe)
+            } catch(Exception e) {
+                Logger.warn("insert: encountered "+e.getMessage()+" while setting last inserted id value");
+                Logger.warn("insert: values are probably provided using a read-only map");
+                Logger.warn("you can probably just ignore this warning, this is a reminder for the dev community");
+            }
 		}
         /* try again to put it in the cache since previous attempt may have failed
            in case there are auto-incremented columns */

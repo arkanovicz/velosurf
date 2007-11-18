@@ -1,5 +1,7 @@
 TODO
 ----
+ - doc about attributeref.map (and should also be attribute.map, by the way)
+ - doc about external parameters
  - do sthing about serialization / transience (cf. tomcat sessions persistance for instance)
  - add an EntityReference.perform(action,vaarg) method
  - warn on unused attributes in config file

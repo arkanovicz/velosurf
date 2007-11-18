@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import velosurf.model.Attribute;
 import velosurf.util.Logger;
@@ -96,6 +97,36 @@ public class AttributeReference extends AbstractList
     public List getRows() throws SQLException {
         RowIterator iterator = attribute.query(params,refineCriteria,order);
         return iterator.getRows();
+    }
+
+    /** Get all the rows in a map firstcol->secondcol.
+     * FIXME: better in Attribute than in AttributeReference
+     * @return a list of all the rows
+     */
+    public Map getMap() {
+        /* TODO: return a hashmap or a treemap ? */
+        Map result = null;
+        try {
+            RowIterator iterator = attribute.query(params,refineCriteria,order);
+            List<String> keys = iterator.keyList();
+            if(keys != null || keys.size() < 2) {
+                Logger.error(".map needs at least two result columns");
+                return null;
+            }
+            if(keys != null && keys.size() > 2) {
+                Logger.warn("attribute.map needs only two result columns, only the first two will be taken into account");
+            }
+            result = new HashMap();
+            while(iterator.hasNext()) {
+                Instance i = iterator.next();
+                result.put(i.get(keys.get(0)),i.get(keys.get(1)));
+            }
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            attribute.getDB().setError(sqle.getMessage());
+            return null;
+        }
+        return result;
     }
 
     /** <p>Specify an 'order by' clause for this attribute reference result.</p>

@@ -38,7 +38,7 @@ import velosurf.util.Logger;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public class RowIterator implements Iterator, RowHandler {
+public class RowIterator implements Iterator<Instance>, RowHandler {
 
     /** Build a new RowIterator.
      *
@@ -83,10 +83,9 @@ public class RowIterator implements Iterator, RowHandler {
 
     /** Returns the next element in the iteration.
      *
-     * @return an Instance if a resulting entity has been specified, or a
-     *     reference to myself
+     * @return an Instance.
      */
-    public Object next() {
+    public Instance next() {
         try {
             if(!prefetch && !resultSet.next()) {
                 return null;
@@ -185,6 +184,7 @@ public class RowIterator implements Iterator, RowHandler {
         }
     }
 
+    /*  */
     public Set<String> keySet() {
         try {
             return  new HashSet<String>(SqlUtil.getColumnNames(resultSet));
@@ -193,6 +193,17 @@ public class RowIterator implements Iterator, RowHandler {
             return null;
         }
     }
+
+    /*  */
+    public List<String> keyList() {
+        try {
+            return  SqlUtil.getColumnNames(resultSet);
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            return null;
+        }
+    }
+
 
     /** Check if some data is available.
      *
