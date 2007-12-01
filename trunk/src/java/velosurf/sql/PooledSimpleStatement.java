@@ -84,28 +84,31 @@ public class PooledSimpleStatement extends PooledStatement {
      * @return the fetched Instance
      */
     public synchronized Object fetch(String query,Entity resultEntity) throws SQLException {
-        notifyInUse();
-        Logger.trace("fetch-"+query);
-        connection.enterBusyState();
-        resultSet = statement.executeQuery(query);
-        boolean hasNext = resultSet.next();
-        connection.leaveBusyState();
-        Map<String,Object> row = null;
-        if (hasNext) {
-            if (resultEntity!=null) row = resultEntity.newInstance(new ReadOnlyMap(this),true);
-            else {
-                row = new TreeMap<String,Object>();
-                if (columnNames == null) {
-                    columnNames = SqlUtil.getColumnNames(resultSet);
-                }
-                for (String column:columnNames) {
-                    Object value = resultSet.getObject(column);
-                    row.put(Database.adaptContextCase(column),value);
+        try {
+            notifyInUse();
+            Logger.trace("fetch-"+query);
+            connection.enterBusyState();
+            resultSet = statement.executeQuery(query);
+            boolean hasNext = resultSet.next();
+            connection.leaveBusyState();
+            Map<String,Object> row = null;
+            if (hasNext) {
+                if (resultEntity!=null) row = resultEntity.newInstance(new ReadOnlyMap(this),true);
+                else {
+                    row = new TreeMap<String,Object>();
+                    if (columnNames == null) {
+                        columnNames = SqlUtil.getColumnNames(resultSet);
+                    }
+                    for (String column:columnNames) {
+                        Object value = resultSet.getObject(column);
+                        row.put(Database.adaptContextCase(column),value);
+                    }
                 }
             }
+            return row;
+        } finally {
+            notifyOver();
         }
-        notifyOver();
-        return row;
     }
 
     /** get specified column as an object.
