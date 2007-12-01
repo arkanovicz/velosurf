@@ -200,7 +200,7 @@ public class Attribute
                     value = source.get(paramName);
                 }
                 if (entity.isObfuscated(paramName)) value = db.deobfuscate(value);
-                if (value == null) Logger.warn("Query "+query+": param "+paramName+" is null!");
+                if (value == null) Logger.warn("Attribute "+getEntity().getName()+"."+name+": param "+paramName+" is null!");
                 result.add(value);
             }
         return result;
