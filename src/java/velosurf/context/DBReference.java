@@ -209,4 +209,7 @@ public class DBReference extends HashMap<String,Object>
      /** The map of external query parameters used by children attributes.
       */
     private Map<String,Object> externalParams = null;
+
+//public void displayStats() { db.displayStats(); }
+
 }

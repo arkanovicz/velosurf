@@ -176,11 +176,13 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
                     ret.add(i);
                 }
             }
-            pooledStatement.getConnection().leaveBusyState();
             return ret;
         } catch(SQLException sqle) {
             Logger.log(sqle);
             return null;
+        } finally {
+            pooledStatement.getConnection().leaveBusyState();
+            pooledStatement.notifyOver();
         }
     }
 

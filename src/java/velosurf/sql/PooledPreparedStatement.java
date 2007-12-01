@@ -190,14 +190,17 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
      * @return the numer of affected rows
      */
     public synchronized int update(List params) throws SQLException {
-        notifyInUse();
+        try {
+            notifyInUse();
 //Logger.trace("update-params="+StringLists.join(params,","));
-        setParams(params);
-        connection.enterBusyState();
-        int rows = preparedStatement.executeUpdate();
-        connection.leaveBusyState();
-        notifyOver();
-        return rows;
+            setParams(params);
+            connection.enterBusyState();
+            int rows = preparedStatement.executeUpdate();
+            connection.leaveBusyState();
+            return rows;
+        } finally {
+            notifyOver();
+        }
     }
 
     /** get the object value of the specified resultset column.
