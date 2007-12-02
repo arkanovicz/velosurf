@@ -247,6 +247,11 @@ public class Instance extends TreeMap<String,Object>
                     params.add(value);
                 }
             }
+            if(updateClause.size() ==0) {
+                Logger.warn("update of instance '"+entity.getName()+"' all non-key columns are null - no update will be performed");
+                // return true anyway ?
+                return true;
+            }
             for (String col:entity.getPKCols()) {
                 Object value = getInternal(col);
                 if (value == null) throw new SQLException("field '"+col+"' belongs to primary key and cannot be null!");
