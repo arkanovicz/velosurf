@@ -1,5 +1,12 @@
 TODO
 ----
+ - Entity & Attribute, as long as EntityReference and AttributeReference, must share a common ancestor
+ - strip table name prefixes on demand (like "tab_")
+ - add AttrRef/EntityRef.getList ? (non: rowset/scalar) - EntityRef.getMap ?
+ - factorize Action and Attribute!
+ - msg "Ignoring second definition for attribute" should explicitely state that the ignored def is the implicit one
+ - when result=row, attref should return null if not found
+ - AttributeReference.toString() => null
  - doc about attributeref.map (and should also be attribute.map, by the way)
  - doc about external parameters
  - do sthing about serialization / transience (cf. tomcat sessions persistance for instance)

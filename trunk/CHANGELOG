@@ -1,7 +1,8 @@
 **** Changes ****
 
-v2.2
+v2.2 (December 2007)
 ----
+ - fix: Attribute.getRows() had a memory leak
  - fix: Entity.fetch(Map) could fail without reason
  - fix: corrected a concurrency problem in statement pools
  - new: added an 'order' attribute to <exported-key>

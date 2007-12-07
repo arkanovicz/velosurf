@@ -94,9 +94,15 @@ public class AttributeReference extends AbstractList
      *
      * @return a list of all the rows
      */
-    public List getRows() throws SQLException {
-        RowIterator iterator = attribute.query(params,refineCriteria,order);
-        return iterator.getRows();
+    public List getRows() {
+        try {
+            RowIterator iterator = attribute.query(params,refineCriteria,order);
+            return iterator.getRows();
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            attribute.getDB().setError(sqle.getMessage());
+            return null;            
+        }
     }
 
     /** Get all the rows in a map firstcol->secondcol.
