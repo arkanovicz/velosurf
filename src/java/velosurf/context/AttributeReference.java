@@ -105,6 +105,20 @@ public class AttributeReference extends AbstractList
         }
     }
 
+    /** Gets a list of scalars
+     *  @return a list of scalars
+     */
+    public List getScalars() {
+        try {
+            RowIterator iterator = attribute.query(params,refineCriteria,order);
+            return iterator.getScalars();
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            attribute.getDB().setError(sqle.getMessage());
+            return null;
+        }
+    }
+
     /** Get all the rows in a map firstcol->secondcol.
      * FIXME: better in Attribute than in AttributeReference
      * @return a list of all the rows
