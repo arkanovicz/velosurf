@@ -186,6 +186,23 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
         }
     }
 
+    public List getScalars() {
+        try {
+            List ret = new ArrayList();
+            pooledStatement.getConnection().enterBusyState();
+            while (!resultSet.isAfterLast() && resultSet.next()) {
+                ret.add(resultSet.getObject(0));
+            }
+            return ret;
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            return null;
+        } finally {
+            pooledStatement.getConnection().leaveBusyState();
+            pooledStatement.notifyOver();
+        }
+    }
+
     /*  */
     public Set<String> keySet() {
         try {
@@ -244,4 +261,5 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
 
     /** whether we did prefetch a row */
     private boolean prefetch = false;
+
 }
