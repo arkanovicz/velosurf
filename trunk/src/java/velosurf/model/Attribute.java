@@ -38,12 +38,15 @@ public class Attribute
     /** Constant meaning the return type is undefined.
      */
     public static final int UNDEFINED = 0;
+
     /** Constant meaning the result is a single row.
      */
     public static final int ROW = 1;
+
     /** Constant meaning the result is a rowset.
      */
     public static final int ROWSET = 2;
+
     /** Constant meaning the result is a scalar.
      */
     public static final int SCALAR = 3;
