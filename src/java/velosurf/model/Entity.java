@@ -493,7 +493,7 @@ public class Entity
      * @return the fetched instance
      */
     public Instance fetch(List<Object> values) throws SQLException {
-        if (values.size() != keyCols.size()) throw new SQLException("Entity.fetch: Error: Wrong number of values for '"+name+"' primary key!");
+        if (values.size() != keyCols.size()) throw new SQLException("Entity.fetch: Error: Wrong number of values for '"+name+"' primary key! Got "+values.size()+", was expecting "+keyCols.size()+" for key list: "+StringLists.join(keyCols,","));
         Instance instance = null;
         // try in cache
         if (cachingMethod != Cache.NO_CACHE)
@@ -534,7 +534,11 @@ public class Entity
             }
         }
         if (n != keyCols.size() ) {
-            throw new SQLException("entity "+name+".fetch(): missing key values!");
+            String missing = "";
+            for(int c=0;c<key.length;c++)
+                if(key[c] == null)
+                  missing += keyCols.get(c)+" ";
+            throw new SQLException("entity "+name+".fetch(): missing key values! Missing values: "+missing);
         }
         if (cachingMethod != Cache.NO_CACHE) {
             // try in cache
