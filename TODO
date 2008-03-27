@@ -1,5 +1,43 @@
+Caused by: java.lang.NullPointerException
+    at velosurf.web.VelosurfTool.init(VelosurfTool.java:144)
+=> catch it and change message to "could not connect to DB"
+
+ - allow customization of LIMIT (like order and refinement)
+
+ - getMap peut marcher avec plus de 2 cols (keycol -> instance)
+ - faute d'orthographe "loggued"
+
+ - definition des requetes par contraintes, une contrainte etant une map
+  (ex 1 : si la map contient 'jour' alors le critere custom <jour/> between debut and fin doit s'appliquer)
+  (ex 2 : si la map contient 'prenom' alors le critere automatique prenom=<prenom/> doit s'appliquer)
+ => une espece de power refine sur les attributs
+  <attribute><refinment mandatory=true|false [name=] col= />
+puis $instance.attribute.refine(context...)
+
+ - make attribute results implement List sans avoir besoin du row (seules les methodes size and co font rouler le rowset) => resetable rowsets
+  pour le cas de plusieurs #foreach
+
+ Velosurf  [error] Was expecting an org.jdom.Element, found a org.jdom.Comment: '[Comment: <!-- kept as rowset to be homogeneous with previous attributes -->]'
+java.sql.SQLException: Was expecting an org.jdom.Element, found a org.jdom.Comment: '[Comment: <!-- kept as rowset to be homogeneous with previous attributes -->]'
+        at velosurf.sql.ConfigLoader.defineAttributes(ConfigLoader.java:334)
+        at velosurf.sql.ConfigLoader.loadConfig(ConfigLoader.java:107)
+        at velosurf.sql.Database.readConfigFile(Database.java:510)
+        at velosurf.sql.Database.getInstance(Database.java:148)
+        at velosurf.web.VelosurfTool.getConnection(VelosurfTool.java:283)
+        at velosurf.web.VelosurfTool.getDefaultInstance(VelosurfTool.java:342)
+
+ - foreign keys referencing non-primary keys generate exceptions
+ - authenticator option for case sensivity
+ - add attribute result types: rowset/scalar, map, ...
+ - remember when an instance comes from newInstance
+ - an "upsert" method
+ - $db renvoie {} meme quand il y a des params externes definis... c'est pas bien...
+
 TODO
 ----
+ - instance.insert should check obfuscation too!
+ - review UserContext life cycle (threads/sessions) - is it thread-pooling resistant?
+ - when no pk defined, there should be an error message at reverse enginering time
  - Entity & Attribute, as long as EntityReference and AttributeReference, must share a common ancestor
  - strip table name prefixes on demand (like "tab_")
  - add AttrRef/EntityRef.getList ? (non: rowset/scalar) - EntityRef.getMap ?

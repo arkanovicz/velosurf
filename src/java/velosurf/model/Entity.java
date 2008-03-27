@@ -657,6 +657,16 @@ public class Entity
         return db.query(query,this);
     }
 
+    public long getCount() {
+        return getCount(null);
+    }
+
+    public long getCount(List refineCriteria) {
+        String query = "select count(*) from "+ table;
+        if (refineCriteria!=null) query = SqlUtil.refineQuery(query,refineCriteria);
+        return (Long)db.evaluate(query);
+    }
+
     /** Get the database connection.
      *
      * @return the database connection

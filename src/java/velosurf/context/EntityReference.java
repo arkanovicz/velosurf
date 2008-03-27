@@ -351,6 +351,10 @@ public class EntityReference extends AbstractList {
      */
     public int size() { return 0; }
 
+    public long getCount() {
+        return entity.getCount(refineCriteria);
+    }
+
     /** The wrapped entity.
      */
     private Entity entity = null;

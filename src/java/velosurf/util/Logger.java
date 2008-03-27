@@ -408,7 +408,7 @@ public class Logger
 		notifLevel = level;
 	}
 
-	static public int getNotificationLevel(int level) {
+	static public int getNotificationLevel() {
 		return notifLevel;
 	}
 
@@ -429,5 +429,9 @@ public class Logger
 		}
 		notify = enable;
 	}
+
+    static public boolean getNotifierEnabled() {
+        return notify && notifier != null;
+    }
 
 }
