@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import velosurf.context.RowIterator;
 import velosurf.sql.Database;
@@ -155,6 +157,34 @@ public class Attribute
         return db.prepare(query).query(buildArrayList(source),db.getEntity(resultEntity));
     }
 
+
+    // TODO
+    /*
+    public long getCount() {
+        return getCount(null,null);
+    }
+
+    String countQuery = null;
+    Pattern pattern = Pattern.compile("\\s*select\\s.*\\sfrom\\s",Pattern.CASE_INSENSITIVE);
+
+    public long getCount(List refineCriteria,String order) {
+        if(countQuery == null) {
+            synchronized(this) {
+                if(countQuery == null) {
+                    String query = getQuery();
+                    Matcher matcher = pattern.matcher(countQuery);
+                    if(matcher.lookingAt()) {
+                        countQuery = matcher.replaceFirst().... pas bon
+                    }
+                }
+            }
+        }
+
+        db.getEntity(resultEntity);
+        if (refineCriteria!=null) query = SqlUtil.refineQuery(query,refineCriteria);
+        if (order!=null && order.length()>0) query = SqlUtil.orderQuery(query,order);
+        return (Long)db.evaluate(query);
+    } */
 
     /** Evaluate this scalar attribute.
      *

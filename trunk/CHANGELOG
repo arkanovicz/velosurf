@@ -107,7 +107,18 @@ v2.0 (November 2006)
  - tolerate and eat a semi-colon at the end of queries.
  - sources reorganization - got rid of the 'tools' package, web tools now are in a 'web' package
 
-v1.4.3 (May 2006)
+v1.4.4 (November 2006)
+------
+Mainly some backports of the v2.0 development.
+ - docfix: separate the DTD from the doc (and put a valid DTD file, thanks to Mike Kienenberger).
+ - fix: cache invalidation on update and delete
+ - fix: operations now REALLY forbidden on read-only database!
+ - updated driver infos for HSQLDB, added ones for DERBY
+ - backported the late init mechanism in velosurf.Velosurf
+ - fix: fetch(Number) no longer bypass obfuscation
+ - explicitely use velocity-tools 1.2
+
+v1.4.3 (September 2006)
 ------
  - added static methods getConnection(configfile,servletcontext) and getDefaultConnection(servletcontext)
    to VelosurfTool.
