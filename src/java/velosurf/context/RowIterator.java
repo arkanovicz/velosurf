@@ -62,7 +62,7 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
             /* always need to prefetch, as some JDBC drivers (like HSQLDB driver) seem buggued to this regard */
             if(prefetch) {
                 pooledStatement.getConnection().enterBusyState();
-                ret = resultSet.isLast();
+                ret = !resultSet.isLast();
                 pooledStatement.getConnection().leaveBusyState();
             } else {
                 pooledStatement.getConnection().enterBusyState();
