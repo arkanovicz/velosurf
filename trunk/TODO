@@ -1,3 +1,11 @@
+ - doc about lifecycles
+
+ - Instance should maybe reference a DBRef and not a DB (to control subclasses access)
+
+ - refines that are defined in the model as attributes' attributes
+
+ - xi:include not working in standalone mode with velosurf.Velosurf ?!
+
 Caused by: java.lang.NullPointerException
     at velosurf.web.VelosurfTool.init(VelosurfTool.java:144)
 => catch it and change message to "could not connect to DB"

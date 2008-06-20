@@ -1,6 +1,10 @@
 **** Changes ****
 
-v2.2 (December 2007)
+v2.2 (June 2008)
+---
+ - fix: RowIterator.hasNext now works when called several times in a row
+
+v2.2-beta (December 2007)
 ----
  - fix: Attribute.getRows() had a memory leak
  - fix: Entity.fetch(Map) could fail without reason
