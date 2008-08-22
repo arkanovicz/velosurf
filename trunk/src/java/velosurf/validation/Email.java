@@ -87,7 +87,7 @@ public class Email extends FieldConstraint {
      * @return whether data is valid
      */
     public boolean validate(Object data) {
-        if (data == null || data.toString().length() == 0) return true;
+        if (data == null || data.toString().length() == 0) return false; // should be true if NULL allowed, but stastistically email columns are often mandatory
         Matcher matcher = validEmail.matcher(data.toString());
         if (!matcher.matches()) {
             return false;
