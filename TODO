@@ -1,3 +1,7 @@
+ - rename all validation classes ( Email => EmailValidation ...)
+
+ - action et vaarg ? pb: named attributes expected (=> attribute donnant les noms sequentiellement)
+
  - doc about lifecycles
 
  - Instance should maybe reference a DBRef and not a DB (to control subclasses access)
