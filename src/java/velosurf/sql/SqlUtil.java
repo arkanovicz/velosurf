@@ -158,8 +158,11 @@ public class SqlUtil
         List<String> columnNames = new ArrayList<String>();
         ResultSetMetaData meta = resultSet.getMetaData();
         int count = meta.getColumnCount();
-        for (int c=1;c<=count;c++)
-            columnNames.add(meta.getColumnName(c));
+        for (int c=1;c<=count;c++) {
+            // see http://jira.springframework.org/browse/SPR-3541
+            //columnNames.add(meta.getColumnName(c));
+            columnNames.add(meta.getColumnLabel(c));
+}
         return columnNames;
     }
 }
