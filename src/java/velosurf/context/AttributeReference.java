@@ -129,11 +129,11 @@ public class AttributeReference extends AbstractList
         try {
             RowIterator iterator = attribute.query(params,refineCriteria,order);
             List<String> keys = iterator.keyList();
-            if(keys != null || keys.size() < 2) {
+            if(keys.size() < 2) {
                 Logger.error(".map needs at least two result columns");
                 return null;
             }
-            if(keys != null && keys.size() > 2) {
+            if(keys.size() > 2) {
                 Logger.warn("attribute.map needs only two result columns, only the first two will be taken into account");
             }
             result = new HashMap();
