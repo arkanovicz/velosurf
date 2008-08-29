@@ -37,7 +37,6 @@ public class Instance extends TreeMap<String,Object>
 
     /** Build an empty instance for the given entity.
      *  The method initialize(Entity) should be called afterwards.
-     * @param entity Entity this instance is a realisation of
      */
     public Instance() {
     }
@@ -106,7 +105,7 @@ public class Instance extends TreeMap<String,Object>
     /** <p>Generic getter, used to access this instance properties by their name.</p>
      * <p>Asked property is first searched in the Map, then among Attributes defined for the entity.</p>
      *
-     * @param key key of the property to be returned
+     * @param k key of the property to be returned
      * @return a String, an Instance, an AttributeReference or null if an error
      *      occurs
      */
@@ -142,7 +141,7 @@ public class Instance extends TreeMap<String,Object>
                         }
                     } else {
                         Action action = entity.getAction(key);
-                        if (action != null) result = Integer.valueOf(action.perform(this));
+                        if (action != null) result = action.perform(this);
                     }
                 }
             } else if (localized && entity.isLocalized(key)) {

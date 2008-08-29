@@ -32,8 +32,8 @@ import java.util.Map;
  * <p>For an entity's instances to be cached, the associated table must have a primary key (even if multivalued).</p>
  *
  * <p><b>Warning</b>: Velosurf will invalidate entries on single row update and delete queries, but global updates and deletes are not taken into account.</p>
- * <p>This caching mechanism is meant for straightforward optimizations in simple situations, for instance to
- * avoid re-fetching the loggued user at each request.</p>
+ * <p>This caching mechanism is meant for straightforward optimizations in read-only or very simple situations, for instance to
+ * avoid re-fetching data related to the logged user at each request.</p>
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *

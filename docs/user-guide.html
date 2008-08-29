@@ -212,9 +212,19 @@ key values in their natural order.</p>
 #end
 </pre></code></div>
 <p>While discouraged since it breaks SQL code isolation, you can control the rows order and add supplemental criteria
-by calling the <code>order("<i>SQL order clause</i>")</code> and <code>refine("<i>SQL condition</i>")</code> methods before issuing the <code>#foreach</code>.
+by calling the <code>order("<i>SQL order clause</i>")</code> and <code>refine("<i>SQL condition</i>")</code> methods before issuing the <code>#foreach</code>, like this:
 </p>
-
+<div class="source"><code><pre>List of books by publisher:
+#set($db.publisher.refine('active=true')) ## only take into account active publishers
+#set($db.publisher.order('name')) ## order by name
+#foreach($publisher in $db.publisher)
+  Books published by $publisher.name:
+    #foreach($book in $publisher.books)
+      - $book.title (author $book.author.firstname $book.author.lastname)
+    #end
+#end
+</pre></code></div>
+<p>Refinment and ordering have the same scope than the velosurf.web.VelosurTool tool.</p>
 <a name='obfuscation'/>
 <h1>IDs obfuscation</h1>
 <p>Since in a Webapp the query part of URLs is likely to contain ID values, it is good practice to obfuscate those values
@@ -227,13 +237,12 @@ You just need to provide a comma separated list of columns meant to be obfuscate
 <p>When very frequent fetch queries occur, you can tell Velosurf to cache corresponding instances in memory by mean of the <code>cache</code> attribute of the <code>&lt;entity&gt;</code> tag,
 which can take the following values:
 <ul>
-<li><code>none</code> (the default): no caching provided.</li>
-<li><code>soft</code>: caching of fetched instances with respect to memory. Instances are put into the cache
+<li><code>no</code> (the default): no caching provided.</li>
+<li><code>yes</code>: caching of fetched instances with respect to memory. Instances are put into the cache
 when fetched for the first time, but the Java virtual machine can reclaim the memory they use if needed.</li>
-<li><code>full</code>: the whole table is loaded into memory at startup (be careful of memory usage!).</li>
 </ul></p>
-<p>Warning: Velosurf will invalidate entries on update/delete requests, but global updates are not
-taken into account.</p>
+<p>Warning: Velosurf will invalidate cached entries on update/delete requests, but global updates are not
+taken into account, so be sure to empty the cache after global modifications.</p>
  <p>This caching mechanism is meant for straightforward optimizations in simple situations, for instance to
 avoid re-fetching a specific instance at each HTTP request.</p>
 
@@ -284,7 +293,7 @@ or to the <a href="./api/velosurf/validation.html">javadoc</a>):
 <li><code>not-empty='yes'</code> : data cannot be null or an empty string.</li>
 <li><code>min-length='<i>integer</i>'</code> and/or <code>max-length='<i>integer</i>'</code> : data length must reside in the specified inclusive interval.</li>
 <li><code>one-of='<i>value1,value2,...'</i></code> : data must be one of the supplied values.</li>
-<li><code>references='<i>table.column</i>'</code> : data must reference a value found in <i>table.column</i> (a <code>select distinct</code> query is performed at validation time).</li>
+<li><code>references='<i>table.column</i>'</code> : data must reference a value found in <code><i>table.column</i></code> (a <code>select distinct</code> query is performed at validation time).</li>
 <li><code>regex='<i>pattern</i>'</code> : data must be matched by the supplied pattern.</li>
 <li><code>type='number'</code> : a numeric value is expected</li>
 <li><code>type='integer'</code> : an integer or long value is expected.</li>
@@ -342,8 +351,10 @@ populated if data is not valid.</p>
 foreign keys you need using the <code>&lt;imported-key&gt;</code> and <code>&lt;exported-key&gt;</code> tags. You can
 still use those tags in <b>full</b> reverse engineering mode to customize the name of the generated attributes.</p>
 
+<div style="background:gray;">
 <a name='httpquery'/>
 <h1>HTTP Query parameters</h1>
+<center><b>Deprecated: those features are now directly accessible in VelocityTools 2.0+</b></center>
 <p>Velosurf provides an <a href='http://velosurf.sourceforge.net/api/velosurf/web/HttpQueryTool.html'>HTTP query parameter parser</a>, traditionally mapped to the <code>$query</code> key in the toolbox. It is very similar to the <a href='http://velocity.apache.org/tools/releases/1.3/javadoc/index.html'>VelocityTools parameter parser</a> (from which it inherits), but adds a few features:</p>
 <ul>
 <li>it adds a generic setter, this allows adding some key/value pairs in its map before using <code>$query</code> as an argument to one of the Velosurf methods expecting a map.</li>
@@ -356,6 +367,7 @@ still use those tags in <b>full</b> reverse engineering mode to customize the na
 </form>
 </xmp></div>then <code>$query.foo</code> will return a map containing two keys, <i>firstname</i> and <i>lastname</i></li>
 </ul>
+</div>
 
 <a name='localization'/>
 <h1>Localization</h1>
@@ -410,7 +422,7 @@ parameterized messages, the getter that takes parameters must be used: <code>$lo
     <dispatcher>FORWARD</dispatcher>
   </filter-mapping>
   ...</xmp></div>
-<li>file <code>/WEB-INF/toolbox.xml</code>:</li>
+<li>file <code>/WEB-INF/toolbox.xml</code> (VelocityTools 1.x):</li>
 <div class="source"><xmp>...
   <tool>
     <key>local</key>
@@ -418,6 +430,13 @@ parameterized messages, the getter that takes parameters must be used: <code>$lo
     <class>velosurf.web.l10n.SimpleDBLocalizer</class>
   </tool>
   ...</xmp></div>
+  <li>file <code>/WEB-INF/tools.xml</code> (VelocityTools 2.x):</li>
+  <div class="source"><xmp>...
+    <toolbox scope="session">
+      <tool key="local" class="velosurf.web.l10n.SimpleDBLocalizer"/>
+      ...
+    </toolbox>
+    ...</xmp></div>
 </ul>
 <p>Using the redirect method is more advised than using the forward method, since the forward method will let one
 URL correspond to different web pages, thus bugging search engines.</p>
@@ -444,7 +463,7 @@ methods <code>getUser(<i>login</i>)</code> and <code>getPassword(<i>login</i>)</
     <filter-class>velosurf.web.auth.AuthenticationFilter</filter-class>
     <init-param>
       <param-name>index-page</param-name>
-      <param-value>/index.html.vtl</param-value>
+      <param-value>/index.vhtml</param-value>
     </init-param>
     <init-param>
       <param-name>max-inactive</param-name>
@@ -452,11 +471,11 @@ methods <code>getUser(<i>login</i>)</code> and <code>getPassword(<i>login</i>)</
     </init-param>
     <init-param>
       <param-name>login-page</param-name>
-      <param-value>/login.html.vtl</param-value>
+      <param-value>/login.vhtml</param-value>
     </init-param>
     <init-param>
       <param-name>authenticated-index-page</param-name>
-      <param-value>/auth/index.html.vtl</param-value>
+      <param-value>/auth/index.vhtml</param-value>
     </init-param>
   </filter>
   ...
@@ -470,7 +489,7 @@ methods <code>getUser(<i>login</i>)</code> and <code>getPassword(<i>login</i>)</
   </filter-mapping>
   ...
 </xmp></div>
-<li>file <code>/WEB-INF/toolbox.xml</code></li>
+<li>file <code>/WEB-INF/toolbox.xml</code> (VelocityTools 1.x):</li>
 <div class="source"><xmp>  ...
   <tool>
     <key>auth</key>
@@ -480,7 +499,15 @@ methods <code>getUser(<i>login</i>)</code> and <code>getPassword(<i>login</i>)</
   </tool>
   ...
 </xmp></div>
-<li>file <code>/login.html.vtl</code>:</li>
+  <li>file <code>/WEB-INF/tools.xml</code> (VelocityTools 2.x):</li>
+  <div class="source"><xmp>...
+    <toolbox scope="session">
+      <tool key="auth" class="velosurf.web.auth.SimpleDBAuthenticator"/>
+      ...
+    </toolbox>
+    ...</xmp></div>
+</ul>
+<li>file <code>/login.vhtml</code>:</li>
 <div class="source"><xmp><html>
 <head>
 <title>Login</title>
@@ -512,36 +539,40 @@ Identification:<br>
 </ul>
 <p>Once a user has logged on, $auth.loggedUser will contain the user's instance.</p>
 
+<div style="background:gray">
 <a name='templatenamefilter'/>
-<h1>Template name filter</h1>
+  <h1>Template name filter</h1>
+<center><b>Deprecated: the good practice is to use .vhtml, .vjs, .vxml ... for template file extensions</b></center>
 <p>Velosurf comes with a <code><a href='api/velosurf/util/TemplateNameFilter'>TemplateNameFilter</a></code> servlet filter
 that is used to mask the '.vtl' in URLs. The idea is to be able to change the status of an HTML file from plain HTML to templatized HTML
 without the need to update URLs. It supposes you follow the convention of suffixing '.vtl' to the name of template files (e.g. <code>index.html.vtl</code> or <code>toolkit.js.vtl</code>).</p>
 <p>Check the javadoc to see how you can customize the parameters of the filter.</p>
+</div>
 
 <a name='filtering'/>
 <h1>Order of servlet filters</h1>
 <p>When using several of the filters proposed by the library, one must be cautious to the order in which those filters
 are mapped to incoming HTTP requests in the <code>/WEB-INF/web.xml</code> application descriptor.</p>
-<p>If used, the template name filter should appear first. Then, if both the authentication and localization filters are
-used, the should appear in the same order as the level order of the corresponding directories (i.e. authentication first if you
+<p><span style="text-decoration:line-through">If used, the template name filter should appear first. Then, </span>if both the authentication and localization filters are
+used, they should appear in the same order as the hierarchical ordering of the corresponding directories (i.e. authentication first if you
 use paths like <code>/auth/en/</code> and localization first if you use paths like <code>/en/auth/</code>).</p>
 
 <a name='fromjava'/><h1>Using the Velosurf API from Java</h1>
 <p>The Velosurf API is a very convenient way to access to the database from Java while still centralizing your model
 in <code>model.xml</code>.</p>
-<p>The main classes you may have to use are the following ones:
-<ul><li><a href='api/velosurf/sql/Database.html'><code>velosurf.sql.Database</code></a> to get a connection using one of the static <code>getInstance</code> method.</li>
+<p>The main classes you may have to use are the following ones:</p>
+<ul><li><a href='api/velosurf/Velosurf.html'><code>velosurf.Velosurf</code></a> to obtain a database connection.</li>
+<!--<li><a href='api/velosurf/sql/Database.html'><code>velosurf.sql.Database</code></a> to get a connection using one of the static <code>getInstance</code> method.</li>-->
 <li><a href='api/velosurf/model/Entity.html'><code>velosurf.model.Entity</code></a> obtained from <code>database.getEntity('<i>name</i>')</code>.</li>
 <li><a href='api/velosurf/model/Attribute.html'><code>velosurf.model.Attribute</code></a> obtained from <code>database.getAttribute('<i>name</i>')</code> or from <code>entity.getAttribute('<i>name</i>')</code>.
 Attributes can then be evaluated with the appropriate method depending on the result type of the attribute (<code>evaluate()</code>, <code>fetch()</code> or <code>query()</code>).
 <li><a href='api/velosurf/model/Action.html'><code>velosurf.model.Action</code></a> obtained from <code>database.getAction('<i>name</i>')</code> or from <code>entity.getAction('<i>name</i>')</code>.</li>
 <li><a href='api/velosurf/context/RowIterator.html'><code>velosurf.context.RowIterator</code></a> obtained from <code><i>entity</i>.iterator()</code> or from <code><i>attribute</i>.query()</code>.</li>
 <li><a href='api/velosurf/context/Instance.html'><code>velosurf.context.Instance</code></a> fetched by its key value or as the result of an attribute.</li>
-</ul></p>
+</ul>
 <p>Please note that to avoid sql connection timeouts, you should not declare Velosurf prepared statements
 as variables having a long lifecycle (like static members). You should only keep references to Velosurf connection
-objects on the long term (they do handle timeouts). Plus, they'll do prepared statements caching and pooling.</p>
+objects on the long term (they do handle timeouts). Plus, they already do prepared statements caching and pooling for you.</p>
 
 </div>
 </div>

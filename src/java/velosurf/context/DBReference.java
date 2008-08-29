@@ -197,6 +197,14 @@ public class DBReference extends HashMap<String,Object>
         db.setUserContext(userContext);
     }
 
+    /**
+     * String representation of this db reference.
+     * For now, returns a list of defined external parameters.
+     */
+    public String toString() {
+        return externalParams.toString();
+    }
+
     /** The wrapped database connection.
      */
     private Database db = null;

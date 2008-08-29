@@ -35,7 +35,7 @@ import velosurf.web.l10n.Localizer;
 /**
  * <p>This class is a servlet filter used to protect web pages behind an authentication mechanism. When a
  * non-authenticated user requests a private page, (s)he is redirected towards the login page and thereafter,
- * if (s)he loggued in successfully, towards his(her) initially requested page.</p>
+ * if (s)he logged in successfully, towards his(her) initially requested page.</p>
  *
  * <p>Authentication is performed via a CRAM (challenge-response authentication mechanism).
  * Passwords are encrypted using the method given as parameter to the Authenticator tool in toolbox.xml. The provided
@@ -60,16 +60,16 @@ import velosurf.web.l10n.Localizer;
  * <p>The password is encrypted in an irreversible manner into an <i>answer</i>, and to check the login,
  * the answer that the client sends back to the server is compared to the correct awaited answer.</p>
  *
- * <p>The javascript file <i>login.js.vtl</i> contains the necessary encryption functions. It uses
+ * <p>The javascript file <i>login.vjs</i> contains the necessary encryption functions. It uses
  * the <i>bignum.js</i> library file. You will find those files in <code>/src/resources/auth</code>
  * or in the auth-l10n sample webapp.</p>
  *
  * <p>The filter expect the login to be present in the HTTP 'login' form field, and the answer in
- * the 'answer' form field (which should be all right if you use the login.js.vtl as is). The action of the form
+ * the 'answer' form field (which should be all right if you use the login.vjs as is). The action of the form
  * is never used (since the filter will redirect the user towards the page asked before the login), but <b>it must
  * be catched by an url-pattern of this filter</b>. You can for instance define a mapping towards "/process_login".</p>
  *
- * <p>The loggued state is materialized by the presence of a user Object in the session under
+ * <p>The logged state is materialized by the presence of a user Object in the session under
  * the <i>user</i> key. This user object in the one returned by the abstract method Authenticator.getUser(login).</p>
  *
  * <p>This filter will search for an occurrence of a localizer tool in the session toolbox to resolve some values.
@@ -83,7 +83,7 @@ import velosurf.web.l10n.Localizer;
  * The default value is one hour.</li>
  * <li><code>login-page</code>: the login page URI. The "<code>@</code>" pattern applies as well. Default is '/login.html'.</li>
  * <li><code>authenticated-index-page</code>: the default page once authenticated. The "<code>@</code>" pattern applies as well.
- * Default is '/loggued.html'.</li>
+ * Default is '/logged.html'.</li>
  * <li><code>bad-login-message</code>: the message to be displayed in case of bad login. If this parameter is not
  * specified, the filter will try to get a reference from the localizer tool and ask it for a "badLogin"
  * message, and if this fails, it will simply use "Bad login or password.".</li>
@@ -113,10 +113,10 @@ public class AuthenticationFilter implements Filter {
     private String passwordField = "password";
 
     /** Login page. */
-    private String loginPage = "/login.html.vtl";
+    private String loginPage = "/login.vhtml";
 
     /** Index of the authenticated zone. */
-    private String authenticatedIndexPage = "/index.html.vtl";
+    private String authenticatedIndexPage = "/index.vhtml";
 
     /** Message in case of bad login. */
     private String badLoginMessage = null;
@@ -208,7 +208,7 @@ public class AuthenticationFilter implements Filter {
         if (session != null
                 && session.getId().equals(request.getRequestedSessionId()) /* not needed in theory */
                 && session.getAttribute("velosurf.auth.user") != null) {
-            /* already loggued*/
+            /* already logged*/
 
             /* if asked to logout, well, logout! */
             if (uri.endsWith("/logout.do")) {
@@ -295,7 +295,7 @@ public class AuthenticationFilter implements Filter {
     protected void doLogin(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
             throws IOException, ServletException {
         String login = request.getParameter(loginField);
-        Logger.info("auth: user '"+login+"' successfully loggued in.");
+        Logger.info("auth: user '"+login+"' successfully logged in.");
         HttpSession session = request.getSession();
         session.setAttribute("velosurf.auth.user", ToolFinder.findSessionTool(session,BaseAuthenticator.class).getUser(login));
         if (maxInactive > 0) {
@@ -315,7 +315,7 @@ public class AuthenticationFilter implements Filter {
         if (savedRequest == null) {
             // redirect to /auth/index.html
             String authenticatedIndexPage = resolveLocalizedUri(request,this.authenticatedIndexPage);
-            Logger.trace("auth: redirecting newly loggued user to "+authenticatedIndexPage);
+            Logger.trace("auth: redirecting newly logged user to "+authenticatedIndexPage);
             response.sendRedirect(authenticatedIndexPage);
         } else {
             session.removeAttribute("velosurf.auth.saved-request");
@@ -323,7 +323,7 @@ public class AuthenticationFilter implements Filter {
             String query =  savedRequest.getQueryString();
             query = (query == null ? "" : "?"+query);
             formerUrl += query;
-            Logger.trace("auth: redirecting newly loggued user to "+formerUrl);
+            Logger.trace("auth: redirecting newly logged user to "+formerUrl);
             response.sendRedirect(formerUrl);
         }
     }
@@ -349,7 +349,7 @@ public class AuthenticationFilter implements Filter {
         HttpSession session = request.getSession();
         if (uri.equals(resolveLocalizedUri(request,loginPage))) {
             String authenticatedIndexPage = resolveLocalizedUri(request,this.authenticatedIndexPage);
-            Logger.trace("auth: redirecting loggued user to "+authenticatedIndexPage);
+            Logger.trace("auth: redirecting logged user to "+authenticatedIndexPage);
             response.sendRedirect(authenticatedIndexPage);
         } else {
             Logger.trace("auth: user is authenticated.");

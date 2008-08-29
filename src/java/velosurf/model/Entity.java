@@ -108,7 +108,7 @@ public class Entity
     public void addAttribute(Attribute attribute) {
         String name = attribute.getName();
         if(attributeMap.containsKey(name)) {
-            Logger.warn("Ignoring second definition for attribute "+getName()+"."+name+"!");
+            Logger.debug("Explicit supersedes implicit for definition of attribute "+getName()+"."+name+"!");
         } else {
             attributeMap.put(db.adaptCase(name),attribute);
             Logger.trace("defined attribute "+this.name+"."+name+" = "+attribute);
