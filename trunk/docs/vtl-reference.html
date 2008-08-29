@@ -99,7 +99,7 @@
 			variable (that contains all the HTTP query parameters) when coming
 			from an HTML form: you only have to ensure that the names of HTML
 			input fields map correctly to the names of the corresponding table
-			columns.</P>
+			columns, by using <a href="user-guide.html#reverse">column aliases</a> if necessary.</P>
 			<P>Plain keywords represent actual names of properties
 			or methods, while keywords in italic stand for user properties or variables.</P>
 
@@ -272,6 +272,7 @@ Primary key values must be present in the map.</p>
 <table>
 <tr><td><a href='#attribute.iterator'><code>#foreach( $<i>instance</i> in $<i>attribute</i> )</code></a></td><td>iterates over the instances of this attribute</td></tr>
 <tr><td><a href='#attribute.rows'><code>$<i>attribute</i>.rows</code></a></td><td>returns the list of this attribute's resulting instances</td></tr>
+<tr><td><a href='#attribute.map'><code>$<i>attribute</i>.map</code></a></td><td>returns a map built with this attribute's first two resulting columns</td></tr>
 <tr><td><a href='#attribute.order'><code>#set( $<i>attribute</i>.order = '<i>order</i>' )</code></a></td><td>specifies how to order this attribute's resulting instances</td></tr>
 <tr><td><a href='#attribute.refine'><code>$<i>attribute</i>.refine( '<i>condition</i>' )</code></a></td><td>adds a filtering condition on this entity's instances</td></tr>
 <tr><td><a href='#attribute.clearrefinement'><code>$<i>attribute</i>.clearRefinement()</code></a></td><td>clears any previously set refinement</td></tr>
@@ -289,7 +290,11 @@ or ordered using the <code>refine()</code> and <code>order()</code> methods.
 </div>
 
 <a name='attribute.rows'/><h3>$<i>attribute</i>.rows</h3>
-<div class="section">Returns the list of this attribute's resulting instances.  Concerned instances may have previously refined
+<div class="section">Returns the list of this attribute's resulting instances. Concerned instances may have previously refined
+or ordered using the <code>refine()</code> and <code>order()</code> methods.</div>
+
+<a name='attribute.map'/><h3>$<i>attribute</i>.map</h3>
+<div class="section">Returns a map built with this attribute's first two resulting columns. Concerned instances may have previously refined
 or ordered using the <code>refine()</code> and <code>order()</code> methods.</div>
 
 <a name='attribute.order'/><h3>#set( $<i>attribute</i>.order = '<i>order</i>' )</h3>
@@ -335,6 +340,7 @@ $db.logged_users.refine( "country = $country.id" )
 <tr><td><a href='#instance.primarykey'><code>$<i>instance</i>.primaryKey</code></a></td><td>returns a list of two-elements maps ('name'&rarr;name and 'value'&rarr;value) of this instance's key column(s)</td></tr>
 <tr><td><a href='#instance.validate'><code>$<i>instance</i>.validate()</code></a></td><td>validates this instance's data</td></tr>
 <tr><td><a href='#instance.putall'><code>$<i>instance</i>.putAll(Map <i>values</i>)</code></a></td><td>put all the key/value pairs of the provided Map in this instance</td></tr>
+<tr><td><a href='#instance.setcolumnvalues'><code>$<i>instance</i>.setColumnValues(Map <i>values</i>)</code></a></td><td>put all the key/value pairs of the provided Map whose key resolves into a column of this instance into it</td></tr>
 <tr><td><a href='#instance.insert'><code>$<i>instance</i>.insert()</code></a></td><td>inserts this instance in the database</td></tr>
 <tr><td><a href='#instance.update'><code>$<i>instance</i>.update()</code></a></td><td>updates this instance with current values and return the boolean success state of the operation</td></tr>
 <tr><td><a href='#instance.update2'><code>$<i>instance</i>.update(&nbsp;Map&nbsp;<i>values</i>&nbsp;)</code></a></td><td>updates this instance with values in <i><code>values</code></i> and return the boolean success state of the operation</td></tr>
@@ -371,6 +377,9 @@ while row set attributes must be evaluated later using <code>#foreach</code>.
 
 <a name='instance.putall'/><h3>$<i>instance</i>.putAll(Map <i>values</i>)</h3>
 <div class="section"><p>Put all the key/value pairs of the provided Map in this instance.</p></div>
+
+<a name='instance.setcolumnvalues'/><h3>$<i>instance</i>.setColumnValues(Map <i>values</i>)</h3>
+<div class="section"><p>Put the key/value pairs of the provided Map whose key resolve to a column name of this instance into it, and ignore other values.</p></div>
 
 <a name='instance.insert'/><h3>$<i>instance</i>.insert()</h3>
 <div class="section"><p>Inserts this instance in the database and returns the boolean success status of the operation.</p>

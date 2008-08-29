@@ -561,7 +561,7 @@ use paths like <code>/auth/en/</code> and localization first if you use paths li
 <p>The Velosurf API is a very convenient way to access to the database from Java while still centralizing your model
 in <code>model.xml</code>.</p>
 <p>The main classes you may have to use are the following ones:</p>
-<ul><li><a href='api/velosurf/Velosurf.html'><code>velosurf.Velosurf</code></a> to obtain a database connection.</li>
+<ul><li><a href='api/velosurf/Velosurf.html'><code>velosurf.Velosurf</code></a> to obtain a database connection with <code>velosurf.getDatabase()</code></li>
 <!--<li><a href='api/velosurf/sql/Database.html'><code>velosurf.sql.Database</code></a> to get a connection using one of the static <code>getInstance</code> method.</li>-->
 <li><a href='api/velosurf/model/Entity.html'><code>velosurf.model.Entity</code></a> obtained from <code>database.getEntity('<i>name</i>')</code>.</li>
 <li><a href='api/velosurf/model/Attribute.html'><code>velosurf.model.Attribute</code></a> obtained from <code>database.getAttribute('<i>name</i>')</code> or from <code>entity.getAttribute('<i>name</i>')</code>.
@@ -570,6 +570,8 @@ Attributes can then be evaluated with the appropriate method depending on the re
 <li><a href='api/velosurf/context/RowIterator.html'><code>velosurf.context.RowIterator</code></a> obtained from <code><i>entity</i>.iterator()</code> or from <code><i>attribute</i>.query()</code>.</li>
 <li><a href='api/velosurf/context/Instance.html'><code>velosurf.context.Instance</code></a> fetched by its key value or as the result of an attribute.</li>
 </ul>
+<p>But you can also stick to <code>velosurf.context</code> objects, that is use <a href="api/velosurf/context/EntityReference.html"><code>EntityReference</code></a> instead of velosurf.model.Entity
+and <a href="api/velosurf/context/AttributeReference.html"><code>velosurf.context.AttributeReference</code></a> instead of <code>velosurf.model.Attribute</code>. It all depends on your needs.</p>
 <p>Please note that to avoid sql connection timeouts, you should not declare Velosurf prepared statements
 as variables having a long lifecycle (like static members). You should only keep references to Velosurf connection
 objects on the long term (they do handle timeouts). Plus, they already do prepared statements caching and pooling for you.</p>

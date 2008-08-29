@@ -60,10 +60,6 @@ import velosurf.web.l10n.Localizer;
  * <p>The password is encrypted in an irreversible manner into an <i>answer</i>, and to check the login,
  * the answer that the client sends back to the server is compared to the correct awaited answer.</p>
  *
- * <p>The javascript file <i>login.vjs</i> contains the necessary encryption functions. It uses
- * the <i>bignum.js</i> library file. You will find those files in <code>/src/resources/auth</code>
- * or in the auth-l10n sample webapp.</p>
- *
  * <p>The filter expect the login to be present in the HTTP 'login' form field, and the answer in
  * the 'answer' form field (which should be all right if you use the login.vjs as is). The action of the form
  * is never used (since the filter will redirect the user towards the page asked before the login), but <b>it must
