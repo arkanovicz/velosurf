@@ -501,7 +501,7 @@ public class Database {
         return ret;
     }
 
-    /** Read configuration from the given input stream.
+    /** Read model configuration from the given input stream.
      *
      * @param config input stream on the config file
      */
@@ -510,7 +510,7 @@ public class Database {
             new ConfigLoader(this,xincludeResolver).loadConfig(config);
 
         } catch (Exception e) {
-            Logger.error("could not load configuration!");
+            Logger.error("could not load model!");
             Logger.log(e);
         }
     }
@@ -788,7 +788,7 @@ public class Database {
     private static int contextCase = LOWERCASE;
 
     /* context case implemented as a system property for now...
-     *TODO: check also other configuration realms or use model.xml
+     *TODO: check also other model configuration realms or use model.xml
      */
     static {
         String contextCase = System.getProperty("velosurf.case");

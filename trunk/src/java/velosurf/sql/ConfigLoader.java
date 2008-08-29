@@ -55,7 +55,7 @@ import velosurf.validation.FieldConstraint;
 import velosurf.validation.DateRange;
 import velosurf.validation.NotEmpty;
 
-/** A configuration loader for the Database object.
+/** A model configuration loader for the Database object.
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
@@ -87,7 +87,7 @@ public class ConfigLoader {
 
    /**
     * Main method of the ConfigLoader.
-    * @param config the configuration input stream
+    * @param config the model configuration input stream
     * @throws Exception
     */
     public void loadConfig(InputStream config) throws Exception {

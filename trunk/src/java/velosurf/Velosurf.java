@@ -30,7 +30,7 @@ import java.sql.SQLException;
 import org.apache.velocity.app.Velocity;
 
 /** <p>This class is the Velosurf main entry class if you do not use the toolbox.xml mechanism.
- *  Unless you specify the config file to use, it will successively search for a configuration file :</p>
+ *  Unless you specify the model file to use, it will successively search for a model file :</p>
  *  <ul>
  *  <li><p>from the java property "config.velosurf" (like in 'java -Dconfig.velosurf=/.../velosurf.xml ...' )</p>
  *  <li><p>from the Velocity property "config.velosurf" (entry of the velocity.properties file)</p>
@@ -58,8 +58,8 @@ public class Velosurf extends DBReference
     }
 
     /**
-     * Constructor taking a File object as configuration.
-     * @param configFile configuration file
+     * Constructor taking a File object as model configuration file.
+     * @param configFile model configuration file
      * @throws IOException
      * @throws SQLException
      */
@@ -68,7 +68,7 @@ public class Velosurf extends DBReference
     }
 
     /**
-     * Constructor taking an InputStream object as configuration.
+     * Constructor taking an InputStream object as model configuration.
      * @param config
      * @throws IOException
      * @throws SQLException
@@ -79,8 +79,8 @@ public class Velosurf extends DBReference
     }
 
     /**
-     * Explicitely set the configuration file.
-     * @param config configuration pathname
+     * Explicitely set the model configuration file.
+     * @param config model configuration pathname
      */
     public void setConfigFile(String config) {
         configFile = config;
@@ -96,8 +96,8 @@ public class Velosurf extends DBReference
     }
 
     /**
-     * Tries to find a configuration file using some default locations.
-     * @return the pathname of the configuration file, if found - null otherwise
+     * Tries to find a model configuration file using some default locations.
+     * @return the pathname of the model configuration file, if found - null otherwise
      */
     private static String findConfig() {
         String pathname = null;
@@ -132,7 +132,7 @@ public class Velosurf extends DBReference
 
     /**
      * Lazzy initialization.
-     * @param config configuration file input stream
+     * @param config model configuration file input stream
      * @throws SQLException
      * @throws IOException
      */

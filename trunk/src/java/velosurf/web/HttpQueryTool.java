@@ -23,7 +23,8 @@ import org.apache.velocity.tools.view.tools.ParameterParser;
 
 import velosurf.util.Logger;
 
-/** This class extends the tool org.apache.velocity.tools.view.tools.ParameterParser,
+/** <p>(Deprecated - please use org.apache.velocity.tools.view.ParameterTool)</p>
+ * This class extends the tool org.apache.velocity.tools.view.tools.ParameterParser,
  *  adding a generic setter. Values that are set manually hide any previous values that
  *  are present in the query under the same key.
  *
@@ -32,7 +33,7 @@ import velosurf.util.Logger;
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  **/
- public class HttpQueryTool extends ParameterParser implements Map
+ public @Deprecated class HttpQueryTool extends ParameterParser implements Map
 {
     /** extra values map. */
     private Map<String,Object> extraValues = new HashMap<String,Object>();

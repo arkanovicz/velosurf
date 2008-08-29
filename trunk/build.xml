@@ -16,12 +16,12 @@
  limitations under the License.
 -->
 
-<project name="velosurf" default="usage" basedir="..">
+<project name="velosurf" default="usage" basedir=".">
   
   
   <!-- NAMES -->
   <property name="project"      value="velosurf"/>
-  <property name="version"      value="2.2-beta"/>
+  <property name="version"      value="2.2"/>
   <property name="final.name"	value="${project}-${version}"/>
   
   <!-- COMPILATION PARAMETERS -->
@@ -31,7 +31,7 @@
   <property name="debug" value="on"/>
 
   <!-- DIRECTORIES -->		
-  <property name="build.dir"         value="${basedir}/build"/>
+  <property name="build.dir"         value="${basedir}"/>
   <property name="src.dir"           value="${basedir}/src/java"/>
   <property name="output.dir" 	     value="${basedir}/class"/>
   <property name="lib.dir"           value="${basedir}/lib"/>
@@ -292,7 +292,6 @@ Please specify a target among :
    <antcall target="-nekohtml-download"/>
    <antcall target="-xerces-download"/>
    <antcall target="-xmlparserapis-download"/>
-    <antcall target="-jetty-main-download"/>
   </target>
 
   <target name="-jetty-main-download">
@@ -400,9 +399,9 @@ Please specify a target among :
 	</jar>
   </target>
 
-
   <target name="-compile-test" depends="-prepare,jar">
     <antcall target="test-download"/>
+    <antcall target="-jetty-main-download"/>
     <copy file="${lib.dir}/commons-collections-${jar.commons-collections.version}.jar" todir="${test.lib.dir}"/>
     <property name="testclasspath" refid="test.classpath"/>
     <echo message="using classpath= ${testclasspath}"/>

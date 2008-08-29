@@ -35,14 +35,13 @@ import velosurf.util.XIncludeResolver;
 import velosurf.util.UserContext;
 import velosurf.web.l10n.Localizer;
 
-/** <p>This class is a tool meant to be referenced in toolbox.xml</p>
+/** <p>This class is a tool meant to be referenced in toolbox.xml (VelocityTools View 1.4) or tools.xml (VelocityTools View 2.0+)</p>
  * <p>It can be used in any scope you want (application/session/request), depending on the behaviour you need for the refinement and ordering mechanisms (which will follow the same scope).
  * The initialization itself is very fast once all static initialization has been done, so there is no performance bottleneck when using request scope.</p>
- *<p>Since version 1.0rc1, you can have several instances of VelosurfTool, each with a distinct configuration file.
+ *<p>You can have several instances of VelosurfTool, each with a distinct model configuration file.
  * This can be useful to have one instance per schema, or one instance per database if dealing with several databases.</p>
- * <p>For this to work, you have to use the 1.3 version of velocity-tools (not yet released at the time I'm writing this,
- * so you need to grab it from the Velocity subversion repository) and give each instance the pathname of its configuration file
- * via the 'config' parameter in the toolbox.xml file, like this :</p>
+ * <p>For this to work, you have to use velocity-tools v1.3+, and give each instance the pathname of its configuration file
+ * via the 'config' parameter in the toolbox.xml file, like this for velocity-tools prior to 2.0:</p>
  * <pre>
  *
  *  &lt;!-- first instance --&gt;
@@ -61,6 +60,16 @@ import velosurf.web.l10n.Localizer;
  *    &lt;parameter name="config" value="WEB-INF/db2.xml" /&gt;
  *   &lt;/tool&gt;
  *
+ *</pre>
+ * <p>And like this for velocity-tools v2.0+ :</p>
+ * <pre>
+ *
+ *  &lt;toolbox scope="request"&gt;
+ *    &lt;!-- first instance --&gt;
+ *    &lt;tool key="db1" class="velosurf.tools.VelosurfTool" config="WEB-INF/db1.xml"/&gt;
+ *    &lt;!-- second instance --&gt;
+ *    &lt;tool key="db2" class="velosurf.tools.VelosurfTool" config="WEB-INF/db2.xml"/&gt;
+ *  &lt;/toolbox&gt;
  *</pre>
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
