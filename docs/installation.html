@@ -73,8 +73,8 @@
 
 <div id="body">
 <h1>Installation</h1>
-<p>This page details the setup of Velosurf in a Webapp powered by the <a href="http://jakarta.apache.org/velocity/tools/">velocity-tools</a> toolbox.
-For other environments, you should refer to the <a href="./faq.html">FAQ</a>.</p>
+<p>This page details the setup of Velosurf in a Webapp powered by <a href="http://velocity.apache.org/tools/releases/1.4">Velocity Tools 1.4</a> or <a href="http://velocity.apache.org/tools/devel">Velocity Tools 2.0-beta</a>.
+For other environments, you should refer to the <a href="./faq.html">FAQ</a> or the <a href="https://lists.sourceforge.net/lists/listinfo/velosurf-devel">mailing-list</a>.</p>
 <p>You should be familiar with Velocity and the concept of Webapp to easily understand the following.<br>
 <a name="building"></a></p>
 <h2>Building the Velosurf archive</h2>
@@ -92,26 +92,21 @@ For other environments, you should refer to the <a href="./faq.html">FAQ</a>.</p
 					</ul>
 					<p><a name="toolbox"></a></p>
 					<h2>Configuring the toolbox</h2>
-					<p>First, you need to set up the Velocity toolbox in your Webapp. This involves:</p>
-					<ul>
-						<li>copying needed archives from ./lib to /WEB-INF/lib
-						<li>adding a reference to the toolbox in the context-parameters of the Webapp deployment descriptor (web.xml):
-						</ul>
-<div class="source"><pre>&lt;context-param&gt;
-  &lt;param-name&gt;org.apache.velocity.toolbox&lt;/param-name&gt;
-  &lt;param-value&gt;/WEB-INF/toolbox.xml&lt;/param-value&gt;
-&lt;/context-param&gt;</pre></div>
+          <p>First, you need to set up the Velocity toolbox in your Webapp. Please refer to <a hef="http://velocity.apache.org/tools/releases/1.4/view/index.html#Installation">VelovityView Tools 1.4 installation</a>
+          or to <a href="http://velocity.apache.org/tools/devel/view.servlet.html">VelocityView 2.0+ installation</a>.
+          </p>
+<p>Then, you have to set up the Velosurf tools by means of the <code>/WEB-INF/toolbox.xml</code> (for 1.4):</p>
+<div class="source"><pre>&lt;?xml version="1.0"?&gt;
+&lt;toolbox&gt; &lt;!-- toolbox file for Velocity View 1.4 --&gt;
 
-
-<p>Then, you have to set up the Velosurf tools by means of the <code>/WEB-INF/toolbox.xml</code>:</p>
-<div class="source"><pre>&lt;?xml version=&quot;1.0&quot;?&gt;
-&lt;toolbox&gt;
+  &lt;!-- ...other tools... --&gt;
 
   &lt;!-- http query parameters tool:
          You can either use org.apache.velocity.tools.view.tools.ParameterParser
          or velosurf.web.HttpQueryTool, which inherits the former to add a generic
-         setter - in clear, you have to use the Velosurf version if you want to be
-         able to add values to the tool like with #set($query.foo='bar').--&gt;
+         setter - in clear, if using VelocityTools 1.4 or prior, you have to use
+         the Velosurf version if you want to be able to add values to the tool
+         like with #set($query.foo='bar').--&gt;
 
   &lt;tool&gt;
     &lt;key&gt;query&lt;/key&gt;
@@ -124,13 +119,37 @@ For other environments, you should refer to the <a href="./faq.html">FAQ</a>.</p
   &lt;tool&gt;
     &lt;key&gt;db&lt;/key&gt;
     &lt;scope&gt;request&lt;/scope&gt;
-    &lt;class&gt;velosurf.tools.VelosurfTool&lt;/class&gt;
-    &lt;-- uncomment the next comment if you want to specify a configuration file which is not one
-           of the default values (./WEB-INF/model.xml or ./WEB-INF/velosurf.xml) --&gt;
+    &lt;class&gt;velosurf.web.VelosurfTool&lt;/class&gt;
+    &lt;-- uncomment the next line tu use a custom model file --&gt;
     &lt;--&lt;param name='config' value='./WEB-INF/mymodel.xml'/&gt;--&gt;
   &lt;/tool&gt;
 
 &lt;/toolbox&gt;</pre></div>
+
+<p>Or <code>/WEB-INF/tools.xml</code> (for 2.0+):</p>
+
+<div class="source"><pre>&lt;?xml version="1.0"?&gt;
+  &lt;tools&gt; &lt;!-- toolbox file for Velocity View 2.0+ --&gt;
+
+  &lt;!-- ... other toolboxes ... --&gt;
+
+    &lt;toolbox scope="request"/&gt; &lt!-- or other scopes, see below --&gt;
+      &lt;!-- ... other tools ... --&gt;
+      &lt;tool key="db" class="velosurf.web.VelosurfTool"/&gt; &lt;!-- add &laquo;config="/WEB-INF/mymodel.xml"&raquo; for a custom model file --&gt;
+    &lt;/toolbox&gt;
+
+  &lt;/toolbox&gt;</pre></div>
+
+  <p>Notes:</p>
+  <p>
+    <ul>
+  <li>by default, Velosurf searches for its model in <code>/WEB-INF/model.xml</code> or <code>/WEB-INF/model.xml</code></li>
+  <li>you can use as many database tools as you wish (you may then use custom model filenames)</li>
+  <li>the <code>velosurf.web.VelosurfTool</code> object is a tiny wrapper that doesn't introduce any overhead
+  when instanciated for each request, but you may choose to use it in a session or application scope if you do not use
+  per-request refinements or orderings.</li>
+    </ul>
+  </p>
 
 <p>Alternatively, the name of the configuration file can also be specified in the <code>velosurf.config</code> servlet context parameter
 (this latter method must be chosen when using Velosurf authentication or localization filters that rely on the database since the toolbox
@@ -140,7 +159,7 @@ is not yet initialized at the time the filters are initialized). In that case, y
     <param-value>/WEB-INF/db.xml</param-value>
   </context-param></xmp></div>
 
-					<h2>Configuring Velosurf</h2>
+					<h2>Configuring the Velosurf model</h2>
 					<p>By default, the database will be reverse engineered and each table becomes an entity, each column an attribute,
 					and each foreign key will produce two attributes (see the paragraph about <a href="./user-guide.html#foreign-keys">foreign keys</a> in the User Guide).</p>
 					<p>You can thus start with the minimal configuration, which only specifies the database connection parameters (don't forget
@@ -150,7 +169,8 @@ is not yet initialized at the time the filters are initialized). In that case, y
 &lt;/database&gt;</pre></div>
 					<p>You can then check your installation with a very simple template that displays a few values taken from the database.</p>
 					<p>Next, please refer to the <a href="./user-guide.html">User Guide</a> and the <a href="./configuration">Configuration Reference</a>
-					to tune your use of Velosurf.</p>
+					to tune your model file.</p>
+  <p>The model file supports the XML XInclude mechanism, which lets you split a big model into many files.</p>
 </div>
 </div>					
 	</body>

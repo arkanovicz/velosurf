@@ -36,6 +36,8 @@ import java.util.Iterator;
 import java.util.HashSet;
 
 /**
+ * <p>Deprecated. Recommended practice is to use .vhtml, .vjs, .vcss, etc... and to not rename templates.
+ * When using a J2EE container behind Apache web server, it makes it easy to let Apache serve static files.</p>
  * <p>This class is a forwarding filter which allows to hide ".vtl" from resource URLs.
  * It works by building a cache of all template names in the webapp, and adding </p>
  *
@@ -60,7 +62,7 @@ import java.util.HashSet;
  *
  */
 
-public class TemplateNameFilter implements Filter {
+public @Deprecated class TemplateNameFilter implements Filter {
 
     /** the servlet context. */
     private ServletContext servletContext;

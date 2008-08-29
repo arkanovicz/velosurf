@@ -10,7 +10,7 @@ import velosurf.context.DBReference;
 import velosurf.context.RowIterator;
 import velosurf.sql.PooledPreparedStatement;
 import velosurf.sql.Database;
-import velosurf.tools.VelosurfTool;
+import velosurf.web.VelosurfTool;
 import org.apache.velocity.tools.view.context.ViewContext;
 
 public class DBAuthenticator extends Authenticator {
