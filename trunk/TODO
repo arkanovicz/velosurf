@@ -1,61 +1,33 @@
- - action et vaarg ? pb: named attributes expected (=> attribute donnant les noms sequentiellement)
-
- - doc about lifecycles
-
- - Instance should maybe reference a DBRef and not a DB (to control subclasses access)
-
- - refines that are defined in the model as attributes' attributes
-
- - xi:include not working in standalone mode with velosurf.Velosurf ?!
-
-Caused by: java.lang.NullPointerException
-    at velosurf.web.VelosurfTool.init(VelosurfTool.java:144)
-=> catch it and change message to "could not connect to DB"
-
- - allow customization of LIMIT (like order and refinement)
-
- - getMap peut marcher avec plus de 2 cols (keycol -> instance)
- - faute d'orthographe "loggued"
-
- - definition des requetes par contraintes, une contrainte etant une map
+ - action et vaarg ? pb: named attributes expected (=> attribute donnant les noms sequentiellement) => 2.3
+ - Instance should maybe reference a DBRef and not a DB (to control subclasses access) => 2.3
+ - refines that are defined in the model as attributes' attributes? => 2.3
+ - allow customization of LIMIT (like order and refinement) => 2.3
+ - getMap peut marcher avec plus de 2 cols (keycol -> instance) => 2.3
+ - map as an attribute result: "map/id:name", or "map/id:entityname" to have instances as values => 2.3
+ - definition des requetes par contraintes, une contrainte etant une map => 2.3
   (ex 1 : si la map contient 'jour' alors le critere custom <jour/> between debut and fin doit s'appliquer)
   (ex 2 : si la map contient 'prenom' alors le critere automatique prenom=<prenom/> doit s'appliquer)
  => une espece de power refine sur les attributs
   <attribute><refinment mandatory=true|false [name=] col= />
 puis $instance.attribute.refine(context...)
-
- - make attribute results implement List sans avoir besoin du row (seules les methodes size and co font rouler le rowset) => resetable rowsets
-  pour le cas de plusieurs #foreach
-
- Velosurf  [error] Was expecting an org.jdom.Element, found a org.jdom.Comment: '[Comment: <!-- kept as rowset to be homogeneous with previous attributes -->]'
-java.sql.SQLException: Was expecting an org.jdom.Element, found a org.jdom.Comment: '[Comment: <!-- kept as rowset to be homogeneous with previous attributes -->]'
-        at velosurf.sql.ConfigLoader.defineAttributes(ConfigLoader.java:334)
-        at velosurf.sql.ConfigLoader.loadConfig(ConfigLoader.java:107)
-        at velosurf.sql.Database.readConfigFile(Database.java:510)
-        at velosurf.sql.Database.getInstance(Database.java:148)
-        at velosurf.web.VelosurfTool.getConnection(VelosurfTool.java:283)
-        at velosurf.web.VelosurfTool.getDefaultInstance(VelosurfTool.java:342)
-
- - foreign keys referencing non-primary keys generate exceptions
- - authenticator option for case sensivity
- - add attribute result types: rowset/scalar, map, ...
- - remember when an instance comes from newInstance
- - an "upsert" method
- - $db renvoie {} meme quand il y a des params externes definis... c'est pas bien...
-
-TODO
-----
- - instance.insert should check obfuscation too!
- - review UserContext life cycle (threads/sessions) - is it thread-pooling resistant?
- - when no pk defined, there should be an error message at reverse enginering time
- - Entity & Attribute, as long as EntityReference and AttributeReference, must share a common ancestor
- - strip table name prefixes on demand (like "tab_")
- - add AttrRef/EntityRef.getList ? (non: rowset/scalar) - EntityRef.getMap ?
- - factorize Action and Attribute!
+ - make attribute results implement List sans avoir besoin du row (seules les methodes size and co font rouler le rowset) => 2.3
+ => resetable rowsets pour le cas de plusieurs #foreach
+ - foreign keys referencing non-primary keys generate exceptions => 2.3
+ - authenticator option for case sensivity => 2.3
+ - add attribute result types: rowset/scalar, map, ... => 2.3
+ - remember when an instance comes from newInstance (what for? I forgot...) => ??
+ - an "upsert" method => 2.3
+ - instance.insert should check obfuscation too! (cases where it doesn't? which ones?) => ??
+ - review UserContext life cycle (threads/sessions) - is it thread-pooling resistant? => seems so.
+ - when no pk defined, there should be an error message at reverse enginering time (why?) => ??
+ - Entity & Attribute, as long as EntityReference and AttributeReference, must share a common ancestor (why?) => ??
+ - strip tablename/field prefixes on demand (like "tab_") => 2.3
+ - factorize Action and Attribute! => 2.3
  - msg "Ignoring second definition for attribute" should explicitely state that the ignored def is the implicit one
  - when result=row, attref should return null if not found
  - AttributeReference.toString() => null
- - doc about attributeref.map (and should also be attribute.map, by the way)
+ - How to forbid access to a getter or a setter in a mapped POJO class? Still don't know. => 2.3
+ - doc about attributeref.map 
  - doc about external parameters
  - do sthing about serialization / transience (cf. tomcat sessions persistance for instance)
  - add an EntityReference.perform(action,vaarg) method

@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.HashMap;
 import java.net.URL;
+import java.sql.SQLException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
@@ -149,8 +150,11 @@ public class VelosurfTool extends DBReference
 
         /* initialize with a new or existing connection */
         Database db = getConnection(configFile,ctx);
-        /* FIXME: null check? anyway this is a RuntimeException... */
-        db.setUserContext(userContext);
+        if(db == null) {
+            throw new SQLException("Could not connect to database.");
+        } else {
+            db.setUserContext(userContext);
+        }
         super.init(db);
     }
 
