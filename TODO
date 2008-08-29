@@ -27,26 +27,23 @@ puis $instance.attribute.refine(context...)
  - when result=row, attref should return null if not found
  - AttributeReference.toString() => null
  - How to forbid access to a getter or a setter in a mapped POJO class? Still don't know. => 2.3
- - doc about attributeref.map 
- - doc about external parameters
- - do sthing about serialization / transience (cf. tomcat sessions persistance for instance)
- - add an EntityReference.perform(action,vaarg) method
- - warn on unused attributes in config file
- - "mangle" attribute to mangle table and/or field prefixes (but achievable using aliases)
- - review extractColumnValues usage (how to choose to use source or destination column names, in regard to aliases)
- - make foreign-key attribute optionnal (=> use natural join)
- - optionnaly use foreign key names when reverse enginering
+ - Use separate classes for the different return types => 2.3
+ - do sthing about serialization / transience (cf. tomcat sessions persistance for instance) => 2/3
+ - warn on unused attributes in config file => not already done? I thought so...
+ - "mangle" attribute to mangle table and/or field prefixes (but achievable using aliases) => 2.3
+ - review extractColumnValues usage (how to choose to use source or destination column names, in regard to aliases) => seems ok
+ - make foreign-key attribute optionnal (=> use natural join) => 2.3
+ - optionnaly use foreign key names when reverse enginering => should be a database attribute, 2.3
  - kill the broken pipe mysql bug (occurs sometimes with mysql - rare but tedious)
    workaround: set a very long timeout in my.cnf : [mysqld] wait_timeout = 288000
- - implement caching also for root attributes
- - automatically propagate obfuscation along foreign keys
- - introspection of Instance subclasses for specific getters and setters (avoid loops!)
- - testcases for "parentkey.subkey" attributes parameters
- - testcases for multiple aliases
- - display build # in logs at startup
- - naming collisions detection for aliases
- - TagCloudTool as an example
- - Instances should check external POJOs for some additional methods, like "validate"
+ - implement caching also for root attributes => should be ok, check it
+ - automatically propagate obfuscation along foreign keys => should be ok, check it
+ - testcases for "parentkey.subkey" attributes parameters => plenty of testcases missing, anyway
+ - testcases for multiple aliases => plenty of testcases missing, anyway
+ - display build # in logs at startup => soon...
+ - naming collisions detection for aliases => 2.3
+ - TagCloudTool as an example => soon I hope...
+ - Instances should check external POJOs for some additional methods, like "validate" => 2.3
  - facilitates acces to Database objects from Java
  - RowIterator has to be splitted: one core object in sql (with more advanced accessors like InputStreams), one wrapper in context
  - tool for one-shot messages in the session (like error messages that vanish once displayed)

@@ -207,7 +207,7 @@ public class DBReference extends HashMap<String,Object>
 
     /** The wrapped database connection.
      */
-    private Database db = null;
+    protected Database db = null;
 
     /** A cache used by the generic getter. Its purpose is to avoid the creation of several
      * attribute references for the same multivalued attribute.

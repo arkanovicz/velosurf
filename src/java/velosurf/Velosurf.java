@@ -170,6 +170,14 @@ public class Velosurf extends DBReference
     }
 
     /**
+     * Allows to access the underlying velosurf.sql.Database object
+     * @return a Database object
+     */
+    public Database getDatabase() {
+        return db;
+    }
+
+    /**
      * Generic getter.
      * @param key
      * @return property

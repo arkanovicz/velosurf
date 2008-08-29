@@ -175,7 +175,7 @@ public class Instance extends TreeMap<String,Object>
      * @param values corresponding values
      */
 
-    public synchronized void setColumns(Map<String,Object> values) {
+    public synchronized void setColumnValues(Map<String,Object> values) {
         if(entity == null) {
             Logger.warn("instance.putColumn(map) cannot be used when entity is null");
             return;
@@ -290,7 +290,7 @@ public class Instance extends TreeMap<String,Object>
      */
     public synchronized boolean update(Map<String,Object> values) {
         if (values != null && values != this) {
-            setColumns(values);
+            setColumnValues(values);
         }
         return update();
     }
