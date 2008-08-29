@@ -44,7 +44,7 @@ import velosurf.model.Attribute;
 import velosurf.model.Transaction;
 import velosurf.model.ImportedKey;
 import velosurf.model.ExportedKey;
-import velosurf.validation.Email;
+import velosurf.validation.EmailCheck;
 import velosurf.validation.Length;
 import velosurf.validation.Range;
 import velosurf.validation.NotNull;
@@ -685,7 +685,7 @@ public class ConfigLoader {
             }
             /* short-syntax, email */
             if(hasType && "email".equals(type)) {
-                entity.addConstraint(column,new Email());
+                entity.addConstraint(column,new EmailCheck());
                 colElement.removeAttribute("type");
             }
             /* short-syntax, others */
@@ -737,7 +737,7 @@ public class ConfigLoader {
                     if (checkSyntax("smtp-check",str,new String[]{"yes","no"})) {
                         smtpCheck = (str.equalsIgnoreCase("yes"));
                     }
-                    constraint = new Email(dnsCheck,smtpCheck);
+                    constraint = new EmailCheck(dnsCheck,smtpCheck);
                 } else if (name.equals("min-len")) {
                     if (length != null) {
                         length.setMinLength(Integer.parseInt(constraintElement.getAttributeValue("value")));

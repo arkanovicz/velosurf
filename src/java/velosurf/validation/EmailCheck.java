@@ -44,7 +44,7 @@ import velosurf.util.DNSResolver;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-public class Email extends FieldConstraint {
+public class EmailCheck extends FieldConstraint {
     /** whether to check dns. */
     private boolean dnsCheck = false;
     /** whether to check smtp server. */
@@ -66,7 +66,7 @@ public class Email extends FieldConstraint {
     /**
      * Default constructor.
      */
-    public Email() {
+    public EmailCheck() {
         this(false,false);
     }
 
@@ -75,7 +75,7 @@ public class Email extends FieldConstraint {
      * @param dnsCheck whether to validate this email using a DNS query
      * @param smtpCheck whether to validate this email using an STMP query
      */
-    public Email(boolean dnsCheck,boolean smtpCheck) {
+    public EmailCheck(boolean dnsCheck,boolean smtpCheck) {
         this.dnsCheck = dnsCheck;
         this.smtpCheck = smtpCheck;
         setMessage("field {0}: '{1}' is not a valid email");
