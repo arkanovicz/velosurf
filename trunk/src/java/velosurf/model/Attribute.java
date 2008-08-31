@@ -236,7 +236,9 @@ public class Attribute
                 if (value == null) Logger.warn("Attribute "+getEntity().getName()+"."+name+": param "+paramName+" is null!");
                 result.add(value);
             }
-        Logger.trace("    with parameters "+result);
+        if(Logger.getLogLevel()>=Logger.TRACE_ID) {
+            Logger.trace("    with parameters "+result);
+        }
         return result;
     }
 
