@@ -1,3 +1,5 @@
+2.3/3.0
+
  - action et vaarg ? pb: named attributes expected (=> attribute donnant les noms sequentiellement) => 2.3
  - Instance should maybe reference a DBRef and not a DB (to control subclasses access) => 2.3
  - refines that are defined in the model as attributes' attributes? => 2.3
@@ -44,45 +46,36 @@ puis $instance.attribute.refine(context...)
  - naming collisions detection for aliases => 2.3
  - TagCloudTool as an example => soon I hope...
  - Instances should check external POJOs for some additional methods, like "validate" => 2.3
- - facilitates acces to Database objects from Java
- - RowIterator has to be splitted: one core object in sql (with more advanced accessors like InputStreams), one wrapper in context
- - tool for one-shot messages in the session (like error messages that vanish once displayed)
- - should newInstance(map) call validation?
- - when/how is $db.error cleared? document
- - review policy when column name clashes with attribute name: maybe add a RowIterator.internalGet called from ReadOnlyMap.
-   Plus, RowIterator get javadoc is wrong for now.
- - testcase for exported key
- - when SQL exceptions are thrown from context objects, would it be possible to display line/col position in template?
- - clarify user context scope and life cycle
- - put version and debugging options in build.properties
- - validation: form values should be put as request attributes after the redirect!
- - docs: separate read-only methods and others
- - move auth, l10n and template name filter to an extension module (in the source tree & the docs)
- - test cache reset
- - change /** ... \n */ to /** ... */
- - parse conditions in refine and columns in order to apply aliases ?
- - review pools timeout
- - pool transaction statements
- - testcase for aliasing
- - testcases for POJO mapping
- - testcase for localization
- - review code for Logger.debug/trace strings calculation (avoid them!)
- - use DatabaseMetaData.storeXXXCaseIdentifiers() to determine case sensivity
- - a good dissertation about HTTP authentication to place somewhere http://www.artima.com/weblogs/viewpost.jsp?thread=155252
- - l10n: provide flags
- - obfuscation key should be specific to entities
- - integration with a graphic reporting library
- - docfix: a drivers.html page about DriverInfo
- - allow the database connection to be configured via a jndi resource
- - inheritance of entities in model.xml?
- - ability to query current schema (ex : under Oracle :  select sys_context('userenv','current_schema') from dual) [done by caching the given schema for now]
- - add EntityReference.insert(List(columns in natural order))?
- - SQL enums? is there sthing to do to support them?
- - id broker?
- - automatic reload when the configuration file is changed (but depends upon container!)
- - 'size' attribute on multivalued attributes? (approx JDBC size? exact size?)
- - positionned updates and deletes (via UserContext)
- - paging via AbstractSearchTool?
- - database metadata informations and operations
- - allow setters by foreign-key (eg. $book.author = $author instead of $book.author_id = $author.id) ?
- - XML databases access via IBM XML Data Mediator?
+ - RowIterator has to be splitted: one core object in sql (with more advanced accessors like InputStreams), one wrapper in context => 2.3
+ - tool for one-shot messages in the session (like error messages that vanish once displayed) => 2.3 (or use macros)
+ - configLoader should know FATAL error level, even if very unfrequent => 2.3
+ - $db.error is not cleared - should it be ? => reconsider
+ - review policy when column name clashes with attribute name: maybe add a RowIterator.internalGet called from ReadOnlyMap. => maybe
+ - testcase for exported key => one day
+ - when SQL exceptions are thrown from context objects, would it be possible to display line/col position in template? => 2.3
+ - clarify user context scope and life cycle => very clear for a webapp (equals session)
+ - put version and debugging options in build.properties => 2.3
+ - validation filter: form values should be put as request attributes after the redirect! => 2.3
+ - test cache reset => 2.3
+ - testcase for aliasing => 2.3
+ - testcases for POJO mapping => 2.3
+ - testcase for localization => 2.3
+ - use DatabaseMetaData.storeXXXCaseIdentifiers() to determine case sensivity => 2.3
+ - a good dissertation about HTTP authentication to place somewhere http://www.artima.com/weblogs/viewpost.jsp?thread=155252 => 2.3
+ - l10n: provide flags => 2.3
+ - obfuscation key should be specific to entities => 2.3
+ - integration with a graphic reporting library => 2.3
+ - docfix: a drivers.html page about DriverInfo => 2.3
+ - allow the database connection to be configured via a jndi resource => 2.3
+ - inheritance of entities in model.xml? => 2.3
+ - ability to query current schema (ex : under Oracle :  select sys_context('userenv','current_schema') from dual) [done by caching the given schema for now] => 2.3
+ - add EntityReference.insert(List(columns in natural order))? => 2.3
+ - SQL enums? is there sthing to do to support them? => 2.3
+ - id broker? => not really a job for Velosurf?
+ - automatic reload when the configuration file is changed (but depends upon container!) => see feasibility
+ - 'size' attribute on multivalued attributes? (approx JDBC size? exact size?) => 2.3 (workaround: .rows.size)
+ - positionned updates and deletes (via UserContext) => maybe
+ - paging via AbstractSearchTool? => 2.3
+ - database metadata informations and operations => 2.3
+ - allow setters by foreign-key (eg. $book.author = $author instead of $book.author_id = $author.id) ? => may be dangerous
+ - XML databases access via IBM XML Data Mediator? => if needed one day

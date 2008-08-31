@@ -1,11 +1,9 @@
 **** Changes ****
 
-v2.2 (June 2008)
+v2.2 (September 2008)
 ---
  - fix: RowIterator.hasNext now works when called several times in a row
-
-v2.2-beta (December 2007)
-----
+ - new: method velosurf.VelosurfTool.getDatabase() to ease the use of Velosurf from Java
  - fix: Attribute.getRows() had a memory leak
  - fix: Entity.fetch(Map) could fail without reason
  - fix: corrected a concurrency problem in statement pools
@@ -15,38 +13,34 @@ v2.2-beta (December 2007)
  - new: mail notifications (see Logger.java api)
  - new: caching attribute for entity attributes
  - fix: Instance.get(key) now takes an Object argument to propery inherit parent's generic getter
- - added the debugging method $query.queryString
- - url, driver and schema can now be part of <database> or of <credentials>
- - populate last inserted IDs in instances when needed on insertion
- - Entity.extractColumnValues now allows additionnal columns when comming from the sql side
+ - new: added the debugging method $query.queryString
+ - new: url, driver and schema can now be part of <database> or of <credentials>
+ - fix: populate last inserted IDs in instances when needed on insertion
+ - new: Entity.extractColumnValues now allows additionnal columns when comming from the sql side
  - fix: HttpQueryTool needed a get(String) method besides the get(Object) one to properly override inherited generic getter
- - added an optional <credentials> element in the config file to gather credentials out of the <database> element
- - added method instance.setColumns
- - HttpQueryTool now interpret dots in keys as parent key and subkey pair
+ - new: added an optional <credentials> element in the config file to gather credentials out of the <database> element
+ - new: added method instance.setColumnValues
  - fix: cache key calculation was not always right
- - internal instance values are now stored using sql column values
-   and aliases can be multiple
- - added an experimental DBResourceLoader Velocity resource loader
+ - fix: internal instance values are now stored using sql column values and aliases can be multiple
+ - new: added an experimental DBResourceLoader Velocity resource loader
  - fix: aliases were not taken into account in Entity.extractColumnValues
  - fix: aliases were never read by the ConfigLoader
- - the localizer tool now checks if the locale changes in the session
+ - fix: the localizer tool now checks if the locale changes in the session
  - fix: authentication filter now also remembers the query string of the saved request
- - $query now displays a nice content as a map
- - added entityref.delete(string) and entityref.delete(number) for unique primary cols
+ - new: added entityref.delete(string) and entityref.delete(number) for unique primary cols
  - fix: exported keys were broken.
  - fix: do not forget query string when redirecting!
  - fix: validation: unecessary user context re-creations avoided
- - added user context getter and setter to DBReference
- - configLoader should know FATAL error level, even if very unfrequent
- - Entity.fetch(Map) now checks for key values instead of throwing an exception if they are not present
- - added the missing EntityReference.newInstance(Map) method
+ - new: added user context getter and setter to DBReference
+ - fix: Entity.fetch(Map) now checks for key values instead of throwing an exception if they are not present
+ - new: added the missing EntityReference.newInstance(Map) method
  - fix: some methods of UserContext had to be synchronized
- - UserContext.getValidationErrors() now clears the validation errors for the next call
- - made login and password form field names configurable in AuthenticationFilter
- - added the getter BaseAuthenticator.getLoggedUser()
+ - fix: UserContext.getValidationErrors() now clears the validation errors for the next call
+ - new: made login and password form field names configurable in AuthenticationFilter
+ - new: added the getter BaseAuthenticator.getLoggedUser()
  - fix: web.VelosurfTool now avoid overwriting a previously thread-locally initialized user context in the database
- - removed all VelosurfTool methods taking an unused UserContext argument
- - made the LocalizationFilter less verbose
+ - fix: removed all VelosurfTool methods taking an unused UserContext argument
+ - fix: made the LocalizationFilter less verbose
  - fix: SimpleDBLocalizer no longer throws an exception when the 'localized' table is not found
 
 v2.1 (November 2006)
