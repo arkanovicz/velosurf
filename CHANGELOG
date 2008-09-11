@@ -1,7 +1,11 @@
 **** Changes ****
 
+v2.3
+----
+ - fix: authentication filter now uses the overloadable getAuthenticatedIndexPage() method
+
 v2.2 (September 2008)
----
+----
  - fix: RowIterator.hasNext now works when called several times in a row
  - new: method velosurf.VelosurfTool.getDatabase() to ease the use of Velosurf from Java
  - fix: Attribute.getRows() had a memory leak
@@ -44,7 +48,7 @@ v2.2 (September 2008)
  - fix: SimpleDBLocalizer no longer throws an exception when the 'localized' table is not found
 
 v2.1 (November 2006)
-------
+----
  - fix: bug in last insert id feature (at least for hsqldb, not for mysql)
  - added some new testcases
  - fix: template name filter cache resetting produced a wrong output
