@@ -310,7 +310,7 @@ public class AuthenticationFilter implements Filter {
         SavedRequest savedRequest = (SavedRequest)session.getAttribute("velosurf.auth.saved-request");
         if (savedRequest == null) {
             // redirect to /auth/index.html
-            String authIndex = resolveLocalizedUri(request,getAuthenticatedIndexPage());
+            String authIndex = resolveLocalizedUri(request,getAuthenticatedIndexPage(session));
             Logger.trace("auth: redirecting newly logged user to "+authIndex);
             response.sendRedirect(authIndex);
         } else {
@@ -344,7 +344,7 @@ public class AuthenticationFilter implements Filter {
         String uri = request.getRequestURI();
         HttpSession session = request.getSession();
         if (uri.equals(resolveLocalizedUri(request,loginPage))) {
-            String authIndex = resolveLocalizedUri(request,getAuthenticatedIndexPage());
+            String authIndex = resolveLocalizedUri(request,getAuthenticatedIndexPage(session));
             Logger.trace("auth: redirecting logged user to "+authIndex);
             response.sendRedirect(authIndex);
         } else {
@@ -390,7 +390,7 @@ public class AuthenticationFilter implements Filter {
         return uri;
     }
 
-    protected String getAuthenticatedIndexPage() {
+    protected String getAuthenticatedIndexPage(HttpSession session) {
         return authenticatedIndexPage;
     }
 
