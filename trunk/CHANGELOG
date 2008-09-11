@@ -2,6 +2,7 @@
 
 v2.3
 ----
+ - new: getAuthenticatedIndexPage() takes the http session as argument
  - fix: authentication filter now uses the overloadable getAuthenticatedIndexPage() method
 
 v2.2 (September 2008)
