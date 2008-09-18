@@ -1,7 +1,8 @@
 **** Changes ****
 
-v2.3
-----
+v2.2.1 (Setember 2008)
+------
+ - fix: EmailChecker smtp validation was broken
  - new: getAuthenticatedIndexPage() takes the http session as argument
  - fix: authentication filter now uses the overloadable getAuthenticatedIndexPage() method
 
