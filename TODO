@@ -80,3 +80,5 @@ puis $instance.attribute.refine(context...)
  - database metadata informations and operations => 2.3
  - allow setters by foreign-key (eg. $book.author = $author instead of $book.author_id = $author.id) ? => may be dangerous
  - XML databases access via IBM XML Data Mediator? => if needed one day
+ - isolation levels
+ - syntax coloring des fichiers XML/VTL dans la doc
