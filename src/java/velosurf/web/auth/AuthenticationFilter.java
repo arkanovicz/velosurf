@@ -308,7 +308,7 @@ public class AuthenticationFilter implements Filter {
             throws IOException, ServletException {
         HttpSession session = request.getSession();
         SavedRequest savedRequest = (SavedRequest)session.getAttribute("velosurf.auth.saved-request");
-        if (savedRequest == null) {
+        if (savedRequest == null || savedRequest.getRequestURI().endsWith("/login.do")) {
             // redirect to /auth/index.html
             String authIndex = resolveLocalizedUri(request,getAuthenticatedIndexPage(session));
             Logger.trace("auth: redirecting newly logged user to "+authIndex);
@@ -340,10 +340,10 @@ public class AuthenticationFilter implements Filter {
 
     protected void doProcessAuthentified(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
             throws IOException, ServletException {
-        /* if the request is still pointing on /login.html, redirect to /auth/index.html */
+        /* if the request is still pointing on /login.html or /login.do, redirect to /auth/index.html */
         String uri = request.getRequestURI();
         HttpSession session = request.getSession();
-        if (uri.equals(resolveLocalizedUri(request,loginPage))) {
+        if (uri.equals(resolveLocalizedUri(request,loginPage)) || uri.endsWith("/login.do")) {
             String authIndex = resolveLocalizedUri(request,getAuthenticatedIndexPage(session));
             Logger.trace("auth: redirecting logged user to "+authIndex);
             response.sendRedirect(authIndex);
