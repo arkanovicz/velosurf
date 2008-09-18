@@ -112,8 +112,11 @@ public class EmailCheck extends FieldConstraint {
      * @return true if valid
      */
     private boolean checkSMTP(String user,String hostname) {
+        String request;
         String response;
         Socket sock = null;
+        BufferedReader is = null;
+        PrintStream os = null;
         Logger.trace("email validation: checking SMTP for <"+user+"@"+hostname+">");
         List<String> mxs = DNSResolver.resolveDNS(hostname,true);
         if (mxs == null || mxs.size() == 0) {
@@ -127,72 +130,108 @@ public class EmailCheck extends FieldConstraint {
                     Logger.trace("email validation: checking SMTP: timeout");
                     continue;
                 }
-                BufferedReader is = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-                PrintStream os = new PrintStream(sock.getOutputStream());
-                response = is.readLine();
-                Logger.trace("  "+response);
+                is = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+                os = new PrintStream(sock.getOutputStream());
+                Logger.trace(">> establishing connection towards "+mx);
+                do {
+                    response = is.readLine();
+                    Logger.trace("<< "+response);
+                    
+                } while (response.charAt(3) == '-');
                 if(!response.startsWith("220 ")) {
                     Logger.trace("email validation: checking SMTP: failed after connection");
                     if(response.startsWith("4")) {
                         /* server has problems */
+                        os.println("QUIT");
+                        sock.close();
                         continue;
                     }
                     else {
+                        os.println("QUIT");
+                        sock.close();
                         return false;
                     }
                 };
-                os.println("HELO email-checker@localhost.foo");
-                response = is.readLine();
-                Logger.trace("  "+response);
+                request = "EHLO ["+sock.getLocalAddress().getHostAddress()+"]";
+                Logger.trace(">> "+request);
+                os.println(request);
+                do {
+                    response = is.readLine();
+                    Logger.trace("<< "+response);
+                    
+                } while (response.charAt(3) == '-');
                 if(!response.startsWith("250 ")) {
                     Logger.trace("email validation: checking SMTP: failed after HELO");
                     if(response.startsWith("4")) {
                         /* server has problems */
+                        os.println("QUIT");
+                        sock.close();
                         continue;
                     }
                     else {
+                        os.println("QUIT");
+                        sock.close();
                         return false;
                     }
                 };
-                /* note that if the mail server issues a premature DNS check, the process may fail
-                   for valid emails */
-                os.println("MAIL FROM:<email-checker@localhost.foo>");
-                response = is.readLine();
-                Logger.trace("  "+response);
+
+                request = "MAIL FROM:<emailchecker@renegat.net>"; // the mail must exist
+                Logger.trace(">> "+request);
+                os.println(request);
+                do {
+                    response = is.readLine();
+                    Logger.trace("<< "+response);
+                    
+                } while (response.charAt(3) == '-');
                 if(!response.startsWith("250 ")) {
                     Logger.trace("email validation: checking SMTP: failed after MAIL FROM");
                     if(response.startsWith("4")) {
                         /* server has problems */
+                        os.println("QUIT");
+                        sock.close();
                         continue;
                     }
                     else {
+                        os.println("QUIT");
+                        sock.close();
                         return false;
                     }
                 };
-                os.println("RCPT TO:<"+user+"@"+hostname+">");
-                response = is.readLine();
-                Logger.trace("  "+response);
+                request = "RCPT TO:<"+user+"@"+hostname+">";
+                Logger.trace("<< "+request);
+                os.println(request);
+                do {
+                    response = is.readLine();
+                    Logger.trace("<< "+response);
+                    
+                } while (response.charAt(3) == '-');
                 if(!response.startsWith("250 ")) {
                     Logger.trace("email validation: checking SMTP: failed after RCPT TO");
                     if(response.startsWith("4")) {
                         /* server has problems */
+                        os.println("QUIT");
+                        sock.close();
                         continue;
                     }
                     else {
+                        os.println("QUIT");
+                        sock.close();
                         return false;
                     }
                 };
-                try {
-                    os.println("QUIT");
-                } catch(Exception e) {}
                 Logger.trace("email validation: checking SMTP: success");
                 return true;
             } catch(Exception e) {
                 Logger.trace("email validation: checking SMTP: failure with exception: "+e.getMessage());
             }
+
+
+            /* new method: try to use VRFY */
+
             finally {
                 if (sock != null && !sock.isClosed()) {
                     try {
+                        os.println("QUIT");
                         sock.close();
                     } catch (IOException ioe) {}
                 }
