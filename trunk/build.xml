@@ -21,7 +21,7 @@
   
   <!-- NAMES -->
   <property name="project"      value="velosurf"/>
-  <property name="version"      value="2.3-dev"/>
+  <property name="version"      value="2.2.1"/>
   <property name="final.name"	value="${project}-${version}"/>
   
   <!-- COMPILATION PARAMETERS -->

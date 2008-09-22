@@ -344,9 +344,7 @@ public class AuthenticationFilter implements Filter {
         String uri = request.getRequestURI();
         HttpSession session = request.getSession();
         if (uri.equals(resolveLocalizedUri(request,loginPage)) || uri.endsWith("/login.do")) {
-            String authIndex = resolveLocalizedUri(request,getAuthenticatedIndexPage(session));
-            Logger.trace("auth: redirecting logged user to "+authIndex);
-            response.sendRedirect(authIndex);
+            goodLogin(request,response,chain);
         } else {
             Logger.trace("auth: user is authenticated.");
             SavedRequest saved = (SavedRequest)session.getAttribute("velosurf.auth.saved-request");
