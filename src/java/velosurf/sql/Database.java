@@ -96,7 +96,7 @@ public class Database {
      * @return a new connection
      */
     public static Database getInstance(String user,String password,String url,String driver,String schema) throws SQLException {
-        Integer hash = Integer.valueOf(user.hashCode() ^ password.hashCode() ^ url.hashCode() ^ (driver==null?0:driver.hashCode()) ^ (schema==null?0:schema.hashCode()) );
+        Integer hash = Integer.valueOf((user==null?0:user.hashCode()) ^ (password==null?0:password.hashCode()) ^ url.hashCode() ^ (driver==null?0:driver.hashCode()) ^ (schema==null?0:schema.hashCode()) );
         Database instance = (Database)connectionsByParams.get(hash);
         if (instance == null) {
             instance = new Database(user,password,url,driver,schema);
@@ -170,6 +170,7 @@ public class Database {
         driverClass = driver;
 		initCryptograph();
         connect();
+        getReverseEngineer().readMetaData();        
     }
     /** Connect the database.
      *
@@ -191,6 +192,11 @@ public class Database {
         transactionPreparedStatementPool = new PreparedStatementPool(transactionConnectionPool);
 
         // startup action
+        if(rootEntity == null) {
+            Entity root = new Entity(this,"velosurf.root",false,Cache.NO_CACHE);
+            addEntity(root);
+        }
+        
         Action startup = rootEntity.getAction("startup");
         if (startup != null) startup.perform(null);
     }
@@ -525,6 +531,7 @@ public class Database {
         String ret;
         switch(caseSensivity) {
             case CASE_SENSITIVE:
+            case CASE_UNKNOWN:
                 ret = identifier;
                 break;
             case UPPERCASE:

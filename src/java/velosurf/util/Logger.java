@@ -131,7 +131,7 @@ public class Logger
             // initialize with an asynchronous buffer
             asyncLog = new StringWriter();
             log = new PrintWriter(asyncLog);
-            info("log initialized");
+            // info("log initialized"); we do not always this line!
         }
         catch (Throwable e) {
             System.err.println("no log!");

@@ -1,6 +1,11 @@
 **** Changes ****
 
-v2.2.1 (Setember 2008)
+v2.2.2 (September 2008)
+------
+ - new: allows db user & password to be specified within the JDBC URL
+ - new: added model.Entity.getColumnType(column)
+
+v2.2.1 (September 2008)
 ------
  - fix: filters out requests towards login.do when already authentified in AuthenticationFilter
  - fix: EmailChecker smtp validation was broken
