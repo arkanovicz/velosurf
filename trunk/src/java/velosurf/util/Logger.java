@@ -365,7 +365,10 @@ public class Logger
     static private void flushAsyncLog() {
         if (asyncLog != null) {
             try {
-                log(asyncLog.toString());
+                String pastLog = asyncLog.toString();
+                if(pastLog.length()>0) {
+                    log(asyncLog.toString());
+                }
                 asyncLog.close();
                 asyncLog = null;
             }
