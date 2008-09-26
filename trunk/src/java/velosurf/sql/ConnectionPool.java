@@ -93,7 +93,11 @@ public class ConnectionPool {
     private ConnectionWrapper createConnection() throws SQLException {
 
         Logger.info("Creating a new connection.");
-        Connection connection = DriverManager.getConnection(url,user,password);
+        // user and password may be part of the url
+        Connection connection =
+                user == null ?
+                DriverManager.getConnection(url) :
+                DriverManager.getConnection(url,user,password);
 
         // schema
         if (schema != null) {

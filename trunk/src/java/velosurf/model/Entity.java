@@ -905,6 +905,15 @@ public class Entity
         return value;
     }
 
+    /**
+     * Get the SQL type for the specified column 
+     * @param column column name
+     * @return the sql type
+     */
+    public int getColumnType(String column) {
+        return types.get(column);
+    }
+
     /** Name.
      */
     private String name = null;
