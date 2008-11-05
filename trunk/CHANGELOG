@@ -2,6 +2,8 @@
 
 v2.2.2 (September 2008)
 ------
+ - new: added Entity.getAttributes() and Entity.getActions()
+ - fix: don't log anything during Logger initialization
  - new: allows db user & password to be specified within the JDBC URL
  - new: added model.Entity.getColumnType(column)
 

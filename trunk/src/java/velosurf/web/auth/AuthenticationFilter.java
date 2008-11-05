@@ -132,6 +132,15 @@ public class AuthenticationFilter implements Filter {
     /** Default message in case of disconnection. */
     private static final String defaultDisconnectedMessage = "You have been disconnected.";
 
+    /** Session key used to store logged user login */
+    public static final String LOGIN = "velosurf.auth.login";
+
+    /** Session key used to store logged user object */
+    public static final String USER = "velosurf.auth.user";
+
+    /** Session key used to store original pre-login request */
+    public static final String REQUEST = "velosurf.auth.saved-request";
+
     /**
      * Initialization.
      * @param config filter config
@@ -203,9 +212,12 @@ public class AuthenticationFilter implements Filter {
 
         if (session != null
                 && session.getId().equals(request.getRequestedSessionId()) /* not needed in theory */
-                && session.getAttribute("velosurf.auth.user") != null) {
+                && session.getAttribute(USER) != null) {
             /* already logged*/
 
+            /* need to refresh cached user instance in case it changed */
+            refreshUserInstance(session);
+            
             /* if asked to logout, well, logout! */
             if (uri.endsWith("/logout.do")) {
 				doLogout(request,response,chain);
@@ -224,7 +236,8 @@ public class AuthenticationFilter implements Filter {
                 /* clear any previous loginMessage */
                 session.removeAttribute("loginMessage");
             }
-            session.removeAttribute("velosurf.auth.user");
+            session.removeAttribute(USER);
+            session.removeAttribute(LOGIN);
             if ( uri.endsWith("/login.do")
                     && (login = request.getParameter(loginField)) != null
                     && (password = request.getParameter(passwordField)) != null
@@ -258,13 +271,17 @@ public class AuthenticationFilter implements Filter {
         }
     }
 
+    protected void refreshUserInstance(HttpSession session) {
+        session.setAttribute(USER, ToolFinder.findSessionTool(session,BaseAuthenticator.class).getUser((String)session.getAttribute(LOGIN)));
+    }
+
     protected void doRedirect(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
             throws IOException, ServletException {
         /* save the original request */
         String uri = request.getRequestURI();
         Logger.trace("auth: saving request towards "+uri);
         HttpSession session = request.getSession();
-        session.setAttribute("velosurf.auth.saved-request",SavedRequest.saveRequest(request));
+        session.setAttribute(REQUEST,SavedRequest.saveRequest(request));
 
         /* check to see if the current user has been disconnected
            note that this test will fail when the servlet container
@@ -293,7 +310,8 @@ public class AuthenticationFilter implements Filter {
         String login = request.getParameter(loginField);
         Logger.info("auth: user '"+login+"' successfully logged in.");
         HttpSession session = request.getSession();
-        session.setAttribute("velosurf.auth.user", ToolFinder.findSessionTool(session,BaseAuthenticator.class).getUser(login));
+        session.setAttribute(USER, ToolFinder.findSessionTool(session,BaseAuthenticator.class).getUser(login));
+        session.setAttribute(LOGIN,login);
         if (maxInactive > 0) {
             Logger.trace("auth: setting session max inactive interval to "+maxInactive);
              session.setMaxInactiveInterval(maxInactive);
@@ -307,14 +325,14 @@ public class AuthenticationFilter implements Filter {
     protected void goodLogin(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
             throws IOException, ServletException {
         HttpSession session = request.getSession();
-        SavedRequest savedRequest = (SavedRequest)session.getAttribute("velosurf.auth.saved-request");
+        SavedRequest savedRequest = (SavedRequest)session.getAttribute(REQUEST);
         if (savedRequest == null || savedRequest.getRequestURI().endsWith("/login.do")) {
             // redirect to /auth/index.html
             String authIndex = resolveLocalizedUri(request,getAuthenticatedIndexPage(session));
             Logger.trace("auth: redirecting newly logged user to "+authIndex);
             response.sendRedirect(authIndex);
         } else {
-            session.removeAttribute("velosurf.auth.saved-request");
+            session.removeAttribute(REQUEST);
             String formerUrl = savedRequest.getRequestURI();
             String query =  savedRequest.getQueryString();
             query = (query == null ? "" : "?"+query);
@@ -347,9 +365,9 @@ public class AuthenticationFilter implements Filter {
             goodLogin(request,response,chain);
         } else {
             Logger.trace("auth: user is authenticated.");
-            SavedRequest saved = (SavedRequest)session.getAttribute("velosurf.auth.saved-request");
+            SavedRequest saved = (SavedRequest)session.getAttribute(REQUEST);
             if (saved != null && saved.getRequestURL().equals(request.getRequestURL())) {
-                session.removeAttribute("velosurf.auth.saved-request");
+                session.removeAttribute(REQUEST);
                 chain.doFilter(new SavedRequestWrapper(request,saved),response);
             } else {
                chain.doFilter(request,response);
@@ -361,7 +379,8 @@ public class AuthenticationFilter implements Filter {
             throws IOException, ServletException {
         HttpSession session = request.getSession();
         Logger.trace("auth: user logged out");
-        session.removeAttribute("velosurf.auth.user");
+        session.removeAttribute(USER);
+        session.removeAttribute(LOGIN);
         String loginPage = resolveLocalizedUri(request,this.loginPage);
         response.sendRedirect(loginPage);
     }

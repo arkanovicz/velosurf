@@ -905,6 +905,14 @@ public class Entity
         return value;
     }
 
+    public Map<String,Attribute> getAttributes() {
+        return attributeMap;
+    }
+
+    public Map<String,Action> getActions() {
+        return actionMap;
+    }
+
     /**
      * Get the SQL type for the specified column 
      * @param column column name
