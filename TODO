@@ -1,5 +1,6 @@
 2.3/3.0
 
+ - check that obfucated columns propagate automatically along foreign keys
  - implement getMap() also for attributes
  - action et vaarg ? pb: named attributes expected (=> attribute donnant les noms sequentiellement) => 2.3
  - Instance should maybe reference a DBRef and not a DB (to control subclasses access) => 2.3
