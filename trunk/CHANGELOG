@@ -2,6 +2,7 @@
 
 v2.2.2
 ------
+ - new: flag to use login.do referer if no saved request when succesfully authentified
  - new: let the user customize AuthenticationFilter session keys
  - fix: refresh cached instance of logged user at each request
  - new: added Entity.getAttributes() and Entity.getActions()
