@@ -17,6 +17,7 @@
 package velosurf.web.auth;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Locale;
 
 import javax.servlet.Filter;
@@ -143,6 +144,9 @@ public class AuthenticationFilter implements Filter {
     /** Session key used to store original pre-login request */
     public static final String REQUEST = "velosurf.auth.saved-request";
 
+    /** Should we use the referer to login.do? */
+    private boolean useLoginReferer = false;
+
     /**
      * Initialization.
      * @param config filter config
@@ -195,15 +199,22 @@ public class AuthenticationFilter implements Filter {
         if (param != null) {
             loginPage = param;
         }
+
         /* authenticated index page */
         param = this.config.getInitParameter("authenticated-index-page");
         if (param != null) {
             authenticatedIndexPage = param;
         }
+
         /* bad login message */
         badLoginMessage = this.config.getInitParameter("bad-login-message");
+
         /* disconnected message */
         disconnectedMessage = this.config.getInitParameter("disconnected-message");
+
+        /* use login referer */
+        param = this.config.getInitParameter("use-login-referer");
+        useLoginReferer = (param != null && Boolean.parseBoolean(param));
     }
 
     /**
@@ -341,6 +352,21 @@ public class AuthenticationFilter implements Filter {
         HttpSession session = request.getSession();
         SavedRequest savedRequest = (SavedRequest)session.getAttribute(REQUEST);
         if (savedRequest == null || savedRequest.getRequestURI().endsWith("/login.do")) {
+            // try to redirect to the referrer url
+            if(useLoginReferer) {
+                String referer = request.getHeader("Referer");
+                if(referer != null) { // TODO: some referer URLs should be avoided (login.do, logout.do...)
+                    // only keep path and query
+                    URL url = new URL(referer);
+                    String path = url.getPath();
+                    String query = url.getQuery();
+                    String anchor = url.getRef();
+                    String dest = path+(query != null && query.length()>0?"?"+query:"")+(anchor != null && anchor.length()>0?"#"+anchor:"");
+                    Logger.trace("auth: redirecting newly logged user to login.do referer: "+dest);
+                    response.sendRedirect(dest);
+                    return;
+                }
+            }
             // redirect to /auth/index.html
             String authIndex = resolveLocalizedUri(request,getAuthenticatedIndexPage(session));
             Logger.trace("auth: redirecting newly logged user to "+authIndex);
