@@ -2,6 +2,7 @@
 
 v2.2.2
 ------
+ - new: let the user customize AuthenticationFilter session keys
  - fix: refresh cached instance of logged user at each request
  - new: added Entity.getAttributes() and Entity.getActions()
  - fix: don't log anything during Logger initialization
