@@ -73,8 +73,10 @@ import velosurf.web.l10n.Localizer;
  *
  * <p>Optional configuration parameters:
  * <ul>
- * <li><code>login-field</code>: name of the login form field.</li>
- * <li><code>password-field</code>: name of the password field.</li>
+ * <li><code>login-field</code>: name of the login form field (default: login).</li>
+ * <li><code>password-field</code>: name of the password field (default: password).</li>
+ * <li><code>login-key</code>: name of the session key used to store the login of the logged user.</li>
+ * <li><code>user-key</code>: name of the session key used to store a reference to the logged user object.</li>
  * <li><code>max-inactive</code>: delay upon which an inactive user is disconnected in seconds.
  * The default value is one hour.</li>
  * <li><code>login-page</code>: the login page URI. The "<code>@</code>" pattern applies as well. Default is '/login.html'.</li>
@@ -133,10 +135,10 @@ public class AuthenticationFilter implements Filter {
     private static final String defaultDisconnectedMessage = "You have been disconnected.";
 
     /** Session key used to store logged user login */
-    public static final String LOGIN = "velosurf.auth.login";
+    private String LOGIN = "velosurf.auth.login";
 
     /** Session key used to store logged user object */
-    public static final String USER = "velosurf.auth.user";
+    private String USER = "velosurf.auth.user";
 
     /** Session key used to store original pre-login request */
     public static final String REQUEST = "velosurf.auth.saved-request";
@@ -174,6 +176,18 @@ public class AuthenticationFilter implements Filter {
         param = this.config.getInitParameter("password-field");
         if (param != null) {
             passwordField = param;
+        }
+
+        /* login session key */
+        param = this.config.getInitParameter("login-key");
+        if (param != null) {
+            LOGIN = param;
+        }
+
+        /* user session key */
+        param = this.config.getInitParameter("user-key");
+        if (param != null) {
+            USER = param;
         }
 
         /* login page */
