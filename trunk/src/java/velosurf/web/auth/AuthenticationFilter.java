@@ -89,6 +89,9 @@ import velosurf.web.l10n.Localizer;
  * <li><code>disconnected-message</code>: the message to be displayed when the user is disconnected after a period
  * of inactivity on the site. Same remark if this parameter is not supplied: the filter will search
  * for a "disconnected" message in the localizer tool if present, and otherwise display "You have been disconnected."</li>
+ * <li><code>allow-guest</code>: allow the login "guest" (false by default) - the password is not checked, the "guest" user must exist in the database.
+ * The only allowed uri is the login page, and it can be used from VTL:<br/> <code>#macro (redirect $url) $response.sendRedirect($url) #end #redirect("/login.do?login=guest&password=whatever")</code><br/>
+ * you can also include a "redirect=" parameter</li>
  * </ul>
  * </p>
  *
@@ -146,6 +149,9 @@ public class AuthenticationFilter implements Filter {
 
     /** Should we use the referer to login.do? */
     private boolean useLoginReferer = false;
+
+    /** Should we use the referer to login.do? */
+    private boolean allowGuest = false;
 
     /**
      * Initialization.
@@ -215,6 +221,11 @@ public class AuthenticationFilter implements Filter {
         /* use login referer */
         param = this.config.getInitParameter("use-login-referer");
         useLoginReferer = (param != null && Boolean.parseBoolean(param));
+
+	/* allow guests */
+        param = this.config.getInitParameter("allow-guest");
+        allowGuest = (param != null && Boolean.parseBoolean(param));
+
     }
 
     /**
@@ -269,22 +280,28 @@ public class AuthenticationFilter implements Filter {
                     && session.getId().equals(request.getRequestedSessionId())) {
                 // a user is trying to log in
 
-                // get a reference to the authenticator tool
-                BaseAuthenticator auth = ToolFinder.findSessionTool(session,BaseAuthenticator.class);
-
-                if (auth == null) {
-                    Logger.error("auth: cannot find any reference to the authenticator tool in the session!");
-                    /* Maybe the current user tried to validate an expired login form... well... ask him again... */
-                    response.sendRedirect(resolveLocalizedUri(request,loginPage));
-                    return;
-                }
-                // check answer
-                if (auth.checkLogin(login,password)) {
-                    // login ok
+                if(allowGuest && login.equals("guest")) { // TODO parametrize "guest" -> GUEST
+		    Logger.trace("[auth] logging in guest with params"+request.getParameterMap()); // TODO one day in a hundred years : tell sun this should be written getParametersMap
                     doLogin(request,response,chain);
                 } else {
-                    badLogin(request,response,chain);
+                    // get a reference to the authenticator tool
+                    BaseAuthenticator auth = ToolFinder.findSessionTool(session,BaseAuthenticator.class);
+    
+                    if (auth == null) {
+                        Logger.error("[auth] cannot find any reference to the authenticator tool in the session!");
+                        /* Maybe the current user tried to validate an expired login form... well... ask him again... */
+                        response.sendRedirect(resolveLocalizedUri(request,loginPage));
+                        return;
+                    }
+                    // check answer
+                    if (auth.checkLogin(login,password)) {
+                        // login ok
+                        doLogin(request,response,chain);
+                    } else {
+                        badLogin(request,response,chain);
+                    }
                 }
+
             } else {
                 /* do not redirect to the logout */
                 if (uri.endsWith("/logout.do")) {
@@ -304,7 +321,7 @@ public class AuthenticationFilter implements Filter {
             throws IOException, ServletException {
         /* save the original request */
         String uri = request.getRequestURI();
-        Logger.trace("auth: saving request towards "+uri);
+        Logger.trace("[auth] saving request towards "+uri);
         HttpSession session = request.getSession();
         session.setAttribute(REQUEST,SavedRequest.saveRequest(request));
 
@@ -325,20 +342,19 @@ public class AuthenticationFilter implements Filter {
         }
         // redirect to login page
         String loginPage = resolveLocalizedUri(request,this.loginPage);
-        Logger.trace("auth: redirecting unauthenticated user to "+loginPage);
+        Logger.trace("[auth] redirecting unauthenticated user to "+loginPage);
         response.sendRedirect(loginPage);
     }
-
 
     protected void doLogin(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
             throws IOException, ServletException {
         String login = request.getParameter(loginField);
-        Logger.info("auth: user '"+login+"' successfully logged in.");
+        Logger.info("[auth] user '"+login+"' successfully logged in.");
         HttpSession session = request.getSession();
         session.setAttribute(USER, ToolFinder.findSessionTool(session,BaseAuthenticator.class).getUser(login));
         session.setAttribute(LOGIN,login);
         if (maxInactive > 0) {
-            Logger.trace("auth: setting session max inactive interval to "+maxInactive);
+            Logger.trace("[auth] setting session max inactive interval to "+maxInactive);
              session.setMaxInactiveInterval(maxInactive);
         }
         session.removeAttribute("challenge");
@@ -352,6 +368,15 @@ public class AuthenticationFilter implements Filter {
         HttpSession session = request.getSession();
         SavedRequest savedRequest = (SavedRequest)session.getAttribute(REQUEST);
         if (savedRequest == null || savedRequest.getRequestURI().endsWith("/login.do")) {
+	    // trying to use the "redirect=" parameter
+	    String redirect = request.getParameter("redirect");
+	    Logger.trace("[auth] redirect = "+redirect);
+	    if(redirect != null) {
+                Logger.trace("[auth] redirecting newly logged user to 'redirect' param: "+redirect);
+		response.sendRedirect(redirect);
+		return;
+	    }
+
             // try to redirect to the referrer url
             if(useLoginReferer) {
                 String referer = request.getHeader("Referer");
@@ -362,14 +387,15 @@ public class AuthenticationFilter implements Filter {
                     String query = url.getQuery();
                     String anchor = url.getRef();
                     String dest = path+(query != null && query.length()>0?"?"+query:"")+(anchor != null && anchor.length()>0?"#"+anchor:"");
-                    Logger.trace("auth: redirecting newly logged user to login.do referer: "+dest);
+                    Logger.trace("[auth] redirecting newly logged user to login.do referer: "+dest);
                     response.sendRedirect(dest);
                     return;
                 }
             }
+
             // redirect to /auth/index.html
             String authIndex = resolveLocalizedUri(request,getAuthenticatedIndexPage(session));
-            Logger.trace("auth: redirecting newly logged user to "+authIndex);
+            Logger.trace("[auth] redirecting newly logged user to "+authIndex);
             response.sendRedirect(authIndex);
         } else {
             session.removeAttribute(REQUEST);
@@ -377,14 +403,14 @@ public class AuthenticationFilter implements Filter {
             String query =  savedRequest.getQueryString();
             query = (query == null ? "" : "?"+query);
             formerUrl += query;
-            Logger.trace("auth: redirecting newly logged user to "+formerUrl);
+            Logger.trace("[auth] redirecting newly logged user to "+formerUrl);
             response.sendRedirect(formerUrl);
         }
     }
 
     protected void badLogin(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
             throws IOException, ServletException {
-        Logger.warn("auth: user " + request.getParameter(loginField) + " made an unsuccessfull login attempt.");
+        Logger.warn("[auth] user " + request.getParameter(loginField) + " made an unsuccessfull login attempt.");
         HttpSession session = request.getSession();
         String message = badLoginMessage != null ?
             badLoginMessage :
@@ -392,7 +418,7 @@ public class AuthenticationFilter implements Filter {
         session.setAttribute("loginMessage",message);
         // redirect to login page
         String loginPage = resolveLocalizedUri(request,this.loginPage);
-        Logger.trace("auth: redirecting unauthenticated user to "+loginPage);
+        Logger.trace("[auth] redirecting unauthenticated user to "+loginPage);
         response.sendRedirect(loginPage);
     }
 
@@ -404,7 +430,7 @@ public class AuthenticationFilter implements Filter {
         if (uri.equals(resolveLocalizedUri(request,loginPage)) || uri.endsWith("/login.do")) {
             goodLogin(request,response,chain);
         } else {
-            Logger.trace("auth: user is authenticated.");
+            Logger.trace("[auth] user is authenticated.");
             SavedRequest saved = (SavedRequest)session.getAttribute(REQUEST);
             if (saved != null && saved.getRequestURL().equals(request.getRequestURL())) {
                 session.removeAttribute(REQUEST);
@@ -418,7 +444,7 @@ public class AuthenticationFilter implements Filter {
     protected void doLogout(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
             throws IOException, ServletException {
         HttpSession session = request.getSession();
-        Logger.trace("auth: user logged out");
+        Logger.trace("[auth] user logged out");
         session.removeAttribute(USER);
         session.removeAttribute(LOGIN);
         String loginPage = resolveLocalizedUri(request,this.loginPage);
@@ -437,8 +463,8 @@ public class AuthenticationFilter implements Filter {
 
             if (locale == null)
             {
-                Logger.error("auth: cannot find the active locale in the session!");
-                Logger.error("auth: the LocalizationFilter must reside before this filter in the filters chain.");
+                Logger.error("[auth] cannot find the active locale in the session!");
+                Logger.error("[auth] the LocalizationFilter must reside before this filter in the filters chain.");
                 //response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 return uri;
             }

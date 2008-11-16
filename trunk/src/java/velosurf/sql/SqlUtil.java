@@ -52,10 +52,10 @@ public class SqlUtil
      * @return new query
      */
     public static String refineQuery(String query,List criteriaList) {
-
         if (criteriaList == null || criteriaList.size()==0) return query;
 
         try {
+            Logger.trace("refining query: "+query);
             /* issue all searches on a string where all constant strings
              * (inside quotes) and subqueries (inside parenthesis) have been filtered
              */
@@ -93,6 +93,7 @@ public class SqlUtil
             } else {
                 query = query.substring(0,after) + " where " + criteria + query.substring(after);
             }
+            Logger.trace("refined query: "+query);
             return query;
         }
         catch(Exception ree) {
