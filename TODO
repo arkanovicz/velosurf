@@ -1,5 +1,6 @@
 2.3/3.0
-
+ - attribute/property precedence problem (example for myself: admin_lesson._cost in audiogo project)
+ - accept Calendar as param type (and convert it to Date)
  - check that obfucated columns propagate automatically along foreign keys
  - implement getMap() also for attributes
  - action et vaarg ? pb: named attributes expected (=> attribute donnant les noms sequentiellement) => 2.3
