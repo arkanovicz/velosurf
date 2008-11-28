@@ -281,7 +281,7 @@ public class AuthenticationFilter implements Filter {
                 // a user is trying to log in
 
                 if(allowGuest && login.equals("guest")) { // TODO parametrize "guest" -> GUEST
-		    Logger.trace("[auth] logging in guest with params"+request.getParameterMap()); // TODO one day in a hundred years : tell sun this should be written getParametersMap
+        		    Logger.trace("[auth] logging in guest user");
                     doLogin(request,response,chain);
                 } else {
                     // get a reference to the authenticator tool

@@ -112,7 +112,7 @@ public abstract class BaseAuthenticator {
         BigInteger bigint = new BigInteger(CHALLENGE_LENGTH,random);
         challenge = new sun.misc.BASE64Encoder().encode(bigint.toByteArray());
         challenge = challenge.replace("\n","");
-//        Logger.trace("auth: challenge="+challenge);
+        Logger.trace("auth: generated new challenge: "+challenge);
         return challenge;
     }
 
