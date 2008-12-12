@@ -49,7 +49,7 @@ public class Range extends FieldConstraint {
      *  Constructor.
      */
     public Range() {
-        setMessage("field {0}: '{1}' is not in the valid range");
+        setMessage("field {0}: [{1}] is not in the valid range");
     }
 
     /**

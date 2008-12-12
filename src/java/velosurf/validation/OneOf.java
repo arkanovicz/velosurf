@@ -53,7 +53,7 @@ public class OneOf extends FieldConstraint {
      */
     public OneOf(List values) {
         this.values = values;
-        setMessage("field {0}: value '{1}' must be one of: "+StringLists.join(this.values,", "));
+        setMessage("field {0}: value [{1}] must be one of: "+StringLists.join(this.values,", "));
     }
 
     /**

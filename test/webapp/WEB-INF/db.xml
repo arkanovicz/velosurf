@@ -31,7 +31,7 @@
         <constraint column="mydate" after="20060802"/>
         <constraint column="email" type="email"/>
         <constraint column="email2" not-empty="yes">
-          <email dns-check="yes" smtp-check="yes"/>
+          <email dns-check="yes" smtp-check="no"/>
         </constraint>
         <constraint column="book_id" reference="book.book_id"/>
     </entity>
@@ -40,6 +40,10 @@
 
     <attribute name="books_nb" result="scalar">
         select count(*) from book
+    </attribute>
+
+    <attribute name="messages" result="rowset/localized">
+      select * from localized where locale = <mylocale/>
     </attribute>
 
     <attribute name="user_by_login" result="row/user" xml:space="preserve">

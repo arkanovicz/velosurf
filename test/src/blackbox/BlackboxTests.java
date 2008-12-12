@@ -39,7 +39,7 @@ public class BlackboxTests
         checkText(resp,"test4","Joshua Bloch");
     }
 
-    public @Test void paramfetching() throws Exception {
+    public @Test void paramFetching() throws Exception {
         WebConversation wc = new WebConversation();
         WebRequest     req = new GetMethodWebRequest( "http://localhost:"+SERVER_PORT+"/obfuscate.html?id=1" );
         WebResponse   resp = wc.getResponse( req );
@@ -103,15 +103,16 @@ public class BlackboxTests
         resp = form.submit();
         assertEquals("Input form",resp.getTitle());
         /* check error messages */
-        checkText(resp,"1","field string: value 'aa' is not of the proper length");
-        checkText(resp,"2","field string2: value '123-1234' is not valid");
-        checkText(resp,"3","field number: '0' is not in the valid range");
-        checkText(resp,"4","field oneof: value 'test0' must be one of: test1, test2, test3");
-        checkText(resp,"5","field mydate: '2-7-2006' is not a valid date or is outside range");
-        checkText(resp,"6","field email: 'toto@tata@titi' is not a valid email");
+        checkText(resp,"1","field string: value [aa] is not of the proper length");
+        checkText(resp,"2","field string2: value [123-1234] is not valid");
+        checkText(resp,"3","field number: [0] is not in the valid range");
+        checkText(resp,"4","field oneof: value [test0] must be one of: test1, test2, test3");
+        checkText(resp,"5","field mydate: [2-7-2006] is not a valid date or is outside range");
+        checkText(resp,"6","field email: [toto@tata@titi] is not a valid email");
         checkText(resp,"7","field email2 cannot be empty");
-        checkText(resp,"8","field book_id: value '0' not found in book.book_id");
-        assertNull(resp.getElementWithID("9"));
+        checkText(resp,"8","field email2: [empty value] is not a valid email");
+        checkText(resp,"9","field book_id: value [0] not found in book.book_id");
+        assertNull(resp.getElementWithID("10"));
         /* check that the form retained the values */
         form = resp.getFormWithName("input");
         assertEquals("aa",form.getParameterValue("string"));
@@ -134,15 +135,17 @@ public class BlackboxTests
         form.setParameter("email2","toto@azerty.blabla");
         resp = form.submit();
         assertEquals("Input form",resp.getTitle());
-        checkText(resp,"1","field email2: 'toto@azerty.blabla' is not a valid email");
+        checkText(resp,"1","field email2: [toto@azerty.blabla] is not a valid email");
         assertNull(resp.getElementWithID("2"));
         /* test SMTP email checking */
+/*
         form = resp.getFormWithName("input");
         form.setParameter("email2","inexistant_email@gmail.com");
         resp = form.submit();
         assertEquals("Input form",resp.getTitle());
-        checkText(resp,"1","field email2: 'inexistant_email@gmail.com' is not a valid email");
+        checkText(resp,"1","field email2: [inexistant_email@gmail.com] is not a valid email");
         assertNull(resp.getElementWithID("2"));
+*/
         /* now with a valid email... */
         form = resp.getFormWithName("input");
         form.setParameter("email2","claude.brisson@gmail.com");
@@ -150,7 +153,7 @@ public class BlackboxTests
         assertEquals("Good values!",resp.getTitle());
     }
 
-    public @Test void xinclude() throws Exception {
+    public @Test void testXInclude() throws Exception {
         WebConversation wc = new WebConversation();
         WebRequest req = new GetMethodWebRequest("http://localhost:"+SERVER_PORT+"/xinclude.html");
         WebResponse resp = wc.getResponse(req);
@@ -158,11 +161,19 @@ public class BlackboxTests
         checkText(resp,"result","1");
     }
 
-    public @Test void testinsert() throws Exception {
+    public @Test void testInsert() throws Exception {
         WebConversation wc = new WebConversation();
         WebRequest req = new GetMethodWebRequest("http://localhost:"+SERVER_PORT+"/insert.html");
         WebResponse resp = wc.getResponse(req);
         checkText(resp,"result","3");
+    }
+
+    public @Test void testParametrizedGetter() throws Exception {
+        WebConversation wc = new WebConversation();
+        WebRequest req = new GetMethodWebRequest("http://localhost:"+SERVER_PORT+"/externalparam.html");
+        WebResponse resp = wc.getResponse(req);
+        checkText(resp,"test.checknbmsg","4");
+
     }
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package velosurf.model.validation;
+package velosurf.validation;
 
 /**
  * <p>This class encapsulates a constraint on a column or a set of an entity, used to validate data

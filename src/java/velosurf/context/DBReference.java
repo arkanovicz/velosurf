@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;
+import java.util.Set;
 
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
@@ -36,7 +37,7 @@ import velosurf.util.UserContext;
 
  // FIXME : right now, extends HashMap bkoz velocity wants a HashMap for setters
 
-public class DBReference extends HashMap<String,Object>
+public class DBReference extends HashMap<String,Object> implements HasParametrizedGetter
 {
     /** Default constructor for use by derived classes.
      */
@@ -132,6 +133,21 @@ public class DBReference extends HashMap<String,Object>
             Logger.log(sqle);
             return null;
         }
+    }
+
+    /** Default method handler, called by Velocity when it did not find the specified method.
+     *
+     * @param key asked key
+     * @param params passed parameters
+     * @see HasParametrizedGetter
+     */
+    public Object getWithParams(String key,Map params) {
+
+        String property = db.adaptCase((String) key);
+        for(Map.Entry entry: (Set<Map.Entry>)params.entrySet()) {
+            externalParams.put(db.adaptCase((String)entry.getKey()),entry.getValue());
+        }
+        return get(property);
     }
 
     /** Generic setter used to set external params for children attributes.

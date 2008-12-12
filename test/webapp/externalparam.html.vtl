@@ -1,0 +1,14 @@
+<html>
+<body>
+#set($messages = $db.messages({'mylocale':'en'}).rows)
+
+All english messages:<br/>
+<ul>
+#foreach($msg in $messages)
+<li>$msg.string</li>
+#end
+</ul>
+(found <span id="test.checknbmsg">$messages.size()</span> messages)
+</body>
+</html>
+
