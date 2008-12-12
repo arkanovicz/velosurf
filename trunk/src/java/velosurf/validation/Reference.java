@@ -60,7 +60,7 @@ public class Reference extends FieldConstraint {
         this.db = db;
         this.table = table;
         this.column = column;
-        setMessage("field {0}: value '{1}' not found in "+table+"."+column);
+        setMessage("field {0}: value [{1}] not found in "+table+"."+column);
     }
 
     /**

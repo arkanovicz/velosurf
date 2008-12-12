@@ -52,7 +52,7 @@ public class Length extends FieldConstraint {
     public Length(int minLen,int maxLen) {
         this.minLen = minLen;
         this.maxLen = maxLen;
-        setMessage("field {0}: value '{1}' is not of the proper length");
+        setMessage("field {0}: value [{1}] is not of the proper length");
     }
 
     /**

@@ -78,6 +78,7 @@ public class UserContext {
      * @return localized message
      */
     public String localize(String str,Object ... params) {
+Logger.debug("@@@@ localize: str=<"+str+">, params="+Arrays.asList(params)+", result="+MessageFormat.format(str,params));        
         if (localizer == null) {
             return MessageFormat.format(str,params);
         } else if (params.length == 0) {

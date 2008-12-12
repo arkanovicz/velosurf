@@ -55,7 +55,7 @@ public class DateRange extends FieldConstraint {
      * Constructor.
      */
     public DateRange() {
-        setMessage("field {0}: '{1}' is not a valid date or is outside range");
+        setMessage("field {0}: [{1}] is not a valid date or is outside range");
     }
     /**
      * Before date constraint setter.

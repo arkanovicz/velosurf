@@ -78,7 +78,10 @@ public class EmailCheck extends FieldConstraint {
     public EmailCheck(boolean dnsCheck,boolean smtpCheck) {
         this.dnsCheck = dnsCheck;
         this.smtpCheck = smtpCheck;
-        setMessage("field {0}: '{1}' is not a valid email");
+        setMessage("field {0}: [{1}] is not a valid email");
+        if(smtpCheck) {
+            Logger.error("EmailCheck: smtp-check doesn not work well and should not be used!");
+        }
     }
 
     /**

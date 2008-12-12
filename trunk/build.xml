@@ -21,7 +21,7 @@
   
   <!-- NAMES -->
   <property name="project"      value="velosurf"/>
-  <property name="version"      value="2.2.2-dev"/>
+  <property name="version"      value="2.3-dev"/>
   <property name="final.name"	value="${project}-${version}"/>
   
   <!-- COMPILATION PARAMETERS -->
@@ -50,12 +50,6 @@
   <property name="test.webapp.dir"    value="${test.dir}/webapp"/>
 
   <property name="test.jetty.dir"        value="${test.dir}/jetty"/>
-
-  <!-- DOWNLOAD PROPERTIES  - TODO: move these to properties build file -->
-<!--  <property name="repo.url"          value="http://www.ibiblio.org/maven"/> -->
-  <property name="repo.url"          value="http://repo1.maven.org/maven"/>
-  <property name="proxy.host"        value=""/>
-  <property name="proxy.port"        value="80"/>
 
   <!-- BUILD PROPERTIES -->
   <property file="${build.dir}/build.properties"/>                <!-- Component local   -->
@@ -179,17 +173,17 @@ Please specify a target among :
     <condition property="jar.present">
       <and>
         <isfalse value="${force.jar.loading}"/>
-        <available file="${download.dir}/${download.jarname}-${download.jarversion}.jar"/>
+        <available file="${download.dir}/${download.jar}-${download.version}.jar"/>
       </and>
     </condition>
     <antcall target="-http-download"/>
   </target>
 
   <target name="-http-download" unless="jar.present">
-    <property name="download.dirname" value="${download.jarname}"/> <!-- if not set previously -->
+    <property name="download.group" value="${download.jar}"/> <!-- if not set previously -->
     <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"/>
-    <get src="${repo.url}/${download.dirname}/jars/${download.jarname}-${download.jarversion}.jar"
-         dest="${download.dir}/${download.jarname}-${download.jarversion}.jar"
+    <get src="${repo.url}/${download.group}/${download.jar}/${download.version}/${download.jar}-${download.version}.jar"
+         dest="${download.dir}/${download.jar}-${download.version}.jar"
          usetimestamp="true"
          verbose="false"
          ignoreerrors="false" />
@@ -205,79 +199,80 @@ Please specify a target among :
    <antcall target="-jdom-download"/>
    <antcall target="-servletapi-download"/>
    <antcall target="-velocity-download"/>
-   <antcall target="-velocity-tools-view-download"/>
+   <antcall target="-velocity-tools-download"/>
   </target>
 
   <target name="-commons-beanutils-download">
-   <property name="download.jarname" value="commons-beanutils" />
-   <property name="download.jarversion" value="${jar.commons-beanutils.version}" />
+   <property name="download.jar" value="commons-beanutils" />
+   <property name="download.version" value="${jar.commons-beanutils.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-commons-digester-download">
-   <property name="download.jarname" value="commons-digester" />
-   <property name="download.jarversion" value="${jar.commons-digester.version}" />
+   <property name="download.jar" value="commons-digester" />
+   <property name="download.version" value="${jar.commons-digester.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-commons-lang-download">
-   <property name="download.jarname" value="commons-lang" />
-   <property name="download.jarversion" value="${jar.commons-lang.version}" />
+   <property name="download.jar" value="commons-lang" />
+   <property name="download.version" value="${jar.commons-lang.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-commons-net-download">
-   <property name="download.jarname" value="commons-net" />
-   <property name="download.jarversion" value="${jar.commons-net.version}" />
+   <property name="download.jar" value="commons-net" />
+   <property name="download.version" value="${jar.commons-net.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-commons-collections-download">
-   <property name="download.jarname" value="commons-collections" />
-   <property name="download.jarversion" value="${jar.commons-collections.version}" />
+   <property name="download.jar" value="commons-collections" />
+   <property name="download.version" value="${jar.commons-collections.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-commons-logging-download">
-   <property name="download.jarname" value="commons-logging" />
-   <property name="download.jarversion" value="${jar.commons-logging.version}" />
+   <property name="download.jar" value="commons-logging" />
+   <property name="download.version" value="${jar.commons-logging.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-crimson-download">
-   <property name="download.jarname" value="crimson" />
-   <property name="download.jarversion" value="${jar.crimson.version}" />
+   <property name="download.jar" value="crimson" />
+   <property name="download.version" value="${jar.crimson.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-dom4j-download">
-   <property name="download.jarname" value="dom4j" />
-   <property name="download.jarversion" value="${jar.dom4j.version}" />
+   <property name="download.jar" value="dom4j" />
+   <property name="download.version" value="${jar.dom4j.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-jdom-download">
-   <property name="download.jarname" value="jdom" />
-   <property name="download.jarversion" value="${jar.jdom.version}" />
+   <property name="download.jar" value="jdom" />
+   <property name="download.version" value="${jar.jdom.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-servletapi-download">
-   <property name="download.jarname" value="servletapi" />
-   <property name="download.jarversion" value="${jar.servletapi.version}" />
+   <property name="download.jar" value="servletapi" />
+   <property name="download.version" value="${jar.servletapi.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-velocity-download">
-   <property name="download.jarname" value="velocity" />
-   <property name="download.jarversion" value="${jar.velocity.version}" />
+   <property name="download.group" value="org/apache/velocity"/>
+   <property name="download.jar" value="velocity" />
+   <property name="download.version" value="${jar.velocity.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
-  <target name="-velocity-tools-view-download">
-   <property name="download.dirname" value="velocity-tools"/>
-   <property name="download.jarname" value="velocity-tools-view"/>
-   <property name="download.jarversion" value="${jar.velocity-tools-view.version}" />
+  <target name="-velocity-tools-download">
+   <property name="download.group" value="org/apache/velocity"/>
+   <property name="download.jar" value="velocity-tools"/>
+   <property name="download.version" value="${jar.velocity-tools.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
@@ -305,76 +300,76 @@ Please specify a target among :
   </target>
 
   <target name="-hsqldb-download">
-   <property name="download.jarname" value="hsqldb" />
-   <property name="download.jarversion" value="${jar.hsqldb.version}" />
+   <property name="download.jar" value="hsqldb" />
+   <property name="download.version" value="${jar.hsqldb.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-httpunit-download">
-   <property name="download.jarname" value="httpunit" />
-   <property name="download.jarversion" value="${jar.httpunit.version}" />
+   <property name="download.jar" value="httpunit" />
+   <property name="download.version" value="${jar.httpunit.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-jetty-download">
-   <property name="download.jarname" value="jetty" />
-   <property name="download.jarversion" value="${jar.jetty.version}" />
+   <property name="download.jar" value="jetty" />
+   <property name="download.version" value="${jar.jetty.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-jetty-util-download">
    <property name="download.dirname" value="jetty"/>
-   <property name="download.jarname" value="jetty-util" />
-   <property name="download.jarversion" value="${jar.jetty.version}" />
+   <property name="download.jar" value="jetty-util" />
+   <property name="download.version" value="${jar.jetty.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-js-download">
-   <property name="download.dirname" value="rhino"/>
-   <property name="download.jarname" value="js" />
-   <property name="download.jarversion" value="${jar.js.version}" />
+   <property name="download.group" value="rhino"/>
+   <property name="download.jar" value="js" />
+   <property name="download.version" value="${jar.js.version}" />
    <antcall target="-download-if-needed"/>
    <!-- httpunit wants a js.jar -->
-   <copy file="${download.dir}/${download.jarname}-${download.jarversion}.jar" tofile="${download.dir}/js.jar"/>
+   <copy file="${download.dir}/${download.jar}-${download.version}.jar" tofile="${download.dir}/js.jar"/>
   </target>
 
   <target name="-nekohtml-download">
-   <property name="download.jarname" value="nekohtml" />
-   <property name="download.jarversion" value="${jar.nekohtml.version}" />
+   <property name="download.jar" value="nekohtml" />
+   <property name="download.version" value="${jar.nekohtml.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-xerces-download">
-   <property name="download.dirname" value="xerces" />
-   <property name="download.jarname" value="xercesImpl" />
-   <property name="download.jarversion" value="${jar.xercesimpl.version}" />
+   <property name="download.group" value="xerces" />
+   <property name="download.jar" value="xercesImpl" />
+   <property name="download.version" value="${jar.xercesimpl.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-xmlparserapis-download">
-   <property name="download.dirname" value="xerces" />
-   <property name="download.jarname" value="xmlParserAPIs" />
-   <property name="download.jarversion" value="${jar.xmlparserapis.version}" />
+   <property name="download.group" value="xerces" />
+   <property name="download.jar" value="xmlParserAPIs" />
+   <property name="download.version" value="${jar.xmlparserapis.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-servlet-api-2.5-download">
-   <property name="download.dirname" value="jetty"/>
-   <property name="download.jarname" value="servlet-api-2.5" />
-   <property name="download.jarversion" value="${jar.jetty.version}" />
+   <property name="download.group" value="jetty"/>
+   <property name="download.jar" value="servlet-api-2.5" />
+   <property name="download.version" value="${jar.jetty.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-start-download">
-   <property name="download.dirname" value="jetty"/>
-   <property name="download.jarname" value="start" />
-   <property name="download.jarversion" value="${jar.jetty.version}" />
+   <property name="download.group" value="jetty"/>
+   <property name="download.jar" value="start" />
+   <property name="download.version" value="${jar.jetty.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-junit-download">
-   <property name="download.jarname" value="junit" />
-   <property name="download.jarversion" value="${jar.junit.version}" />
+   <property name="download.jar" value="junit" />
+   <property name="download.version" value="${jar.junit.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 

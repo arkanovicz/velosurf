@@ -46,7 +46,7 @@ public class Regex extends FieldConstraint {
      */
     public Regex(Pattern pattern) {
         this.pattern = pattern;
-        setMessage("field {0}: value '{1}' is not valid");
+        setMessage("field {0}: value [{1}] is not valid");
     }
 
     /**

@@ -154,6 +154,19 @@ public class Instance extends TreeMap<String,Object>
         return result;
     }
 
+    /** Default method handler, called by Velocity when it did not find the specified method.
+     *
+     * @param key asked key
+     * @param params passed parameters
+     * @see HasParametrizedGetter
+     */
+    public Object getWithParams(String key,Map params) {
+        for(Map.Entry entry: (Set<Map.Entry>)params.entrySet()) {
+            put(db.adaptCase((String)entry.getKey()),entry.getValue());
+        }
+        return get(db.adaptCase(key));
+    }
+
     /** Generic setter.
      *
      * @param key key of the property to be set
