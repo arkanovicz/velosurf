@@ -1,7 +1,8 @@
 **** Changes ****
 
-v2.2.2
-------
+v2.3
+----
+ - new: parametrized getters (give a Map of external parameters as argument to attribute/action parameters)
  - new: flag to use login.do referer if no saved request when succesfully authentified
  - new: let the user customize AuthenticationFilter session keys
  - fix: refresh cached instance of logged user at each request
