@@ -17,10 +17,7 @@
 package velosurf.model;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -234,6 +231,9 @@ public class Attribute
                 }
                 if (entity.isObfuscated(paramName)) value = db.deobfuscate(value);
                 if (value == null) Logger.warn("Attribute "+getEntity().getName()+"."+name+": param "+paramName+" is null!");
+
+                value = db.filterParam(value);
+
                 result.add(value);
             }
         if(Logger.getLogLevel()>=Logger.TRACE_ID) {

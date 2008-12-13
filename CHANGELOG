@@ -2,6 +2,7 @@
 
 v2.3
 ----
+ - new: a driver-specific value filter (used for instance to call Calendar.getDate() for mysql)
  - new: parametrized getters (give a Map of external parameters as argument to attribute/action parameters)
  - new: flag to use login.do referer if no saved request when succesfully authentified
  - new: let the user customize AuthenticationFilter session keys

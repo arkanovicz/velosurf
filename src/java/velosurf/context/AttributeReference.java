@@ -17,12 +17,7 @@
 package velosurf.context;
 
 import java.sql.SQLException;
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 import velosurf.model.Attribute;
 import velosurf.util.Logger;
@@ -124,7 +119,6 @@ public class AttributeReference extends AbstractList
      * @return a list of all the rows
      */
     public Map getMap() {
-        /* TODO: return a hashmap or a treemap ? */
         Map result = null;
         try {
             RowIterator iterator = attribute.query(params,refineCriteria,order);
@@ -136,7 +130,7 @@ public class AttributeReference extends AbstractList
             if(keys.size() > 2) {
                 Logger.warn("attribute.map needs only two result columns, only the first two will be taken into account");
             }
-            result = new HashMap();
+            result = new TreeMap();
             while(iterator.hasNext()) {
                 Instance i = iterator.next();
                 result.put(i.get(keys.get(0)),i.get(keys.get(1)));

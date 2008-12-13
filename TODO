@@ -1,12 +1,9 @@
 2.3/3.0
- - document parametrized getters
- - attribute/property precedence problem (example for myself: admin_lesson._cost in audiogo project)
- - accept Calendar as param type (and convert it to Date)
- - check that obfucated columns propagate automatically along foreign keys
- - implement getMap() also for attributes
- - action et vaarg ? pb: named attributes expected (=> attribute donnant les noms sequentiellement) => 2.3
+ - document parametrized getters => 2.3
+ - attribute/property precedence problem (example for myself: admin_lesson._cost in audiogo project) => 2.3
+ - check that obfucated columns propagate automatically along foreign keys => 2.3
+ - implement getMap() also for attributes? => 2.3
  - Instance should maybe reference a DBRef and not a DB (to control subclasses access) => 2.3
- - refines that are defined in the model as attributes' attributes? => 2.3
  - allow customization of LIMIT (like order and refinement) => 2.3
  - getMap peut marcher avec plus de 2 cols (keycol -> instance) => 2.3
  - map as an attribute result: "map/id:name", or "map/id:entityname" to have instances as values => 2.3
@@ -21,7 +18,7 @@ puis $instance.attribute.refine(context...)
  - foreign keys referencing non-primary keys generate exceptions => 2.3
  - authenticator option for case sensivity => 2.3
  - add attribute result types: rowset/scalar, map, ... => 2.3
- - remember when an instance comes from newInstance (what for? I forgot...) => ??
+ - remember when an instance comes from newInstance (for the cache) => 2.3
  - an "upsert" method => 2.3
  - instance.insert should check obfuscation too! (cases where it doesn't? which ones?) => ??
  - review UserContext life cycle (threads/sessions) - is it thread-pooling resistant? => seems so.
