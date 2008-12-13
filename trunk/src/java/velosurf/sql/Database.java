@@ -874,4 +874,12 @@ public class Database {
      */
     private ThreadLocal<UserContext> userContext = new ThreadLocal<UserContext>();
 
+    /** Driver specific value filter
+     *
+     * @param value value to be filtered
+     * @return filtered value
+     */
+    public Object filterParam(Object value) {
+        return driverInfo.filterValue(value);
+    }
 }

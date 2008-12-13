@@ -2,6 +2,7 @@ package velosurf.sql;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Calendar;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.regex.PatternSyntaxException;
@@ -271,5 +272,17 @@ public class DriverInfo
 
         // unknwon driver
         addDriver("Unknown driver","unknown",new String[]{},"select 1","sensitive",null,"none",null,null);
+    }
+
+    /** Driver-specofic value filtering
+     *
+     * @param value value to be filtered
+     * @return filtered value
+     */
+    public Object filterValue(Object value) {
+        if(value instanceof Calendar && "mysql".equals(jdbcTag)) {
+            value = ((Calendar)value).getTime();
+        }
+        return value;
     }
 }
