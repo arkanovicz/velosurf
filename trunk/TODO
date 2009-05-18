@@ -1,7 +1,13 @@
+ - timed cache
+ - $db oculd list root attributes (and $entity its attributes)
+
 2.3/3.0
+ - avoid repetitive error messages in logger
+ - bug: in partial reverse mode, the reverse enginer asks for columns of the "velosurf.root" table...
+ - review the ToolFinder mechanism
+ - logger: loglevel should stick to one velosurf instance
  - document parametrized getters => 2.3
  - attribute/property precedence problem (example for myself: admin_lesson._cost in audiogo project) => 2.3
- - check that obfucated columns propagate automatically along foreign keys => 2.3
  - implement getMap() also for attributes? => 2.3
  - Instance should maybe reference a DBRef and not a DB (to control subclasses access) => 2.3
  - allow customization of LIMIT (like order and refinement) => 2.3
@@ -22,27 +28,21 @@ puis $instance.attribute.refine(context...)
  - an "upsert" method => 2.3
  - instance.insert should check obfuscation too! (cases where it doesn't? which ones?) => ??
  - review UserContext life cycle (threads/sessions) - is it thread-pooling resistant? => seems so.
- - when no pk defined, there should be an error message at reverse enginering time (why?) => ??
  - Entity & Attribute, as long as EntityReference and AttributeReference, must share a common ancestor (why?) => ??
- - strip tablename/field prefixes on demand (like "tab_") => 2.3
+ - strip ('mangle') tablename/field prefixes on demand (like "tab_") => 2.3
  - factorize Action and Attribute! => 2.3
- - msg "Ignoring second definition for attribute" should explicitely state that the ignored def is the implicit one
  - when result=row, attref should return null if not found
  - AttributeReference.toString() => null
  - How to forbid access to a getter or a setter in a mapped POJO class? Still don't know. => 2.3
  - Use separate classes for the different return types => 2.3
  - do sthing about serialization / transience (cf. tomcat sessions persistance for instance) => 2/3
  - warn on unused attributes in config file => not already done? I thought so...
- - "mangle" attribute to mangle table and/or field prefixes (but achievable using aliases) => 2.3
- - review extractColumnValues usage (how to choose to use source or destination column names, in regard to aliases) => seems ok
  - make foreign-key attribute optionnal (=> use natural join) => 2.3
  - optionnaly use foreign key names when reverse enginering => should be a database attribute, 2.3
  - kill the broken pipe mysql bug (occurs sometimes with mysql - rare but tedious)
    workaround: set a very long timeout in my.cnf : [mysqld] wait_timeout = 288000
  - implement caching also for root attributes => should be ok, check it
  - automatically propagate obfuscation along foreign keys => should be ok, check it
- - testcases for "parentkey.subkey" attributes parameters => plenty of testcases missing, anyway
- - testcases for multiple aliases => plenty of testcases missing, anyway
  - display build # in logs at startup => soon...
  - naming collisions detection for aliases => 2.3
  - TagCloudTool as an example => soon I hope...

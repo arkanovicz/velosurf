@@ -1,7 +1,9 @@
-**** Changes ****
+***** Changes ****
 
 v2.3
 ----
+ - fix: column ordering in Instance is now natural rather than alphabetical
+ - fix: null values do appear in Instance map
  - new: a driver-specific value filter (used for instance to call Calendar.getDate() for mysql)
  - new: parametrized getters (give a Map of external parameters as argument to attribute/action parameters)
  - new: flag to use login.do referer if no saved request when succesfully authentified

@@ -288,16 +288,18 @@ public class Database {
     @SuppressWarnings("deprecation") protected void loadDriver() {
 
         if (driverLoaded) return;
+Logger.setLogLevel(Logger.TRACE_ID);
         if (Logger.getLogLevel() == Logger.TRACE_ID)
         {
-            /* Initialize log
-             *   DriverManager.setLogWriter(Logger.getWriter()); -> doesn't work with jdbc 1.0 drivers
+            /* Initialize log */
+               DriverManager.setLogWriter(Logger.getWriter()); /* -> doesn't work with jdbc 1.0 drivers
              *   so use the deprecated form
              *  TODO: detect driver jdbc conformance
              */
-            if(Logger.getLogLevel() <= Logger.DEBUG_ID) {
+/*            if(Logger.getLogLevel() <= Logger.DEBUG_ID) {
+Logger.debug("setting driver manager log");
                 DriverManager.setLogStream(new PrintStream(new LineWriterOutputStream(Logger.getWriter())));
-            }
+            }*/
         }
 
         /* driver behaviour */
@@ -307,6 +309,7 @@ public class Database {
 
         if (driverClass!=null) {
             try {
+		Logger.debug("loading class "+driverClass);
                 Class.forName(driverClass);
                 driverLoaded = true;
             }
