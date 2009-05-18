@@ -98,6 +98,7 @@ public class Logger
      * @param logLevel log level
      */
     public static void setLogLevel(int logLevel) {
+	info("Setting log level to "+logLevel);
         Logger.logLevel = logLevel;
     }
 

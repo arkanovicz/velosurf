@@ -218,7 +218,7 @@ public class DBReference extends HashMap<String,Object> implements HasParametriz
      * For now, returns a list of defined external parameters.
      */
     public String toString() {
-        return externalParams.toString();
+        return externalParams == null ? "[DBRef with no external params]" : "[DBRef with params "+externalParams.toString()+"]";
     }
 
     /** The wrapped database connection.

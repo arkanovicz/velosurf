@@ -133,7 +133,7 @@ public class ReverseEngineer {
                     tables = meta.getTables(null,db.getSchema(),null,null);
                     while (tables.next()) {
                         String tableName = adaptCase(tables.getString("TABLE_NAME"));
-                        if (driverInfo.ignoreTable(tableName)) {
+                        if (driverInfo.ignoreTable(tableName) || "SYSTEM TABLE".equals(tables.getString("TABLE_TYPE"))) {
                             continue;
                         }
                         if(db.getSchema() != null) {
@@ -219,7 +219,7 @@ public class ReverseEngineer {
 
         /* read primary keys */
         ResultSet pks = null;
-        try    {
+        try {
             pks = meta.getPrimaryKeys(null,db.getSchema(),tableName);
             int keysize = 0;
             while (pks.next()) {
@@ -229,7 +229,7 @@ public class ReverseEngineer {
                 keysize++;
             }
             for (int k=0;k<keysize;k++) {
-                entity.addPKColumn((String)keylist.get(k));
+                entity.addPKColumn(keylist.get(k));
             }
         }
         finally    {
@@ -354,10 +354,10 @@ public class ReverseEngineer {
         if(pkEntityName == null) {
             Logger.warn("reverse: ignoring imported key "+pkSchema+"."+pkTable+": corresponding entity not found.");
         } else {
-            if(pkSchema != null) {
+/*            if(pkSchema != null) {
                 pkTable = pkSchema+"."+pkTable;
             }
-            Entity pkEntity = db.getEntity(pkEntityName);
+*/            Entity pkEntity = db.getEntity(pkEntityName);
             fkCols = sortColumns(pkEntity.getPKCols(),pkCols,fkCols);
   //          Logger.trace("reverse: found imported key: "+entity.getName()+"("+StringLists.join(fkCols,",")+") -> "+pkTable+"("+StringLists.join(pkCols,",")+")");
             ImportedKey definedKey = entity.findImportedKey(pkEntity,fkCols);

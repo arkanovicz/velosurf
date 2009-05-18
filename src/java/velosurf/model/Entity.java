@@ -218,7 +218,9 @@ public class Entity
     public Instance newInstance() {
         Instance result = null;
         try {
-            if (Instance.class.isAssignableFrom(instanceClass)) {
+            if( instanceClass.equals(Instance.class)) {
+                result = new Instance(this);
+            } else if (Instance.class.isAssignableFrom(instanceClass)) {
                 try {
                     result = (Instance)instanceClass.newInstance();
                     result.initialize(this);
@@ -308,9 +310,15 @@ public class Entity
             }
 
             Object val = source.get(key);
+	    if(val != null && val.getClass().isArray()) {
+		Logger.error("array cell values not supported");
+		val = null;
+	    }
+	    /*
             if (val == null || (val.getClass().isArray())) {
                 continue;
             }
+	    */
             target.put(col,val);
         }
     }
@@ -827,7 +835,21 @@ public class Entity
         }
         return ret;
     }
-    
+
+    public class ColumnOrderComparator implements Comparator<String> {
+        public int compare(String o1, String o2) {
+            String col1 = resolveName(o1);
+            String col2 = resolveName(o2);
+            int i1 = columns.indexOf(col1);
+            int i2 = columns.indexOf(col2);
+            return i1 - i2; // do not handle the case where i1 or i2 = -1, since anyway the result is unpredictable in this case
+        }
+    }
+
+    public Comparator<String> getColumnOrderComparator() {
+        return new ColumnOrderComparator();
+    }
+
     class ValidationError implements Comparable<ValidationError> {
         ValidationError(String column,String message) {
             index = columns.indexOf(column);

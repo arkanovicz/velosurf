@@ -89,7 +89,7 @@ public class VelosurfTool extends DBReference
      * @param viewContext initialization data
      */
     public void init(Object viewContext) throws Exception {
-        // get servlet context
+        // getservlet context
         ViewContext viewctx = null;
         ServletContext ctx = null;
         if (viewContext instanceof ServletContext) {
@@ -100,7 +100,7 @@ public class VelosurfTool extends DBReference
             ctx = viewctx.getServletContext();
         }
         else {
-            Logger.error("Error: Initialization: no valid initialization data found!");
+            Logger.error("Error: Initialization: no valid initialization data found: got a "+viewContext.getClass().getName());
             System.err.println("Error: Initialization: no valid initialization data found!");
         }
 

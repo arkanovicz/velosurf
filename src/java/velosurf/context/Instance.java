@@ -43,11 +43,13 @@ public class Instance extends TreeMap<String,Object>
 
 
     /** Build an empty instance for the given entity.
+     * This is the only constructor that will keep columns in their natural order
+     * (others will sort columns alphabetically)
      *
      * @param entity Entity this instance is a realisation of
-     * @deprecated
      */
     public Instance(Entity entity) {
+        super(entity.getColumnOrderComparator());
         initialize(entity);
     }
 
