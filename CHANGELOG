@@ -2,6 +2,7 @@
 
 v2.3
 ----
+ - new: DBReference and EntityReference toString() method now returns useful debugging infos
  - fix: column ordering in Instance is now natural rather than alphabetical
  - fix: null values do appear in Instance map
  - new: a driver-specific value filter (used for instance to call Calendar.getDate() for mysql)
