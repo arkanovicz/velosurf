@@ -448,4 +448,23 @@ public class Instance extends TreeMap<String,Object>
      */
     protected Database db = null;
 
+    /** inherit toString to avoid listing cached AttributeReference
+     */
+    public String toString() {
+	StringBuffer ret = new StringBuffer("{");
+	boolean comma = false;
+	for(Map.Entry<String,Object> entry:super.entrySet()) {
+	    if(comma) {
+		ret.append(", ");
+	    } else comma = true;
+	    if(!(entry.getValue() instanceof AttributeReference)) {
+		ret.append(entry.getKey());
+		ret.append("=");
+		ret.append(entry.getValue().toString());
+	    }
+	}
+	ret.append("}");
+	return ret.toString();
+    }
+
 }
