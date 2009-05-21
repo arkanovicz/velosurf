@@ -842,7 +842,10 @@ public class Entity
             String col2 = resolveName(o2);
             int i1 = columns.indexOf(col1);
             int i2 = columns.indexOf(col2);
-            return i1 - i2; // do not handle the case where i1 or i2 = -1, since anyway the result is unpredictable in this case
+	    if(i1 == -1 && i2 == -1) return o1.hashCode() - o2.hashCode();
+	    else if (i1 == -1) return -1;
+	    else if (i2 == -1) return 1;
+            else return i1 - i2;
         }
     }
 
