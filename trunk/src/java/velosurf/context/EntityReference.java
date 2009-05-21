@@ -367,4 +367,9 @@ public class EntityReference extends AbstractList {
      */
     private List<String> refineCriteria = null;
 
+    /** toString, used for debugging
+     */
+    public String toString() {
+	return "["+getName()+" with attributes: "+entity.getAttributes().keySet()+"]";
+    }
 }
