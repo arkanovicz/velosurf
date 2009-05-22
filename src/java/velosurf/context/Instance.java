@@ -460,7 +460,7 @@ public class Instance extends TreeMap<String,Object>
 	    if(!(entry.getValue() instanceof AttributeReference)) {
 		ret.append(entry.getKey());
 		ret.append("=");
-		ret.append(entry.getValue().toString());
+		ret.append(entry.getValue());
 	    }
 	}
 	ret.append("}");
