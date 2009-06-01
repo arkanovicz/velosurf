@@ -467,4 +467,28 @@ public class Instance extends TreeMap<String,Object>
 	return ret.toString();
     }
 
+    /** insert or update, depending on whether or not a value for the id key is present (perfect with unsignificant autoincrement ids that are left uninitialized for instances to be inserted)
+     */
+    public synchronized boolean upsert() {
+	List<Map<String,Object>> primkey = getPrimaryKey();
+	if(primkey.size() != 1) {
+	    Logger.error("Instance.upsert: singleton primary key expected");
+	    return false;
+	}
+	if(primkey.get(0).get("value") == null) {
+	    return insert();
+	} else {
+	    return update();
+	}
+    }
+
+    /** insert or update, depending on whether or not a value for the id key is present (perfect with unsignificant autoincrement ids that are left uninitialized for instances to be inserted)
+     */
+    public synchronized boolean upsert(Map<String,Object> values) {
+	if (values != null && values != this) {
+	    setColumnValues(values);
+	}
+	return upsert();
+    }
+
 }
