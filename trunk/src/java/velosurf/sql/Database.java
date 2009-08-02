@@ -795,7 +795,7 @@ Logger.debug("setting driver manager log");
 
     /** case-sensivity for context.
      */
-    private static int contextCase = LOWERCASE;
+    private static int contextCase = CASE_SENSITIVE;
 
     /* context case implemented as a system property for now...
      *TODO: check also other model configuration realms or use model.xml
@@ -807,8 +807,10 @@ Logger.debug("setting driver manager log");
                 Database.contextCase = UPPERCASE;
             } else if ("lowercase".equals(contextCase)) {
                 Database.contextCase = LOWERCASE;
-            } else {
-                Logger.error("system property 'velosurf.case' should be 'lowercase' or 'uppercase'");
+            } else if("sensitive".equals(contextCase)) {
+                Database.contextCase = CASE_SENSITIVE;
+	    } else {
+                Logger.error("system property 'velosurf.case' should be 'lowercase', 'uppercase' or 'sensitive'");
             }
         }
     }
@@ -826,6 +828,8 @@ Logger.debug("setting driver manager log");
                 return str.toLowerCase();
             case UPPERCASE:
                 return str.toUpperCase();
+  	    case CASE_SENSITIVE:
+	        return str;
             default:
                 Logger.error("unknown context case policy!");
                 return str;
