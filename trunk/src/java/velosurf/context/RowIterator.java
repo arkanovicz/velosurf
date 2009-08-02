@@ -202,10 +202,14 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
         }
     }
 
+
+    static Set cachedSet = null;
+
     /*  */
     public Set<String> keySet() {
         try {
-            return  new HashSet<String>(SqlUtil.getColumnNames(resultSet));
+	    if(cachedSet == null) cachedSet = new HashSet<String>(SqlUtil.getColumnNames(resultSet));
+	    return cachedSet;
         } catch(SQLException sqle) {
             Logger.log(sqle);
             return null;
