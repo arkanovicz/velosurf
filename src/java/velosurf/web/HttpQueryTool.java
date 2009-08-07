@@ -33,7 +33,7 @@ import velosurf.util.Logger;
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  **/
- public @Deprecated class HttpQueryTool extends ParameterParser implements Map
+ public @Deprecated class HttpQueryTool extends ParameterParser
 {
     /** extra values map. */
     private Map<String,Object> extraValues = new HashMap<String,Object>();
@@ -104,8 +104,8 @@ import velosurf.util.Logger;
      * @param value value
      * @return previous value
      */
-    public Object put(Object key, Object value) {
-        return extraValues.put((String)key,value);
+    public Object put(String key, Object value) {
+        return extraValues.put(key,value);
     }
 
     /**
@@ -199,9 +199,9 @@ import velosurf.util.Logger;
         return ret;
     }
 
-    public Set<Entry> entrySet() {
+    public Set<Entry<String,Object>> entrySet() {
         Map map = new HashMap();
-        Set<Entry> coll = getSource().entrySet();
+        Set<Entry<String,Object>> coll = getSource().entrySet();
         for(Entry entry:coll) {
             Object value = entry.getValue();
             if (value.getClass().isArray() && ((String[])value).length == 1) {
@@ -209,7 +209,7 @@ import velosurf.util.Logger;
             }
             map.put(entry.getKey(),value);
         }
-        Set<Entry> ret = new HashSet(map.entrySet());
+        Set<Entry<String,Object>> ret = new HashSet(map.entrySet());
         ret.addAll(extraValues.entrySet());
         return ret;
     }
