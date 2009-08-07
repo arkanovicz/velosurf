@@ -398,7 +398,7 @@ Note that when using reverse engineering, you can still list entities here if yo
 <blockquote>
 <form>
   <input type="hidden" name="action" value="insert">
-  User: <select name="userid">
+  For user: <select name="userid">
     #foreach($u in $db.user)
       <option value="$u.id" #if($u.id == $query.userid)selected#end>$u.name</option>
     #end
@@ -427,7 +427,7 @@ so we'd need some more work towards a real-life message board, but we already ha
 
 <b>New message:</b>
 <blockquote>
-  User:   <select name="userid">
+  For user:   <select name="userid">
       <option value="1">Bart</option>
       <option value="2" selected>Omer</option>
   </select>
