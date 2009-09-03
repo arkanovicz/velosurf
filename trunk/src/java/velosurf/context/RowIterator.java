@@ -203,7 +203,7 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
     }
 
 
-    static Set cachedSet = null;
+    Set cachedSet = null;
 
     /*  */
     public Set<String> keySet() {
