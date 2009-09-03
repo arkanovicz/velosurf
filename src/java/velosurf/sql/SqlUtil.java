@@ -61,7 +61,6 @@ public class SqlUtil
              */
 
             StringBuffer buffer = new StringBuffer(query.toLowerCase());
-
             Matcher matcher = Pattern.compile("'[^']+'").matcher(buffer);
             while(matcher.find()) {
                 int start = matcher.start();
@@ -69,11 +68,16 @@ public class SqlUtil
                 buffer.replace(start,end,stars(end-start));
             }
 
-            matcher = Pattern.compile("\\([^()]+\\)").matcher(buffer);
-            while(matcher.find()) {
-                int start = matcher.start();
-                int end = matcher.end();
-                buffer.replace(start,end,stars(end-start));
+            Pattern pattern = Pattern.compile("\\([^()]+\\)");
+            while(true)
+            {
+                matcher = pattern.matcher(buffer);
+                if(matcher.find()) {
+                    int start = matcher.start();
+                    int end = matcher.end();
+                    buffer.replace(start,end,stars(end-start));
+                }
+                else break;
             }
 
             Matcher where = Pattern.compile("\\Wwhere\\W").matcher(buffer);
