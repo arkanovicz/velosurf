@@ -2,6 +2,8 @@
 
 v2.3
 ----
+ - fix: AuthFilter redirection after login could fail
+ - fix: RowIterator column names caching was broken
  - new: Instance.upsert() method
  - new: DBReference and EntityReference toString() method now returns useful debugging infos
  - fix: column ordering in Instance is now natural rather than alphabetical
