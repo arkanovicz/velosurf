@@ -366,17 +366,18 @@ public class AuthenticationFilter implements Filter {
     protected void goodLogin(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
             throws IOException, ServletException {
         HttpSession session = request.getSession();
+
+        // trying to use the "redirect=" parameter
+        String redirect = request.getParameter("redirect");
+        Logger.trace("[auth] redirect = "+redirect);
+        if(redirect != null) {
+          Logger.trace("[auth] redirecting newly logged user to 'redirect' param: "+redirect);
+          response.sendRedirect(redirect);
+          return;
+        }
+
         SavedRequest savedRequest = (SavedRequest)session.getAttribute(REQUEST);
         if (savedRequest == null || savedRequest.getRequestURI().endsWith("/login.do")) {
-	    // trying to use the "redirect=" parameter
-	    String redirect = request.getParameter("redirect");
-	    Logger.trace("[auth] redirect = "+redirect);
-	    if(redirect != null) {
-                Logger.trace("[auth] redirecting newly logged user to 'redirect' param: "+redirect);
-		response.sendRedirect(redirect);
-		return;
-	    }
-
             // try to redirect to the referrer url
             if(useLoginReferer) {
                 String referer = request.getHeader("Referer");
