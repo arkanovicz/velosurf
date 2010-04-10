@@ -16,7 +16,6 @@
 
 package velosurf.context;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -31,8 +30,7 @@ import velosurf.util.UserContext;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public class EntityReference extends AbstractList {
-        /* extends AbstractList so that Velocity will call iterator() from within a #foreach directive */
+public class EntityReference implements Iterable {
 
     /** Builds a new EntityReference.
      *
@@ -328,7 +326,6 @@ public class EntityReference extends AbstractList {
         }
     }
 
-
     /** Getter for the list of column names.
      *
      * @return the list of column names
@@ -336,20 +333,6 @@ public class EntityReference extends AbstractList {
     public List getColumns() {
         return entity.getColumns();
     }
-
-
-    /** Dummy method. Since this class has to appear as a Collection for Velocity, it extends the AbstractList class but only the iterator() method has a real meaning.
-     *
-     * @param i ignored
-     * @return null
-     */
-    public Object get(int i) { return null; }
-
-    /** Dummy method. Since this class has to appear as a Collection for Velocity, it extends the AbstractList class but only the iterator() method has a real meaning.
-     *
-     * @return 0
-     */
-    public int size() { return 0; }
 
     public long getCount() {
         return entity.getCount(refineCriteria);

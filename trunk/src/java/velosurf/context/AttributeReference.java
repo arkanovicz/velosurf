@@ -27,7 +27,7 @@ import velosurf.util.StringLists;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public class AttributeReference extends AbstractList
+public class AttributeReference implements Iterable
 {
 
     /** Constructor.
@@ -154,18 +154,6 @@ public class AttributeReference extends AbstractList
     public void setOrder(String order) {
         this.order = order;
     }
-
-    /** Dummy method. Since this class has to appear as a Collection for Velocity, it extends the AbstractList class but only the iterator() method has a real meaning.
-     *
-     * @param i ignored
-     * @return null
-     */
-    public Object get(int i) { return null; }
-    /** Not yet implemented. Will return the number of rows.
-     *
-     * @return 0
-     */
-    public int size() { return 0; }
 
     /** Specified refining criteria defined on this attribute reference.
      */
