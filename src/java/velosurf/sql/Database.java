@@ -288,7 +288,7 @@ public class Database {
     @SuppressWarnings("deprecation") protected void loadDriver() {
 
         if (driverLoaded) return;
-Logger.setLogLevel(Logger.TRACE_ID);
+
         if (Logger.getLogLevel() == Logger.TRACE_ID)
         {
             /* Initialize log */
