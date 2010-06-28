@@ -54,7 +54,7 @@ public class ImportedKey extends Attribute {
     {
         if(query == null) {
             Entity pkEntity = db.getEntity(resultEntity);
-            for(String param:fkCols) {
+            for(String param:getFKCols()) {
                 addParamName(param);
             }
             query = "SELECT * FROM " + pkEntity.getTableName() + " WHERE " + StringLists.join(pkEntity.getPKCols()," = ? AND ") + " = ?";
@@ -68,7 +68,11 @@ public class ImportedKey extends Attribute {
      * @return foreign key columns list
      */
     public List<String> getFKCols() {
-        return fkCols;
+      if(fkCols == null)
+      {
+        fkCols = entity.getDB().getEntity(getResultEntity()).getPKCols();
+      }
+      return fkCols;
     }
 
     /** Foreign key columns setter.

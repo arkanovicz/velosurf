@@ -272,7 +272,7 @@ public class ConfigLoader {
         this.database.addEntity(root);
     }
 
-  private bool warnedAboutAttributeTagDeprecation = false;
+  private boolean warnedAboutAttributeTagDeprecation = false;
 
     /**
      * Define Velosurf attributes.

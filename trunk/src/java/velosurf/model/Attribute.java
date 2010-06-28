@@ -310,7 +310,7 @@ public class Attribute
 
     /** Parent entity.
      */
-    private Entity entity;
+    protected Entity entity;
 
     /** For row and rowset attributes, the resulting entity (if specified).
      */
