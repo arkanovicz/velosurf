@@ -272,6 +272,8 @@ public class ConfigLoader {
         this.database.addEntity(root);
     }
 
+  private bool warnedAboutAttributeTagDeprecation = false;
+
     /**
      * Define Velosurf attributes.
      * @param parent parent XML element
@@ -280,6 +282,11 @@ public class ConfigLoader {
      */
     @SuppressWarnings("deprecation") private void defineAttributes(Element parent,Entity entity) throws SQLException {
         List oldAttributes = parent.getChildren("attribute");
+        if(oldAttributes.size() > 0 && !warnedAboutAttributeTagDeprecation)
+        {
+          Logger.warn("the <attribute> tag is deprecated, please use on of the <scalar|row|rowset name=... [ result=\"entity\" ]> tags");
+          warnedAboutAttributeTagDeprecation = true;
+        }
         List scalars = parent.getChildren("scalar");
         List rows = parent.getChildren("row");
         List rowsets = parent.getChildren("rowset");
