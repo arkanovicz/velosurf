@@ -69,7 +69,7 @@ public class DBReference extends HashMap<String,Object> implements HasParametriz
      * <li>if the attribute is singlevalued, returns an Instance.
      * <li>if the attribute is scalar, returns a String.
      * </ul>
-     *
+     * <p>If no attribute is found, entities are searched, then external parameters.</p>
      * @param key the name of the desired entity or root attribute.
      * @return an entity, an attribute reference, an instance, a string or null
      *     if not found. See  See above.
@@ -133,6 +133,30 @@ public class DBReference extends HashMap<String,Object> implements HasParametriz
             Logger.log(sqle);
             return null;
         }
+    }
+
+    /** <p>Specific entity getter. </p>
+     * @param key the name of the desired entity or root attribute.
+     * @return an entity, an attribute reference, an instance, a string or null
+     */
+    public EntityReference getEntity(String key)
+    {
+      key = db.adaptCase(key);
+      Entity entity = db.getEntity(key);
+      if (entity!=null) {
+        EntityReference result = new EntityReference(entity);
+        cache.put(key,result);
+        return result;
+      }
+      return null;
+    }
+
+    /** <p>Specific getter for last error message in user context </p>
+     * @return last threaded error message if any or null
+     */
+    public String getError()
+    {
+      return (String)db.getUserContext().get("error");
     }
 
     /** Default method handler, called by Velocity when it did not find the specified method.
