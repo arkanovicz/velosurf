@@ -167,11 +167,42 @@ public class DBReference extends HashMap<String,Object> implements HasParametriz
      */
     public Object getWithParams(String key,Map params) {
 
+      Object result = null;
+      try
+      {
         String property = db.adaptCase((String) key);
         for(Map.Entry entry: (Set<Map.Entry>)params.entrySet()) {
-            externalParams.put(db.adaptCase((String)entry.getKey()),entry.getValue());
+          externalParams.put(db.adaptCase((String)entry.getKey()),entry.getValue());
         }
-        return get(property);
+        
+        /* 1) try to get a root attribute */
+        Attribute attribute = db.getAttribute(property);
+        if (attribute!=null) {
+          switch (attribute.getType()) {
+            case Attribute.ROWSET:
+              result = new AttributeReference(this,attribute);
+              break;
+            case Attribute.SCALAR:
+              result = attribute.evaluate(this);
+              break;
+            case Attribute.ROW:
+              result = attribute.fetch(this);
+              break;
+            default:
+              Logger.error("Unknown attribute type encountered: db."+property);
+          }
+        }
+        
+        /* 2) try to get a root action */
+        Action action = db.getAction(property);
+        if (action != null) result = Integer.valueOf(action.perform(this));
+      }
+      catch (SQLException sqle) {
+        db.setError(sqle.getMessage());
+        Logger.log(sqle);
+        result = null;
+      }
+      return result;
     }
 
     /** Generic setter used to set external params for children attributes.
