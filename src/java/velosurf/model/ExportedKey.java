@@ -56,7 +56,11 @@ public class ExportedKey extends Attribute {
      * @return foreign key columns list
      */
     public List<String> getFKCols() {
-        return fkCols;
+      if(fkCols == null)
+      {
+        fkCols = entity.getPKCols();
+      }
+      return fkCols;
     }
 
     /**
@@ -84,7 +88,7 @@ public class ExportedKey extends Attribute {
             for(String param:getEntity().getPKCols()) {
                 addParamName(param);
             }
-            query = "SELECT * FROM " + fkEntity.getTableName() + " WHERE " + StringLists.join(fkCols," = ? AND ") + " = ?";
+            query = "SELECT * FROM " + fkEntity.getTableName() + " WHERE " + StringLists.join(getFKCols()," = ? AND ") + " = ?";
             if(order != null) {
                 query += " ORDER BY "+order;
             }
