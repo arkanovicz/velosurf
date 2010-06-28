@@ -279,31 +279,60 @@ public class ConfigLoader {
      * @throws SQLException
      */
     @SuppressWarnings("deprecation") private void defineAttributes(Element parent,Entity entity) throws SQLException {
-        for (Iterator attributes = parent.getChildren("attribute").iterator();attributes.hasNext();) {
-            Element element = (Element)attributes.next();
+        List oldAttributes = parent.getChildren("attribute");
+        List scalars = parent.getChildren("scalar");
+        List rows = parent.getChildren("row");
+        List rowsets = parent.getChildren("rowset");
+        List attributes = new ArrayList();
+        attributes.addAll(oldAttributes);
+        attributes.addAll(scalars);
+        attributes.addAll(rows);
+        attributes.addAll(rowsets);
+        for(Element element:(List<Element>)attributes)
+        {
             String name = adaptCase(element.getAttributeValue("name"));
             Attribute attribute = new Attribute(name,entity);
-            String result = element.getAttributeValue("result");
-            if (result == null) {
-                Logger.warn("Attribute '"+name+"' doesn't have a 'result' attribute... using rowset as default.");
-                result = "rowset";
-            }
-            if(attributeResultSyntax.matcher(result).matches()) {
-                int type = 0;
-                if (result.equals("scalar")) {
+
+            if(element.getName().equals("attribute"))
+            {
+                String result = element.getAttributeValue("result");
+                if (result == null) {
+                  Logger.warn("Attribute '"+name+"' doesn't have a 'result' attribute... using rowset as default.");
+                  result = "rowset";
+                }
+                if(attributeResultSyntax.matcher(result).matches()) {
+                  int type = 0;
+                  if (result.equals("scalar")) {
                     type = Attribute.SCALAR;
-                } else if (result.startsWith("rowset")) {
+                  } else if (result.startsWith("rowset")) {
                     type = Attribute.ROWSET;
-                } else if (result.startsWith("row")) {
+                  } else if (result.startsWith("row")) {
                     type = Attribute.ROW;
-                } else {
+                  } else {
                     throw new SQLException("bad syntax for the 'result' attribute: "+result);
-                }
-                attribute.setResultType(type);
-                int slash = result.indexOf("/");
-                if (slash>-1 && slash+1<result.length()) {
+                  }
+                  attribute.setResultType(type);
+                  int slash = result.indexOf("/");
+                  if (slash>-1 && slash+1<result.length()) {
                     attribute.setResultEntity(adaptCase(result.substring(slash+1)));
+                  }
                 }
+            }
+            else if(element.getName().equals("scalar"))
+            {
+              attribute.setResultType(Attribute.SCALAR);
+            }
+            else if(element.getName().equals("row"))
+            {
+              attribute.setResultType(Attribute.ROW);
+              String resultEntity = element.getAttributeValue("result");
+              if(entity != null) attribute.setResultEntity(adaptCase(resultEntity));
+            }
+            else if(element.getName().equals("rowset"))
+            {
+              attribute.setResultType(Attribute.ROWSET);
+              String resultEntity = element.getAttributeValue("result");
+              if(entity != null) attribute.setResultEntity(adaptCase(resultEntity));
             }
 
             String foreignKey = element.getAttributeValue("foreign-key");
