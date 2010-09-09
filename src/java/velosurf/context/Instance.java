@@ -32,7 +32,7 @@ import velosurf.util.UserContext;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public class Instance extends TreeMap<String,Object>
+public class Instance extends TreeMap<String,Object> implements HasParametrizedGetter
 {
 
     /** Build an empty instance for the given entity.
