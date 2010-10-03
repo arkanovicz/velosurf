@@ -367,9 +367,25 @@ public class Entity
     public List<String> getColumns() {
         return columns;
     }
+
+    public List<String> getUpdatableColumns() {
+        if(updatableCols == null) {
+            updatableCols = new ArrayList(columns);
+            updatableCols.removeAll(keyCols);
+        }
+        return updatableCols;
+    }
     
     public boolean isColumn(String name) {
         return columns.contains(name);
+    }
+
+    public int getColumnIndex(String name) {
+        return columns.indexOf(name);
+    }
+
+    public int getUpdatableColumnIndex(String name) {
+        return updatableCols.indexOf(name);
     }
 
     /** Check if the provided map contains all key columns
@@ -962,6 +978,9 @@ public class Entity
     /** Key column names in natural order.
      */
     private List<String> keyCols = new ArrayList<String>();
+    /** Non-key column names in natural order
+     */
+    private List<String> updatableCols = null;
     /** Whether to obfuscate something.
      */
     private boolean obfuscate = false;
