@@ -195,7 +195,7 @@ public class DBReference extends HashMap<String,Object> implements HasParametriz
         
         /* 2) try to get a root action */
         Action action = db.getAction(property);
-        if (action != null) result = Integer.valueOf(action.perform(this));
+        if (action != null) result = Integer.valueOf(action.perform(this)); //TODO actions should return a Long !!!!
       }
       catch (SQLException sqle) {
         db.setError(sqle.getMessage());

@@ -70,6 +70,9 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
          this.entity = entity;
          db = this.entity.getDB();
          localized = this.entity.hasLocalizedColumns();
+         dirtyFlags = new ArrayList();
+         for(int i=0; i<entity.getUpdatableColumns().size();i++)
+           dirtyFlags.add(false);
      }
 
     /** Get this Instance's Entity.
@@ -178,8 +181,10 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
     public synchronized Object put(String key, Object value)
     {
         key = resolveName(key);
-        if (entity != null && entity.isColumn(key)) {
+        int index;
+        if (entity != null && ( index = entity.getUpdatableColumnIndex(key) ) != -1) {
             value = entity.filterIncomingValue(key,value);
+            dirtyFlags.set(index,true);
         }
         return super.put(key,value);
     }
@@ -251,14 +256,16 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
             List<String> updateClause = new ArrayList<String>();
             List<String> whereClause = new ArrayList<String>();
             List<Object> params = new ArrayList<Object>();
-            List<String> cols = new ArrayList<String>(entity.getColumns());
-            cols.removeAll(entity.getPKCols());
-            for (String col:cols) {
-                Object value = getInternal(col);
-                if (value!=null) {
-                    updateClause.add(col+"=?");
-                    if (entity.isObfuscated(col)) value = entity.deobfuscate(value);
-                    params.add(value);
+            List<String> cols = entity.getUpdatableColumns();
+            for (int c = 0; c < cols.size(); c++) {
+                String col = cols.get(c);
+                if(dirtyFlags.get(c)) {
+                    Object value = getInternal(col);
+                    if (value!=null) {
+                        updateClause.add(col+"=?");
+                        if (entity.isObfuscated(col)) value = entity.deobfuscate(value);
+                        params.add(value);
+                    } // TODO else " = null " ? May be a configuration option.
                 }
             }
             if(updateClause.size() ==0) {
@@ -447,6 +454,10 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
     /** The main database connection.
      */
     protected Database db = null;
+
+    /** Keep a dirty flag per column
+     */
+    protected List<Boolean> dirtyFlags = null;
 
     /** inherit toString to avoid listing cached AttributeReference
      */
