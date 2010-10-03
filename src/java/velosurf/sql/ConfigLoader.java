@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import org.jdom.Comment;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Text;
@@ -486,15 +487,21 @@ public class ConfigLoader {
                     Object content = queryElements.next();
                     if (content instanceof Text) {
                         String text = Strings.trimSpacesAndEOL(((Text)content).getText());
-                        int i = text.indexOf(';');
-                        if (i!=-1) {
-                            query.append(text.substring(0,i));
-                            queries.add(query.toString());
-                            parameters.add(paramNames);
-                            query = new StringBuilder();
-                            paramNames = new ArrayList<String>();
+                        while(text.length() > 0)
+                        { // TODO should chomp spaces at each iteration
+                            int i = text.indexOf(';'); // TODO also escape litterals here!!!!
+                            if (i!=-1) {
+                                query.append(text.substring(0,i));
+                                queries.add(query.toString());
+                                parameters.add(paramNames);
+                                query = new StringBuilder();
+                                paramNames = new ArrayList<String>();
+                            }
+                            text = text.substring(i+1);
                         }
-                        query.append(text.substring(i+1));
+                    }
+                    else if(content instanceof Comment) {
+                        query.append(' ');
                     }
                     else {
                         query.append(" ? ");
@@ -899,7 +906,7 @@ public class ConfigLoader {
                 for (int i=0;i<chars.length;i++) {
                     if(chars[i] == '\'') insideLitteral = !insideLitteral;
                     else if (!insideLitteral && chars[i] == ';' && i<chars.length-1)
-                        return true;
+                      return true; // TODO could be a sole terminal ';'
                 }
             }
         }
