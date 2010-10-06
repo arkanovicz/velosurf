@@ -114,6 +114,7 @@ public class AttributeReference implements Iterable
         }
     }
 
+  // TODO - consider map(key->instance)
     /** Get all the rows in a map firstcol->secondcol.
      * FIXME: better in Attribute than in AttributeReference
      * @return a list of all the rows
