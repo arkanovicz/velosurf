@@ -164,6 +164,15 @@ public class ConfigLoader {
             this.database.setReadOnly(!ro.equalsIgnoreCase("false") && !ro.equalsIgnoreCase("no"));
         }
 
+        /* check-connections */
+        String docheck = database.getAttributeValue("check-connections");
+        if (docheck != null) {
+            /* check syntax but continue anyway with read-only database if the syntax is bad */
+            checkSyntax("check-connections",docheck,new String[] {"true","false","yes","no"});
+            /* default to true - using Boolean.parseBoolean is not possible */
+            this.database.setCheckConnections(!docheck.equalsIgnoreCase("false") && !docheck.equalsIgnoreCase("no"));
+        }
+
         String caching = database.getAttributeValue("default-caching");
         if(caching != null) {
             Logger.warn("attribute 'default-caching' is deprecatd, please use 'caching' instead.");

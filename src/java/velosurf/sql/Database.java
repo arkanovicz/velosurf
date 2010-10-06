@@ -185,11 +185,11 @@ public class Database {
         connectionPool = new ConnectionPool(url,user,password,schema,driverInfo,true,minConnections,maxConnections);
         transactionConnectionPool = new ConnectionPool(url,user,password,schema,driverInfo,false,1,maxConnections);
 
-        statementPool = new StatementPool(connectionPool);
-        preparedStatementPool = new PreparedStatementPool(connectionPool);
+        statementPool = new StatementPool(connectionPool,checkConnections);
+        preparedStatementPool = new PreparedStatementPool(connectionPool,checkConnections);
 
-        transactionStatementPool = new StatementPool(transactionConnectionPool);
-        transactionPreparedStatementPool = new PreparedStatementPool(transactionConnectionPool);
+        transactionStatementPool = new StatementPool(transactionConnectionPool,checkConnections);
+        transactionPreparedStatementPool = new PreparedStatementPool(transactionConnectionPool,checkConnections);
 
         // startup action
         if(rootEntity == null) {
@@ -282,7 +282,13 @@ public class Database {
     public void setCase(int caseSensivity) {
         this.caseSensivity = caseSensivity;
     }
-
+    /**
+     * Set whether or not connections are systematically checked
+     * @param readOnly read-only check or not
+     */
+    public void setCheckConnections(boolean checkConnections) {
+        this.checkConnections = checkConnections;
+    }
     /** Load the appropriate driver.
      */
     @SuppressWarnings("deprecation") protected void loadDriver() {
@@ -757,6 +763,9 @@ Logger.debug("setting driver manager log");
     /** default access mode.
      */
     private boolean readOnly = true;
+    /** default connections checking
+     */
+    private boolean checkConnections = true;
     /** default caching mode.
      */
     private int caching = Cache.NO_CACHE;
