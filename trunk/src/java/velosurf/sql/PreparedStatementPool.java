@@ -37,9 +37,10 @@ public class PreparedStatementPool implements Runnable,Pool {
      *
      * @param connectionPool connection pool
      */
-    protected PreparedStatementPool(ConnectionPool connectionPool) {
+    protected PreparedStatementPool(ConnectionPool connectionPool, boolean checkConnections) {
         this.connectionPool = connectionPool;
-        checkTimeoutThread = new Thread(this);
+        this.checkConnections = checkConnections;
+        if(checkConnections) checkTimeoutThread = new Thread(this);
 //        checkTimeoutThread.start();
     }
 
@@ -59,7 +60,7 @@ public class PreparedStatementPool implements Runnable,Pool {
             if (statement.isValid()) {
                 if (!statement.isInUse() && !(connection=(ConnectionWrapper)statement.getConnection()).isBusy()) {
                     // check connection
-                    if (connection.check()) {
+                    if (!checkConnections || connection.check()) {
                         statement.notifyInUse();
                         return statement;
                     }
@@ -164,6 +165,10 @@ public class PreparedStatementPool implements Runnable,Pool {
     /** true if running.
      */
     private boolean running = true;
+
+    /** do we need to check connections?
+     */
+    private boolean checkConnections = true;
 
     /** check delay.
      */

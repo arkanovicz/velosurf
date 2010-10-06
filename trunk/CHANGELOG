@@ -2,6 +2,7 @@
 
 v2.3 (October 2010)
 ----
+ - new: a <database> check-connections attribute to avoid connections checking (still true by default)
  - new: Instances do keep a dirty flag per updatable column for faster updates
  - fix: transactions with more than two queries where wrongly parsed
  - fix: AuthFilter redirection after login could fail
