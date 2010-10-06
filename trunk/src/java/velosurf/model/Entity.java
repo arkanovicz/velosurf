@@ -533,7 +533,7 @@ public class Entity
             }
             instance = (Instance)statement.fetch(values,this);
         }
-        instance.setClean();
+        if(instance != null) instance.setClean();
         return instance;
     }
         
@@ -581,7 +581,7 @@ public class Entity
             }
             instance = (Instance)statement.fetch(Arrays.asList(key),this);
         }
-        instance.setClean();
+        if(instance != null) instance.setClean();
         return instance;
     }
 
@@ -610,7 +610,7 @@ public class Entity
             params.add(keyValue);
             instance = (Instance)statement.fetch(params,this);
         }
-        instance.setClean();
+        if(instance != null) instance.setClean();
         return instance;
     }
 
@@ -640,7 +640,7 @@ public class Entity
             }
             instance = (Instance)statement.fetch(params,this);
         }
-        instance.setClean();
+        if(instance != null) instance.setClean();
         return instance;
     }
 
