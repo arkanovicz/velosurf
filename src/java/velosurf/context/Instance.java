@@ -323,6 +323,7 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
                     entity.invalidateInstance(this);
                 }
             }
+            setClean();
             return true;
         }
         catch (SQLException sqle) {
@@ -425,6 +426,7 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
 					put(keycol,entity.isObfuscated(keycol)?entity.obfuscate(newid):newid);
 				}
             }
+            setClean();
             return true;
         }
         catch (SQLException sqle) {
