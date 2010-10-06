@@ -93,6 +93,7 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
             if (resultEntity != null) {
                 Instance row = null;
                 row = resultEntity.newInstance(new ReadOnlyMap(this),true);
+                row.setClean();
                 return row;
             }
             else return new Instance(new ReadOnlyMap(this));
@@ -167,6 +168,7 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
             if(resultEntity != null) {
                 while (!resultSet.isAfterLast() && resultSet.next()) {
                     Instance i = resultEntity.newInstance(new ReadOnlyMap(this),true);
+                    i.setClean();
                     ret.add(i);
                 }
             } else {

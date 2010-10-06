@@ -182,12 +182,39 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
     {
         key = resolveName(key);
         int index;
-        if (entity != null && ( index = entity.getUpdatableColumnIndex(key) ) != -1) {
+        if (entity != null) {
             value = entity.filterIncomingValue(key,value);
-            dirtyFlags.set(index,true);
+            if ( (index = entity.getUpdatableColumnIndex(key) ) != -1) {
+                dirtyFlags.set(index,true);
+            }
         }
         return super.put(key,value);
     }
+
+    public synchronized void setClean()
+    {
+        if(dirtyFlags != null) {
+            for(int i=0;i<dirtyFlags.size();i++)
+                dirtyFlags.set(i,false);
+        }
+    }
+
+    /** Generic setter that will leave the column's dirty flag unchanged
+     *
+     * @param key key of the property to be set
+     * @param value corresponding value
+     * @return previous value, or null
+     */
+    public synchronized Object putNoDirty(String key, Object value)
+    {
+        key = resolveName(key);
+        int index;
+        if (entity != null) {
+            value = entity.filterIncomingValue(key,value);
+        }
+        return super.put(key,value);
+    }
+
 
     /** Global setter that will only set values the correspond to actual
      * columns (otherwise, use putAll(Map values)).
@@ -197,11 +224,12 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
 
     public synchronized void setColumnValues(Map<String,Object> values) {
         if(entity == null) {
-            Logger.warn("instance.putColumn(map) cannot be used when entity is null");
+            Logger.warn("instance.setColumnValues(map) cannot be used when entity is null");
             return;
         }
+        int index;
         for(Map.Entry<String,Object> entry:values.entrySet()) {
-            if(entity.isColumn(entity.resolveName(entry.getKey()))) {
+            if( entity.isColumn(entity.resolveName(entry.getKey()))) {
                 put(entry.getKey(),entry.getValue());
             }
         }

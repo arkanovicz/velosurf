@@ -1,4 +1,4 @@
- - refine() method on scalar and row attributes should issue a warning
+ - serialization of processing when connection pool is empty
  - allow aliases for schema names
  - timed cache
  - avoid repetitive error messages in logger
@@ -52,8 +52,7 @@
  - automatic reload when the configuration file is changed (but depends upon container!) => see feasibility
  - 'size' attribute on multivalued attributes? (approx JDBC size? exact size?) (workaround: .rows.size)
  - positionned updates and deletes (via UserContext) => maybe
- - paging via AbstractSearchTool?
+ - paging via AbstractSearchTool
  - database metadata informations and operations
- - allow setters by foreign-key (eg. $book.author = $author instead of $book.author_id = $author.id) ? => may be dangerous
  - XML databases access via IBM XML Data Mediator?
  - isolation levels
