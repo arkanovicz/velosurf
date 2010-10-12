@@ -199,23 +199,6 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
         }
     }
 
-    /** Generic setter that will leave the column's dirty flag unchanged
-     *
-     * @param key key of the property to be set
-     * @param value corresponding value
-     * @return previous value, or null
-     */
-    public synchronized Object putNoDirty(String key, Object value)
-    {
-        key = resolveName(key);
-        int index;
-        if (entity != null) {
-            value = entity.filterIncomingValue(key,value);
-        }
-        return super.put(key,value);
-    }
-
-
     /** Global setter that will only set values the correspond to actual
      * columns (otherwise, use putAll(Map values)).
      *
