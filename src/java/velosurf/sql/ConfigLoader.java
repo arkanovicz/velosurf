@@ -499,14 +499,17 @@ public class ConfigLoader {
                         while(text.length() > 0)
                         { // TODO should chomp spaces at each iteration
                             int i = text.indexOf(';'); // TODO also escape litterals here!!!!
-                            if (i!=-1) {
+                            if (i==-1) {
+                                query.append(text);
+                                text = "";
+                            } else {
                                 query.append(text.substring(0,i));
                                 queries.add(query.toString());
                                 parameters.add(paramNames);
                                 query = new StringBuilder();
                                 paramNames = new ArrayList<String>();
+                                text = text.substring(i+1);
                             }
-                            text = text.substring(i+1);
                         }
                     }
                     else if(content instanceof Comment) {
