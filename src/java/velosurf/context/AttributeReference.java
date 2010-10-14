@@ -114,7 +114,6 @@ public class AttributeReference implements Iterable
         }
     }
 
-  // TODO - consider map(key->instance)
     /** Get all the rows in a map firstcol->secondcol.
      * FIXME: better in Attribute than in AttributeReference
      * @return a list of all the rows
@@ -135,6 +134,31 @@ public class AttributeReference implements Iterable
             while(iterator.hasNext()) {
                 Instance i = iterator.next();
                 result.put(i.get(keys.get(0)),i.get(keys.get(1)));
+            }
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            attribute.getDB().setError(sqle.getMessage());
+            return null;
+        }
+        return result;
+    }
+
+    /** Get all the rows in a map firstcol->instance
+     * FIXME: better in Attribute than in AttributeReference
+     * @return a list of all the rows
+     */
+    public Map getInstanceMap() {
+        Map result = null;
+        try {
+            RowIterator iterator = attribute.query(params,refineCriteria,order);
+            List<String> keys = iterator.keyList();
+            if(keys.size() > 2) {
+                Logger.warn("attribute.map needs only two result columns, only the first two will be taken into account");
+            }
+            result = new TreeMap();
+            while(iterator.hasNext()) {
+                Instance i = iterator.next();
+                result.put(i.get(keys.get(0)),i);
             }
         } catch(SQLException sqle) {
             Logger.log(sqle);
