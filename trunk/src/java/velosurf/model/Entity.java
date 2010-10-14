@@ -862,7 +862,7 @@ public class Entity
             String col2 = resolveName(o2);
             int i1 = columns.indexOf(col1);
             int i2 = columns.indexOf(col2);
-	    if(i1 == -1 && i2 == -1) return o1.hashCode() - o2.hashCode();
+	    if(i1 == -1 && i2 == -1) return o1.compareTo(o2);
 	    else if (i1 == -1) return -1;
 	    else if (i2 == -1) return 1;
             else return i1 - i2;
