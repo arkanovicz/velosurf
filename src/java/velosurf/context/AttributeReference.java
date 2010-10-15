@@ -152,9 +152,6 @@ public class AttributeReference implements Iterable
         try {
             RowIterator iterator = attribute.query(params,refineCriteria,order);
             List<String> keys = iterator.keyList();
-            if(keys.size() > 2) {
-                Logger.warn("attribute.map needs only two result columns, only the first two will be taken into account");
-            }
             result = new TreeMap();
             while(iterator.hasNext()) {
                 Instance i = iterator.next();
