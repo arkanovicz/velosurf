@@ -146,9 +146,14 @@ public class Database {
     public static Database getInstance(InputStream config,XIncludeResolver xincludeResolver) throws SQLException {
         Database instance = new Database();
         instance.readConfigFile(config,xincludeResolver);
-		instance.initCryptograph();
+        instance.initCryptograph();
         instance.connect();
         instance.getReverseEngineer().readMetaData();
+
+        // startup action
+        Action startup = instance.getRootEntity().getAction("startup");
+        if (startup != null) startup.perform(null);
+
         return instance;
     }
 
@@ -191,14 +196,10 @@ public class Database {
         transactionStatementPool = new StatementPool(transactionConnectionPool,checkConnections);
         transactionPreparedStatementPool = new PreparedStatementPool(transactionConnectionPool,checkConnections);
 
-        // startup action
         if(rootEntity == null) {
             Entity root = new Entity(this,"velosurf.root",false,Cache.NO_CACHE);
             addEntity(root);
-        }
-        
-        Action startup = rootEntity.getAction("startup");
-        if (startup != null) startup.perform(null);
+        }        
     }
     /**
      * Set the read-only state.

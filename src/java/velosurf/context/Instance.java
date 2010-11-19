@@ -496,7 +496,7 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
     public synchronized boolean upsert() {
 	List<Map<String,Object>> primkey = getPrimaryKey();
 	if(primkey.size() != 1) {
-	    Logger.error("Instance.upsert: singleton primary key expected");
+          Logger.error("Instance.upsert: singleton primary key expected"); // TODO CB - should throw/catch for homogeneity
 	    return false;
 	}
 	if(primkey.get(0).get("value") == null) {
