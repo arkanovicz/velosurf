@@ -57,7 +57,7 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
      * @return <code>true</code> if the iterator has more elements.
      */
     public boolean hasNext() {
-        boolean ret;
+        boolean ret = false;
         try {
             /* always need to prefetch, as some JDBC drivers (like HSQLDB driver) seem buggued to this regard */
             if(prefetch) {
@@ -65,18 +65,19 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
             } else {
                 pooledStatement.getConnection().enterBusyState();
                 ret = resultSet.next();
-                pooledStatement.getConnection().leaveBusyState();
                 if (ret) {
                     prefetch = true;
                 }
             }
-            if (!ret) pooledStatement.notifyOver();
 
             return ret;
         } catch (SQLException e) {
             Logger.log(e);
             pooledStatement.notifyOver();
             return false;
+        } finally {
+          if( pooledStatement.getConnection().isBusy() ) pooledStatement.getConnection().leaveBusyState();
+          if (!ret) pooledStatement.notifyOver();
         }
     }
 
@@ -237,21 +238,20 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
      *     one)
      */
     private boolean dataAvailable() throws SQLException {
+        boolean ret = false;
         if (resultSet.isBeforeFirst()) {
-            pooledStatement.getConnection().enterBusyState();
-            boolean hasNext = resultSet.next();
-            pooledStatement.getConnection().leaveBusyState();
-            if (!hasNext) {
-                pooledStatement.notifyOver();
-                return false;
+            try {
+                pooledStatement.getConnection().enterBusyState();
+                ret = resultSet.next();
+                return ret;
+            } finally {
+                pooledStatement.getConnection().leaveBusyState();
+                if(!ret) pooledStatement.notifyOver();
             }
-//            pooledStatement.notifyOver();
         }
-        if (resultSet.isAfterLast()) {
-            pooledStatement.notifyOver();
-            return false;
-        }
-        return true;
+        ret = !resultSet.isAfterLast();
+        if(!ret) pooledStatement.notifyOver();
+        return ret;
     }
 
     /** Source statement.

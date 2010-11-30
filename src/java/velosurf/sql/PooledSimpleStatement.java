@@ -61,12 +61,18 @@ public class PooledSimpleStatement extends PooledStatement {
      * @return the resulting RowIterator
      */
     public synchronized RowIterator query(String query,Entity resultEntity) throws SQLException {
-        notifyInUse();
-        Logger.trace("query-"+query);
-        connection.enterBusyState();
-        RowIterator result = new RowIterator(this,statement.executeQuery(query),resultEntity);
-        connection.leaveBusyState();
-        return result;
+        RowIterator result = null;
+        try
+        {
+            notifyInUse();
+            Logger.trace("query-"+query);
+            connection.enterBusyState();
+            result = new RowIterator(this,statement.executeQuery(query),resultEntity);
+            return result;
+        } finally {
+            connection.leaveBusyState();
+            if(result == null) notifyOver();
+        }
     }
 
     /** fetch a single row.
@@ -88,7 +94,11 @@ public class PooledSimpleStatement extends PooledStatement {
             notifyInUse();
             Logger.trace("fetch-"+query);
             connection.enterBusyState();
-            resultSet = statement.executeQuery(query);
+            try {
+                resultSet = statement.executeQuery(query);
+            } finally {
+                connection.leaveBusyState();
+            }
             boolean hasNext = resultSet.next();
             connection.leaveBusyState();
             Map<String,Object> row = null;
@@ -142,14 +152,14 @@ public class PooledSimpleStatement extends PooledStatement {
             connection.enterBusyState();
             rs = statement.executeQuery(query);
             boolean hasNext = rs.next();
-            connection.leaveBusyState();
-            if (hasNext) result=rs.getObject(1);
+            if (hasNext) result = rs.getObject(1);
         }
         finally {
-            if (rs != null) rs.close();
+            connection.leaveBusyState();
+            rs.close();
             notifyOver();
-        return result;
         }
+        return result;
     }
 
     /** issue the update contained in the query.
@@ -159,11 +169,16 @@ public class PooledSimpleStatement extends PooledStatement {
      * @return number of affected rows
      */
     public synchronized int update(String query) throws SQLException {
-        Logger.trace("update-"+query);
-        connection.enterBusyState();
-        int result = statement.executeUpdate(query);
-        connection.leaveBusyState();
-        return result;
+        try {
+            notifyInUse();
+            Logger.trace("update-"+query);
+            connection.enterBusyState();
+            int result = statement.executeUpdate(query);
+            return result;
+        } finally {
+            connection.leaveBusyState();
+            notifyOver();
+        }
     }
 
     /** close this statement.
