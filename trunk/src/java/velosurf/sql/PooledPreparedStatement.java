@@ -84,12 +84,15 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
             notifyInUse();
 //Logger.trace("fetch-params="+StringLists.join(params,","));
             setParams(params);
-            connection.enterBusyState();
-            resultSet = preparedStatement.executeQuery();
+            try {
+                connection.enterBusyState();
+                resultSet = preparedStatement.executeQuery();
+            } finally {
+                connection.leaveBusyState();
+            }
             boolean hasNext = resultSet.next();
-            connection.leaveBusyState();
             entity = resultEntity;
-           if (hasNext) {
+            if (hasNext) {
                 if (resultEntity!=null) row = resultEntity.newInstance(new ReadOnlyMap(this),true);
                 else {
                     row = new TreeMap<String,Object>();
@@ -141,15 +144,20 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
      * @return resulting RowIterator
      */
     public synchronized RowIterator query(List params,Entity resultEntity) throws SQLException {
-        notifyInUse();
+        RowIterator result = null;
+        try {
+            notifyInUse();
 //Logger.trace("query-params="+StringLists.join(params,","));
-        if (params != null) {
-            setParams(params);
+            if (params != null) {
+                setParams(params);
+            }
+            connection.enterBusyState();
+            result = new RowIterator(this,preparedStatement.executeQuery(),resultEntity);
+            return result;
+          } finally {
+              connection.leaveBusyState();
+              if(result == null) notifyOver();
         }
-        connection.enterBusyState();
-        RowIterator result = new RowIterator(this,preparedStatement.executeQuery(),resultEntity);
-        connection.leaveBusyState();
-        return result;
     }
 
     /** get a scalar result from this statement.
@@ -170,13 +178,13 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
             connection.enterBusyState();
             rs = preparedStatement.executeQuery();
             boolean hasNext = rs.next();
-            connection.leaveBusyState();
             if (hasNext) {
                 value = rs.getObject(1);
                 if (rs.wasNull()) value = null;
             }
         }
         finally {
+            connection.leaveBusyState();
             if (rs != null) rs.close();
             notifyOver();
         }
@@ -196,9 +204,9 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
             setParams(params);
             connection.enterBusyState();
             int rows = preparedStatement.executeUpdate();
-            connection.leaveBusyState();
             return rows;
         } finally {
+            connection.leaveBusyState();
             notifyOver();
         }
     }
