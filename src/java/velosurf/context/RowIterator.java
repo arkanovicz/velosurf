@@ -60,24 +60,28 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
         boolean ret = false;
         try {
             /* always need to prefetch, as some JDBC drivers (like HSQLDB driver) seem buggued to this regard */
-            if(prefetch) {
+            if(isOver) {
+                return false;
+            } else if(prefetch) {
                 return true;
             } else {
                 pooledStatement.getConnection().enterBusyState();
                 ret = resultSet.next();
                 if (ret) {
                     prefetch = true;
+                } else {
+                  isOver = true;
+                  pooledStatement.notifyOver();
                 }
             }
-
             return ret;
         } catch (SQLException e) {
             Logger.log(e);
+            isOver = true;
             pooledStatement.notifyOver();
             return false;
         } finally {
           if( pooledStatement.getConnection().isBusy() ) pooledStatement.getConnection().leaveBusyState();
-          if (!ret) pooledStatement.notifyOver();
         }
     }
 
@@ -87,7 +91,11 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
      */
     public Instance next() {
         try {
-            if(!prefetch && !resultSet.next()) {
+            if(isOver || !prefetch && !resultSet.next()) {
+                if(!isOver) {
+                    isOver = true;
+                    pooledStatement.notifyOver();
+                }
                 return null;
             }
             prefetch = false;
@@ -100,6 +108,7 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
             else return new Instance(new ReadOnlyMap(this));
         } catch(SQLException sqle) {
             Logger.log(sqle);
+            isOver = true;
             pooledStatement.notifyOver();
             return null;
         }
@@ -122,7 +131,6 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
     public Object get(Object key) {
         String property = (String)key;
         Object result = null;
-        boolean shouldNotifyOver = false;
         try {
             if (!dataAvailable()) return null;
             if (resultEntity!=null) {
@@ -154,7 +162,6 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
             Logger.log(e);
         }
 
-        if (shouldNotifyOver) pooledStatement.notifyOver();
         return result;
     }
 
@@ -185,6 +192,7 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
         } finally {
             pooledStatement.getConnection().leaveBusyState();
             pooledStatement.notifyOver();
+            isOver = true;
         }
     }
 
@@ -202,6 +210,7 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
         } finally {
             pooledStatement.getConnection().leaveBusyState();
             pooledStatement.notifyOver();
+            isOver = true;
         }
     }
 
@@ -246,11 +255,14 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
                 return ret;
             } finally {
                 pooledStatement.getConnection().leaveBusyState();
-                if(!ret) pooledStatement.notifyOver();
+                if(!ret)
+                {
+                  pooledStatement.notifyOver();
+                  isOver = true;
+                }
             }
         }
         ret = !resultSet.isAfterLast();
-        if(!ret) pooledStatement.notifyOver();
         return ret;
     }
 
@@ -266,5 +278,8 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
 
     /** whether we did prefetch a row */
     private boolean prefetch = false;
+
+    /** whether we reached the end */
+    private boolean isOver = false;
 
 }

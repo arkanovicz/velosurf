@@ -64,7 +64,6 @@ public class PooledSimpleStatement extends PooledStatement {
         RowIterator result = null;
         try
         {
-            notifyInUse();
             Logger.trace("query-"+query);
             connection.enterBusyState();
             result = new RowIterator(this,statement.executeQuery(query),resultEntity);
@@ -91,7 +90,6 @@ public class PooledSimpleStatement extends PooledStatement {
      */
     public synchronized Object fetch(String query,Entity resultEntity) throws SQLException {
         try {
-            notifyInUse();
             Logger.trace("fetch-"+query);
             connection.enterBusyState();
             try {
@@ -144,19 +142,16 @@ public class PooledSimpleStatement extends PooledStatement {
      * @return found scalar
      */
     public synchronized Object evaluate(String query) throws SQLException {
-        notifyInUse();
         Logger.trace("evaluate-"+query);
         Object result = null;
-        ResultSet rs = null;
         try {
             connection.enterBusyState();
-            rs = statement.executeQuery(query);
-            boolean hasNext = rs.next();
-            if (hasNext) result = rs.getObject(1);
+            resultSet = statement.executeQuery(query);
+            boolean hasNext = resultSet.next();
+            if (hasNext) result = resultSet.getObject(1);
         }
         finally {
             connection.leaveBusyState();
-            rs.close();
             notifyOver();
         }
         return result;
@@ -170,7 +165,6 @@ public class PooledSimpleStatement extends PooledStatement {
      */
     public synchronized int update(String query) throws SQLException {
         try {
-            notifyInUse();
             Logger.trace("update-"+query);
             connection.enterBusyState();
             int result = statement.executeUpdate(query);
@@ -212,15 +206,6 @@ public class PooledSimpleStatement extends PooledStatement {
         return connection;
     }
 
-    /** database connection.
-     */
-    private ConnectionWrapper connection = null;
-    /** result set.
-     */
-    private ResultSet resultSet = null;
-    /** column names in natural order.
-     */
-    private List<String> columnNames = null;
     /** wrapped statement.
      */
     private Statement statement = null;
