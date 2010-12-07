@@ -81,7 +81,6 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
     public synchronized Object fetch(List params,Entity resultEntity) throws SQLException {
         Map<String,Object> row = null;
         try {
-            notifyInUse();
 //Logger.trace("fetch-params="+StringLists.join(params,","));
             setParams(params);
             try {
@@ -146,7 +145,6 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
     public synchronized RowIterator query(List params,Entity resultEntity) throws SQLException {
         RowIterator result = null;
         try {
-            notifyInUse();
 //Logger.trace("query-params="+StringLists.join(params,","));
             if (params != null) {
                 setParams(params);
@@ -168,24 +166,21 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
      */
     public synchronized Object evaluate(List params) throws SQLException {
         Object value = null;
-        ResultSet rs = null;
         try {
-            notifyInUse();
 //Logger.trace("evaluate-params="+StringLists.join(params,","));
             if (params != null) {
                 setParams(params);
             }
             connection.enterBusyState();
-            rs = preparedStatement.executeQuery();
-            boolean hasNext = rs.next();
+            resultSet = preparedStatement.executeQuery();
+            boolean hasNext = resultSet.next();
             if (hasNext) {
-                value = rs.getObject(1);
-                if (rs.wasNull()) value = null;
+                value = resultSet.getObject(1);
+                if (resultSet.wasNull()) value = null;
             }
         }
         finally {
             connection.leaveBusyState();
-            if (rs != null) rs.close();
             notifyOver();
         }
         return value;
@@ -199,7 +194,6 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
      */
     public synchronized int update(List params) throws SQLException {
         try {
-            notifyInUse();
 //Logger.trace("update-params="+StringLists.join(params,","));
             setParams(params);
             connection.enterBusyState();
@@ -271,14 +265,6 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
         }
     }
 
-    /** the connection.
-     */
-    private ConnectionWrapper connection = null;
-    /** the result set.
-     */
-    private ResultSet resultSet = null;
-    /** column names.
-     */
     private List columnNames = null;
     /** wrapped prepared statement.
      */

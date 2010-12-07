@@ -16,7 +16,9 @@
 
 package velosurf.sql;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 /** This abstract class represents a pooled object.<p>
  * It has two booleans : inUse and useOver (understand : usageOver).<p>
@@ -58,6 +60,14 @@ public abstract class PooledStatement implements RowHandler {
     /** notify this object that it is no more in use.
      */
     public void notifyOver() {
+        try {
+            if(resultSet != null && !resultSet.isClosed())
+            {
+                resultSet.close();
+                resultSet = null;
+            }
+        } catch(SQLException sqle) {} // ignore
+        resultSet = null;
         inUse = false;
     }
 
@@ -108,4 +118,14 @@ public abstract class PooledStatement implements RowHandler {
     /** is this object in use?
      */
     private boolean inUse = false;
+
+    /** database connection.
+     */
+    protected ConnectionWrapper connection = null;
+    /** result set.
+     */
+    protected ResultSet resultSet = null;
+    /** column names in natural order.
+     */
+    protected List<String> columnNames = null;
 }
