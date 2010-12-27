@@ -71,89 +71,89 @@
 <h1>Frequently Asked Questions</h1>
 <h2>Table of Content</h2>
 <ol>
-<li><a href='#general'>General Questions</a></li>
+<li><a href="#general">General Questions</a></li>
 <ol>
-<li><a href='#general.what'>What is Velosurf?</a></li>
-<li><a href='#general.howtouse'>How do I use it?</a></li>
-<li><a href='#general.howitworks'>How does it work?</a></li>
+<li><a href="#general.what">What is Velosurf?</a></li>
+<li><a href="#general.howtouse">How do I use it?</a></li>
+<li><a href="#general.howitworks">How does it work?</a></li>
 </ol>
-<li><a href='#install'>Installation, Configuration and Integration</a></li>
+<li><a href="#install">Installation, Configuration and Integration</a></li>
 <ol>
-<li><a href='#install.webapp'>How do I use Velosurf within my Webapp?</a></li>
-<li><a href='#install.java'>How do I use Velosurf within my Java application?</a></li>
-<li><a href='#install.ant'>How do I use Velosurf with Ant?</a></li>
-<li><a href='#install.dvsl'>How do I use Velosurf with DVSL?</a></li>
-<li><a href='#install.texen'>How do I use Velosurf with Texen?</a></li>
+<li><a href="#install.webapp">How do I use Velosurf within my Webapp?</a></li>
+<li><a href="#install.java">How do I use Velosurf within my Java application?</a></li>
+<li><a href="#install.ant">How do I use Velosurf with Ant?</a></li>
+<li><a href="#install.dvsl">How do I use Velosurf with DVSL?</a></li>
+<li><a href="#install.texen">How do I use Velosurf with Texen?</a></li>
 </ol>
-<li><a href='#sql'>SQL Questions</a></li>
+<li><a href="#sql">SQL Questions</a></li>
 <ol>
-<li><a href='#sql.keys'>What about primary and foreign keys?</a></li>
+<li><a href="#sql.keys">What about primary and foreign keys?</a></li>
 </ol>
-<li><a href='#mvc'>Velosurf and the MVC Design Pattern</a></li>
+<li><a href="#mvc">Velosurf and the MVC Design Pattern</a></li>
 <ol>
-<li><a href='#mvc.def'>What does MVC stand for?</a></li>
-<li><a href='#mvc.velosurf'>Is Velosurf MVC-compliant?</a></li>
-<li><a href='#mvc.login'>How to use different logins with different accesses to the database?</a></li>
+<li><a href="#mvc.def">What does MVC stand for?</a></li>
+<li><a href="#mvc.velosurf">Is Velosurf MVC-compliant?</a></li>
+<li><a href="#mvc.login">How to use different logins with different accesses to the database?</a></li>
 </ol>
-<li><a href='#troubleshooting'>Troubleshooting</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
 <ol>
-<li><a href='#troubleshooting.what'>It doesn't work! What can I do?</a></li>
-<li><a href='#troubleshooting.hang'>Velosurf connects to the database, but hangs right after, with no message. What is the problem?</a></li>
+<li><a href="#troubleshooting.what">It doesn't work! What can I do?</a></li>
+<li><a href="#troubleshooting.hang">Velosurf connects to the database, but hangs right after, with no message. What is the problem?</a></li>
 </ol>
 </ol>
-<a name='general'/><h2>1. General Questions</h2>
-<a name='general.what'/><h3>1.1 What is Velosurf?</h3><div class="section"><p>Velosurf is a light and flexible Java library meant to expose a relational
+<a name="general"/><h2>1. General Questions</h2>
+<a name="general.what"/><h3>1.1 What is Velosurf?</h3><div class="section"><p>Velosurf is a light and flexible Java library meant to expose a relational
 database to <a href="http://jakarta.apache.org/velocity">Jakarta Velocity</a> templates. Velosurf does an
 automatic reverse engineering of a database source and provides a default mapping that can then be extended
 and customized in many ways.</p></div>
-<a name='general.howtouse'/><h3>1.2 How do I use it?</h3><div class="section"><p> Velosurf provides the Velocity context with a <code>$db</code> tool object
+<a name="general.howtouse"/><h3>1.2 How do I use it?</h3><div class="section"><p> Velosurf provides the Velocity context with a <code>$db</code> tool object
 that is a starting point to access database tables and queries. An XML configuration file allows you
 to gather all SQL code in one place: Table columns and SQL queries are seen as standard properties
 from within the templates.</p></div>
-<a name='general.howitworks'/><h3>1.3 How does it work?</h3><div class="section"><p>At start, Velosurf reads the configuration file - that must at least
+<a name="general.howitworks"/><h3>1.3 How does it work?</h3><div class="section"><p>At start, Velosurf reads the configuration file - that must at least
 contain database connection parameters - plus all SQL queries that define custom properties. Then it
 performs a reverse engineering of the database. Roughly speaking, tables and result sets are used as
 iterators in #foreach loops, and rows are seen as associative maps (that map a column / a query / a query
 field to their values).</p></div>
-<a name='install'/><h2>2. Installation, Configuration and Integration</h2>
-<a name='install.webapp'/><h3>2.1 How do I use Velosurf within my Webapp?</h3><div class="section"><p> All you need to do is to put an instance
+<a name="install"/><h2>2. Installation, Configuration and Integration</h2>
+<a name="install.webapp"/><h3>2.1 How do I use Velosurf within my Webapp?</h3><div class="section"><p> All you need to do is to put an instance
 of velosurf.web.VelosurfTool into your Velocity context. 
 The easiest way is to use the VelocityViewServlet
 class (or a subclass), provided with the <a href="http://jakarta.apache.org/velocity/tools/index.html">velocity-tools</a>
 subproject: it provides a generic plug-in mechanism enabling external tools to be automatically plugged
 into Velocity contexts, with scope considerations. Refer to the Installation page for more.</p></div>
-<a name='install.java'/><h3>2.2 How do I use Velosurf within my Java application?</h3><div class="section"><p> First, you must ensure that Velosurf will find
+<a name="install.java"/><h3>2.2 How do I use Velosurf within my Java application?</h3><div class="section"><p> First, you must ensure that Velosurf will find
 its configuration file, as explained <a href="api/velosurf/Velosurf.html">here</a>. Then you just have
 to put an instance of <code>velosurf.Velosurf</code> in the Velocity context.</p></div>
-<a name='install.ant'/><h3>2.3 How do I use Velosurf with Ant?</h3><div class="section"><p>You will have to use VPP. Please have a look at the example provided
+<a name="install.ant"/><h3>2.3 How do I use Velosurf with Ant?</h3><div class="section"><p>You will have to use VPP. Please have a look at the example provided
 in <code>example/ant-vpp</code> for how to proceed.</p></div>
-<a name='install.dvsl'/><h3>2.4 How do I use Velosurf with DVSL?</h3><div class="section"><p> Check the DVSL doc on how to create a toolbox.
+<a name="install.dvsl"/><h3>2.4 How do I use Velosurf with DVSL?</h3><div class="section"><p> Check the DVSL doc on how to create a toolbox.
 Then, include the line &quot;<code>toolbox.tool.db=velosurf.standalone.Velosurf</code>&quot; in your
 toolbox.props file, and have Velosurf find its velosurf.xml configuration file (see 2.2).</p></div>
-<a name='install.texen'/><h3>2.5 How do I use Velosurf with Texen?</h3><div class="section"><p> Put the line &quot;<code>context.objects.db=velosurf.standalone.Velosurf</code>&quot;
+<a name="install.texen"/><h3>2.5 How do I use Velosurf with Texen?</h3><div class="section"><p> Put the line &quot;<code>context.objects.db=velosurf.standalone.Velosurf</code>&quot;
 in your <code>texen.properties</code> file, and have Velosurf find the velosurf.xml configuration file (see 2.2).</p></div>
-<a name='sql'/><h2>3. SQL Questions</h2>
-<a name='sql.keys'/><h3>3.1 What about primary and foreign keys?</h3><div class="section"><p> Primary keys are reverse engineered and used by Velosurf
+<a name="sql"/><h2>3. SQL Questions</h2>
+<a name="sql.keys"/><h3>3.1 What about primary and foreign keys?</h3><div class="section"><p> Primary keys are reverse engineered and used by Velosurf
 in all the <code>fetch</code> methods. Foreign-keys are also reverse engineered by default and produce each two attributes,
 one for the imported key and one for the exported key (e.g. $book.publisher and $publisher.books). You can then
 traverse foreign keys back and forth using the dot operator. See <a href="./user-guide.html#foreign-keys">this section</a> for more details.</p></div>
-<a name='mvc'/><h2>4. Velosurf and the MVC Design Pattern</h2>
-<a name='mvc.def'/><h3>4.1&nbsp;What does MVC stand for?</h3><div class="section"><p> In brief, MVC stands for Model-View-Controller.
+<a name="mvc"/><h2>4. Velosurf and the MVC Design Pattern</h2>
+<a name="mvc.def"/><h3>4.1&nbsp;What does MVC stand for?</h3><div class="section"><p> In brief, MVC stands for Model-View-Controller.
 It is an architecture design pattern that states that applications should be structured in three distinct
 layers, the Model (what your application modelizes), the View (typically Velocity) and the Controller 
 (typically an ActionServlet or the like).</p></div>
-<a name='mvc.velosurf'/><h3>4.2&nbsp;Is Velosurf MVC-compliant?</h3><div class="section"><p> Certainly! It implements the data model part,
+<a name="mvc.velosurf"/><h3>4.2&nbsp;Is Velosurf MVC-compliant?</h3><div class="section"><p> Certainly! It implements the data model part,
 leaving you with the business logic part of the model. However, you must keep in mind that
 you should not modify data objects from within Velocity templates (you can use the Velosurf
 Java API or standard JDBC calls to achieve modifications, either from within your
 controller or from custom mapping classes).</p></div>
-<a name='mvc.login'/><h3>4.3&nbsp;How to use different logins with different accesses to the database?</h3><div class="section"><p>Just have
+<a name="mvc.login"/><h3>4.3&nbsp;How to use different logins with different accesses to the database?</h3><div class="section"><p>Just have
 two different configuration files. You can factorize the model using the &lt;xi:include&gt; syntax.
 </p></div>
-<a name='troubleshooting'/><h2>5. Troubleshooting</h2>
-<a name='troubleshooting.problem'/><h3>5.1&nbsp;It doesn't work! What can I do?</h3><div class="section"><p> The first thing to do is to check the log. Chances are you'll find
+<a name="troubleshooting"/><h2>5. Troubleshooting</h2>
+<a name="troubleshooting.problem"/><h3>5.1&nbsp;It doesn"t work! What can I do?</h3><div class="section"><p> The first thing to do is to check the log. Chances are you'll find
 an exception and/or a message indicating the cause or the problem.</p></div>
-<a name='troubleshooting.hang'/><h3>5.2&nbsp;Velosurf connects to the database, but hangs right after, with no message. What is the problem?</h3><div class="section"><p>
+<a name="troubleshooting.hang"/><h3>5.2&nbsp;Velosurf connects to the database, but hangs right after, with no message. What is the problem?</h3><div class="section"><p>
 Have you provided a schema name? Under Oracle for instance, there are so many system tables
 (several thousands) that the reverse engineering can be very long. You can also choose the
 &quot;manual&quot; reverse engineering option so that for instance only the entities listed in velosurf.xml
