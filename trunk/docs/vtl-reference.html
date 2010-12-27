@@ -57,7 +57,7 @@
 
   <li><a href="./api/index.html">Javadoc</a></li>
 
-  <li><a href='./architecture.html'>Architecture</a></li>
+  <li><a href="./architecture.html">Architecture</a></li>
 
   <li><a href="./velosurf/docs/index.html">1.4.x Docs</a></li>
 
@@ -75,19 +75,19 @@
 			<H1>VTL Velosurf reference</H1>
 			<h2>Table of content</h2>
 			<ol>
-			<li><a href='#introduction'>Introduction</a></li>
-			<li><a href='#database'>Database attributes and methods</a></li>
-			<li><a href='#entity'>Entity attributes and methods</a></li>
-			<li><a href='#attribute'>Attribute attributes and methods</a></li>
-			<li><a href='#action'>Action attributes and methods</a></li>
-			<li><a href='#instance'>Instance attributes and methods</a></li>
-			<li><a href='#query'>HTTPQuery attributes and methods</a></li>
-			<li><a href='#local'>Localizer attributes and methods</a></li>
-			<li><a href='#auth'>Authenticator attributes and methods</a></li>
+			<li><a href="#introduction">Introduction</a></li>
+			<li><a href="#database">Database attributes and methods</a></li>
+			<li><a href="#entity">Entity attributes and methods</a></li>
+			<li><a href="#attribute">Attribute attributes and methods</a></li>
+			<li><a href="#action">Action attributes and methods</a></li>
+			<li><a href="#instance">Instance attributes and methods</a></li>
+			<li><a href="#query">HTTPQuery attributes and methods</a></li>
+			<li><a href="#local">Localizer attributes and methods</a></li>
+			<li><a href="#auth">Authenticator attributes and methods</a></li>
 			</ol>
-			<a name='introduction'/>
+			<a name="introduction"/>
 			<h2>Introduction</h2>
-			<p>You should have some knowledge of the <a href='http://jakarta.apache.org/velocity/docs/vtl-reference-guide.html'>Velocity Template Language</a> before reading this page.</p>
+			<p>You should have some knowledge of the <a href="http://velocity.apache.org/engine/releases/velocity-1.7/vtl-reference-guide.html">Velocity Template Language</a> before reading this page.</p>
 
 			<p>In a MVC Webapp, operations that issue changes to the database should not be done from inside
 			the templates but from a separate controller. One way to enforce this is to set the read-only
@@ -103,26 +103,26 @@
 			<P>Plain keywords represent actual names of properties
 			or methods, while keywords in italic stand for user properties or variables.</P>
 
-			<a name='database'/>
+			<a name="database"/>
 			<H2>Database attributes and methods</H2>
 <div class="section">
 <table>
-<tr><td><a href='#db.entity'><code>$db.<i>entity</i></code></a></td><td>returns an entity</td></tr>
-<tr><td><a href='#db.attribute'><code>$db.<i>attribute</i></code></a></td><td>gets an attribute, returns a scalar, an instance, or an iterable attribute</td></tr>
-<tr><td><a href='#db.action'><code>$db.<i>action</i></code></a></td><td>executes an action, returns the number of affected rows</td></tr>
-<tr><td><a href='#db.external-parameter'><code>$db.<i>external-parameter</i></code></a></td><td>gets or sets an external parameter</td></tr>
-<tr><td><a href='#db.error'><code>$db.error</code></a></td><td>returns the last encountered error, if any</td></tr>
-<tr><td><a href='#db.locale'><code>$db.locale</code></a></td><td>returns the current locale</td></tr>
+<tr><td><a href="#db.entity"><code>$db.<i>entity</i></code></a></td><td>returns an entity</td></tr>
+<tr><td><a href="#db.attribute"><code>$db.<i>attribute</i></code></a></td><td>gets an attribute, returns a scalar, an instance, or an iterable attribute</td></tr>
+<tr><td><a href="#db.action"><code>$db.<i>action</i></code></a></td><td>executes an action, returns the number of affected rows</td></tr>
+<tr><td><a href="#db.external-parameter"><code>$db.<i>external-parameter</i></code></a></td><td>gets or sets an external parameter</td></tr>
+<tr><td><a href="#db.error"><code>$db.error</code></a></td><td>returns the last encountered error, if any</td></tr>
+<tr><td><a href="#db.locale"><code>$db.locale</code></a></td><td>returns the current locale</td></tr>
 </table>
 </div>
-			<a name='db.entity'/><h3>$db.<i>entity</i></h3>
+			<a name="db.entity"/><h3>$db.<i>entity</i></h3>
 			<div class="section">
 			Returns an entity.
 <div class="source">#foreach($u in $db.user)
  user name : $u.name
 #end
 <hr>#set( $current_user = $db.user.fetch($query.user_id) )</div></div>
-<a name='db.attribute'/><h3>$db.<i>attribute</i></h3>
+<a name="db.attribute"/><h3>$db.<i>attribute</i></h3>
 <div class="section">
 Returns an attribute, or directly the resulting value of the attribute for scalar or row attributes.
 <div class="source">Today, there are $db.today_events_count events.
@@ -130,45 +130,45 @@ Returns an attribute, or directly the resulting value of the attribute for scala
   Today event: $event
 #end
 </div></div>
-<a name='db.action'/><h3>$db.<i>action</i></h3>
+<a name="db.action"/><h3>$db.<i>action</i></h3>
 <div class="section">Executes a root action, returns the number of affected rows.
 <div id="source">#set( $nb = $db.cleanEvents )
 Deleted $nb event(s).</div></div>
-<a name='db.external-parameter'/><h3>$db.<i>external-parameter</i></h3>
+<a name="db.external-parameter"/><h3>$db.<i>external-parameter</i></h3>
 <div class="section">
 Sets or returns the named external parameter, for use within a root attribute.
 <div class="source">#set( $db.publicationYear = 2006 )
 Number of published books for year $db.publicationYear: $db.countBooks</div></div>
-<a name='db.error'/><h3>$db.error</h3>
+<a name="db.error"/><h3>$db.error</h3>
 <div class="section">Returns the last encountered SQL error message, if any.
 <div class="source">#set( $nb = $db.myAction )
 #if($nb == 0 && $db.error)Error: $db.error</div></div>
-<a name='db.locale'/><h3>$db.locale</h3>
+<a name="db.locale"/><h3>$db.locale</h3>
 <div class="section">Returns the current locale.
 <div class="source">Current locale: $db.locale.displayName</div></div>
 
-			<a name='entity'/>
+			<a name="entity"/>
 			<H2>Entity attributes and&nbsp;methods</H2>
 <div id="section">
 <div class="section">
 <table>
-<tr><td><a href='#entity.fetch'><code>$<i>entity</i>.fetch(<i>key</i>)</code></a></td><td>returns the instance uniquely identified by <i>key</i> if it does exist, null otherwise</td></tr>
-<tr><td><a href='#entity.iterate'><code>#foreach(&nbsp;$<i>instance</i>&nbsp;in&nbsp;$<i>entity</i>&nbsp;)</code></a></td><td>iterates over this entity's instances</td></tr>
-<tr><td><a href='#entity.rows'><code>$<i>entity</i>.rows</code></a></td><td>returns the list of this entity's instances</td></tr>
-<tr><td><a href='#entity.order'><code>#set( $<i>entity</i>.order = '<i>order</i>' )</code></a></td><td>specifies how to order this entity's instances</td></tr>
-<tr><td><a href='#entity.refine'><code>$<i>entity</i>.refine( '<i>condition</i>' )</code></a></td><td>adds a filtering condition on this entity's instances</td></tr>
-<tr><td><a href='#entity.clearrefinement'><code>$<i>entity</i>.clearRefinement()</code></a></td><td>clears any previously set refinement</td></tr>
-<tr><td><a href='#entity.newinstance'><code>$<i>entity</i>.newInstance()</code></a></td><td>returns a new empty instance for this entity</td></tr>
-<tr><td><a href='#entity.newinstance2'><code>$<i>entity</i>.newInstance(Map <i>values</i>)</code></a></td><td>returns a new instance for this entity, initialized with the given values</td></tr>
-<tr><td><a href='#entity.validate'><code>$<i>entity</i>.validate(Map <i>values</i>)</code></a></td><td>validate data against this entity's constraints, returns the boolean success status</td></tr>
-<tr><td><a href='#entity.insert'><code>$<i>entity</i>.insert(Map <i>values</i>)</code></a></td><td>inserts an instance of the entity, returns the boolean success status</td></tr>
-<tr><td><a href='#entity.lastinsertid'><code>$<i>entity</i>.lastInsertID</code></a></td><td>returns the last inserted ID for this entity's autoincremented primary key</td></tr>
-<tr><td><a href='#entity.update'><code>$<i>entity</i>.update(Map <i>values</i>)</code></a></td><td>updates an instance of the entity, returns the boolean success status</td></tr>
-<tr><td><a href='#entity.delete'><code>$<i>entity</i>.delete(Map <i>values</i>)</code></a></td><td>delete an instance of the entity, returns the boolean success status</td></tr>
+<tr><td><a href="#entity.fetch"><code>$<i>entity</i>.fetch(<i>key</i>)</code></a></td><td>returns the instance uniquely identified by <i>key</i> if it does exist, null otherwise</td></tr>
+<tr><td><a href="#entity.iterate"><code>#foreach(&nbsp;$<i>instance</i>&nbsp;in&nbsp;$<i>entity</i>&nbsp;)</code></a></td><td>iterates over this entity's instances</td></tr>
+<tr><td><a href="#entity.rows"><code>$<i>entity</i>.rows</code></a></td><td>returns the list of this entity's instances</td></tr>
+<tr><td><a href="#entity.order"><code>#set( $<i>entity</i>.order = '<i>order</i>' )</code></a></td><td>specifies how to order this entity's instances</td></tr>
+<tr><td><a href="#entity.refine"><code>$<i>entity</i>.refine( '<i>condition</i>' )</code></a></td><td>adds a filtering condition on this entity's instances</td></tr>
+<tr><td><a href="#entity.clearrefinement"><code>$<i>entity</i>.clearRefinement()</code></a></td><td>clears any previously set refinement</td></tr>
+<tr><td><a href="#entity.newinstance"><code>$<i>entity</i>.newInstance()</code></a></td><td>returns a new empty instance for this entity</td></tr>
+<tr><td><a href="#entity.newinstance2"><code>$<i>entity</i>.newInstance(Map <i>values</i>)</code></a></td><td>returns a new instance for this entity, initialized with the given values</td></tr>
+<tr><td><a href="#entity.validate"><code>$<i>entity</i>.validate(Map <i>values</i>)</code></a></td><td>validate data against this entity's constraints, returns the boolean success status</td></tr>
+<tr><td><a href="#entity.insert"><code>$<i>entity</i>.insert(Map <i>values</i>)</code></a></td><td>inserts an instance of the entity, returns the boolean success status</td></tr>
+<tr><td><a href="#entity.lastinsertid"><code>$<i>entity</i>.lastInsertID</code></a></td><td>returns the last inserted ID for this entity's autoincremented primary key</td></tr>
+<tr><td><a href="#entity.update"><code>$<i>entity</i>.update(Map <i>values</i>)</code></a></td><td>updates an instance of the entity, returns the boolean success status</td></tr>
+<tr><td><a href="#entity.delete"><code>$<i>entity</i>.delete(Map <i>values</i>)</code></a></td><td>delete an instance of the entity, returns the boolean success status</td></tr>
 </table>
 </div>
 </div>
-<a name='entity.fetch'/><h3>$<i>entity</i>.fetch(<i>key</i>)</h3>
+<a name="entity.fetch"/><h3>$<i>entity</i>.fetch(<i>key</i>)</h3>
 <div class="section"><p>Returns the instance uniquely identified by <i>key</i> if it does exist, null otherwise.
 <i>key</i> specifies this <i>entity</i>'s primary key value and can be a scalar value
 (string or number, for single-column keys), a list of values (for multi-column keys), or a map (where
@@ -176,17 +176,17 @@ key values are stored under their column name).</p>
 <div class="source">#set( $book = $db.book.fetch( $query.book_id ) )
 <i>or:</i> #set( $book = $db.book.fetch( $query ) )
 <hr>#set( $resp = $db.responsability.fetch( [$user_id,$role_id]) )</div></div>
-<a name='entity.itetator'/><h3>#foreach( $<i>instance</i> in $<i>entity</i> )</h3>
+<a name="entity.itetator"/><h3>#foreach( $<i>instance</i> in $<i>entity</i> )</h3>
 <div class="section">Iterates over this entity's instances. Concerned instances may have previously refined
 or ordered using the <code>refine()</code> and <code>order()</code> methods.
 <div class="source">All our books:
 #foreach($book in $db.book)
   $book.title ($book.author.name)
 #end</div></div>
-<a name='entity.rows'/><h3>$<i>entity</i>.rows</h3>
+<a name="entity.rows"/><h3>$<i>entity</i>.rows</h3>
 <div class="section">Returns the list of this entity's instances.  Concerned instances may have previously refined
 or ordered using the <code>refine()</code> and <code>order()</code> methods.</div>
-<a name='entity.order'/><h3>#set( $<i>entity</i>.order = '<i>order</i>' )</h3>
+<a name="entity.order"/><h3>#set( $<i>entity</i>.order = '<i>order</i>' )</h3>
 <div class="section"><p>Sets the column(s) to be used for ordering this entity's instances when issuing a <code>#foreach</code>.
 This setting is local to the current Velocity context. The argument follows the syntax of a standard SQL ORDER BY clause, that is,
 several columns can be present in a comma separated list, and when postfixed to a column name the DESC keyword means descending order.</p>
@@ -194,7 +194,7 @@ several columns can be present in a comma separated list, and when postfixed to 
 <div class="source">#set( $db.user.order = "lastname" )
 #foreach($user in $db.user) ... #end</div></div>
 
-<a name='entity.refine'/><h3>$<i>entity</i>.refine( '<i>condition</i>' )</h3>
+<a name="entity.refine"/><h3>$<i>entity</i>.refine( '<i>condition</i>' )</h3>
 <div class="section"><p>Specifies an additional SQL condition before issuing a <code>#foreach</code> on this entity.
 This method can be called several times to accumulate conditions. The refinement is local to the current Velocity context.</p>
 <p>Refinements can be reset using the <code>clearRefinement()</code> method.</p>
@@ -204,25 +204,25 @@ $db.book.refine("author_id = $autor.author_id")
 #foreach($book in $db.books) $book.title #end</div>
 </div>
 
-<a name='entity.clearrefinement'/><h3>$<i>entity</i>.clearRefinement()</h3>
+<a name="entity.clearrefinement"/><h3>$<i>entity</i>.clearRefinement()</h3>
 <div class="section">clears any previously set refinement.</div>
 
-<a name='entity.newinstance'/><h3>$<i>entity</i>.newInstance()</h3>
+<a name="entity.newinstance"/><h3>$<i>entity</i>.newInstance()</h3>
 <div class="section">Creates a new instance for this entity, meant for later insertion.
 <div class="source">#set( $user = $db.user.newInstance() )
 #set( $user.firstname = 'Joe' )
 #set( $user.lastname = 'Smith' )
 $db.user.insert( $user )</div></div>
 
-<a name='entity.newinstance2'/><h3>$<i>entity</i>.newInstance(Map <i>values</i>)</h3>
+<a name="entity.newinstance2"/><h3>$<i>entity</i>.newInstance(Map <i>values</i>)</h3>
 <div class="section">Creates a new instance for this entity, meant for later insertion. It is initialized with the values given in the provided Map.
 <div class="source">#set( $user = $db.user.newInstance($query) )
 $db.user.insert( $user )</div></div>
 
-<a name='entity.validate'/><h3>$<i>entity</i>.validate(Map <i>values</i>)</h3>
+<a name="entity.validate"/><h3>$<i>entity</i>.validate(Map <i>values</i>)</h3>
 <div class="section">Validates <i>values</i> against this entity's constraints, returns a boolean.</div>
 
-<a name='entity.insert'/><h3>$<i>entity</i>.insert(Map <i>values</i>)</h3>
+<a name="entity.insert"/><h3>$<i>entity</i>.insert(Map <i>values</i>)</h3>
 <div class="section"><p>Inserts the given values as a new instance of this entity and returns the boolean success status of the operation.
 Unless auto-incremented, primary key values must be present in the map.
 If this entity's primary key is an auto-incremented index, its value can be retrieved using <code>$<i>entity</i>.lastInsertID</code>.</p>
@@ -237,10 +237,10 @@ If this entity's primary key is an auto-incremented index, its value can be retr
 #end</div>
 </div>
 
-<a name='entity.lastinsertid'/><h3>$<i>entity</i>.lastInsertID</h3>
+<a name="entity.lastinsertid"/><h3>$<i>entity</i>.lastInsertID</h3>
 <div class="section"><p>Returns the last inserted ID value for this entity's autoincremented primary key.</p></div>
 
-<a name='entity.update'/><h3>$<i>entity</i>.update(Map <i>values</i>)</h3>
+<a name="entity.update"/><h3>$<i>entity</i>.update(Map <i>values</i>)</h3>
 <div class="section"><p>Updates the values of an instance of this entity and returns the boolean success status of the operation.
 Primary key values must be present in the map along with
 values to be updated.</p>
@@ -256,7 +256,7 @@ values to be updated.</p>
 #end</div>
 </div>
 
-<a name='entity.delete'/><h3>$<i>entity</i>.delete(Map <i>values</i>)</h3>
+<a name="entity.delete"/><h3>$<i>entity</i>.delete(Map <i>values</i>)</h3>
 <div class="section"><p>Deletes an instance of the entity and returns the boolean success status of the operation.
 Primary key values must be present in the map.</p>
 <div class="source">
@@ -267,20 +267,20 @@ Primary key values must be present in the map.</p>
 #end</div>
 </div>
 
-<a name='attribute'/><H2>Attribute attributes and methods</H2>
+<a name="attribute"/><H2>Attribute attributes and methods</H2>
 <div class="section">
 <table>
-<tr><td><a href='#attribute.iterator'><code>#foreach( $<i>instance</i> in $<i>attribute</i> )</code></a></td><td>iterates over the instances of this attribute</td></tr>
-<tr><td><a href='#attribute.rows'><code>$<i>attribute</i>.rows</code></a></td><td>returns the list of this attribute's resulting instances</td></tr>
-<tr><td><a href='#attribute.map'><code>$<i>attribute</i>.map</code></a></td><td>returns a map built with this attribute's first two resulting columns</td></tr>
-<tr><td><a href='#attribute.order'><code>#set( $<i>attribute</i>.order = '<i>order</i>' )</code></a></td><td>specifies how to order this attribute's resulting instances</td></tr>
-<tr><td><a href='#attribute.refine'><code>$<i>attribute</i>.refine( '<i>condition</i>' )</code></a></td><td>adds a filtering condition on this entity's instances</td></tr>
-<tr><td><a href='#attribute.clearrefinement'><code>$<i>attribute</i>.clearRefinement()</code></a></td><td>clears any previously set refinement</td></tr>
+<tr><td><a href="#attribute.iterator"><code>#foreach( $<i>instance</i> in $<i>attribute</i> )</code></a></td><td>iterates over the instances of this attribute</td></tr>
+<tr><td><a href="#attribute.rows"><code>$<i>attribute</i>.rows</code></a></td><td>returns the list of this attribute's resulting instances</td></tr>
+<tr><td><a href="#attribute.map"><code>$<i>attribute</i>.map</code></a></td><td>returns a map built with this attribute's first two resulting columns</td></tr>
+<tr><td><a href="#attribute.order"><code>#set( $<i>attribute</i>.order = '<i>order</i>' )</code></a></td><td>specifies how to order this attribute's resulting instances</td></tr>
+<tr><td><a href="#attribute.refine"><code>$<i>attribute</i>.refine( '<i>condition</i>' )</code></a></td><td>adds a filtering condition on this entity's instances</td></tr>
+<tr><td><a href="#attribute.clearrefinement"><code>$<i>attribute</i>.clearRefinement()</code></a></td><td>clears any previously set refinement</td></tr>
 </table>
 </div>
 			<div class="section"><p>Only multivalued attributes (attributes that return a row set) can be referenced from
 			templates. Others are directly evaluated when referenced.</p></div>
-<a name='attribute.iterator'/><h3>#foreach( $<i>instance</i> in $<i>attribute</i> )</h3>
+<a name="attribute.iterator"/><h3>#foreach( $<i>instance</i> in $<i>attribute</i> )</h3>
 <div class="section">Iterates over this attribute's resulting instances. Concerned instances may have previously refined
 or ordered using the <code>refine()</code> and <code>order()</code> methods.
 <div class="source">Logged users:
@@ -289,15 +289,15 @@ or ordered using the <code>refine()</code> and <code>order()</code> methods.
 #end</div>
 </div>
 
-<a name='attribute.rows'/><h3>$<i>attribute</i>.rows</h3>
+<a name="attribute.rows"/><h3>$<i>attribute</i>.rows</h3>
 <div class="section">Returns the list of this attribute's resulting instances. Concerned instances may have previously refined
 or ordered using the <code>refine()</code> and <code>order()</code> methods.</div>
 
-<a name='attribute.map'/><h3>$<i>attribute</i>.map</h3>
+<a name="attribute.map"/><h3>$<i>attribute</i>.map</h3>
 <div class="section">Returns a map built with this attribute's first two resulting columns. Concerned instances may have previously refined
 or ordered using the <code>refine()</code> and <code>order()</code> methods.</div>
 
-<a name='attribute.order'/><h3>#set( $<i>attribute</i>.order = '<i>order</i>' )</h3>
+<a name="attribute.order"/><h3>#set( $<i>attribute</i>.order = '<i>order</i>' )</h3>
 <div class="section"><p>Sets the column(s) to be used for ordering this attributes's resulting instances when issuing a <code>#foreach</code>.
 This setting is local to the current Velocity context. The argument follows the syntax of a standard SQL ORDER BY clause, that is,
 several columns can be present in a comma separated list, and when postfixed to a column name the DESC keyword means descending order.</p>
@@ -308,7 +308,7 @@ several columns can be present in a comma separated list, and when postfixed to 
   $user.login
 #end</div></div>
 
-<a name='attribute.refine'/><h3>$<i>attribute</i>.refine( '<i>condition</i>' )</h3>
+<a name="attribute.refine"/><h3>$<i>attribute</i>.refine( '<i>condition</i>' )</h3>
 <div class="section"><p>Specifies an additional SQL condition before issuing a <code>#foreach</code> on this attribute.
 This method can be called several times to accumulate conditions. The refinement is local to the current Velocity context.</p>
 <p>Refinements can be reset using the <code>clearRefinement()</code> method.</p>
@@ -320,68 +320,68 @@ $db.logged_users.refine( "country = $country.id" )
 #end</div>
 </div>
 
-<a name='attribute.clearrefinement'/><h3>$<i>attribute</i>.clearRefinement()</h3>
+<a name="attribute.clearrefinement"/><h3>$<i>attribute</i>.clearRefinement()</h3>
 <div class="section">Clears any previously set refinement.</div>
 
 
-<a name='action'/><H2>Action attributes and methods</H2>
+<a name="action"/><H2>Action attributes and methods</H2>
 <div class="section">
 			<P>An action has no attribute and no method. It is
 			executed when referenced, and returns the number of affected rows.</P>
 </div>
 
-<a name='instance'/><H2>Instance attributes and methods</H2>
+<a name="instance"/><H2>Instance attributes and methods</H2>
 <div class="section">
 <table>
-<tr><td><a href='#instance.column'><code>$<i>instance</i>.<i>column</i></code></a></td><td>Gets or sets the value of the specified column</td></tr>
-<tr><td><a href='#instance.attribute'><code>$<i>instance</i>.<i>attribute</i></code></a></td><td>calls an attribute of this instance, returned value depend on the attribute result type</td></tr>
-<tr><td><a href='#instance.action'><code>$<i>instance</i>.<i>action</i></code></a></td><td>executes an action of this instance and returns the number of affected rows</td></tr>
-<tr><td><a href='#instance.entity'><code>$<i>instance</i>.entity</code></a></td><td>returns this instance's entity or <code>null</code> for a generic instance</td></tr>
-<tr><td><a href='#instance.primarykey'><code>$<i>instance</i>.primaryKey</code></a></td><td>returns a list of two-elements maps ('name'&rarr;name and 'value'&rarr;value) of this instance's key column(s)</td></tr>
-<tr><td><a href='#instance.validate'><code>$<i>instance</i>.validate()</code></a></td><td>validates this instance's data</td></tr>
-<tr><td><a href='#instance.putall'><code>$<i>instance</i>.putAll(Map <i>values</i>)</code></a></td><td>put all the key/value pairs of the provided Map in this instance</td></tr>
-<tr><td><a href='#instance.setcolumnvalues'><code>$<i>instance</i>.setColumnValues(Map <i>values</i>)</code></a></td><td>put all the key/value pairs of the provided Map whose key resolves into a column of this instance into it</td></tr>
-<tr><td><a href='#instance.insert'><code>$<i>instance</i>.insert()</code></a></td><td>inserts this instance in the database</td></tr>
-<tr><td><a href='#instance.update'><code>$<i>instance</i>.update()</code></a></td><td>updates this instance with current values and return the boolean success state of the operation</td></tr>
-<tr><td><a href='#instance.update2'><code>$<i>instance</i>.update(&nbsp;Map&nbsp;<i>values</i>&nbsp;)</code></a></td><td>updates this instance with values in <i><code>values</code></i> and return the boolean success state of the operation</td></tr>
-<tr><td><a href='#instance.delete'><code>$<i>instance</i>.delete()</code></a></td><td>deletes this instance from the database</td></tr>
+<tr><td><a href="#instance.column"><code>$<i>instance</i>.<i>column</i></code></a></td><td>Gets or sets the value of the specified column</td></tr>
+<tr><td><a href="#instance.attribute"><code>$<i>instance</i>.<i>attribute</i></code></a></td><td>calls an attribute of this instance, returned value depend on the attribute result type</td></tr>
+<tr><td><a href="#instance.action"><code>$<i>instance</i>.<i>action</i></code></a></td><td>executes an action of this instance and returns the number of affected rows</td></tr>
+<tr><td><a href="#instance.entity"><code>$<i>instance</i>.entity</code></a></td><td>returns this instance's entity or <code>null</code> for a generic instance</td></tr>
+<tr><td><a href="#instance.primarykey"><code>$<i>instance</i>.primaryKey</code></a></td><td>returns a list of two-elements maps ('name'&rarr;name and 'value'&rarr;value) of this instance's key column(s)</td></tr>
+<tr><td><a href="#instance.validate"><code>$<i>instance</i>.validate()</code></a></td><td>validates this instance's data</td></tr>
+<tr><td><a href="#instance.putall"><code>$<i>instance</i>.putAll(Map <i>values</i>)</code></a></td><td>put all the key/value pairs of the provided Map in this instance</td></tr>
+<tr><td><a href="#instance.setcolumnvalues"><code>$<i>instance</i>.setColumnValues(Map <i>values</i>)</code></a></td><td>put all the key/value pairs of the provided Map whose key resolves into a column of this instance into it</td></tr>
+<tr><td><a href="#instance.insert"><code>$<i>instance</i>.insert()</code></a></td><td>inserts this instance in the database</td></tr>
+<tr><td><a href="#instance.update"><code>$<i>instance</i>.update()</code></a></td><td>updates this instance with current values and return the boolean success state of the operation</td></tr>
+<tr><td><a href="#instance.update2"><code>$<i>instance</i>.update(&nbsp;Map&nbsp;<i>values</i>&nbsp;)</code></a></td><td>updates this instance with values in <i><code>values</code></i> and return the boolean success state of the operation</td></tr>
+<tr><td><a href="#instance.delete"><code>$<i>instance</i>.delete()</code></a></td><td>deletes this instance from the database</td></tr>
 </table>
 </div>
-<a name='instance.column'/><h3>$<i>instance</i>.<i>column</i></h3>
+<a name="instance.column"/><h3>$<i>instance</i>.<i>column</i></h3>
 <div class="section">Gets or sets the value of the specified column.
 <div class="source">Previous title was: $book.title
 #set($book.title = $newtitle )
 New title is: $book.title</div></div>
 
-<a name='instance.attribute'/><h3>$<i>instance</i>.<i>attribute</i></h3>
+<a name="instance.attribute"/><h3>$<i>instance</i>.<i>attribute</i></h3>
 <div class="section">Returns an attribute of this instance. Scalar and row attributes are evaluated directly
 while row set attributes must be evaluated later using <code>#foreach</code>.
 </div>
 
-<a name='instance.action'/><h3>$<i>instance</i>.<i>action</i></h3>
+<a name="instance.action"/><h3>$<i>instance</i>.<i>action</i></h3>
 <div class="section">Executes an action of this instance and returns the number of affected rows.
 <div class="source">$book.setOutOfStock</div></div>
 
-<a name='instance.entity'/><h3>$<i>instance</i>.entity</h3>
+<a name="instance.entity"/><h3>$<i>instance</i>.entity</h3>
 <div class="section">Returns this instance's entity or <code>null</code> for a generic instance.</div>
 
 
-<a name='instance.primarykey'/><h3>$<i>instance</i>.primaryKey</h3>
+<a name="instance.primarykey"/><h3>$<i>instance</i>.primaryKey</h3>
 <div class="section"><p>Returns a list of two-elements maps ('name'&rarr;name and 'value'&rarr;value) of this instance's key column(s).</p>
 <div class="source">#foreach($key in $instance.primaryKey)
-  &lt;input type='hidden' name='$key.name' value='$key.value'
+  &lt;input type="hidden" name="$key.name" value="$key.value"
 #end</div></div>
 
-<a name='instance.validate'/><h3>$<i>instance</i>.validate()</h3>
+<a name="instance.validate"/><h3>$<i>instance</i>.validate()</h3>
 <div class="section"><p>Validates the data currently set in the instance.</p></div>
 
-<a name='instance.putall'/><h3>$<i>instance</i>.putAll(Map <i>values</i>)</h3>
+<a name="instance.putall"/><h3>$<i>instance</i>.putAll(Map <i>values</i>)</h3>
 <div class="section"><p>Put all the key/value pairs of the provided Map in this instance.</p></div>
 
-<a name='instance.setcolumnvalues'/><h3>$<i>instance</i>.setColumnValues(Map <i>values</i>)</h3>
+<a name="instance.setcolumnvalues"/><h3>$<i>instance</i>.setColumnValues(Map <i>values</i>)</h3>
 <div class="section"><p>Put the key/value pairs of the provided Map whose key resolve to a column name of this instance into it, and ignore other values.</p></div>
 
-<a name='instance.insert'/><h3>$<i>instance</i>.insert()</h3>
+<a name="instance.insert"/><h3>$<i>instance</i>.insert()</h3>
 <div class="section"><p>Inserts this instance in the database and returns the boolean success status of the operation.</p>
 <p>Data is validated against constraints present in this instance's entity, if any.</p>
 <div class="source">#set( $book = $db.book.newInstance() )
@@ -389,75 +389,78 @@ while row set attributes must be evaluated later using <code>#foreach</code>.
 #set( $book.author = 'Shark Spear' )
 $book.insert()</div></div>
 
-<a name='instance.update'/><h3>$<i>instance</i>.update()</h3>
+<a name="instance.update"/><h3>$<i>instance</i>.update()</h3>
 <div class="section"><p>Updates this instance using current values. Returns the boolean success status of the operation.</p>
 <p>Data is validated against constraints present in this instance's entity, if any.</p>
 <div class="source">#set( $book.price='5.5' )
 $book.update()</div>
 </div>
 
-<a name='instance.update2'/><h3>$<i>instance</i>.update( Map <i>values</i> )</h3>
+<a name="instance.update2"/><h3>$<i>instance</i>.update( Map <i>values</i> )</h3>
 <div class="section"><p>Updates this instance using values in the map (or current values for columns not present in the map). Returns the boolean success status of the operation.</p>
 <p>Data is validated against constraints present in this instance's entity, if any.</p>
 <div class="source">$book.update( $query )</div></div>
 
-<a name='instance.delete'/><h3>$<i>instance</i>.delete()</h3>
+<a name="instance.delete"/><h3>$<i>instance</i>.delete()</h3>
 <div class="section"><p>Removes this instance from the database, and returns the boolean success status of the operation.</p></div>
 
-<a name='query'/><h2>HTTPQuery attributes and methods</h2>
-<div class="section">For a full survey of all supported methods, please check <a href='http://velocity.apache.org/tools/releases/1.3/javadoc/index.html'>VelocityTools ParameterParser javadoc</a> and <a href='http://velosurf.sourceforge.net/api/velosurf/web/HttpQueryTool.html'>Velosurf HttpQueryTool javadoc</a>.</div>
+<a name="query"/><h2>HTTPQueryTool attributes and methods</h2>
+<div style="background:gray;">
+<center><b>Deprecated: please use the velocity-tools <a href="http://velocity.apache.org/tools/releases/2.0/javadoc/org/apache/velocity/tools/view/ParameterTool.html">Parameter Tool</a></b></center>
+</div>
+<div class="section">For a full survey of all supported methods, please check <a href="http://velocity.apache.org/tools/releases/1.7/javadoc/index.html">VelocityTools ParameterParser javadoc</a> and <a href="http://velosurf.sourceforge.net/api/velosurf/web/HttpQueryTool.html">Velosurf HttpQueryTool javadoc</a>.</div>
 <br/>
 <div class="section">
 <table>
-<tr><td><a href='#query'><code>$query</code></a></td><td>map of all query parameters</td></tr>
-<tr><td><a href='#query.param'><code>$query.<i>parameterName</i></code></a></td><td>returns the corresponding parameter (as a string)</td></tr>
-<tr><td><a href='#query.getint'><code>$query.getInt('<i>parameterName</i>')</code></a></td><td>returns the corresponding parameter (as an integer)</td></tr>
-<tr><td><a href='#query.getnumber'><code>$query.getNumber('<i>parameterName</i>')</code></a></td><td>returns the corresponding parameter (as a number)</td></tr>
+<tr><td><a href="#query"><code>$query</code></a></td><td>map of all query parameters</td></tr>
+<tr><td><a href="#query.param"><code>$query.<i>parameterName</i></code></a></td><td>returns the corresponding parameter (as a string)</td></tr>
+<tr><td><a href="#query.getint"><code>$query.getInt('<i>parameterName</i>')</code></a></td><td>returns the corresponding parameter (as an integer)</td></tr>
+<tr><td><a href="#query.getnumber"><code>$query.getNumber('<i>parameterName</i>')</code></a></td><td>returns the corresponding parameter (as a number)</td></tr>
 </table>
 </div>
 <div class="section">(examples yet to come...)</div>
 
-<a name='local'/><h2>Localizer attributes and methods</h2>
+<a name="local"/><h2>Localizer attributes and methods</h2>
 
 <div class="section">
 <table>
-<tr><td><a href='#local.locale'><code>$local.locale</code></a></td><td>returns the current locale</td></tr>
-<tr><td><a href='#local.messageid'><code>$local.<i>message-id</i></code></a></td><td>returns the message corresponding to the specified id and the current locale</td></tr>
-<tr><td><a href='#local.get'><code>$local.get('<i>message-id</i>',...)</code></a></td><td>returns the message corresponding to the given id and the current locale, using the supplied parameters</td></tr>
+<tr><td><a href="#local.locale"><code>$local.locale</code></a></td><td>returns the current locale</td></tr>
+<tr><td><a href="#local.messageid"><code>$local.<i>message-id</i></code></a></td><td>returns the message corresponding to the specified id and the current locale</td></tr>
+<tr><td><a href="#local.get"><code>$local.get('<i>message-id</i>',...)</code></a></td><td>returns the message corresponding to the given id and the current locale, using the supplied parameters</td></tr>
 </table>
 </div>
 
-<a name='local.locale'/><h3>$local.locale</h3>
+<a name="local.locale"/><h3>$local.locale</h3>
 <div class="section"><p>Returns the current locale used by the localizer</p></div>
 
-<a name='local.messageid'/><h3>$local.<i>message-id</i></h3>
+<a name="local.messageid"/><h3>$local.<i>message-id</i></h3>
 <div class="section"><p>Returns the message corresponding to the given id and using the current locale.</p>
 <div class="source">## display a welcome message in the user's language,
 ## like "Hello, Robert!"
 $local.welcomeMessage, $user.name!</div></div>
 
-<a name='local.get'/><h3>$local.get('<i>message-id</i>',...)</h3>
+<a name="local.get"/><h3>$local.get('<i>message-id</i>',...)</h3>
 <div class="section"><p>Returns the message corresponding to the given id and the current locale, using the supplied parameters.
 The message must contain {0}, {1}, ... tags at the places where supplied parameters are to be inserted.</p>
 <div class="source">## display a welcome message using the user's name
 $local.get('welcomeMessage',$user.firstname)
 </div></div>
 
-<a name='auth'/><h2>Authenticator attributes and methods</h2>
+<a name="auth"/><h2>Authenticator attributes and methods</h2>
 <div class="section">
 <table>
-<tr><td><a href='#auth.challenge'><code>$auth.challenge</code></a></td><td>returns a new challenge for CRAM authentication</td></tr>
-<tr><td><a href='#auth.loggeduser'><code>$auth.loggedUser</code></a></td><td>returns the logged user, if any</td></tr>
+<tr><td><a href="#auth.challenge"><code>$auth.challenge</code></a></td><td>returns a new challenge for CRAM authentication</td></tr>
+<tr><td><a href="#auth.loggeduser"><code>$auth.loggedUser</code></a></td><td>returns the logged user, if any</td></tr>
 </table>
 </div>
 </a>
 
-<a name='auth.challenge'/><h3>$auth.challenge</h3>
-<div class="section"><p>Returns a new challenge for CRAM authentication. See <a href='./user-guide.html#authentication'>this section</a> in the user guide
+<a name="auth.challenge"/><h3>$auth.challenge</h3>
+<div class="section"><p>Returns a new challenge for CRAM authentication. See <a href="./user-guide.html#authentication">this section</a> in the user guide
 for more details.</p>
 </div>
 
-<a name='auth.loggeduser'/><h3>$auth.logguedUser</h3>
+<a name="auth.loggeduser"/><h3>$auth.logguedUser</h3>
 <div class="section"><p>Returns the logged user, if any.
 </div>
 

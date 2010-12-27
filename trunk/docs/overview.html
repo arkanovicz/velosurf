@@ -349,10 +349,10 @@ connection parameters, since we use reverse engineering.</p>
 <database user="foo" password="bar" url="jdbc:mysql://127.0.0.1/messageboard" driver="org.gjt.mm.mysql.Driver" read-only="false" reverse="full">
 <!-- without reverse engineering, we would need the following definitions:
   <entity name="user">
-    <attribute name="messages" result="rowset/message">select * from message where msg_user=<user_id/></attribute>
+    <rowset name="messages" result="message">select * from message where msg_user=<user_id/></rowset>
   </entity>
   <entity name="message">
-    <attribute name="user" result="row/user">select * from user where id=<userid/></attribute>
+    <row name="user" result="user">select * from user where id=<userid/></row>
   </entity>
 Note that when using reverse engineering, you can still list entities here if you want to customize them
 -->

@@ -6,11 +6,11 @@
 <body>
 <p><i>You can also <a href="./velosurf.dtd">download the dtd</a></i></p>
 <div class="source"><xmp>
-<!ELEMENT database (entity*,attribute*,action*)>
+<!ELEMENT database (credentials?,entity*,scalar*,row*,rowset*,action*)>
 
-<!ATTLIST database user CDATA #REQUIRED>
-<!ATTLIST database password CDATA #REQUIRED>
-<!ATTLIST database url CDATA #REQUIRED>
+<!ATTLIST database user CDATA #IMPLIED>
+<!ATTLIST database password CDATA #IMPLIED>
+<!ATTLIST database url CDATA #IMPLIED>
 <!ATTLIST database driver CDATA #IMPLIED>
 <!ATTLIST database schema CDATA #IMPLIED>
 <!ATTLIST database read-only ( yes | no ) "yes">
@@ -22,7 +22,13 @@
 <!ATTLIST database max-connections CDATA #IMPLIED>
 <!ATTLIST database seed CDATA #IMPLIED>
 
-<!ELEMENT entity (attribute*,action*,constraint*)>
+<!ELEMENT credentials>
+
+<!ATTLIST database user CDATA #IMPLIED>
+<!ATTLIST database password CDATA #IMPLIED>
+<!ATTLIST database url CDATA #IMPLIED>
+
+<!ELEMENT entity (scalar*,row*,rowset*,action*,constraint*)>
 
 <!ATTLIST entity name CDATA #REQUIRED>
 <!ATTLIST entity table CDATA #IMPLIED>
@@ -30,11 +36,36 @@
 <!ATTLIST entity class CDATA #IMPLIED>
 <!ATTLIST entity caching ( none | soft | full) "none">
 <!ATTLIST entity obfuscate CDATA #IMPLIED>
+<!ATTLIST entity localized CDATA #IMPLIED>
 
-<!ELEMENT attribute (#PCDATA)> <!-- where #PCDATA is an SQL query with column tags -->
+<!ELEMENT scalar (#PCDATA)> <!-- where #PCDATA is an SQL query with column tags -->
 
-<!ATTLIST attribute name CDATA #REQUIRED>
-<!ATTLIST attribute result CDATA #IMPLIED>
+<!ATTLIST scalar name CDATA #REQUIRED>
+<!ATTLIST scalar caching CDATA "no">
+
+<!ELEMENT row (#PCDATA)> <!-- where #PCDATA is an SQL query with column tags -->
+
+<!ATTLIST row name CDATA #REQUIRED>
+<!ATTLIST row result CDATA #IMPLIED>
+<!ATTLIST scalar caching CDATA "no">
+
+<!ELEMENT rowset (#PCDATA)> <!-- where #PCDATA is an SQL query with column tags -->
+
+<!ATTLIST rowset name CDATA #REQUIRED>
+<!ATTLIST rowset result CDATA #IMPLIED>
+<!ATTLIST scalar caching CDATA "no">
+
+<!ELEMENT imported-key>
+
+<!ATTLIST imported-key name CDATA #REQUIRED>
+<!ATTLIST imported-key entity CDATA #REQUIRED>
+<!ATTLIST imported-key foreign-cols CDATA #REQUIRED>
+
+<!ELEMENT exported-key>
+
+<!ATTLIST exported-key name CDATA #REQUIRED>
+<!ATTLIST exported-key entity CDATA #REQUIRED>
+<!ATTLIST exported-key foreign-cols CDATA #REQUIRED>
 
 <!ELEMENT action (#PCDATA)> <!-- where #PCDATA is an SQL query (or a set of queries) with column tags -->
 

@@ -76,30 +76,31 @@
 <p>The configuration file follows <a href="./dtd.html">this DTD</a>.</p>
 <p>In brief:</p>
 <p><ul>
-<li>the &lt;database&gt; tag is the root element and must provide connection credentials and an optional schema name. It can contains any number of &lt;entity&gt;, &lt;attribute&gt; and &lt;action&gt; tags. Attributes and actions defined at this level are qualified as <i>root</i> attributes and actions.
-If present, the root action named <code>startup</code> is executed when Velosurf is initialized.</li>
-<li>&lt;entity&gt; tags usually correspond to a table (but not necessarily). They can contain any number of &lt;attribute&gt;, &lt;action&gt; and &lt;constraint&gt; tags.</li>
-<li>&lt;attribute&gt; tags describe a custom entity attribute. Their content is an SQL query where entity columns and other <i>external parameters</i> appear as embedded tags. Their <code>result</code> XML attribute describes their result</li>
-<li>&lt;action&gt; tags contain one or several SQL queries where entity columns and other <i>external parameters</i> appear as embedded tags.  They return the number of affected rows.</li>
-<li>&lt;constraint&gt; tags gather all the constraints applying to one column input value. Each constraint has a short syntax form (an XML attribute of the &lt;constraint&gt; tag) and an equivalent long syntax form (a child tag) that allows one to customize the error message of the constraint.</li>
+<li>the <code>&lt;database&gt;</code> tag is the root element and must provide connection credentials (unless gathered in a <code>&lt;credentials&gt;</code> tag) and an optional schema name. It can contains any number of <code>&lt;entity&gt;</code>, <code>&lt;scalar&gt;</code>, <code>&lt;row&gt;</code>, <code>&lt;rowset&gt;</code> and <code>&lt;action&gt;</code> tags. Attributes and actions defined at this level are qualified as <i>root</i> attributes and actions.
+<li>Gathering the credentials (user, password and url) in a <code>&lt;credentials&gt;</code> tag, in conjunction with the use of xinclude, allows to put them in an external file (typically unversionned - very useful to change credetials in different instances of the same webapp).</li>
+<li>If present, the root action named <code>startup</code> is executed when Velosurf is initialized.</li>
+<li><code>&lt;entity&gt;</code> tags usually correspond to a table (but not necessarily). They can contain any number of <code>&lt;scalar&gt;</code>, <code>&lt;row&gt;</code>, <code>&lt;rowset&gt;</code>, <code>&lt;action&gt;</code> and <code>&lt;constraint&gt;</code> tags.</li>
+<li><code>&lt;scalar&gt;</code>, <code>&lt;row&gt;</code> and <code>&lt;rowset&gt;</code> tags describe a custom entity attribute. Their content is an SQL query where entity columns and other <i>external parameters</i> appear as embedded tags. Their result is respectively a scalar, a row and a rowset.</li>
+<li><code>&lt;action&gt;</code> tags contain one or several SQL queries where entity columns and other <i>external parameters</i> appear as embedded tags.  They return the number of affected rows.</li>
+<li><code>&lt;constraint&gt;</code> tags gather all the constraints applying to one column input value. Each constraint has a short syntax form (an XML attribute of the <code>&lt;constraint&gt;</code> tag) and an equivalent long syntax form (a child tag) that allows one to customize the error message of the constraint. <i>Warning: the Data Validation module is not actively maintained and could become deprecated or evolve in something else.</i></li>
 </ul></p>
 <p>The following table describes the meaning of all XML attributes per XML entity.</p>
+
 <table>
 <tbody>
-<tr><td colspan=5 align=center><big>&lt;database&gt; element (no parent)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;database&gt; element (no parent)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
 							<td><b>syntax</b></td>
 							<td><b>default value</b></td>
 							<td><b>meaning</b></td>
-						</tr>
 						<tr align="center">
 							<td>database</td>
 
 							<td>user</td>
-							<td><i>string</i>&nbsp;</td>
-							<td><b>(required)</b></td>
+							<td><i>string</i></td>
+							<td><b>(required unless specified in a <code>&lt;credentials&gt;</code> tag)</b></td>
 							<td>database account login</td>
 						</tr>
 						<tr align="center">
@@ -107,7 +108,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 
 							<td>password</td>
 							<td><i>string</i></td>
-							<td><b>(required)</b></td>
+							<td><b>(idem)</b></td>
 							<td>database account password</td>
 						</tr>
 						<tr align="center">
@@ -115,7 +116,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 
 							<td>url</td>
 							<td><i>string</i></td>
-							<td><b>(required)</b></td>
+							<td><b>(idem)</b></td>
 							<td>database URL</td>
 						</tr>
 						<tr align="center">
@@ -155,7 +156,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 							<td>case</td>
 							<td>sensitive | uppercase | lowercase</td>
 							<td>(driver-dependant)</td>
-							<td>case-sensivity policy used by Velosurf: sensitive, uppercase or lowercase<a href='#1'><sup>(1)</sup></a></td>
+							<td>case-sensivity policy used by Velosurf: sensitive, uppercase or lowercase<a href="#1"><sup>(1)</sup></a></td>
 						</tr>
 
 						<tr align="center">
@@ -197,7 +198,41 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 							<td>seed of the encryption engine random generator</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;entity&gt; element (child of &lt;database&gt;)</big></td></tr>
+
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;credentials&gt; element (optional child of &lt;database&gt; used to gather credentials)</big></td></tr>
+<tr align="center">
+							<td><b>XML element</b></td>
+							<td><b>XML attribute</b></td>
+							<td><b>syntax</b></td>
+							<td><b>default value</b></td>
+							<td><b>meaning</b></td>
+						<tr align="center">
+							<td>credentials</td>
+
+							<td>user</td>
+							<td><i>string</i></td>
+							<td><b>(required unless specified in the <code>&lt;database&gt;</code> tag)</b></td>
+							<td>database account login</td>
+						</tr>
+						<tr align="center">
+							<td>credentials</td>
+
+							<td>password</td>
+							<td><i>string</i></td>
+							<td><b>(idem)</b></td>
+							<td>database account password</td>
+						</tr>
+						<tr align="center">
+							<td>credentials</td>
+
+							<td>url</td>
+							<td><i>string</i></td>
+							<td><b>(idem)</b></td>
+							<td>database URL</td>
+						</tr>
+						<tr><td colspan="5" style="background:white;"></td></tr>
+
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;entity&gt; element (child of &lt;database&gt;)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -259,7 +294,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 							<td>columns that will be localized</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;attribute&gt; element (child of &lt;entity&gt;, or of &lt;database&gt; for root attributes)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;scalar&gt; element (child of &lt;entity&gt;, or of &lt;database&gt; for root attributes)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -268,26 +303,88 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 							<td><b>meaning</b></td>
 						</tr>
 						<tr align="center">
-							<td>attribute</td>
+							<td>scalar</td>
 							<td>name</td>
 							<td>&nbsp;<i>string</i></td>
 							<td><b>(required)</b></td>
 							<td>attribute name, can overload an existing column</td>
 						</tr>
 						<tr align="center">
-							<td>attribute</td>
+							<td>scalar</td>
 
-							<td>result</td>
-							<td>scalar | row[/<i>entity</i>] | rowset[/<i>entity</i>]</td>
-							<td>(none)</td>
-							<td>result type: scalar, single row or row set ; in the last two cases,
-							the resulting entity can be specified, so that other attributes can be called on the result;
-							in the first case (scalar), the engine will return the value found in the first
-							column of the first row.</td>
+							<td>caching</td>
+							<td>yes | no</td>
+							<td>no</td>
+							<td>whether or not this scalar attribute should be cached</td>
 						</tr>
 
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;aliases&gt; element (child of &lt;entity&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;row&gt; element (child of &lt;entity&gt;, or of &lt;database&gt; for root attributes)</big></td></tr>
+<tr align="center">
+							<td><b>XML element</b></td>
+							<td><b>XML attribute</b></td>
+							<td><b>syntax</b></td>
+							<td><b>default value</b></td>
+							<td><b>meaning</b></td>
+						</tr>
+						<tr align="center">
+							<td>row</td>
+							<td>name</td>
+							<td>&nbsp;<i>string</i></td>
+							<td><b>(required)</b></td>
+							<td>attribute name, can overload an existing column</td>
+						</tr>
+						<tr align="center">
+							<td>row</td>
+
+							<td>result</td>
+							<td><i>entity</i></td>
+							<td>(none)</td>
+							<td>resulting entity, if any, so that other attributes can be called on the result.</td>
+						</tr>
+						<tr align="center">
+							<td>row</td>
+
+							<td>caching</td>
+							<td>yes | no</td>
+							<td>no</td>
+							<td>whether or not this scalar attribute should be cached</td>
+						</tr>
+
+						<tr><td colspan="5" style="background:white;"></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;rowset&gt; element (child of &lt;entity&gt;, or of &lt;database&gt; for root attributes)</big></td></tr>
+<tr align="center">
+							<td><b>XML element</b></td>
+							<td><b>XML attribute</b></td>
+							<td><b>syntax</b></td>
+							<td><b>default value</b></td>
+							<td><b>meaning</b></td>
+						</tr>
+						<tr align="center">
+							<td>rowset</td>
+							<td>name</td>
+							<td>&nbsp;<i>string</i></td>
+							<td><b>(required)</b></td>
+							<td>attribute name, can overload an existing column</td>
+						</tr>
+						<tr align="center">
+							<td>rowset</td>
+							<td>result</td>
+							<td><i>entity</i></td>
+							<td>(none)</td>
+							<td>resulting entity, if any, so that other attributes can be called on the result.</td>
+						</tr>
+						<tr align="center">
+							<td>rowset</td>
+
+							<td>caching</td>
+							<td>yes | no</td>
+							<td>no</td>
+							<td>whether or not this scalar attribute should be cached</td>
+						</tr>
+
+						<tr><td colspan="5" style="background:white;"></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;aliases&gt; element (child of &lt;entity&gt;)</big></td></tr>
 					<tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -304,7 +401,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						</tr>
 
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;imported-key&gt; element (child of &lt;entity&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;imported-key&gt; element (child of &lt;entity&gt;)</big></td></tr>
 					<tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -335,7 +432,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						</tr>
 
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;exported-key&gt; element (child of &lt;entity&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;exported-key&gt; element (child of &lt;entity&gt;)</big></td></tr>
 					<tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -366,7 +463,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						</tr>
 
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;action&gt; element (child of &lt;entity&gt;, or of &lt;database&gt; for root actions)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;action&gt; element (child of &lt;entity&gt;, or of &lt;database&gt; for root actions)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -382,7 +479,8 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 							<td>Action name. If present, the root <code>startup</code> action is performed when Velosurf is initialized.</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;constaint&gt; element (child of &lt;entity&gt;)</big></td></tr>
+						<tr><td colspan="5" style="background:white;font-size:14px;text-align:center;">The following tags belong to the data validation module.</td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;constaint&gt; element (child of &lt;entity&gt;)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -482,7 +580,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						  <td>data must follow the provided pattern - short syntax</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;integer&gt; element (child of &lt;constaint&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;integer&gt; element (child of &lt;constaint&gt;)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -512,7 +610,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						  <td>message to display when constraint fails</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;number&gt; element (child of &lt;constaint&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;number&gt; element (child of &lt;constaint&gt;)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -542,7 +640,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						  <td>message to display when constraint fails</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;min-len&gt; element (child of &lt;constaint&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;min-len&gt; element (child of &lt;constaint&gt;)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -565,7 +663,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						  <td>message to display when constraint fails</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;max-len&gt; element (child of &lt;constraint&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;max-len&gt; element (child of &lt;constraint&gt;)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -588,7 +686,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						  <td>message to display when constraint fails</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;date&gt; element (child of &lt;constraint&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;date&gt; element (child of &lt;constraint&gt;)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -618,7 +716,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						  <td>message to display when constraint fails</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;email&gt; element (child of &lt;constraint&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;email&gt; element (child of &lt;constraint&gt;)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -648,7 +746,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						  <td>message to display when constraint fails</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;not-null&gt; element (child of &lt;constraint&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;not-null&gt; element (child of &lt;constraint&gt;)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -664,7 +762,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						  <td>message to display when constraint fails</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;not-empty&gt; element (child of &lt;constraint&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;not-empty&gt; element (child of &lt;constraint&gt;)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -680,7 +778,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						  <td>message to display when constraint fails</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;one-of&gt; element (child of &lt;constraint&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;one-of&gt; element (child of &lt;constraint&gt;)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -695,7 +793,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						  <td>field {0}: value '{1}' must be one of: <i>value</i>,...</td>
 						  <td>message to display when constraint fails</td>
 						</tr>
-<tr><td colspan=5 align=center><big>&lt;value&gt; element (child of &lt;one-of&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;value&gt; element (child of &lt;one-of&gt;)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -711,7 +809,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						  <td>specifies a value for the long syntax form of the &lt;one-of&gt; constraint (text content)</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;reference&gt; element (child of &lt;constraint&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;reference&gt; element (child of &lt;constraint&gt;)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
@@ -734,7 +832,7 @@ If present, the root action named <code>startup</code> is executed when Velosurf
 						  <td>message to display when constraint fails</td>
 						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
-<tr><td colspan=5 align=center><big>&lt;regex&gt; element (child of &lt;constraint&gt;)</big></td></tr>
+<tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;regex&gt; element (child of &lt;constraint&gt;)</big></td></tr>
 <tr align="center">
 							<td><b>XML element</b></td>
 							<td><b>XML attribute</b></td>
