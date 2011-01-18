@@ -289,24 +289,27 @@ public class ReverseEngineer {
                 String fkSchema = null,fkTable = null;
                 List<String> fkCols = new ArrayList<String>();
                 List<String> pkCols = new ArrayList<String>();
-                while(eks.next()) {
+                if(eks != null)
+                {
+                  while(eks.next()) {
                     ord = eks.getShort("KEY_SEQ");
                     if(ord == 1) {
-                        /* save previous key */
-                        if (fkCols.size() > 0) {
-                            addExportedKey(entity,fkSchema,fkTable,fkCols,pkCols);
-                            fkCols.clear();
-                            pkCols.clear();
-                        }
-                        fkSchema = adaptCase(eks.getString("FKTABLE_SCHEM"));
-                        fkTable = adaptCase(eks.getString("FKTABLE_NAME"));
+                      /* save previous key */
+                      if (fkCols.size() > 0) {
+                        addExportedKey(entity,fkSchema,fkTable,fkCols,pkCols);
+                        fkCols.clear();
+                        pkCols.clear();
+                      }
+                      fkSchema = adaptCase(eks.getString("FKTABLE_SCHEM"));
+                      fkTable = adaptCase(eks.getString("FKTABLE_NAME"));
                     }
                     pkCols.add(adaptCase(eks.getString("PKCOLUMN_NAME")));
                     fkCols.add(adaptCase(eks.getString("FKCOLUMN_NAME")));
-                }
-                /* save last key */
-                if (pkCols.size() > 0) {
+                  }
+                  /* save last key */
+                  if (pkCols.size() > 0) {
                     addExportedKey(entity,fkSchema,fkTable,fkCols,pkCols);
+                  }
                 }
             }
             finally {

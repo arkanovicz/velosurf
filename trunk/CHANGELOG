@@ -2,6 +2,8 @@
 
 v2.3 (October 2010)
 ----
+ - fix: startup action was broken
+ - fix: review statements busy state handling (statements could sometimes remain in busy state)
  - new: a <database> check-connections attribute to avoid connections checking (still true by default)
  - new: Instances do keep a dirty flag per updatable column for faster updates
  - fix: transactions with more than two queries where wrongly parsed

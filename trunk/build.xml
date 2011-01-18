@@ -19,9 +19,6 @@
 <project name="velosurf" default="usage" basedir=".">
   
   
-  <!-- NAMES -->
-  <property name="project"      value="velosurf"/>
-  <property name="final.name"	value="${project}-${version}"/>
   
   <!-- COMPILATION PARAMETERS -->
 <!--  <property name="build.compiler"          value="jikes"/> -->
@@ -38,9 +35,7 @@
   <property name="tmp.dir"           value="${basedir}/tmp"/>
   <property name="docs.dir"           value="${basedir}/docs"/>
   <property name="javadoc.destdir"   value="${basedir}/docs/api"/>
-  <property name="final.name"        value="${project}-${version}"/>
   <property name="dist.root"         value="${basedir}/dist"/>
-  <property name="dist.dir"          value="${dist.root}/${final.name}"/>
   <property name="test.src.dir"      value="${test.dir}/src"/>
   <property name="test.lib.dir"      value="${test.dir}/lib"/>
   <property name="test.rst.dir"      value="${test.dir}/rst"/>
@@ -96,7 +91,7 @@ Please specify a target among :
     <!-- MAKE THE DIRECTORIES IF NEEDED -->
     <mkdir dir="${lib.dir}"/>
     <mkdir dir="${output.dir}"/>
-    <mkdir dir="${dist.dir}" />
+    <mkdir dir="${dist.root}/${final.name}" />
     <delete dir="${tmp.dir}" />
     <mkdir dir="${tmp.dir}" />
     <mkdir dir="${test.output.dir}" />
@@ -165,7 +160,7 @@ Please specify a target among :
     <delete dir="${lib.dir}"/>
     <delete dir="${test.lib.dir}"/>
     <delete dir="${test.jetty.dir}/lib"/>
-    <delete dir="${dist.dir}"/>
+    <delete dir="${dist.root}/${final.name}"/>
   </target>
   
   <target name="-download-if-needed" unless="skip.jar.loading">
@@ -609,28 +604,28 @@ Please specify a target among :
 
     <antcall target="clean"/>
 
-    <mkdir dir="${dist.dir}"/>
-    <mkdir dir="${dist.dir}/src"/>
-    <mkdir dir="${dist.dir}/docs"/>
-    <mkdir dir="${dist.dir}/examples"/>
-    <mkdir dir="${dist.dir}/test"/>
-    <mkdir dir="${dist.dir}/test/jetty"/>
-    <mkdir dir="${dist.dir}/test/webapp"/>
-    <mkdir dir="${dist.dir}/test/webapp/WEB-INF"/>
+    <mkdir dir="${dist.root}/${final.name}"/>
+    <mkdir dir="${dist.root}/${final.name}/src"/>
+    <mkdir dir="${dist.root}/${final.name}/docs"/>
+    <mkdir dir="${dist.root}/${final.name}/examples"/>
+    <mkdir dir="${dist.root}/${final.name}/test"/>
+    <mkdir dir="${dist.root}/${final.name}/test/jetty"/>
+    <mkdir dir="${dist.root}/${final.name}/test/webapp"/>
+    <mkdir dir="${dist.root}/${final.name}/test/webapp/WEB-INF"/>
 
-    <copy todir="${dist.dir}/src">
+    <copy todir="${dist.root}/${final.name}/src">
       <fileset dir="${basedir}/src">
         <include name="**/*"/>
       </fileset>
     </copy>
 
-    <copy todir="${dist.dir}/docs">
+    <copy todir="${dist.root}/${final.name}/docs">
       <fileset dir="${docs.dir}">
         <include name="**"/>
       </fileset>
     </copy> 
 
-    <copy todir="${dist.dir}">
+    <copy todir="${dist.root}/${final.name}">
       <fileset dir="${basedir}">
         <include name="CHANGELOG"/>
         <include name="LICENSE"/>
@@ -642,7 +637,7 @@ Please specify a target among :
       </fileset>
     </copy>
     
-    <copy todir="${dist.dir}/test">
+    <copy todir="${dist.root}/${final.name}/test">
       <fileset dir="${test.dir}">
         <include name="conf/*"/>
         <include name="hsqlclient.sh"/>
@@ -652,7 +647,7 @@ Please specify a target among :
       </fileset>
     </copy>
 
-    <copy todir="${dist.dir}/test/webapp">
+    <copy todir="${dist.root}/${final.name}/test/webapp">
       <fileset dir="${test.webapp.dir}">
         <include name="*.html.vtl"/>
         <include name="*.html"/>
@@ -662,7 +657,7 @@ Please specify a target among :
       </fileset>
     </copy>
 
-    <copy todir="${dist.dir}/test/jetty">
+    <copy todir="${dist.root}/${final.name}/test/jetty">
       <fileset dir="${test.jetty.dir}">
         <include name="etc/*"/>
         <include name="src/*"/>
@@ -670,20 +665,20 @@ Please specify a target among :
       </fileset>
     </copy>
 
-    <copy todir="${dist.dir}/test/webapp/WEB-INF">
+    <copy todir="${dist.root}/${final.name}/test/webapp/WEB-INF">
       <fileset dir="${test.webapp.dir}/WEB-INF">
         <include name="*.xml"/>
         <include name="*.properties"/>
       </fileset>
     </copy>
     
-    <copy todir="${dist.dir}/examples">
+    <copy todir="${dist.root}/${final.name}/examples">
       <fileset dir="${basedir}/examples/">
-        <include name="*"/>
+        <include name="*.*"/>
       </fileset>
     </copy>
 
-    <copy file="${basedir}/${final.name}.jar" tofile="${dist.dir}/${final.name}.jar"/>
+    <copy file="${basedir}/${final.name}.jar" tofile="${dist.root}/${final.name}/${final.name}.jar"/>
 
     <delete file="${basedir}/${final.name}.tar" quiet="true"/>
     <delete file="${basedir}/${final.name}.tgz" quiet="true"/>

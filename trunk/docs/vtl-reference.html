@@ -165,6 +165,7 @@ Number of published books for year $db.publicationYear: $db.countBooks</div></di
 <tr><td><a href="#entity.lastinsertid"><code>$<i>entity</i>.lastInsertID</code></a></td><td>returns the last inserted ID for this entity's autoincremented primary key</td></tr>
 <tr><td><a href="#entity.update"><code>$<i>entity</i>.update(Map <i>values</i>)</code></a></td><td>updates an instance of the entity, returns the boolean success status</td></tr>
 <tr><td><a href="#entity.delete"><code>$<i>entity</i>.delete(Map <i>values</i>)</code></a></td><td>delete an instance of the entity, returns the boolean success status</td></tr>
+<tr><td><a href="#entity.delete2"><code>$<i>entity</i>.delete(<i>key</i>)</code></a></td><td>delete the instance uniquely identified by <i>key</i>, return true if it did exist</td></tr>
 </table>
 </div>
 </div>
@@ -259,6 +260,16 @@ values to be updated.</p>
 <a name="entity.delete"/><h3>$<i>entity</i>.delete(Map <i>values</i>)</h3>
 <div class="section"><p>Deletes an instance of the entity and returns the boolean success status of the operation.
 Primary key values must be present in the map.</p>
+<div class="source">
+#set($db.book.delete( $query ))
+#if(!$success)
+  delete failed:
+  $!db.error
+#end</div>
+</div>
+
+<a name="entity.delete2"/><h3>$<i>entity</i>.delete(<i>key</i>)</h3>
+<div class="section"><p>Deletes the instance uniquely identified by its primary key. Returns true if it did exist and was sucessfully deleted.</p>
 <div class="source">
 #set($db.book.delete( $query ))
 #if(!$success)

@@ -92,6 +92,7 @@ import velosurf.web.l10n.Localizer;
  * <li><code>allow-guest</code>: allow the login "guest" (false by default) - the password is not checked, the "guest" user must exist in the database.
  * The only allowed uri is the login page, and it can be used from VTL:<br/> <code>#macro (redirect $url) $response.sendRedirect($url) #end #redirect("/login.do?login=guest&password=whatever")</code><br/>
  * you can also include a "redirect=" parameter</li>
+ * <li><code>use-login-referer</code>: (sorry for reproducing the bugguy syntax from the HTTP RFC, it should be 'referrer' :-) ) use the HTTP request referrer after login if there is no saved request (default: no).</li>
  * </ul>
  * </p>
  *
