@@ -76,8 +76,8 @@
 <p>The configuration file follows <a href="./dtd.html">this DTD</a>.</p>
 <p>In brief:</p>
 <p><ul>
-<li>the <code>&lt;database&gt;</code> tag is the root element and must provide connection credentials (unless gathered in a <code>&lt;credentials&gt;</code> tag) and an optional schema name. It can contains any number of <code>&lt;entity&gt;</code>, <code>&lt;scalar&gt;</code>, <code>&lt;row&gt;</code>, <code>&lt;rowset&gt;</code> and <code>&lt;action&gt;</code> tags. Attributes and actions defined at this level are qualified as <i>root</i> attributes and actions.
-<li>Gathering the credentials (user, password and url) in a <code>&lt;credentials&gt;</code> tag, in conjunction with the use of xinclude, allows to put them in an external file (typically unversionned - very useful to change credetials in different instances of the same webapp).</li>
+<li>the <code>&lt;database&gt;</code> tag is the root element and must provide connection credentials (unless gathered in a <code>&lt;credentials&gt;</code> tag) and an optional schema name. It can contains any number of <code>&lt;entity&gt;</code>, <code>&lt;scalar&gt;</code>, <code>&lt;row&gt;</code>, <code>&lt;rowset&gt;</code> and <code>&lt;action&gt;</code> tags. Attributes and actions defined at this level are qualified as <i>root</i> attributes and actions. Note that you can also specify the username and password within the JDBC url.
+<li>Gathering the credentials (user, password and url) in a <code>&lt;credentials&gt;</code> tag, in conjunction with the use of xinclude, allows to put them in an external file (typically unversionned - very useful to change credetials in different instances of the same webapp). Note that driver and schema can also be specified in the <code>&lt;credentials&gt;</code> tag.</li>
 <li>If present, the root action named <code>startup</code> is executed when Velosurf is initialized.</li>
 <li><code>&lt;entity&gt;</code> tags usually correspond to a table (but not necessarily). They can contain any number of <code>&lt;scalar&gt;</code>, <code>&lt;row&gt;</code>, <code>&lt;rowset&gt;</code>, <code>&lt;action&gt;</code> and <code>&lt;constraint&gt;</code> tags.</li>
 <li><code>&lt;scalar&gt;</code>, <code>&lt;row&gt;</code> and <code>&lt;rowset&gt;</code> tags describe a custom entity attribute. Their content is an SQL query where entity columns and other <i>external parameters</i> appear as embedded tags. Their result is respectively a scalar, a row and a rowset.</li>
@@ -100,7 +100,7 @@
 
 							<td>user</td>
 							<td><i>string</i></td>
-							<td><b>(required unless specified in a <code>&lt;credentials&gt;</code> tag)</b></td>
+							<td><b>(required unless specified in the JDBC URL or in a <code>&lt;credentials&gt;</code> tag)</b></td>
 							<td>database account login</td>
 						</tr>
 						<tr align="center">
@@ -108,7 +108,7 @@
 
 							<td>password</td>
 							<td><i>string</i></td>
-							<td><b>(idem)</b></td>
+							<td><b>(required unless specified in the JDBC URL or in a <code>&lt;credentials&gt;</code> tag)</b></td>
 							<td>database account password</td>
 						</tr>
 						<tr align="center">
@@ -116,7 +116,7 @@
 
 							<td>url</td>
 							<td><i>string</i></td>
-							<td><b>(idem)</b></td>
+							<td><b>(required unless specified in a <code>&lt;credentials&gt;</code> tag)</b></td>
 							<td>database URL</td>
 						</tr>
 						<tr align="center">
@@ -197,6 +197,13 @@
 							<td>database url</td>
 							<td>seed of the encryption engine random generator</td>
 						</tr>
+						<tr align="center">
+							<td>database</td>
+							<td>check-connections</td>
+							<td>yes | no</td>
+							<td>yes</td>
+							<td>states whether connections are checked (and re-opened if necessary) before every statement execution</td>
+						</tr>
 						<tr><td colspan="5" style="background:white;"></td></tr>
 
 <tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;credentials&gt; element (optional child of &lt;database&gt; used to gather credentials)</big></td></tr>
@@ -208,28 +215,42 @@
 							<td><b>meaning</b></td>
 						<tr align="center">
 							<td>credentials</td>
-
 							<td>user</td>
 							<td><i>string</i></td>
-							<td><b>(required unless specified in the <code>&lt;database&gt;</code> tag)</b></td>
+							<td><b>(required unless specified in the JDBC URL or in the <code>&lt;database&gt;</code> tag)</b></td>
 							<td>database account login</td>
 						</tr>
 						<tr align="center">
 							<td>credentials</td>
-
 							<td>password</td>
 							<td><i>string</i></td>
-							<td><b>(idem)</b></td>
+							<td><b>(required unless specified in the JDBC URL or in the <code>&lt;database&gt;</code> tag)</b></td>
 							<td>database account password</td>
 						</tr>
 						<tr align="center">
 							<td>credentials</td>
-
 							<td>url</td>
 							<td><i>string</i></td>
-							<td><b>(idem)</b></td>
+							<td><b>(required unless specified in the <code>&lt;database&gt;</code> tag)</b></td>
 							<td>database URL</td>
 						</tr>
+						<tr align="center">
+							<td>credentials</td>
+							<td>driver</td>
+							<td><i> java_class_name</i></td>
+							<td>(none)</td>
+							<td>database driver class - if not specified, Velosurf will try to deduce it from the database URL</td>
+						</tr>
+						<tr align="center">
+
+							<td>database</td>
+							<td>schema</td>
+							<td><i>string</i></td>
+							<td>(none)</td>
+							<td>schema used, if any</td>
+						</tr>
+
+
 						<tr><td colspan="5" style="background:white;"></td></tr>
 
 <tr style="margin-top:8px; font-weight:bold;"><td colspan=5 align=center><big>&lt;entity&gt; element (child of &lt;database&gt;)</big></td></tr>
@@ -348,7 +369,7 @@
 							<td>caching</td>
 							<td>yes | no</td>
 							<td>no</td>
-							<td>whether or not this scalar attribute should be cached</td>
+							<td>whether or not this row attribute should be cached</td>
 						</tr>
 
 						<tr><td colspan="5" style="background:white;"></td></tr>
@@ -380,7 +401,7 @@
 							<td>caching</td>
 							<td>yes | no</td>
 							<td>no</td>
-							<td>whether or not this scalar attribute should be cached</td>
+							<td>whether or not this rowset attribute should be cached</td>
 						</tr>
 
 						<tr><td colspan="5" style="background:white;"></td></tr>
@@ -460,6 +481,14 @@
 							<td><i>col</i> [ , <i>col</i>... ]</td>
 							<td>(required)</td>
 							<td>comma-separated list of the foreign columns matching the key columns of the local table</td>
+						</tr>
+
+					<tr align="center">
+							<td>exported-key</td>
+							<td>order</td>
+							<td><i>col</i> [ , <i>col</i>... ]</td>
+							<td>(none)</td>
+							<td>comma-separated list of the foreign columns by which the result should be ordered</td>
 						</tr>
 
 						<tr><td colspan="5" style="background:white;"></td></tr>

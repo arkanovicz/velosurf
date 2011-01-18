@@ -285,7 +285,7 @@ public class Database {
     }
     /**
      * Set whether or not connections are systematically checked
-     * @param readOnly read-only check or not
+     * @param checkConnections read-only check or not
      */
     public void setCheckConnections(boolean checkConnections) {
         this.checkConnections = checkConnections;

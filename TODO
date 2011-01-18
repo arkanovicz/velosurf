@@ -1,4 +1,7 @@
+ - new scalar attribute types: <boolean>, <int[eger]>, <long>, <float>, <double>, <string>
+ - debug attribute per attribute/action
  - serialization of processing when connection pool is empty
+ - strict mode that gives errors/warnings for unkown columns
  - allow aliases for schema names
  - timed cache
  - avoid repetitive error messages in logger
