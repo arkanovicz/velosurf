@@ -81,7 +81,7 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
     public synchronized Object fetch(List params,Entity resultEntity) throws SQLException {
         Map<String,Object> row = null;
         try {
-//Logger.trace("fetch-params="+StringLists.join(params,","));
+            Logger.trace("fetch-params="+StringLists.join(params,","));
             setParams(params);
             try {
                 connection.enterBusyState();
@@ -145,7 +145,7 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
     public synchronized RowIterator query(List params,Entity resultEntity) throws SQLException {
         RowIterator result = null;
         try {
-//Logger.trace("query-params="+StringLists.join(params,","));
+            Logger.trace("query-params="+StringLists.join(params,","));
             if (params != null) {
                 setParams(params);
             }
@@ -167,7 +167,7 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
     public synchronized Object evaluate(List params) throws SQLException {
         Object value = null;
         try {
-//Logger.trace("evaluate-params="+StringLists.join(params,","));
+            Logger.trace("evaluate-params="+StringLists.join(params,","));
             if (params != null) {
                 setParams(params);
             }
@@ -194,7 +194,7 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
      */
     public synchronized int update(List params) throws SQLException {
         try {
-//Logger.trace("update-params="+StringLists.join(params,","));
+            Logger.trace("update-params="+StringLists.join(params,","));
             setParams(params);
             connection.enterBusyState();
             int rows = preparedStatement.executeUpdate();
