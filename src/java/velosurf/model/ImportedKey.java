@@ -50,7 +50,7 @@ public class ImportedKey extends Attribute {
      * Query getter.
      * @return SQL query
      */
-    protected String getQuery()
+    protected synchronized String getQuery()
     {
         if(query == null) {
             Entity pkEntity = db.getEntity(resultEntity);
