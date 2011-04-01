@@ -82,7 +82,7 @@ public class ExportedKey extends Attribute {
      * Query getter.
      * @return the SQL query
      */
-    protected String getQuery() {
+    protected synchronized String getQuery() {
         if(query == null) {
             Entity fkEntity = db.getEntity(resultEntity);
             for(String param:getEntity().getPKCols()) {
