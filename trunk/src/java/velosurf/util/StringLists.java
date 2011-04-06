@@ -53,11 +53,11 @@ public class StringLists
 
         if (!i.hasNext()) return "";
 
-        result.append(i.next().toString());
+        result.append(String.valueOf(i.next()));
 
         while (i.hasNext()) {
             result.append(joinString);
-            result.append(i.next().toString());
+            result.append(String.valueOf(i.next()));
         }
         return result.toString();
     }
