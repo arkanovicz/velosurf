@@ -150,7 +150,11 @@ import velosurf.util.Logger;
      * @return value or null
      */
     public Object remove(Object key) {
-        return extraValues.remove(key);
+      Object inner = null, extra = null;
+        if(getSource().containsKey(key)) inner = getSource().get(key);
+        extra = extraValues.remove(key);
+        
+        return inner != null ? inner : extra;
     }
 
     /**
@@ -217,10 +221,9 @@ import velosurf.util.Logger;
     public String toString() {
         StringBuilder ret = new StringBuilder("{ ");
         for(Entry entry:entrySet()) {
-            ret.append((String)entry.getKey());
+            ret.append(String.valueOf(entry.getKey()));
             ret.append('=');
-            Object value =
-            ret.append(entry.getValue().toString());
+            ret.append(String.valueOf(entry.getValue()));
             ret.append(' ');
         }
         ret.append('}');
