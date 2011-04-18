@@ -491,7 +491,7 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
 	return ret.toString();
     }
 
-    /** insert or update, depending on whether or not a value for the id key is present (perfect with unsignificant autoincrement ids that are left uninitialized for instances to be inserted)
+    /** insert or update, depending on whether or not a value for the id key is present and does exist
      */
     public synchronized boolean upsert() {
 	List<Map<String,Object>> primkey = getPrimaryKey();
@@ -499,14 +499,16 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
           Logger.error("Instance.upsert: singleton primary key expected"); // TODO CB - should throw/catch for homogeneity
 	    return false;
 	}
-	if(primkey.get(0).get("value") == null) {
+        Object keyVal = primkey.get(0).get("value");
+	if(keyVal == null) {
 	    return insert();
 	} else {
-	    return update();
+          Instance previous = getEntity().fetch(String.valueOf(keyVal)); // CB  -TODO: there should be an Entity.fetch(Object) method
+            return previous == null ? insert() : update();
 	}
     }
 
-    /** insert or update, depending on whether or not a value for the id key is present (perfect with unsignificant autoincrement ids that are left uninitialized for instances to be inserted)
+    /** insert or update, depending on whether or not a value for the id key is present and does exist
      */
     public synchronized boolean upsert(Map<String,Object> values) {
 	if (values != null && values != this) {

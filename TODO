@@ -1,3 +1,4 @@
+ - user hooks on attribute names
  - new scalar attribute types: <boolean>, <int[eger]>, <long>, <float>, <double>, <string>
  - debug attribute per attribute/action
  - serialization of processing when connection pool is empty
