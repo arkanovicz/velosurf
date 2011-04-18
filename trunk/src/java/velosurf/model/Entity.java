@@ -458,6 +458,20 @@ public class Entity
         return instance.update();
     }
 
+    /** Upsert a row based on a set of values (entity's primary key must be one column long - it can be omitted from provided values)
+     *
+     * @param values the Map object containing the values
+     * @return success indicator
+     */
+    public boolean upsert(Map<String,Object> values) throws SQLException {
+        if (readOnly) {
+            Logger.error("Error: Entity "+getName()+" is read-only!");
+            return false;
+        }
+        Instance instance = newInstance(values);
+        return instance.upsert();
+    }
+
     /** Delete a row based on (key) values.
      *
      * @param values the Map containing the values
