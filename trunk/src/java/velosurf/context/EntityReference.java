@@ -87,6 +87,23 @@ public class EntityReference implements Iterable {
         }
     }
 
+    /** <p>Upsert a row in this entity's table.</p>
+     *
+     * <p>Primary key must be a single column.</p>
+     *
+     * @param values col -> value map
+     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
+     */
+    public boolean upsert(Map<String,Object> values) {
+        try {
+            return entity.upsert(values);
+        } catch(SQLException sqle) {
+            Logger.log(sqle);
+            entity.getDB().setError(sqle.getMessage());
+            return false;
+        }
+    }
+
     /** <p>Detele a row from this entity's table.</p>
      *
      * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
