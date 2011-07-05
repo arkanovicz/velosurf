@@ -92,13 +92,13 @@ public class PooledSimpleStatement extends PooledStatement {
         try {
             Logger.trace("fetch-"+query);
             connection.enterBusyState();
+            boolean hasNext = false;
             try {
                 resultSet = statement.executeQuery(query);
+                hasNext = resultSet.next();
             } finally {
                 connection.leaveBusyState();
             }
-            boolean hasNext = resultSet.next();
-            connection.leaveBusyState();
             Map<String,Object> row = null;
             if (hasNext) {
                 if (resultEntity!=null) row = resultEntity.newInstance(new ReadOnlyMap(this),true);

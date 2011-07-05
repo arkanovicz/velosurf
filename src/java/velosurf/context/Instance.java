@@ -280,7 +280,7 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
                 }
             }
             if(updateClause.size() ==0) {
-                Logger.warn("update of instance '"+entity.getName()+"' all non-key columns are null - no update will be performed");
+                Logger.warn("update of instance '"+entity.getName()+"' all non-key columns are null or non-dirty - no update will be performed");
                 // return true anyway ?
                 return true;
             }

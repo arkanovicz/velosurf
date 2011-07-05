@@ -83,13 +83,14 @@ public class PooledPreparedStatement extends PooledStatement  implements RowHand
         try {
             Logger.trace("fetch-params="+StringLists.join(params,","));
             setParams(params);
+            boolean hasNext = false;
             try {
                 connection.enterBusyState();
                 resultSet = preparedStatement.executeQuery();
+                hasNext = resultSet.next();
             } finally {
                 connection.leaveBusyState();
             }
-            boolean hasNext = resultSet.next();
             entity = resultEntity;
             if (hasNext) {
                 if (resultEntity!=null) row = resultEntity.newInstance(new ReadOnlyMap(this),true);

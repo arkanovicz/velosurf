@@ -65,8 +65,15 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
             } else if(prefetch) {
                 return true;
             } else {
-                pooledStatement.getConnection().enterBusyState();
-                ret = resultSet.next();
+                try
+                {
+                    pooledStatement.getConnection().enterBusyState();
+                    ret = resultSet.next();
+                }
+                finally
+                {
+                    pooledStatement.getConnection().leaveBusyState();
+                }
                 if (ret) {
                     prefetch = true;
                 } else {
@@ -80,8 +87,6 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
             isOver = true;
             pooledStatement.notifyOver();
             return false;
-        } finally {
-          if( pooledStatement.getConnection().isBusy() ) pooledStatement.getConnection().leaveBusyState();
         }
     }
 
