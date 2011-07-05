@@ -20,6 +20,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+// CB TODO useOver is deprecated - update doc
+
 /** This abstract class represents a pooled object.<p>
  * It has two booleans : inUse and useOver (understand : usageOver).<p>
  * The cycle of those two booleans is the following :<p>
