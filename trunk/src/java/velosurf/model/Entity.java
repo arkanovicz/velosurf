@@ -339,6 +339,11 @@ public class Entity
             if ( v == null ) {
                 return null;
             }
+
+            // systematically convert Integer values to Long values
+            // TODO CB - a more torough conversion scheme, or a key invariant on class, is to be built (for instance a concatenation of strings)
+            if( v instanceof Integer) v = ((Integer)v).longValue();
+
             key[c++] = values.get(keycol);
         }
         return key;
