@@ -344,7 +344,33 @@ public class Entity
             // TODO CB - a more torough conversion scheme, or a key invariant on class, is to be built (for instance a concatenation of strings)
             if( v instanceof Integer) v = ((Integer)v).longValue();
 
-            key[c++] = values.get(keycol);
+            key[c++] = v;
+        }
+        return key;
+    }
+
+
+    /** Build the key for the Cache from a List
+     *
+     * @param values the Map containing all values (unaliased)
+     * @exception SQLException the getter of the Map throws an
+     *     SQLException
+     * @return an array containing all key values
+     */
+    private Object buildKey(List<Object> values) throws SQLException {
+        if(keyCols.size() == 0) return null;
+        Object [] key = new Object[keyCols.size()];
+        int c=0;
+        for(Object v:values) {
+            if ( v == null ) {
+                return null;
+            }
+
+            // systematically convert Integer values to Long values
+            // TODO CB - a more torough conversion scheme, or a key invariant on class, is to be built (for instance a concatenation of strings)
+            if( v instanceof Integer) v = ((Integer)v).longValue();
+
+            key[c++] = v;
         }
         return key;
     }
@@ -540,7 +566,7 @@ public class Entity
         Instance instance = null;
         // try in cache
         if (cachingMethod != Cache.NO_CACHE)
-            instance = (Instance)cache.get(values.toArray());
+            instance = (Instance)cache.get(buildKey(values));
         if (instance == null) {
             if (fetchQuery == null) buildFetchQuery();
             PooledPreparedStatement statement = db.prepare(fetchQuery);
