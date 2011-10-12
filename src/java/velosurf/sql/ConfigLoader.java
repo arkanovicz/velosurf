@@ -179,7 +179,7 @@ public class ConfigLoader {
         } else {
             caching = database.getAttributeValue("caching");
         }
-        if (checkSyntax("caching",caching,new String[] {"none","no","yes","soft","full"})) {
+        if (checkSyntax("caching",caching,new String[] {"none","no","false","yes","true","soft","full"})) {
             int val = parseCaching(caching);
             this.database.setCaching(val);
             if (val == Cache.FULL_CACHE) Logger.warn("The 'full' caching method is deprecated and will be removed in future versions.");
@@ -387,7 +387,7 @@ public class ConfigLoader {
 
             /* caching */
             String caching = element.getAttributeValue("caching");
-            if (checkSyntax("caching",caching,new String[] {"no","yes"})) {
+            if (checkSyntax("caching",caching,new String[] {"no","false","yes","true"})) {
                 attribute.setCaching(caching.equals("yes"));
 			}
 
@@ -429,7 +429,7 @@ public class ConfigLoader {
 
             /* caching */
             String caching = keyelem.getAttributeValue("caching");
-            if (checkSyntax("caching",caching,new String[] {"no","yes"})) {
+            if (checkSyntax("caching",caching,new String[] {"no","false","yes","true"})) {
                 importedKey.setCaching(caching.equals("yes"));
 			}
 
@@ -462,7 +462,7 @@ public class ConfigLoader {
 
             /* caching */
             String caching = keyelem.getAttributeValue("caching");
-            if (checkSyntax("caching",caching,new String[] {"no","yes"})) {
+            if (checkSyntax("caching",caching,new String[] {"no","false","yes","true"})) {
                 exportedKey.setCaching(caching.equals("yes"));
 			}
             String order = keyelem.getAttributeValue("order");
@@ -785,11 +785,11 @@ public class ConfigLoader {
                     boolean dnsCheck = false;
                     boolean smtpCheck = false;
                     str = constraintElement.getAttributeValue("dns-check");
-                    if (checkSyntax("dns-check",str,new String[]{"yes","no"})) {
+                    if (checkSyntax("dns-check",str,new String[]{"yes","no","true","false"})) {
                         dnsCheck = (str.equalsIgnoreCase("yes"));
                     }
                     str = constraintElement.getAttributeValue("smtp-check");
-                    if (checkSyntax("smtp-check",str,new String[]{"yes","no"})) {
+                    if (checkSyntax("smtp-check",str,new String[]{"yes","no","true","false"})) {
                         smtpCheck = (str.equalsIgnoreCase("yes"));
                     }
                     constraint = new EmailCheck(dnsCheck,smtpCheck);
@@ -896,8 +896,8 @@ public class ConfigLoader {
      */
     private static int parseCaching(String caching) {
         return
-            caching == null || caching.equalsIgnoreCase("none") || caching.equalsIgnoreCase("no") ? Cache.NO_CACHE :
-            caching.equalsIgnoreCase("soft") || caching.equalsIgnoreCase("yes") ? Cache.SOFT_CACHE :
+            caching == null || caching.equalsIgnoreCase("none") || caching.equalsIgnoreCase("no") || caching.equalsIgnoreCase("false") ? Cache.NO_CACHE :
+            caching.equalsIgnoreCase("soft") || caching.equalsIgnoreCase("yes") || caching.equalsIgnoreCase("true") ? Cache.SOFT_CACHE :
             caching.equalsIgnoreCase("full") ? Cache.FULL_CACHE :
             Cache.NO_CACHE;
     }
