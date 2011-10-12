@@ -131,15 +131,15 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
                                 break;
                             case Attribute.ROW:
                                 result = attribute.fetch(this);
-								if(attribute.getCaching()) {
-									super.put(key,result);
-								}
+                                if(attribute.getCaching()) {
+                                  super.put(key,result);
+                                }
                                 break;
                             case Attribute.SCALAR:
                                 result = attribute.evaluate(this);
-								if(attribute.getCaching()) {
-									super.put(key,result);
-								}
+                                if(attribute.getCaching()) {
+                                  super.put(key,result);
+                                }
                                 break;
                             default:
                                 Logger.error("Unknown attribute type for "+entity.getName()+"."+key+"!");
