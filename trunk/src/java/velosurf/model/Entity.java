@@ -375,6 +375,21 @@ public class Entity
         return key;
     }
 
+    /** Build the key for the Cache from a Number
+     *
+     * @param values the Map containing all values (unaliased)
+     * @exception SQLException the getter of the Map throws an
+     *     SQLException
+     * @return an array containing all key values
+     */
+    private Object buildKey(Number value) throws SQLException {
+            // systematically convert Integer values to Long values
+            // TODO CB - a more torough conversion scheme, or a key invariant on class, is to be built (for instance a concatenation of strings)
+      if(value instanceof Integer) value = value.longValue();
+      return new Object[] { value };
+    }
+
+
     /** Getter for the name of this entity.
      *
      * @return the name of the entity
@@ -672,8 +687,11 @@ public class Entity
         Instance instance = null;
         // try in cache
         if (cachingMethod != Cache.NO_CACHE)
+        {
             // try in cache
-            instance = (Instance)cache.get(new Object[] { keyValue });
+          Number cacheKeyValue = keyValue instanceof Integer ? keyValue.longValue() : keyValue;
+            instance = (Instance)cache.get(buildKey(keyValue));
+        }
         if (instance == null) {
             if (fetchQuery == null) buildFetchQuery();
             PooledPreparedStatement statement = db.prepare(fetchQuery);
