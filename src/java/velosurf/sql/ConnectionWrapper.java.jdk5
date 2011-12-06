@@ -526,6 +526,7 @@ public class ConnectionWrapper
     /** Leave busy state.
      */
     public void leaveBusyState() {
+        lastUse = System.currentTimeMillis();
         busy--;
         //Logger.trace("connection #"+toString()+": leaving busy state.");
     }
@@ -534,6 +535,12 @@ public class ConnectionWrapper
      */
     public boolean isBusy() {
         return busy>0;
+    }
+    /** Return last use
+      @return last use
+    */
+    public long getLastUse() {
+      return lastUse;
     }
     /**
      * Get last inserted ID.
@@ -574,6 +581,8 @@ public class ConnectionWrapper
     private Connection connection = null;
     /** Busy state. */
     private int busy = 0;
+    /** Lasst use */
+    private long lastUse = System.currentTimeMillis();
     /** Closed state. */
     private boolean closed = false;
 

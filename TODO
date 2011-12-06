@@ -1,3 +1,4 @@
+ - DBReference.fetch(Object) => fetch(String) to resolve ambiguities
  - user hooks on attribute names
  - new scalar attribute types: <boolean>, <int[eger]>, <long>, <float>, <double>, <string>
  - debug attribute per attribute/action
@@ -23,8 +24,6 @@
  - when result=row, attref should return null if not found
  - do sthing about serialization / transience (cf. tomcat sessions persistance for instance)
  - optionnaly use foreign key names when reverse enginering => should be a database option
- - kill the broken pipe mysql bug (occurs sometimes with mysql - rare but tedious)
-   workaround: set a very long timeout in my.cnf : [mysqld] wait_timeout = 288000
  - display build # in logs at startup
  - naming collisions detection for aliases
  - TagCloudTool as an example

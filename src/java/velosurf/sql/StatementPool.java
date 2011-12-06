@@ -28,16 +28,17 @@ import velosurf.util.Logger;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public class StatementPool implements Runnable,Pool {
+public class StatementPool implements /*Runnable,*/ Pool {
 
     /** build a new pool.
      *
      * @param connectionPool connection pool
      */
-    protected StatementPool(ConnectionPool connectionPool, boolean checkConnections) {
+  protected StatementPool(ConnectionPool connectionPool, boolean checkConnections, long checkInterval) {
         this.connectionPool = connectionPool;
         this.checkConnections = checkConnections;
-        if(checkConnections) checkTimeoutThread = new Thread(this);
+        this.checkInterval = checkInterval;
+//        if(checkConnections) checkTimeoutThread = new Thread(this);
 //        checkTimeoutThread.start();
     }
 
@@ -54,7 +55,7 @@ public class StatementPool implements Runnable,Pool {
             if (statement.isValid()) {
                 if (!statement.isInUse() && !(connection = (ConnectionWrapper)statement.getConnection()).isBusy()) {
                     // check connection
-                    if (!checkConnections || connection.check()) {
+                    if (!checkConnections || System.currentTimeMillis() - connection.getLastUse() < checkInterval || connection.check()) {
                         statement.notifyInUse();
                         return statement;
                     }
@@ -78,7 +79,7 @@ public class StatementPool implements Runnable,Pool {
 
     // timeout loop
     /** run the loop of statements checking and recycling.
-     */
+     * /
     public void run() {
         while (running) {
             try {
@@ -91,6 +92,7 @@ public class StatementPool implements Runnable,Pool {
             }
         }
     }
+    */
 
     /** debug - two ints long array containing nb of statements in use and total nb of statements.
      *
@@ -161,12 +163,16 @@ public class StatementPool implements Runnable,Pool {
      */
     private boolean checkConnections = true;
 
+    /** minimal check interval
+     */
+    private long checkInterval;
+
     /** delay between checks.
      */
-    private static final long checkDelay = 30*1000;
+//    private static final long checkDelay = 30*1000;
     /** timeout on which statements are automatically recycled if not used.
      */
-    private static final long timeout = 10*60*1000;
+//    private static final long timeout = 10*60*1000;
     /** maximum number of statements.
      */
     private static final int maxStatements = 50;
