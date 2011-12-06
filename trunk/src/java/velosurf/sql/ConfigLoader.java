@@ -167,10 +167,20 @@ public class ConfigLoader {
         /* check-connections */
         String docheck = database.getAttributeValue("check-connections");
         if (docheck != null) {
-            /* check syntax but continue anyway with read-only database if the syntax is bad */
-            checkSyntax("check-connections",docheck,new String[] {"true","false","yes","no"});
+          /* if doCheck is a number, it's the number of milliseconds between two checks */
+          long checkInterval = -1;
+          try
+          {
+            checkInterval = Long.parseLong(docheck);
+            // ok
+            this.database.setCheckConnections(true);
+            this.database.setCheckInterval(checkInterval);
+          }
+          catch(NumberFormatException nfe)
+          {
             /* default to true - using Boolean.parseBoolean is not possible */
             this.database.setCheckConnections(!docheck.equalsIgnoreCase("false") && !docheck.equalsIgnoreCase("no"));
+          }
         }
 
         String caching = database.getAttributeValue("default-caching");

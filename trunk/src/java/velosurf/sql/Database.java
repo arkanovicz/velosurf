@@ -190,11 +190,11 @@ public class Database {
         connectionPool = new ConnectionPool(url,user,password,schema,driverInfo,true,minConnections,maxConnections);
         transactionConnectionPool = new ConnectionPool(url,user,password,schema,driverInfo,false,1,maxConnections);
 
-        statementPool = new StatementPool(connectionPool,checkConnections);
-        preparedStatementPool = new PreparedStatementPool(connectionPool,checkConnections);
+        statementPool = new StatementPool(connectionPool,checkConnections,checkInterval);
+        preparedStatementPool = new PreparedStatementPool(connectionPool,checkConnections,checkInterval);
 
-        transactionStatementPool = new StatementPool(transactionConnectionPool,checkConnections);
-        transactionPreparedStatementPool = new PreparedStatementPool(transactionConnectionPool,checkConnections);
+        transactionStatementPool = new StatementPool(transactionConnectionPool,checkConnections,checkInterval);
+        transactionPreparedStatementPool = new PreparedStatementPool(transactionConnectionPool,checkConnections,checkInterval);
 
         if(rootEntity == null) {
             Entity root = new Entity(this,"velosurf.root",false,Cache.NO_CACHE);
@@ -284,11 +284,20 @@ public class Database {
         this.caseSensivity = caseSensivity;
     }
     /**
-     * Set whether or not connections are systematically checked
+     * Set whether or not connections are to be checked or not
      * @param checkConnections read-only check or not
      */
     public void setCheckConnections(boolean checkConnections) {
         this.checkConnections = checkConnections;
+    }
+  /**
+     * Set the minimum check interval (in milliseconds)
+     * - connections are only checked when their last use 
+     * is older than this interval.
+     * @param checkInterval
+     */
+    public void setCheckInterval(long checkInterval) {
+        this.checkInterval = checkInterval;
     }
     /** Load the appropriate driver.
      */
@@ -767,6 +776,9 @@ Logger.debug("setting driver manager log");
     /** default connections checking
      */
     private boolean checkConnections = true;
+    /** default check interval
+     */
+    private long checkInterval = 1000 * 60 * 10; // 10 minutes by default
     /** default caching mode.
      */
     private int caching = Cache.NO_CACHE;
