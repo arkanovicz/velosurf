@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.cache;
 
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
 
-/** <p>Cache that keeps fetched instances in memory.</p>
+/**
+ * <p>Cache that keeps fetched instances in memory.</p>
  *
  * <p>Three modes (defined for &lt;<code>database</code>&gt; or for &lt;<code>entity</code>&gt; in <code>model.xml</code>:</p>
  * <ul>
@@ -38,64 +41,85 @@ import java.util.Map;
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
-public class Cache {
-
-    /** Constant used to specify the "no cache" mode.
+public class Cache
+{
+    /**
+     * Constant used to specify the "no cache" mode.
      */
     public static final int NO_CACHE = 0;
-    /** Constant used to specify the "soft cache" mode.
+
+    /**
+     * Constant used to specify the "soft cache" mode.
      */
     public static final int SOFT_CACHE = 1;
-    /** Constant used to specify the "full cache" mode.
+
+    /**
+     * Constant used to specify the "full cache" mode.
      */
     public static final int FULL_CACHE = 2;
 
-    /** Cache constructor.
+    /**
+     * Cache constructor.
      *
      * @param cachingMethod required caching mode
      */
-    public Cache(int cachingMethod) {
+    public Cache(int cachingMethod)
+    {
         this.cachingMethod = cachingMethod;
         innerCache = new HashMap();
     }
 
-    /** Put an instance in the cache.
+    /**
+     * Put an instance in the cache.
      *
      * @param key key field(s) of this instance
      * @param value instance
      */
-    public void put(Object key,Object value) {
-        key = (key.getClass().isArray()?new ArrayKey((Object[])key):key);
-        value = (cachingMethod == SOFT_CACHE?new SoftReference<Object>(value):value);
-        synchronized(innerCache) {
-            innerCache.put(key,value);
+    public void put(Object key, Object value)
+    {
+        key = (key.getClass().isArray() ? new ArrayKey((Object[])key) : key);
+        value = (cachingMethod == SOFT_CACHE ? new SoftReference<Object>(value) : value);
+        synchronized(innerCache)
+        {
+            innerCache.put(key, value);
         }
     }
 
-    /** Getter for the size of the cache.
+    /**
+     * Getter for the size of the cache.
      *
      * @return the size of the cache
      */
-    public int size() {
+    public int size()
+    {
         return innerCache.size();
     }
 
-    /** Try to get an instance from the cache.
+    /**
+     * Try to get an instance from the cache.
      *
      * @param key key field(s) of the asked instance
      * @return Asked instance or null if not found
      */
-    public Object get(Object key) {
-        key = (key.getClass().isArray()?new ArrayKey((Object[])key):key);
+    public Object get(Object key)
+    {
+        key = (key.getClass().isArray() ? new ArrayKey((Object[])key) : key);
+
         Object ret;
-        synchronized(innerCache) {
+
+        synchronized(innerCache)
+        {
             ret = innerCache.get(key);
         }
-        if (ret != null && cachingMethod == SOFT_CACHE) {
+        if(ret != null && cachingMethod == SOFT_CACHE)
+        {
             ret = ((SoftReference<Object>)ret).get();
+
             /* if null, clean cache */
-            if (ret == null) {
-                synchronized(innerCache) {
+            if(ret == null)
+            {
+                synchronized(innerCache)
+                {
                     innerCache.remove(key);
                 }
             }
@@ -103,73 +127,98 @@ public class Cache {
         return ret;
     }
 
-    /** Clear the cache.
-    *
-    */
-    public void clear() {
+    /**
+     * Clear the cache.
+     *
+     */
+    public void clear()
+    {
         innerCache.clear();
     }
 
-    /** invalidates an entry
+    /**
+     * invalidates an entry
      * (used after an insert or an update)
      */
-    public void invalidate(Object key) {
-        synchronized(innerCache) {
+    public void invalidate(Object key)
+    {
+        synchronized(innerCache)
+        {
             innerCache.remove(key);
         }
-
     }
 
-    /** The caching method this cache uses.
+    /**
+     * The caching method this cache uses.
      */
     private int cachingMethod;
-    /** the inner map that stores associations.
+
+    /**
+     * the inner map that stores associations.
      */
-    private Map<Object,Object> innerCache = null;
+    private Map<Object, Object> innerCache = null;
 
     /**
      * ArrayKey is a simple wrapper that provides a field-to-field equal method between encapsulated arrays.
      */
-    public static final class ArrayKey {
-
+    public static final class ArrayKey
+    {
         /**
          * Constructor.
          * @param keys key values
          */
-        public ArrayKey(Object[] keys) {
+        public ArrayKey(Object[] keys)
+        {
             this.keys = keys;
         }
 
-        /** Checks the cell-to-cell equality of two arrays.
+        /**
+         * Checks the cell-to-cell equality of two arrays.
          *
          * @param source source array
          * @return a boolean indicating the equality
          */
-        public boolean equals(Object source) {
-            if (source instanceof ArrayKey) {
+        public boolean equals(Object source)
+        {
+            if(source instanceof ArrayKey)
+            {
                 ArrayKey k = (ArrayKey)source;
-                if (k.keys.length == keys.length) {
-                    for(int i=0;i<keys.length;i++)
-                        if (! keys[i].equals(k.keys[i])) return false;
+
+                if(k.keys.length == keys.length)
+                {
+                    for(int i = 0; i < keys.length; i++)
+                    {
+                        if(!keys[i].equals(k.keys[i]))
+                        {
+                            return false;
+                        }
+                    }
                     return true;
                 }
             }
             return false;
         }
 
-        /** Hashcode of an array, based on the hashcode of its members.
+        /**
+         * Hashcode of an array, based on the hashcode of its members.
          *
          * @return the hashcode
          */
-        public int hashCode() {
+        public int hashCode()
+        {
             int hash = 0;
-            for (int i=0;i<keys.length;i++)
+
+            for(int i = 0; i < keys.length; i++)
+            {
                 hash += keys[i].hashCode();
+            }
             return hash;
         }
 
-        /** The wrapped array.
+        /**
+         * The wrapped array.
          */
         private Object[] keys = null;
-    } /* end of inner class ArrayKey */
+
+    }    /* end of inner class ArrayKey */
 }

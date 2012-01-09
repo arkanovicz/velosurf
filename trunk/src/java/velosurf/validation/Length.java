@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.validation;
 
 import java.sql.SQLException;
@@ -25,7 +27,7 @@ import java.util.Locale;
  *    &lt;<i>column</i> min-len="<i>min</i>" max-len="<i>max</i>"/&gt;
  *  </pre>
  * <p>where you donnot need to specify both min-len and max-len.</p>
- * <p></p> 
+ * <p></p>
  * <p>Or:</p>
  * <pre>
  *   &lt;<i>column</i>&gt;
@@ -38,9 +40,11 @@ import java.util.Locale;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-public class Length extends FieldConstraint {
+public class Length extends FieldConstraint
+{
     /** min lmength. */
     private int minLen = 0;
+
     /** max length. */
     private int maxLen = Integer.MAX_VALUE;
 
@@ -49,7 +53,8 @@ public class Length extends FieldConstraint {
      * @param minLen the minimum length allowed (inclusive)
      * @param maxLen the maximum length allowed (inclusive)
      */
-    public Length(int minLen,int maxLen) {
+    public Length(int minLen, int maxLen)
+    {
         this.minLen = minLen;
         this.maxLen = maxLen;
         setMessage("field {0}: value [{1}] is not of the proper length");
@@ -59,7 +64,8 @@ public class Length extends FieldConstraint {
      * Min length setter.
      * @param minLen minimum length
      */
-    public void setMinLength(int minLen) {
+    public void setMinLength(int minLen)
+    {
         this.minLen = minLen;
     }
 
@@ -67,7 +73,8 @@ public class Length extends FieldConstraint {
      * Maximum length setter.
      * @param maxLen maximum length
      */
-    public void setMaxLength(int maxLen) {
+    public void setMaxLength(int maxLen)
+    {
         this.maxLen = maxLen;
     }
 
@@ -76,11 +83,15 @@ public class Length extends FieldConstraint {
      * @param data data to validate
      * @return whether data is valid
      */
-    public boolean validate(Object data) {
-        if (data == null) {
+    public boolean validate(Object data)
+    {
+        if(data == null)
+        {
             return true;
         }
+
         int len = data.toString().length();
+
         return len >= minLen && len <= maxLen;
     }
 
@@ -88,7 +99,10 @@ public class Length extends FieldConstraint {
      * return a string representation for this constraint.
      * @return string
      */
-    public String toString() {
-        return "length "+(minLen>0 && maxLen<Integer.MAX_VALUE?"between "+minLen+" and "+maxLen:minLen>0?">= "+minLen:"<="+maxLen);
+    public String toString()
+    {
+        return "length "
+               + (minLen > 0 && maxLen < Integer.MAX_VALUE
+                  ? "between " + minLen + " and " + maxLen : minLen > 0 ? ">= " + minLen : "<=" + maxLen);
     }
 }

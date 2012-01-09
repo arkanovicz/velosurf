@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.util;
 
 import java.util.ArrayList;
@@ -29,19 +31,24 @@ import java.util.Set;
  * @author Mark Richters
  * @see java.util.Map
  */
-
-public class HashMultiMap implements MultiMap {
-    /** inner map.
+public class HashMultiMap implements MultiMap
+{
+    /**
+     * inner map.
      */
-    private Map map;        // (Object key -> List values)
-    /** total number of values.
+    private Map map;    // (Object key -> List values)
+
+    /**
+     * total number of values.
      */
     private transient int sizeAll;
 
-    /** build a new HashMultiMap.
+    /**
+     * build a new HashMultiMap.
      */
-    public HashMultiMap() {
-    map = new HashMap();
+    public HashMultiMap()
+    {
+        map = new HashMap();
     }
 
     // Query Operations
@@ -51,8 +58,9 @@ public class HashMultiMap implements MultiMap {
      *
      * @return totla number of values
      */
-    public int size() {
-    return sizeAll;
+    public int size()
+    {
+        return sizeAll;
     }
 
     /**
@@ -60,8 +68,9 @@ public class HashMultiMap implements MultiMap {
      *
      * @return empty status
      */
-    public boolean isEmpty() {
-    return sizeAll == 0;
+    public boolean isEmpty()
+    {
+        return sizeAll == 0;
     }
 
     /**
@@ -70,22 +79,29 @@ public class HashMultiMap implements MultiMap {
      *
      * @param key
      */
-    public boolean containsKey(Object key) {
-    return map.containsKey(key);
+    public boolean containsKey(Object key)
+    {
+        return map.containsKey(key);
     }
 
     /**
      * Returns <tt>true</tt> if this multimap maps one or more keys to
      * the specified value.
      */
-    public boolean containsValue(Object value) {
-    Iterator it = map.values().iterator();
-    while ( it.hasNext() ) {
-        List l = (List) it.next();
-        if ( l.contains(value) )
-        return true;
-    }
-    return false;
+    public boolean containsValue(Object value)
+    {
+        Iterator it = map.values().iterator();
+
+        while(it.hasNext())
+        {
+            List l = (List)it.next();
+
+            if(l.contains(value))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -95,11 +111,15 @@ public class HashMultiMap implements MultiMap {
      * @return the list of values to which this map maps the specified key, the
      *     list may be empty if the multimap contains no mapping for this key.
      */
-    public List get(Object key) {
-    List l = (List) map.get(key);
-    if ( l == null )
-        l = new ArrayList();
-    return l;
+    public List get(Object key)
+    {
+        List l = (List)map.get(key);
+
+        if(l == null)
+        {
+            l = new ArrayList();
+        }
+        return l;
     }
 
     // Modification Operations
@@ -109,14 +129,17 @@ public class HashMultiMap implements MultiMap {
      * @param key
      * @param value
      */
-    public void put(Object key, Object value) {
-    List l = (List) map.get(key);
-    if ( l == null ) {
-        l = new ArrayList();
-        map.put(key, l);
-    }
-    l.add(value);
-    sizeAll++;
+    public void put(Object key, Object value)
+    {
+        List l = (List)map.get(key);
+
+        if(l == null)
+        {
+            l = new ArrayList();
+            map.put(key, l);
+        }
+        l.add(value);
+        sizeAll++;
     }
 
     /**
@@ -124,32 +147,39 @@ public class HashMultiMap implements MultiMap {
      * multimap.
      * @param t source multimap
      */
-    public void putAll(MultiMap t) {
+    public void putAll(MultiMap t)
+    {
+        Iterator it = t.keySet().iterator();
 
-    Iterator it = t.keySet().iterator();
-    while ( it.hasNext() ) {
-        Object key = it.next();
-        List tl = (List) t.get(key);
+        while(it.hasNext())
+        {
+            Object key = it.next();
+            List tl = (List)t.get(key);
+            List l = (List)map.get(key);
 
-        List l = (List) map.get(key);
-        if ( l == null ) {
-        l = new ArrayList();
-        map.put(key, l);
+            if(l == null)
+            {
+                l = new ArrayList();
+                map.put(key, l);
+            }
+            l.addAll(tl);
+            sizeAll += tl.size();
         }
-        l.addAll(tl);
-        sizeAll += tl.size();
-    }
     }
 
     /**
      * Removes all mappings for this key from this multimap if present.
      * @param key
      */
-    public void remove(Object key) {
-    List l = (List) map.get(key);
-    if ( l != null )
-        sizeAll -= l.size();
-    map.remove(key);
+    public void remove(Object key)
+    {
+        List l = (List)map.get(key);
+
+        if(l != null)
+        {
+            sizeAll -= l.size();
+        }
+        map.remove(key);
     }
 
     /**
@@ -157,11 +187,17 @@ public class HashMultiMap implements MultiMap {
      * @param key
      * @param value
      */
-    public void remove(Object key, Object value) {
-    List l = (List) map.get(key);
-    if ( l != null )
-        if ( l.remove(value) )
-        sizeAll--;
+    public void remove(Object key, Object value)
+    {
+        List l = (List)map.get(key);
+
+        if(l != null)
+        {
+            if(l.remove(value))
+            {
+                sizeAll--;
+            }
+        }
     }
 
     // Bulk Operations
@@ -169,9 +205,10 @@ public class HashMultiMap implements MultiMap {
     /**
      * Removes all mappings from this map (optional operation).
      */
-    public void clear() {
-    map.clear();
-    sizeAll = 0;
+    public void clear()
+    {
+        map.clear();
+        sizeAll = 0;
     }
 
     // Views
@@ -179,8 +216,9 @@ public class HashMultiMap implements MultiMap {
     /**
      * Returns a set view of the keys contained in this multimap.
      */
-    public Set keySet() {
-    return map.keySet();
+    public Set keySet()
+    {
+        return map.keySet();
     }
 
     // Comparison and hashing
@@ -189,30 +227,42 @@ public class HashMultiMap implements MultiMap {
      * Compares the specified object with this multimap for equality.
      * @param o
      */
-    public boolean equals(Object o) {
-    if ( o == this )
-        return true;
+    public boolean equals(Object o)
+    {
+        if(o == this)
+        {
+            return true;
+        }
 
-    // FIXME: use MultiMap interface only
-    if ( ! (o instanceof HashMultiMap) )
-        return false;
-    HashMultiMap c = (HashMultiMap) o;
-    if ( c.size() != size() )
-        return false;
+        // FIXME: use MultiMap interface only
+        if(!(o instanceof HashMultiMap))
+        {
+            return false;
+        }
 
-    return map.equals(c.map);
+        HashMultiMap c = (HashMultiMap)o;
+
+        if(c.size() != size())
+        {
+            return false;
+        }
+        return map.equals(c.map);
     }
 
     /**
      * Returns the hash code value for this multimap.
      */
-    public int hashCode() {
-    int h = 0;
-    Iterator it = map.entrySet().iterator();
-    while ( it.hasNext() ) {
-        Object obj = it.next();
-        h += obj.hashCode();
+    public int hashCode()
+    {
+        int h = 0;
+        Iterator it = map.entrySet().iterator();
+
+        while(it.hasNext())
+        {
+            Object obj = it.next();
+
+            h += obj.hashCode();
         }
-    return h;
+        return h;
     }
 }

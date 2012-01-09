@@ -14,246 +14,321 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.context;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.sql.SQLException;
-
 import velosurf.model.Entity;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;
 
-/** Context wrapper for an entity.
+/**
+ * Context wrapper for an entity.
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public class EntityReference implements Iterable {
-
-    /** Builds a new EntityReference.
+public class EntityReference implements Iterable
+{
+    /**
+     * Builds a new EntityReference.
      *
      * @param entity the wrapped entity
      */
-    public EntityReference(Entity entity) {
+    public EntityReference(Entity entity)
+    {
         this.entity = entity;
     }
 
-    /** gets the name of the wrapped entity
+    /**
+     * gets the name of the wrapped entity
      */
-    public String getName() {
+    public String getName()
+    {
         return entity.getName();
     }
 
-    /** Insert a new row in this entity's table.
+    /**
+     * Insert a new row in this entity's table.
      *
      * @param values col -> value map
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
-    public boolean insert(Map<String,Object> values) {
-        try {
-           return entity.insert(values);
-        } catch(SQLException sqle) {
+    public boolean insert(Map<String, Object> values)
+    {
+        try
+        {
+            return entity.insert(values);
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             entity.getDB().setError(sqle.getMessage());
             return false;
         }
     }
 
-    /** Returns the ID of the last inserted row (obfuscated if needed).
+    /**
+     * Returns the ID of the last inserted row (obfuscated if needed).
      *
      * @return last insert ID
      */
-    public Object getLastInsertID() {
+    public Object getLastInsertID()
+    {
         long id = entity.getDB().getUserContext().getLastInsertedID(entity);
+
         return entity.filterID(id);
     }
 
-    /** <p>Update a row in this entity's table.</p>
+    /**
+     * <p>Update a row in this entity's table.</p>
      *
      * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
      *
      * @param values col -> value map
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
-    public boolean update(Map<String,Object> values) {
-        try {
+    public boolean update(Map<String, Object> values)
+    {
+        try
+        {
             return entity.update(values);
-        } catch(SQLException sqle) {
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             entity.getDB().setError(sqle.getMessage());
             return false;
         }
     }
 
-    /** <p>Upsert a row in this entity's table.</p>
+    /**
+     * <p>Upsert a row in this entity's table.</p>
      *
      * <p>Primary key must be a single column.</p>
      *
      * @param values col -> value map
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
-    public boolean upsert(Map<String,Object> values) {
-        try {
+    public boolean upsert(Map<String, Object> values)
+    {
+        try
+        {
             return entity.upsert(values);
-        } catch(SQLException sqle) {
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             entity.getDB().setError(sqle.getMessage());
             return false;
         }
     }
 
-    /** <p>Detele a row from this entity's table.</p>
+    /**
+     * <p>Detele a row from this entity's table.</p>
      *
      * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
      *
      * @param values col -> value map
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
-    public boolean delete(Map<String,Object> values) {
-        try {
+    public boolean delete(Map<String, Object> values)
+    {
+        try
+        {
             return entity.delete(values);
-        } catch(SQLException sqle) {
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             entity.getDB().setError(sqle.getMessage());
             return false;
         }
     }
 
-    /** <p>Detele a row from this entity's table, specifying the value of its unique key column.</p>
+    /**
+     * <p>Detele a row from this entity's table, specifying the value of its unique key column.</p>
      *
      * @param keyValue key value
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
-    public boolean delete(String keyValue) {
-        try {
+    public boolean delete(String keyValue)
+    {
+        try
+        {
             return entity.delete(keyValue);
-        } catch(SQLException sqle) {
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             entity.getDB().setError(sqle.getMessage());
             return false;
         }
     }
 
-    /** <p>Detele a row from this entity's table, specifying the value of its unique key column.</p>
+    /**
+     * <p>Detele a row from this entity's table, specifying the value of its unique key column.</p>
      *
      * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
      *
      * @param keyValue key value
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
-    public boolean delete(Number keyValue) {
-        try {
+    public boolean delete(Number keyValue)
+    {
+        try
+        {
             return entity.delete(keyValue);
-        } catch(SQLException sqle) {
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             entity.getDB().setError(sqle.getMessage());
             return false;
         }
     }
 
-
-    /** Fetch an Instance of this entity, specifying the values of its key columns in their natural order.
+    /**
+     * Fetch an Instance of this entity, specifying the values of its key columns in their natural order.
      *
      * @param values values of the key columns
      * @return an Instance, or null if an error occured (in which case
      *     $db.error can be checked)
      */
-    public Instance fetch(List<Object> values) {
-        try {
+    public Instance fetch(List<Object> values)
+    {
+        try
+        {
             Instance instance = entity.fetch(values);
+
             return instance;
-        } catch(SQLException sqle) {
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             entity.getDB().setError(sqle.getMessage());
             return null;
         }
     }
 
-    /** Fetch an Instance of this entity, specifying the values of its key columns in the map.
+    /**
+     * Fetch an Instance of this entity, specifying the values of its key columns in the map.
      *
      * @param values key=>value map
      * @return an Instance, or null if an error occured (in which case
      *     $db.error can be checked)
      */
-    public Instance fetch(Map<String,Object> values) {
-        try {
+    public Instance fetch(Map<String, Object> values)
+    {
+        try
+        {
             Instance instance = entity.fetch(values);
+
             return instance;
-        } catch(SQLException sqle) {
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             entity.getDB().setError(sqle.getMessage());
             return null;
         }
     }
 
-    /** Fetch an Instance of this entity, specifying the value of its unique key column as a string
+    /**
+     * Fetch an Instance of this entity, specifying the value of its unique key column as a string
      *
      * @param keyValue value of the key column
      * @return an Instance, or null if an error occured (in which case
      *     $db.error can be checked)
      */
-    public Instance fetch(String keyValue) {
-        try {
+    public Instance fetch(String keyValue)
+    {
+        try
+        {
             Instance instance = entity.fetch(keyValue);
+
             return instance;
-        } catch(SQLException sqle) {
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             entity.getDB().setError(sqle.getMessage());
             return null;
         }
     }
 
-    /** Fetch an Instance of this entity, specifying the value of its unique key column as an integer
+    /**
+     * Fetch an Instance of this entity, specifying the value of its unique key column as an integer
      *
      * @param keyValue value of the key column
      * @return an Instance, or null if an error occured (in which case
      *     $db.error can be checked)
      */
-    public Instance fetch(Number keyValue) {
-        try {
+    public Instance fetch(Number keyValue)
+    {
+        try
+        {
             Instance instance = entity.fetch(keyValue);
+
             return instance;
-        } catch(SQLException sqle) {
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             entity.getDB().setError(sqle.getMessage());
             return null;
         }
     }
 
-    /** Called by the #foreach directive.
+    /**
+     * Called by the #foreach directive.
      *
      * @return a RowIterator on all instances of this entity, possibly previously
      *      refined or ordered.
      */
-    public Iterator iterator() {
-        try {
-            RowIterator iterator =  entity.query(refineCriteria,order);
+    public Iterator iterator()
+    {
+        try
+        {
+            RowIterator iterator = entity.query(refineCriteria, order);
+
             return iterator;
-        } catch(SQLException sqle) {
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             entity.getDB().setError(sqle.getMessage());
             return null;
         }
     }
 
-    /** Get all the rows in a list of maps.
+    /**
+     * Get all the rows in a list of maps.
      *
      * @return a list of all the rows
      */
-    public List getRows() {
-        try {
-            RowIterator iterator = entity.query(refineCriteria,order);
+    public List getRows()
+    {
+        try
+        {
+            RowIterator iterator = entity.query(refineCriteria, order);
+
             return iterator.getRows();
-        } catch(SQLException sqle) {
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             entity.getDB().setError(sqle.getMessage());
             return null;
         }
     }
 
-    /** <p>Refines this entity reference querying result. The provided criterium will be added to the 'where' clause (or a 'where' clause will be added).</p>
+    /**
+     * <p>Refines this entity reference querying result. The provided criterium will be added to the 'where' clause (or a 'where' clause will be added).</p>
      *
      * <p>This method can be called several times, thus allowing a field-by-field handling of an html search form.</p>
      *
@@ -271,27 +346,37 @@ public class EntityReference implements Iterable {
      *
      * @param criterium a valid sql condition
      */
-    public void refine(String criterium) {
-        Logger.trace("refine: "+criterium);
+    public void refine(String criterium)
+    {
+        Logger.trace("refine: " + criterium);
+
         /* protect from SQL query injection */
+
         // FIXME: check that there is an even number of "'"
-        if (/*criterium.indexOf('\'') != -1 || */criterium.indexOf(';') != -1 || criterium.indexOf("--") != -1) {
-            Logger.error("bad refine string: "+criterium);
-        } else {
-            if (refineCriteria == null) {
+        if( /* criterium.indexOf('\'') != -1 || */criterium.indexOf(';') != -1 || criterium.indexOf("--") != -1)
+        {
+            Logger.error("bad refine string: " + criterium);
+        }
+        else
+        {
+            if(refineCriteria == null)
+            {
                 refineCriteria = new ArrayList();
             }
             refineCriteria.add(criterium);
         }
     }
 
-    /** Clears any refinement made on this entity.
+    /**
+     * Clears any refinement made on this entity.
      */
-    public void clearRefinement() {
+    public void clearRefinement()
+    {
         refineCriteria = null;
     }
 
-    /** <p>Specify an 'order by' clause for this attribute reference result.</p>
+    /**
+     * <p>Specify an 'order by' clause for this attribute reference result.</p>
      * <p>If an 'order by' clause is already present in the original query, the ew one is appended (but successive calls to this method overwrite previous ones).</p>
      * <p> postfix " DESC " to a column for descending order.</p>
      * <p>Pass it null or an empty string to clear any ordering.</p>
@@ -299,31 +384,41 @@ public class EntityReference implements Iterable {
      * @param order valid sql column names (separated by commas) indicating the
      *      desired order
      */
-    public void setOrder(String order) {
+    public void setOrder(String order)
+    {
         /* protect from SQL query injection */
-        if (order.indexOf('\'') != -1 || order.indexOf(';') != -1 || order.indexOf("--") != -1) {
-            Logger.error("bad order string: "+order);
-        } else {
+        if(order.indexOf('\'') != -1 || order.indexOf(';') != -1 || order.indexOf("--") != -1)
+        {
+            Logger.error("bad order string: " + order);
+        }
+        else
+        {
             this.order = order;
         }
     }
 
-    /** Create a new instance for this entity.
+    /**
+     * Create a new instance for this entity.
      *
      * @return the newly created instance
      */
-    public Instance newInstance() {
+    public Instance newInstance()
+    {
         Instance instance = entity.newInstance();
+
         return instance;
     }
 
-    /** Build a new instance from a Map object.
+    /**
+     * Build a new instance from a Map object.
      *
      * @param values the Map object containing the values
      * @return the newly created instance
      */
-    public Instance newInstance(Map<String,Object> values) {
+    public Instance newInstance(Map<String, Object> values)
+    {
         Instance instance = entity.newInstance(values);
+
         return instance;
     }
 
@@ -332,10 +427,14 @@ public class EntityReference implements Iterable {
      * @param values
      * @return true if values are valid with respect to defined column constraints
      */
-    public boolean validate(Map<String,Object> values) {
-        try {
+    public boolean validate(Map<String, Object> values)
+    {
+        try
+        {
             return entity.validate(values);
-        } catch(SQLException sqle) {
+        }
+        catch(SQLException sqle)
+        {
             Logger.error("could not check data validity!");
             entity.getDB().getUserContext().addValidationError("internal errror");
             Logger.log(sqle);
@@ -343,33 +442,41 @@ public class EntityReference implements Iterable {
         }
     }
 
-    /** Getter for the list of column names.
+    /**
+     * Getter for the list of column names.
      *
      * @return the list of column names
      */
-    public List getColumns() {
+    public List getColumns()
+    {
         return entity.getColumns();
     }
 
-    public long getCount() {
+    public long getCount()
+    {
         return entity.getCount(refineCriteria);
     }
 
-    /** The wrapped entity.
+    /**
+     * The wrapped entity.
      */
     private Entity entity = null;
 
-    /** Specified order.
+    /**
+     * Specified order.
      */
     private String order = null;
 
-    /** Specified refining criteria.
+    /**
+     * Specified refining criteria.
      */
     private List<String> refineCriteria = null;
 
-    /** toString, used for debugging
+    /**
+     * toString, used for debugging
      */
-    public String toString() {
-	return "["+getName()+" with attributes: "+entity.getAttributes().keySet()+"]";
+    public String toString()
+    {
+        return "[" + getName() + " with attributes: " + entity.getAttributes().keySet() + "]";
     }
 }

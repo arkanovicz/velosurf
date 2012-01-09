@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.web.auth;
 
 import java.util.Map;
-
 import javax.servlet.ServletContext;
-
 import org.apache.velocity.tools.view.context.ViewContext;
-
-import velosurf.web.VelosurfTool;
-import velosurf.web.auth.BaseAuthenticator;
 import velosurf.context.DBReference;
 import velosurf.context.Instance;
 import velosurf.util.Logger;
+import velosurf.web.VelosurfTool;
+import velosurf.web.auth.BaseAuthenticator;
 
-/** <p>Authenticator basic implementation.</p>
+/**
+ * <p>Authenticator basic implementation.</p>
  * <p>It accepts the four following parameters in <code>toolbox.xml</code>:</p>
  * <ul>
  * <li><code>method</code> (inherited from <code>BaseAuthenticator</code>) the encryption method to use (default to none,
@@ -40,9 +40,8 @@ import velosurf.util.Logger;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-
-public class SimpleDBAuthenticator extends BaseAuthenticator {
-
+public class SimpleDBAuthenticator extends BaseAuthenticator
+{
     /** database. */
     protected DBReference db = null;
 
@@ -80,34 +79,42 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
      * initialize this tool.
      * @param initData a view context
      */
-    public void init(Object initData) {
+    public void init(Object initData)
+    {
         super.init(initData);
 
         // init only if there was no error in super class
-        if (initData instanceof ViewContext) {
-            if (db == null) {
+        if(initData instanceof ViewContext)
+        {
+            if(db == null)
+            {
                 initDB(((ViewContext)initData).getServletContext());
             }
         }
-
-        if(config != null) {
+        if(config != null)
+        {
             String value;
+
             value = (String)config.get(USER_BY_LOGIN_KEY);
-            if (value != null) {
+            if(value != null)
+            {
                 userByLogin = value;
             }
             value = (String)config.get(PASSWORD_FIELD_KEY);
-            if (value != null) {
+            if(value != null)
+            {
                 passwordField = value;
             }
             value = (String)config.get(LOGIN_PARAMETER_KEY);
-            if (value != null) {
-               loginParameter = value;
+            if(value != null)
+            {
+                loginParameter = value;
             }
         }
     }
 
-    protected void initDB(ServletContext ctx) {
+    protected void initDB(ServletContext ctx)
+    {
         db = VelosurfTool.getDefaultInstance(ctx);
     }
 
@@ -115,7 +122,8 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
      * externally set the db reference
      * @param db DBReference
      */
-    public void setDBReference(DBReference db) {
+    public void setDBReference(DBReference db)
+    {
         this.db = db;
     }
 
@@ -124,14 +132,18 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
      * @param login login
      * @return password or null
      */
-    public String getPassword(String login) {
+    public String getPassword(String login)
+    {
         Map user = null;
-        synchronized(db) {
+
+        synchronized(db)
+        {
             db.put(loginParameter, login);
             user = (Map)db.get(userByLogin);
         }
-        if (user != null) {
-            return (String)user.get(passwordField);
+        if(user != null)
+        {
+            return(String)user.get(passwordField);
         }
         return null;
     }
@@ -141,8 +153,10 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
      * @param login login
      * @return user object
      */
-    public Object getUser(String login) {
-        synchronized(db) {
+    public Object getUser(String login)
+    {
+        synchronized(db)
+        {
             db.put(loginParameter, login);
             return db.get(userByLogin);
         }
@@ -152,7 +166,8 @@ public class SimpleDBAuthenticator extends BaseAuthenticator {
      * configure this tool.
      * @param map
      */
-    public void configure(Map map) {
+    public void configure(Map map)
+    {
         super.configure(map);
         config = map;
     }

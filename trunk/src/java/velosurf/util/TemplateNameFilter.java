@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package velosurf.util;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletContext;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+package velosurf.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.Iterator;
-import java.util.HashSet;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>Deprecated. Recommended practice is to use .vhtml, .vjs, .vcss, etc... and to not rename templates.
@@ -61,9 +62,9 @@ import java.util.HashSet;
  * @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  *
  */
-
-public @Deprecated class TemplateNameFilter implements Filter {
-
+public @Deprecated
+class TemplateNameFilter implements Filter
+{
     /** the servlet context. */
     private ServletContext servletContext;
 
@@ -72,18 +73,21 @@ public @Deprecated class TemplateNameFilter implements Filter {
 
     /** NONE reset method. */
     private static final int RESET_NONE = 0;
+
     /** MANUAL reset method. */
     private static final int RESET_MANUAL = 1;
+
     /** PERIODIC reset method. */
     private static final int RESET_PERIODIC = 2;
+
     /** reset method. */
-    private int resetMethod = RESET_NONE; /* bit-masked */
+    private int resetMethod = RESET_NONE;    /* bit-masked */
 
     /** reset uri. */
     private String resetUri = "/reset-cache";
 
     /** reset period. */
-    private long resetPeriod = 120000; /* millisec */
+    private long resetPeriod = 120000;    /* millisec */
 
     /* the set of template names. */
     private Set<String> templates = null;
@@ -96,44 +100,68 @@ public @Deprecated class TemplateNameFilter implements Filter {
      * @param filterConfig filter configuration
      * @throws ServletException
      */
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) throws ServletException
+    {
         servletContext = filterConfig.getServletContext();
-
-        if (!Logger.isInitialized() && servletContext != null) {
+        if(!Logger.isInitialized() && servletContext != null)
+        {
             Logger.setWriter(new ServletLogWriter(servletContext));
         }
 
         /* init parameters */
-        String param,value;
+        String param, value;
         Enumeration params = filterConfig.getInitParameterNames();
-        while(params.hasMoreElements()) {
+
+        while(params.hasMoreElements())
+        {
             param = (String)params.nextElement();
             value = filterConfig.getInitParameter(param);
-            if ("template-extension".equals(param)) {
-                if (!value.startsWith(".")) {
+            if("template-extension".equals(param))
+            {
+                if(!value.startsWith("."))
+                {
                     value = "." + value;
                 }
                 templateExtension = value;
-            } else if ("reset-method".equals(param)) {
-                if ("manual".equals(value)) {
-                  resetMethod = RESET_MANUAL;
-                } else if ("periodic".equals(value)) {
-                    resetMethod = RESET_PERIODIC;
-                } else if ("both".equals(value)) {
-                    resetMethod = RESET_MANUAL | RESET_PERIODIC;
-                } else if (!"none".equals(value)) {
-                    servletContext.log("[warn] TemplateNameFilter: reset-method should be one of 'none', 'manual', 'pediodic' or 'both'.");
+            }
+            else if("reset-method".equals(param))
+            {
+                if("manual".equals(value))
+                {
+                    resetMethod = RESET_MANUAL;
                 }
-            } else if ("request-uri".equals(param)) {
+                else if("periodic".equals(value))
+                {
+                    resetMethod = RESET_PERIODIC;
+                }
+                else if("both".equals(value))
+                {
+                    resetMethod = RESET_MANUAL | RESET_PERIODIC;
+                }
+                else if(!"none".equals(value))
+                {
+                    servletContext.log(
+                        "[warn] TemplateNameFilter: reset-method should be one of 'none', 'manual', 'pediodic' or 'both'.");
+                }
+            }
+            else if("request-uri".equals(param))
+            {
                 resetUri = value;
-            } else if ("reset-period".equals(param)) {
-                try {
+            }
+            else if("reset-period".equals(param))
+            {
+                try
+                {
                     resetPeriod = Integer.parseInt(value) * 1000;
-                } catch (NumberFormatException nfe) {
+                }
+                catch(NumberFormatException nfe)
+                {
                     servletContext.log("[warn] TemplateNameFilter: reset-period should be a number!");
                 }
-            } else {
-                servletContext.log("[warn] TemplateNameFilter: unknown parameter '"+param+"' ignored.");
+            }
+            else
+            {
+                servletContext.log("[warn] TemplateNameFilter: unknown parameter '" + param + "' ignored.");
             }
         }
 
@@ -145,46 +173,58 @@ public @Deprecated class TemplateNameFilter implements Filter {
      * Build the cache, which consists of a hash set containing all template names.
      *
      */
-    private synchronized void buildsTemplateNamesList(HttpServletResponse response) {
-        /* check again if the reset is necessary, the current thread may have been
-        waiting to enter this method during the last reset */
-        if ((resetMethod & RESET_PERIODIC) != 0 && System.currentTimeMillis() - lastReset < resetPeriod && templates != null) {
+    private synchronized void buildsTemplateNamesList(HttpServletResponse response)
+    {
+        /*
+         *  check again if the reset is necessary, the current thread may have been
+         * waiting to enter this method during the last reset
+         */
+        if((resetMethod & RESET_PERIODIC) != 0 && System.currentTimeMillis() - lastReset < resetPeriod
+            && templates != null)
+        {
             return;
         }
 
         Set<String> result = new HashSet<String>();
-
-        String path,entry;
+        String path, entry;
         Set entries;
         LinkedList<String> paths = new LinkedList<String>();
+
         paths.add("/");
-        while(paths.size() > 0) {
+        while(paths.size() > 0)
+        {
             path = (String)paths.removeFirst();
             entries = servletContext.getResourcePaths(path);
-            for (Iterator i = entries.iterator();i.hasNext();) {
+            for(Iterator i = entries.iterator(); i.hasNext(); )
+            {
                 entry = (String)i.next();
+
                 /* ignore some entries... */
-                if (entry.endsWith("/WEB-INF/") || entry.endsWith("/.svn/")) {
+                if(entry.endsWith("/WEB-INF/") || entry.endsWith("/.svn/"))
+                {
                     continue;
                 }
-                if (entry.endsWith("/")) {
+                if(entry.endsWith("/"))
+                {
                     paths.add(entry);
                 }
-                else if (entry.endsWith(templateExtension)) {
-                    result.add(entry.substring(0,entry.length()-templateExtension.length()));
+                else if(entry.endsWith(templateExtension))
+                {
+                    result.add(entry.substring(0, entry.length() - templateExtension.length()));
                 }
             }
         }
         templates = result;
         lastReset = System.currentTimeMillis();
-
-        if (response != null) {
-            try {
+        if(response != null)
+        {
+            try
+            {
                 PrintWriter writer = response.getWriter();
-                writer.println("<html><body>Cache reseted.</body></html>");
-            } catch(IOException ioe) {
 
+                writer.println("<html><body>Cache reseted.</body></html>");
             }
+            catch(IOException ioe) {}
         }
     }
 
@@ -196,55 +236,74 @@ public @Deprecated class TemplateNameFilter implements Filter {
      * @throws ServletException
      * @throws IOException
      */
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws ServletException, IOException {
-
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+            throws ServletException, IOException
+    {
         HttpServletRequest request = (HttpServletRequest)servletRequest;
         HttpServletResponse response = (HttpServletResponse)servletResponse;
-
         String path = request.getRequestURI();
         String query = request.getQueryString();
-        if(query == null) {
+
+        if(query == null)
+        {
             query = "";
-        } else {
+        }
+        else
+        {
             query = "?" + query;
         }
-Logger.trace("--------------------------------");
-Logger.trace("URI = "+path+query+" (Referer: "+request.getHeader("Referer")+")");        
+        Logger.trace("--------------------------------");
+        Logger.trace("URI = " + path + query + " (Referer: " + request.getHeader("Referer") + ")");
+
         /* I've been said some buggy containers where leaving the query string in the uri */
         int i;
-        if ((i = path.indexOf("?")) != -1) {
-            path = path.substring(0,i);
+
+        if((i = path.indexOf("?")) != -1)
+        {
+            path = path.substring(0, i);
         }
 
         /* if the extension is already present, let it go... */
-        if (path.endsWith(templateExtension)) {
-            filterChain.doFilter(servletRequest,servletResponse);
+        if(path.endsWith(templateExtension))
+        {
+            filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
 
         /* is it time for a reset ? */
         long now = System.currentTimeMillis();
-        if ((resetMethod & RESET_MANUAL) != 0 && path.equals(resetUri)) {
-            lastReset = now - 2*resetPeriod;
+
+        if((resetMethod & RESET_MANUAL) != 0 && path.equals(resetUri))
+        {
+            lastReset = now - 2 * resetPeriod;
             buildsTemplateNamesList(response);
-        } else if ((resetMethod & RESET_PERIODIC) != 0 && now - lastReset > resetPeriod) {
+        }
+        else if((resetMethod & RESET_PERIODIC) != 0 && now - lastReset > resetPeriod)
+        {
             buildsTemplateNamesList(response);
-        } else {
-            if(templates.contains(path)) {
+        }
+        else
+        {
+            if(templates.contains(path))
+            {
                 /* forward the request with extension added */
-                Logger.trace("vtl: forwarding request towards "+path+templateExtension+query);
-                RequestDispatcher dispatcher = servletContext.getRequestDispatcher(path+templateExtension+query);
-                dispatcher.forward(request,servletResponse);
-            } else {
+                Logger.trace("vtl: forwarding request towards " + path + templateExtension + query);
+
+                RequestDispatcher dispatcher = servletContext.getRequestDispatcher(path + templateExtension + query);
+
+                dispatcher.forward(request, servletResponse);
+            }
+            else
+            {
                 /* normal processing */
-                filterChain.doFilter(servletRequest,servletResponse);
+                filterChain.doFilter(servletRequest, servletResponse);
             }
         }
     }
 
-    /** Destroy the filter.
+    /**
+     * Destroy the filter.
      *
      */
-    public void destroy() {
-    }
+    public void destroy(){}
 }

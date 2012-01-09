@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.web.l10n;
 
-import java.util.Locale;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Iterator;
-
+import java.util.Locale;
+import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
-
 import org.apache.velocity.tools.view.context.ViewContext;
-
-import velosurf.util.Logger;
-import velosurf.context.Instance;
 import velosurf.context.DBReference;
 import velosurf.context.EntityReference;
+import velosurf.context.Instance;
+import velosurf.util.Logger;
 import velosurf.web.VelosurfTool;
 
 /**
@@ -48,33 +47,41 @@ import velosurf.web.VelosurfTool;
  * <a href="http://www.iso.ch/iso/en/prods-services/iso3166ma/02iso-3166-code-lists/list-en1.html">ISO Country Codes</a>.
  *
  */
-
-public class SimpleDBLocalizer extends HTTPLocalizerTool {
-
+public class SimpleDBLocalizer extends HTTPLocalizerTool
+{
     /** localized table name parameter key. */
     private static final String LOCALIZED_TABLE_KEY = "localized-table";
+
     /** id field name parameter key. */
     private static final String ID_FIELD_KEY = "id-field";
+
     /** locale field name parameter key. */
     private static final String LOCALE_FIELD_KEY = "locale-field";
+
     /** localized string field name parameter key. */
     private static final String STRING_FIELD_KEY = "string-field";
 
     /** default localized table name. */
     private static final String LOCALIZED_TABLE_DEFAULT = "localized";
+
     /** default id fied name. */
     private static final String ID_FIELD_DEFAULT = "id";
+
     /** default locale field name. */
     private static final String LOCALE_FIELD_DEFAULT = "locale";
+
     /** default localized string field name. */
     private static final String STRING_FIELD_DEFAULT = "string";
 
     /** localized table name. */
     private static String localizedTable = LOCALIZED_TABLE_DEFAULT;
+
     /** id field name. */
     private static String idField = ID_FIELD_DEFAULT;
+
     /** locale field name. */
     private static String localeField = LOCALE_FIELD_DEFAULT;
+
     /** localized string field name. */
     private static String stringField = STRING_FIELD_DEFAULT;
 
@@ -82,10 +89,10 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
     private static boolean initialized = false;
 
     /** map locale -&gt; (id -&gt; localized). */
-    private static Map<Locale,Map<Object,String>> localeStrings = null;
+    private static Map<Locale, Map<Object, String>> localeStrings = null;
 
     /** map (id -&gt; localized) for the current locale. */
-    private Map<Object,String> currentStrings = null;
+    private Map<Object, String> currentStrings = null;
 
     /** tool configuration. */
     private Map config;
@@ -93,14 +100,14 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
     /**
      * Constructor.
      */
-    public SimpleDBLocalizer() {
-    }
+    public SimpleDBLocalizer(){}
 
     /**
      * Configure this tool.
      * @param config tool configuration
      */
-    public void configure(Map config) {
+    public void configure(Map config)
+    {
         this.config = config;
     }
 
@@ -108,36 +115,45 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
      * Initialize this tool.
      * @param initData a view context
      */
-    public void init(Object initData) {
-        if (!initialized) {
-            if(config != null) {
+    public void init(Object initData)
+    {
+        if(!initialized)
+        {
+            if(config != null)
+            {
                 String value;
+
                 value = (String)config.get(LOCALIZED_TABLE_KEY);
-                if (value != null) {
+                if(value != null)
+                {
                     localizedTable = value;
                 }
                 value = (String)config.get(ID_FIELD_KEY);
-                if (value != null) {
+                if(value != null)
+                {
                     idField = value;
                 }
                 value = (String)config.get(LOCALE_FIELD_KEY);
-                if (value != null) {
+                if(value != null)
+                {
                     localeField = value;
                 }
                 value = (String)config.get(STRING_FIELD_KEY);
-                if (value != null) {
+                if(value != null)
+                {
                     stringField = value;
                 }
             }
-            ServletContext ctx =
-                initData instanceof ServletContext ?
-                (ServletContext)initData   :
-                ((ViewContext)initData).getServletContext();
-            readLocales(ctx);
 
-            if(initData instanceof ViewContext) {
+            ServletContext ctx = initData instanceof ServletContext
+                                 ? (ServletContext)initData : ((ViewContext)initData).getServletContext();
+
+            readLocales(ctx);
+            if(initData instanceof ViewContext)
+            {
                 HttpSession session = ((ViewContext)initData).getRequest().getSession(true);
-                session.setAttribute(Localizer.class.getName(),this);
+
+                session.setAttribute(Localizer.class.getName(), this);
             }
         }
         super.init(initData);
@@ -147,42 +163,62 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
      * read localized messages into memory.
      * @param ctx servlet context
      */
-    private static synchronized void readLocales(ServletContext ctx) {
-        if (initialized) return;
-        try {
+    private static synchronized void readLocales(ServletContext ctx)
+    {
+        if(initialized)
+        {
+            return;
+        }
+        try
+        {
             DBReference db = VelosurfTool.getDefaultInstance(ctx);
-            if (db==null) {
+
+            if(db == null)
+            {
                 throw new Exception("Cannot find database!");
             }
+
             EntityReference entity = (EntityReference)db.get(localizedTable);
-            if (entity==null) {
+
+            if(entity == null)
+            {
                 throw new Exception("Cannot find 'localized' database entity!");
             }
-            localeStrings = new HashMap<Locale,Map<Object,String>>();
+            localeStrings = new HashMap<Locale, Map<Object, String>>();
             entity.setOrder(localeField);
-            Iterator locales = entity.iterator(); // sorted by locale
-            Map<Object,String> map = null;
+
+            Iterator locales = entity.iterator();    // sorted by locale
+            Map<Object, String> map = null;
             String current = null;
             Locale loc = null;
-            while (locales.hasNext()) {
+
+            while(locales.hasNext())
+            {
                 Instance row = (Instance)locales.next();
                 String key = (String)row.get(idField);
                 String locale = (String)row.get(localeField);
                 String string = (String)row.get(stringField);
-                if (!locale.equals(current)) {
+
+                if(!locale.equals(current))
+                {
                     current = locale;
-                    Logger.trace("Found new locale in db: "+locale);
-                    map = new HashMap<Object,String>();
+                    Logger.trace("Found new locale in db: " + locale);
+                    map = new HashMap<Object, String>();
+
                     /* for now, take language and country into account... TODO: take variant into account */
                     int sep = locale.indexOf('_');
-                    loc = ( sep == -1 ? new Locale(locale) : new Locale(locale.substring(0,sep),locale.substring(sep+1)) );
-                    localeStrings.put(loc,map);
+
+                    loc = (sep == -1
+                           ? new Locale(locale) : new Locale(locale.substring(0, sep), locale.substring(sep + 1)));
+                    localeStrings.put(loc, map);
                 }
-                map.put(key,string);
+                map.put(key, string);
             }
             initialized = true;
-        } catch (Exception e) {
-//            Logger.log(e);
+        }
+        catch(Exception e)
+        {
+//          Logger.log(e);
             Logger.error(e.getMessage());
         }
     }
@@ -192,7 +228,8 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
      * @param locale locale
      * @return true if present
      */
-    public boolean hasLocale(Locale locale) {
+    public boolean hasLocale(Locale locale)
+    {
         return localeStrings.containsKey(locale);
     }
 
@@ -200,32 +237,40 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool {
      * Locale setter.
      * @param locale locale
      */
-    public void setLocale(Locale locale) {
-        if (locale == null && this.locale == null || locale != null && locale.equals(this.locale)) {
+    public void setLocale(Locale locale)
+    {
+        if(locale == null && this.locale == null || locale != null && locale.equals(this.locale))
+        {
             /* no change */
             return;
         }
         super.setLocale(locale);
-        if(localeStrings != null) {
+        if(localeStrings != null)
+        {
             currentStrings = localeStrings.get(getLocale());
         }
-        if (currentStrings == null) {
-            Logger.warn("l10n: no strings found for locale "+locale);
+        if(currentStrings == null)
+        {
+            Logger.warn("l10n: no strings found for locale " + locale);
         }
     }
 
     /**
      * Localized message getter.
-      * @param id message id
+     *  @param id message id
      * @return localized message or id itself if not found
      */
-    public String get(Object id) {
-        if (currentStrings == null) {
-            Logger.warn("l10n: no current locale! (was getting string id '"+id+"')");
+    public String get(Object id)
+    {
+        if(currentStrings == null)
+        {
+            Logger.warn("l10n: no current locale! (was getting string id '" + id + "')");
             return id.toString();
         }
+
         String message = currentStrings.get(id);
-        //Logger.trace("l10n: "+id+" -> "+message);
+
+        // Logger.trace("l10n: "+id+" -> "+message);
         return message == null ? id.toString() : message;
     }
 }

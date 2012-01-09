@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.validation;
 
 import java.sql.SQLException;
@@ -25,33 +27,40 @@ import java.util.Locale;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-public abstract class FieldConstraint {
-
+public abstract class FieldConstraint
+{
     /**
      * validate data against this constraint.
      * @param data to validate
      * @param locale
      * @return true if the data respects the constraint
      */
-    public boolean validate(Object data, Locale locale) throws SQLException {
+    public boolean validate(Object data, Locale locale) throws SQLException
+    {
         return validate(data);
     }
+
     /**
      * validate data against this constraint.
      * @param data data to validate
      * @return true if data respects the constaint
      * @throws SQLException
      */
-    public boolean validate(Object data) throws SQLException {
+    public boolean validate(Object data) throws SQLException
+    {
         return false;
     }
+
     /** the error message */
     private String message = null;
-    /** error message setter
+
+    /**
+     * error message setter
      *
      * @param msg error message
      */
-    public void setMessage(String msg) {
+    public void setMessage(String msg)
+    {
         message = msg;
     }
 
@@ -59,8 +68,8 @@ public abstract class FieldConstraint {
      * get the error message
      * @return the error message
      */
-    public String getMessage() {
+    public String getMessage()
+    {
         return message;
     }
-
 }

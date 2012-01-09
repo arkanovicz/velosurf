@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.validation;
 
 import java.util.Locale;
@@ -23,7 +25,7 @@ import java.util.Locale;
  *  <pre>
  *    &lt;<i>column</i> not-empty="true"/&gt;
  *  </pre>
- *<p>Or:</p>
+ * <p>Or:</p>
  * <pre>  &lt;<i>column</i>&gt;
  *     &lt;not-empty [message="<i>error-message</i>"]/&gt;
  *   &lt;/<i>column</i>&gt;</pre>
@@ -32,12 +34,13 @@ import java.util.Locale;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-public class NotEmpty extends FieldConstraint {
-
+public class NotEmpty extends FieldConstraint
+{
     /**
      * Default constructor.
      */
-    public NotEmpty() {
+    public NotEmpty()
+    {
         setMessage("field {0} cannot be empty");
     }
 
@@ -46,7 +49,8 @@ public class NotEmpty extends FieldConstraint {
      * @param data the data to be validated
      * @return true if data is not null and not empty
      */
-    public boolean validate(Object data) {
+    public boolean validate(Object data)
+    {
         return data != null && data.toString().length() > 0;
     }
 
@@ -54,7 +58,8 @@ public class NotEmpty extends FieldConstraint {
      * return a string representation for this constraint.
      * @return string
      */
-    public String toString() {
+    public String toString()
+    {
         return "not-empty";
     }
 }

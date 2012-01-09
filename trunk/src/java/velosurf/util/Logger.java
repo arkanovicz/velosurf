@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.util;
 
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -23,11 +26,11 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/** This class is the logger used by velosurf.
+/**
+ * This class is the logger used by velosurf.
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
@@ -63,7 +66,6 @@ public class Logger
      */
     public final static int FATAL_ID = 5;
 
-
     /**
      * Current log level.
      */
@@ -94,348 +96,465 @@ public class Logger
      */
     private static boolean initialized = false;
 
-    /** Sets the log level.
+    /**
+     * Sets the log level.
      * @param logLevel log level
      */
-    public static void setLogLevel(int logLevel) {
-	info("Setting log level to "+logLevel);
+    public static void setLogLevel(int logLevel)
+    {
+        info("Setting log level to " + logLevel);
         Logger.logLevel = logLevel;
     }
 
-    /** whether to display timestamps.
+    /**
+     * whether to display timestamps.
      * @param timestamps
      */
-    public static void setDisplayTimestamps(boolean timestamps) {
+    public static void setDisplayTimestamps(boolean timestamps)
+    {
         displayTimestamps = timestamps;
     }
 
-    /** Gets the current log level.
+    /**
+     * Gets the current log level.
      * @return the current log level
      */
-    public static int getLogLevel() {
+    public static int getLogLevel()
+    {
         return logLevel;
     }
 
-    /** date format for timestamps.
+    /**
+     * date format for timestamps.
      */
     static SimpleDateFormat format = null;
-    /** asynchronous log used at start.
+
+    /**
+     * asynchronous log used at start.
      */
     static StringWriter asyncLog = null;
-    /** log output printwriter.
+
+    /**
+     * log output printwriter.
      */
     static PrintWriter log = null;
+
     static
     {
-        try {
+        try
+        {
             format = new SimpleDateFormat("[yyyy/MM/dd HH:mm:ss]");
+
             // initialize with an asynchronous buffer
             asyncLog = new StringWriter();
             log = new PrintWriter(asyncLog);
+
             // info("log initialized"); we do not always this line!
         }
-        catch (Throwable e) {
+        catch(Throwable e)
+        {
             System.err.println("no log!");
             e.printStackTrace(System.err);
         }
     }
 
-    /** stdout old value.
+    /**
+     * stdout old value.
      */
     static PrintStream oldStdout = null;
-    /** stderr old value.
+
+    /**
+     * stderr old value.
      */
     static PrintStream oldStderr = null;
 
-    /** logs a string.
+    /**
+     * logs a string.
      *
      * @param s string
      */
-    static private void log(String s) {
-        log.println(header()+s);
+    static private void log(String s)
+    {
+        log.println(header() + s);
         log.flush();
     }
 
-    /** logs an exception with a string.
+    /**
+     * logs an exception with a string.
      *
      * @param s string
      * @param e exception
      */
-    static public void log(String s,Throwable e) {
+    static public void log(String s, Throwable e)
+    {
         error(s);
         e.printStackTrace(log);
         log.flush();
     }
 
-    /** log an exception.
+    /**
+     * log an exception.
      *
      * @param e exception
      */
-    static public void log(Throwable e) {
-        String msg=e.getMessage();
-        log((msg!=null?msg:""),e);
+    static public void log(Throwable e)
+    {
+        String msg = e.getMessage();
+
+        log((msg != null ? msg : ""), e);
     }
 
     static int lines = 0;
 
-    /** log a string using a verbose level.
+    /**
+     * log a string using a verbose level.
      *
      * @param level verbose level
      * @param s string to log
      */
-    static public void log(int level,String s) {
-        if (level < logLevel) return;
-        String prefix="";
-        switch(level) {
-            case TRACE_ID:
-                prefix=" [trace] ";
+    static public void log(int level, String s)
+    {
+        if(level < logLevel)
+        {
+            return;
+        }
+
+        String prefix = "";
+
+        switch(level)
+        {
+            case TRACE_ID :
+                prefix = " [trace] ";
                 break;
-            case DEBUG_ID:
-                prefix=" [debug] ";
+            case DEBUG_ID :
+                prefix = " [debug] ";
                 break;
-            case INFO_ID:
-                prefix="  [info] ";
+            case INFO_ID :
+                prefix = "  [info] ";
                 break;
-            case WARN_ID:
-                prefix="  [warn] ";
+            case WARN_ID :
+                prefix = "  [warn] ";
                 break;
-            case ERROR_ID:
-                prefix=" [error] ";
+            case ERROR_ID :
+                prefix = " [error] ";
                 break;
-            case FATAL_ID:
-                prefix=" [fatal] ";
+            case FATAL_ID :
+                prefix = " [fatal] ";
                 break;
         }
-        log(prefix+s);
-		if (notify && level >= notifLevel && notifier != null) {
-			String msg = prefix + s;
-			int cr = msg.indexOf('\n');
-			String subject = ( cr == -1 ? msg : msg.substring(0,cr));
-			notifier.sendNotification(subject,msg);
-		}
+        log(prefix + s);
+        if(notify && level >= notifLevel && notifier != null)
+        {
+            String msg = prefix + s;
+            int cr = msg.indexOf('\n');
+            String subject = (cr == -1 ? msg : msg.substring(0, cr));
+
+            notifier.sendNotification(subject, msg);
+        }
         lines++;
+
         // no more than 100 lines in asynchronous mode
-        if (asyncLog != null && lines >asyncLimit) {
+        if(asyncLog != null && lines > asyncLimit)
+        {
             log2Stderr();
             flushAsyncLog();
-            warn("More than "+asyncLimit+" lines in asynchronous logging mode...");
+            warn("More than " + asyncLimit + " lines in asynchronous logging mode...");
             warn("Automatically switching to stderr");
         }
     }
 
-    /** logs a tracing string.
+    /**
+     * logs a tracing string.
      *
      * @param s tracing string
      */
-    static public void trace(String s) {
-        log(TRACE_ID,s);
+    static public void trace(String s)
+    {
+        log(TRACE_ID, s);
     }
 
-    /** logs a debug string.
+    /**
+     * logs a debug string.
      *
      * @param s debug string
      */
-    static public void debug(String s) {
-        log(DEBUG_ID,s);
+    static public void debug(String s)
+    {
+        log(DEBUG_ID, s);
     }
 
-    /** logs an info string.
+    /**
+     * logs an info string.
      *
      * @param s info string
      */
-    static public void info(String s) {
-        log(INFO_ID,s);
+    static public void info(String s)
+    {
+        log(INFO_ID, s);
     }
 
-    /** logs a warning string.
+    /**
+     * logs a warning string.
      *
      * @param s warning string
      */
-    static public void warn(String s) {
-        log(WARN_ID,s);
+    static public void warn(String s)
+    {
+        log(WARN_ID, s);
     }
 
-    /** logs an error string.
+    /**
+     * logs an error string.
      *
      * @param s error string
      */
-    static public void error(String s) {
-        log(ERROR_ID,s);
+    static public void error(String s)
+    {
+        log(ERROR_ID, s);
     }
 
-    /** logs a fatal error string.
+    /**
+     * logs a fatal error string.
      *
      * @param s fatal error string
      */
-    static public void fatal(String s) {
-        log(ERROR_ID,s);
+    static public void fatal(String s)
+    {
+        log(ERROR_ID, s);
     }
 
-    /** get the output writer.
+    /**
+     * get the output writer.
      *
      * @return writer
      */
-    static public PrintWriter getWriter() {
+    static public PrintWriter getWriter()
+    {
         return log;
     }
 
-    /** set the output writer.
+    /**
+     * set the output writer.
      *
      * @param out PrintWriter or Writer or OutputStream
      */
-    static public void setWriter(Object out) {
-        if (log!=null) {
+    static public void setWriter(Object out)
+    {
+        if(log != null)
+        {
             log.flush();
             log.close();
         }
-        if (out instanceof PrintWriter) log = (PrintWriter)out;
-        else if (out instanceof Writer) log = new PrintWriter((Writer)out);
-        else if (out instanceof OutputStream) log = new PrintWriter((OutputStream)out);
-        else throw new RuntimeException("Logger.setWriter: PANIC! class "+out.getClass().getName()+" cannot be used to build a PrintWriter!");
-        if (asyncLog != null) flushAsyncLog();
+        if(out instanceof PrintWriter)
+        {
+            log = (PrintWriter)out;
+        }
+        else if(out instanceof Writer)
+        {
+            log = new PrintWriter((Writer)out);
+        }
+        else if(out instanceof OutputStream)
+        {
+            log = new PrintWriter((OutputStream)out);
+        }
+        else
+        {
+            throw new RuntimeException("Logger.setWriter: PANIC! class " + out.getClass().getName()
+                                       + " cannot be used to build a PrintWriter!");
+        }
+        if(asyncLog != null)
+        {
+            flushAsyncLog();
+        }
         initialized = true;
     }
 
-    /** redirects stdout towards output writer.
+    /**
+     * redirects stdout towards output writer.
      */
-    static public void startCaptureStdout() {
+    static public void startCaptureStdout()
+    {
         oldStdout = System.out;
         System.setOut(new PrintStream(new WriterOutputStream(log)));
         captureStdout = true;
     }
 
-    /** stop redirecting stdout.
+    /**
+     * stop redirecting stdout.
      */
-    static public void stopCaptureStdout() {
-        if (captureStdout) System.setOut(oldStdout);
+    static public void stopCaptureStdout()
+    {
+        if(captureStdout)
+        {
+            System.setOut(oldStdout);
+        }
         captureStdout = false;
     }
 
-    /** redirects stderr towards the output writer.
+    /**
+     * redirects stderr towards the output writer.
      */
-    static public void startCaptureStderr() {
+    static public void startCaptureStderr()
+    {
         oldStderr = System.err;
         System.setErr(new PrintStream(new WriterOutputStream(log)));
         captureStderr = true;
     }
 
-    /** stops redirecting stderr.
+    /**
+     * stops redirecting stderr.
      */
-    static public void stopCaptureStderr() {
-        if (captureStderr) System.setErr(oldStderr);
+    static public void stopCaptureStderr()
+    {
+        if(captureStderr)
+        {
+            System.setErr(oldStderr);
+        }
         captureStderr = false;
     }
 
-    /** log to stdout.
-      */
-    static public void log2Stdout() {
+    /**
+     * log to stdout.
+     */
+    static public void log2Stdout()
+    {
         stopCaptureStdout();
         stopCaptureStderr();
         log = new PrintWriter(System.out);
         flushAsyncLog();
     }
 
-    /** log to stderr.
+    /**
+     * log to stderr.
      */
-    static public void log2Stderr() {
+    static public void log2Stderr()
+    {
         stopCaptureStdout();
         stopCaptureStderr();
         log = new PrintWriter(System.err);
         flushAsyncLog();
     }
 
-    /** log to file.
+    /**
+     * log to file.
      */
-    static public void log2File(String file) throws FileNotFoundException,IOException {
-        log = new PrintWriter(new FileWriter(file,true));
-		log.println();
-		log.println("=================================================");
+    static public void log2File(String file) throws FileNotFoundException, IOException
+    {
+        log = new PrintWriter(new FileWriter(file, true));
+        log.println();
+        log.println("=================================================");
         flushAsyncLog();
     }
 
-    /** returns "Velosurf ".
+    /**
+     * returns "Velosurf ".
      *
      * @return return the header
      */
-    static private String header() {
-        return displayTimestamps ? format.format(new Date())+ " Velosurf " : " Velosurf ";
+    static private String header()
+    {
+        return displayTimestamps ? format.format(new Date()) + " Velosurf " : " Velosurf ";
     }
 
-    /** flush the asynchronous log in the output writer.
+    /**
+     * flush the asynchronous log in the output writer.
      */
-    static private void flushAsyncLog() {
-        if (asyncLog != null) {
-            try {
+    static private void flushAsyncLog()
+    {
+        if(asyncLog != null)
+        {
+            try
+            {
                 String pastLog = asyncLog.toString();
-                if(pastLog.length()>0) {
+
+                if(pastLog.length() > 0)
+                {
                     log(asyncLog.toString());
                 }
                 asyncLog.close();
                 asyncLog = null;
             }
-            catch (IOException ioe) {
+            catch(IOException ioe)
+            {
                 log(ioe);
             }
         }
     }
 
-    /** queries the initialized state.
+    /**
+     * queries the initialized state.
      *
      */
-    static public boolean isInitialized() {
+    static public boolean isInitialized()
+    {
         return initialized;
     }
 
-    /** dumps the current stack.
+    /**
+     * dumps the current stack.
      */
-    static public void dumpStack() {
-        try {
+    static public void dumpStack()
+    {
+        try
+        {
             throw new Exception("dumpStack");
         }
-        catch (Exception e) {
+        catch(Exception e)
+        {
             e.printStackTrace(log);
         }
     }
 
-	static private MailNotifier notifier = null;
-	static private int notifLevel = ERROR_ID;
-	static private boolean notify = false;
+    static private MailNotifier notifier = null;
+    static private int notifLevel = ERROR_ID;
+    static private boolean notify = false;
 
-    static public void setNotificationParams(String host,String sender,String recipient) {
-		if(notifier != null) {
-			notifier.stop();
-		}
-		notifier = new MailNotifier(host,sender,recipient);
-	}
-
-	static public void setNotificationLevel(int level) {
-		notifLevel = level;
-	}
-
-	static public int getNotificationLevel() {
-		return notifLevel;
-	}
-
-	static public void enableNotifications(boolean enable) {
-		if (enable == notify) {
-			return;
-		}
-		if (enable) {
-			if (notifier == null) {
-				Logger.error("Please set notification params before enabling notification!");
-				return;
-			}
-			notifier.start();
-		} else {
-			if (notifier != null) {
-				notifier.stop();
-			}
-		}
-		notify = enable;
-	}
-
-    static public boolean getNotifierEnabled() {
-        return notify && notifier != null;
+    static public void setNotificationParams(String host, String sender, String recipient)
+    {
+        if(notifier != null)
+        {
+            notifier.stop();
+        }
+        notifier = new MailNotifier(host, sender, recipient);
     }
 
+    static public void setNotificationLevel(int level)
+    {
+        notifLevel = level;
+    }
+
+    static public int getNotificationLevel()
+    {
+        return notifLevel;
+    }
+
+    static public void enableNotifications(boolean enable)
+    {
+        if(enable == notify)
+        {
+            return;
+        }
+        if(enable)
+        {
+            if(notifier == null)
+            {
+                Logger.error("Please set notification params before enabling notification!");
+                return;
+            }
+            notifier.start();
+        }
+        else
+        {
+            if(notifier != null)
+            {
+                notifier.stop();
+            }
+        }
+        notify = enable;
+    }
+
+    static public boolean getNotifierEnabled()
+    {
+        return notify && notifier != null;
+    }
 }

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.validation;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.sql.SQLException;
-
 import velosurf.sql.Database;
 import velosurf.sql.PooledPreparedStatement;
 import velosurf.util.Logger;
@@ -42,12 +43,14 @@ import velosurf.util.Logger;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-public class Reference extends FieldConstraint {
-
+public class Reference extends FieldConstraint
+{
     /** database */
     private Database db = null;
+
     /** table */
     private String table = null;
+
     /** column */
     private String column = null;
 
@@ -56,11 +59,12 @@ public class Reference extends FieldConstraint {
      * @param table the table name
      * @param column the column name
      */
-    public Reference(Database db,String table,String column) {
+    public Reference(Database db, String table, String column)
+    {
         this.db = db;
         this.table = table;
         this.column = column;
-        setMessage("field {0}: value [{1}] not found in "+table+"."+column);
+        setMessage("field {0}: value [{1}] not found in " + table + "." + column);
     }
 
     /**
@@ -68,24 +72,39 @@ public class Reference extends FieldConstraint {
      * @param data the data to be validated
      * @return true if data respects the specified reference
      */
-    public boolean validate(Object data) {
-        try {
-            if (data == null || data.toString().length() == 0) return true;
+    public boolean validate(Object data)
+    {
+        try
+        {
+            if(data == null || data.toString().length() == 0)
+            {
+                return true;
+            }
+
             List<Object> param = new ArrayList<Object>();
+
             param.add(data);
-            /* TODO this kind of query may vary with dbms...
-               - under Oracle, we need to add "from dual"
-               - does it return "1" or "true"?
-              So, need to add some stuff to DriverInfo.
-              For now, tweak the ping query.*/
+
+            /*
+             *  TODO this kind of query may vary with dbms...
+             *  - under Oracle, we need to add "from dual"
+             *  - does it return "1" or "true"?
+             * So, need to add some stuff to DriverInfo.
+             * For now, tweak the ping query.
+             */
 
             String query = db.getDriverInfo().getPingQuery();
-            query = query.replace("1","? in (select distinct "+column+" from "+table+")");
+
+            query = query.replace("1", "? in (select distinct " + column + " from " + table + ")");
+
             PooledPreparedStatement stmt = db.prepare(query);
             Object ret = stmt.evaluate(param);
+
             return ret != null && ret.equals(Boolean.valueOf(true));
-        } catch(SQLException sqle) {
-            Logger.warn("reference constraint validation threw an exception: "+sqle.getMessage());
+        }
+        catch(SQLException sqle)
+        {
+            Logger.warn("reference constraint validation threw an exception: " + sqle.getMessage());
             return false;
         }
     }
@@ -94,8 +113,8 @@ public class Reference extends FieldConstraint {
      * return a string representation for this constraint.
      * @return string
      */
-    public String toString() {
-        return "references "+table+"."+column;
+    public String toString()
+    {
+        return "references " + table + "." + column;
     }
-
 }

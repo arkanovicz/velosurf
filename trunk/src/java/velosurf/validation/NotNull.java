@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.validation;
 
 import java.util.Locale;
@@ -23,7 +25,7 @@ import java.util.Locale;
  *  <pre>
  *    &lt;<i>column</i> not-null="true"/&gt;
  *  </pre>
- *<p>Or:</p><pre>
+ * <p>Or:</p><pre>
  *   &lt;<i>column</i>&gt;
  *     &lt;not-null [message="<i>error-message</i>"]/&gt;
  *   &lt;/<i>column</i>&gt;</pre>
@@ -34,12 +36,13 @@ import java.util.Locale;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-public class NotNull extends FieldConstraint {
-
+public class NotNull extends FieldConstraint
+{
     /**
      * Default constructor.
      */
-    public NotNull() {
+    public NotNull()
+    {
         setMessage("field {0} cannot be null");
     }
 
@@ -48,7 +51,8 @@ public class NotNull extends FieldConstraint {
      * @param data the data to be validated
      * @return true if data is not null
      */
-    public boolean validate(Object data) {
+    public boolean validate(Object data)
+    {
         return data != null;
     }
 
@@ -56,7 +60,8 @@ public class NotNull extends FieldConstraint {
      * return a string representation for this constraint.
      * @return string
      */
-    public String toString() {
+    public String toString()
+    {
         return "not-null";
     }
 }

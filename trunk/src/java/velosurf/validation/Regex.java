@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.validation;
 
-import java.util.regex.Pattern;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * <p>A regular expression pattern constraint. Syntax is:</p>
  *  <pre>
  *    &lt;<i>column</i> regex="<i>regex-pattern</i>"/&gt;
  *  </pre>
- *<p>Or:</p>
+ * <p>Or:</p>
  *   <pre>
  *     &lt;<i>column</i>&gt;
  *       &lt;regex pattern="<i>regex-pattern</i>" [message="<i>error-message</i>"] &gt;
@@ -35,8 +37,8 @@ import java.util.Locale;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-public class Regex extends FieldConstraint {
-
+public class Regex extends FieldConstraint
+{
     /** pattern. */
     private Pattern pattern = null;
 
@@ -44,7 +46,8 @@ public class Regex extends FieldConstraint {
      * Constructor.
      * @param pattern the regex pattern to be matched
      */
-    public Regex(Pattern pattern) {
+    public Regex(Pattern pattern)
+    {
         this.pattern = pattern;
         setMessage("field {0}: value [{1}] is not valid");
     }
@@ -54,15 +57,17 @@ public class Regex extends FieldConstraint {
      * @param data the data to be validated
      * @return true if data matches the regex pattern
      */
-    public boolean validate(Object data) {
-        return data == null ||  data.toString().length() == 0 || pattern.matcher(data.toString()).matches();
+    public boolean validate(Object data)
+    {
+        return data == null || data.toString().length() == 0 || pattern.matcher(data.toString()).matches();
     }
 
     /**
      * return a string representation for this constraint.
      * @return string
      */
-    public String toString() {
-        return "regular expression "+pattern;
+    public String toString()
+    {
+        return "regular expression " + pattern;
     }
 }

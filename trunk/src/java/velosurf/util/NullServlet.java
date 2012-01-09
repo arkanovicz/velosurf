@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.util;
 
 import java.io.IOException;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -30,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-
 public class NullServlet extends HttpServlet
 {
     /** page showing the 'forbidden' error message */
@@ -54,8 +54,7 @@ public class NullServlet extends HttpServlet
      * @throws ServletException
      * @throws IOException
      */
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
         doRequest(request, response);
     }
@@ -67,8 +66,7 @@ public class NullServlet extends HttpServlet
      * @throws ServletException
      * @throws IOException
      */
-    public void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
         doRequest(request, response);
     }
@@ -80,18 +78,22 @@ public class NullServlet extends HttpServlet
      * @throws ServletException
      * @throws IOException
      */
-    private void doRequest(HttpServletRequest request,
-                             HttpServletResponse response)
-         throws ServletException, IOException
+    private void doRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException
     {
-        Logger.trace("null servlet got hit: "+request.getRequestURI());
-        if (forbiddenUri == null) {
+        Logger.trace("null servlet got hit: " + request.getRequestURI());
+        if(forbiddenUri == null)
+        {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        } else {
+        }
+        else
+        {
             response.sendRedirect(forbiddenUri);
-            /* other option...
-		        RequestDispatcher dispatcher = request.getRequestDispatcher(forbiddenUri);
-		        dispatcher.forward(request,response);
+
+            /*
+             *  other option...
+             *   RequestDispatcher dispatcher = request.getRequestDispatcher(forbiddenUri);
+             *   dispatcher.forward(request,response);
              */
         }
     }

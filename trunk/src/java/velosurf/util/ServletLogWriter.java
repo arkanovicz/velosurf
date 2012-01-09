@@ -14,57 +14,68 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.util;
 
 import java.io.IOException;
 import java.io.Writer;
-
 import javax.servlet.ServletContext;
 
-/** This class implements a writer towards the servlet log.
+/**
+ * This class implements a writer towards the servlet log.
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
 public class ServletLogWriter extends Writer
 {
-    /** build a new ServletLogWriter.
+    /**
+     * build a new ServletLogWriter.
      *
      * @param log ServletContext
      */
-    public ServletLogWriter(ServletContext log) {
+    public ServletLogWriter(ServletContext log)
+    {
         this.log = log;
     }
 
-
-    /** write an array of chars to the servlet log.
+    /**
+     * write an array of chars to the servlet log.
      *
      * @param cbuf characters to write
      * @param off offset in the array
      * @param len number of characters to write
      * @exception IOException thrown by underlying servlet logger
      */
-    public void write(char[] cbuf,int off,int len) throws IOException {
+    public void write(char[] cbuf, int off, int len) throws IOException
+    {
         // ignore \r\n & \n
-        if ( (len==2 && cbuf[off]==13 && cbuf[off+1]==10) || (len==1 && cbuf[off]==10)) return;
-        String s=new String(cbuf,off,len);
+        if((len == 2 && cbuf[off] == 13 && cbuf[off + 1] == 10) || (len == 1 && cbuf[off] == 10))
+        {
+            return;
+        }
+
+        String s = new String(cbuf, off, len);
+
         log.log(s);
     }
 
-    /** flush any pending output.
+    /**
+     * flush any pending output.
      *
      * @exception IOException thrown by underlying servlet logger
      */
-    public void flush() throws IOException    {
-    }
+    public void flush() throws IOException{}
 
-    /** close the writer.
+    /**
+     * close the writer.
      *
      * @exception IOException thrown by underlying servlet logger
      */
-    public void close() throws IOException {
-    }
+    public void close() throws IOException{}
 
-    /** the ServletContext object used to log.
+    /**
+     * the ServletContext object used to log.
      */
     private ServletContext log = null;
 }

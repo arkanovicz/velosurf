@@ -14,28 +14,32 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.sql;
 
-import java.util.Set;
 import java.sql.SQLException;
+import java.util.Set;
 
-/** This interface represents objects having read-only properties
+/**
+ * This interface represents objects having read-only properties
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
 public interface RowHandler
 {
-    /** get the property named key.
+    /**
+     * get the property named key.
      *
      * @param key the name of the property to return
      * @return the value of the property, or null if not found
      */
     public Object get(Object key) throws SQLException;
+
     /**
      * Get keys set.
      * @return keys set
      */
     public Set<String> keySet() throws SQLException;
-
 }

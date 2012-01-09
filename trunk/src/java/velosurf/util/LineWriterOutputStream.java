@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.util;
 
 /**
@@ -22,15 +24,15 @@ package velosurf.util;
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 
-public class LineWriterOutputStream extends OutputStream {
-
+public class LineWriterOutputStream extends OutputStream
+{
     /** writer */
     private Writer writer = null;
+
     /** buffer */
     private StringBuffer buffer = new StringBuffer(200);
 
@@ -39,7 +41,8 @@ public class LineWriterOutputStream extends OutputStream {
      *
      * @param w the writer
      */
-    public LineWriterOutputStream(Writer w) {
+    public LineWriterOutputStream(Writer w)
+    {
         writer = w;
     }
 
@@ -48,11 +51,16 @@ public class LineWriterOutputStream extends OutputStream {
      * @param c byte
      * @exception IOException may be thrown
      */
-    public void write(int c) throws IOException {
-        if (c=='\n') {
+    public void write(int c) throws IOException
+    {
+        if(c == '\n')
+        {
             writer.write(buffer.toString());
-            buffer.delete(0,buffer.length());
+            buffer.delete(0, buffer.length());
         }
-        else buffer.append((char)c);
+        else
+        {
+            buffer.append((char)c);
+        }
     }
 }

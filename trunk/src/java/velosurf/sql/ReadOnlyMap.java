@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.sql;
 
+import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collection;
-import java.sql.SQLException;
-
 import velosurf.util.Logger;
 
 /**
@@ -29,14 +30,14 @@ import velosurf.util.Logger;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-
-public class ReadOnlyMap implements Map<String,Object> {
-
+public class ReadOnlyMap implements Map<String, Object>
+{
     /**
      * Constructor.
      * @param source the wrapped row handler
      */
-    public ReadOnlyMap(RowHandler source) {
+    public ReadOnlyMap(RowHandler source)
+    {
         this.source = source;
     }
 
@@ -44,7 +45,8 @@ public class ReadOnlyMap implements Map<String,Object> {
      * Not implemented.
      * @return 0
      */
-    public int size() {
+    public int size()
+    {
         return 0;
     }
 
@@ -52,7 +54,8 @@ public class ReadOnlyMap implements Map<String,Object> {
      * Not implemented.
      * @return false
      */
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return false;
     }
 
@@ -61,7 +64,8 @@ public class ReadOnlyMap implements Map<String,Object> {
      * @param key
      * @return false
      */
-    public boolean containsKey(Object key) {
+    public boolean containsKey(Object key)
+    {
         return false;
     }
 
@@ -70,7 +74,8 @@ public class ReadOnlyMap implements Map<String,Object> {
      * @param value
      * @return false
      */
-    public boolean containsValue(Object value) {
+    public boolean containsValue(Object value)
+    {
         return false;
     }
 
@@ -79,11 +84,15 @@ public class ReadOnlyMap implements Map<String,Object> {
      * @param key value key
      * @return value
      */
-    public Object get(Object key) {
-        try {
+    public Object get(Object key)
+    {
+        try
+        {
             return source.get((String)key);
-        } catch(SQLException sqle) {
-            Logger.error("Could not retrieve value of key "+key+" on a "+source.getClass().getName());
+        }
+        catch(SQLException sqle)
+        {
+            Logger.error("Could not retrieve value of key " + key + " on a " + source.getClass().getName());
             Logger.log(sqle);
             return null;
         }
@@ -95,7 +104,8 @@ public class ReadOnlyMap implements Map<String,Object> {
      * @param key
      * @return null
      */
-    public Object put(String query, Object key) {
+    public Object put(String query, Object key)
+    {
         return null;
     }
 
@@ -104,7 +114,8 @@ public class ReadOnlyMap implements Map<String,Object> {
      * @param key
      * @return null
      */
-    public Object remove(Object key) {
+    public Object remove(Object key)
+    {
         return null;
     }
 
@@ -112,24 +123,26 @@ public class ReadOnlyMap implements Map<String,Object> {
      * Not implemented.
      * @param map
      */
-    public void putAll(Map<? extends String, ? extends Object> map) {
-    }
+    public void putAll(Map<? extends String, ? extends Object> map){}
 
     /**
      * Not implemented.
      */
-    public void clear() {
-    }
+    public void clear(){}
 
     /**
      * Returns the set of keys.
      * @return the set of keys
      */
-    public Set<String> keySet() {
-        try {
+    public Set<String> keySet()
+    {
+        try
+        {
             return source.keySet();
-        } catch(SQLException sqle) {
-            Logger.error("Could not retrieve keyset of a "+source.getClass().getName());
+        }
+        catch(SQLException sqle)
+        {
+            Logger.error("Could not retrieve keyset of a " + source.getClass().getName());
             Logger.log(sqle);
             return null;
         }
@@ -139,7 +152,8 @@ public class ReadOnlyMap implements Map<String,Object> {
      * Not implemented.
      * @return null
      */
-    public Collection<Object> values() {
+    public Collection<Object> values()
+    {
         return null;
     }
 
@@ -147,7 +161,8 @@ public class ReadOnlyMap implements Map<String,Object> {
      * Not implemented.
      * @return null
      */
-    public Set<Entry<String, Object>> entrySet() {
+    public Set<Entry<String, Object>> entrySet()
+    {
         return null;
     }
 

@@ -14,27 +14,32 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.web.l10n;
 
 import java.util.Locale;
 
-/** To be implemented by localizers used by the engine to get localized strings from their database id.
+/**
+ * To be implemented by localizers used by the engine to get localized strings from their database id.
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
- **/
-
-public interface Localizer {
+ */
+public interface Localizer
+{
     /**
      * Locale setter.
      * @param locale locale
      */
     public void setLocale(Locale locale);
+
     /**
      * Locale getter.
      * @return locale
      */
     public Locale getLocale();
+
     /**
      * Message getter.
      * @param id message id
@@ -48,5 +53,5 @@ public interface Localizer {
      * @param param message parameters
      * @return localized message
      */
-    public String get(Object id,Object ... param);
+    public String get(Object id, Object... param);
 }
