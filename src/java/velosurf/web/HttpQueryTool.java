@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.web;
 
 import java.util.*;
-
 import org.apache.velocity.tools.view.context.ViewContext;
 import org.apache.velocity.tools.view.tools.ParameterParser;
-
 import velosurf.util.Logger;
 
-/** <p>(Deprecated - please use org.apache.velocity.tools.view.ParameterTool)</p>
+/**
+ * <p>(Deprecated - please use org.apache.velocity.tools.view.ParameterTool)</p>
  * This class extends the tool org.apache.velocity.tools.view.tools.ParameterParser,
  *  adding a generic setter. Values that are set manually hide any previous values that
  *  are present in the query under the same key.
@@ -32,43 +33,51 @@ import velosurf.util.Logger;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
- **/
- public @Deprecated class HttpQueryTool extends ParameterParser
+ */
+public @Deprecated
+class HttpQueryTool extends ParameterParser
 {
     /** extra values map. */
-    private Map<String,Object> extraValues = new HashMap<String,Object>();
+    private Map<String, Object> extraValues = new HashMap<String, Object>();
 
     /**
      * Constructor.
      */
-    public HttpQueryTool() {
-    }
+    public HttpQueryTool(){}
 
     /**
      * Initialize this tool.
      * @param viewContext view context
      */
-    public void init(Object viewContext) {
-
+    public void init(Object viewContext)
+    {
         super.init(viewContext);
 
         /* review all parameter keys to interpret "dots" inside keynames (only one level for now - FIXME: implement a recursive behaviour) */
-        for(Map.Entry<String,Object> entry:(Set<Map.Entry<String,Object>>)getSource().entrySet()) {
+        for(Map.Entry<String, Object> entry : (Set<Map.Entry<String, Object>>)getSource().entrySet())
+        {
             String key = entry.getKey();
             int dot = key.indexOf('.');
-            if (dot > 0 && dot < key.length()-1) {
-                String parentKey = key.substring(0,dot);
-                String subKey = key.substring(dot+1);
+
+            if(dot > 0 && dot < key.length() - 1)
+            {
+                String parentKey = key.substring(0, dot);
+                String subKey = key.substring(dot + 1);
                 Object value = entry.getValue();
-                if (value.getClass().isArray() && ((String[])value).length == 1) {
+
+                if(value.getClass().isArray() && ((String[])value).length == 1)
+                {
                     value = ((String[])value)[0];
                 }
+
                 Map map = (Map)extraValues.get(parentKey);
-                if (map == null) {
+
+                if(map == null)
+                {
                     map = new HashMap();
-                    extraValues.put(parentKey,map);
+                    extraValues.put(parentKey, map);
                 }
-                map.put(subKey,value);
+                map.put(subKey, value);
             }
         }
     }
@@ -81,9 +90,13 @@ import velosurf.util.Logger;
     public Object get(Object key)
     {
         Object ret = extraValues.get(key);
-        if (ret == null) {
+
+        if(ret == null)
+        {
             return super.get(key.toString());
-        } else {
+        }
+        else
+        {
             return ret;
         }
     }
@@ -104,15 +117,17 @@ import velosurf.util.Logger;
      * @param value value
      * @return previous value
      */
-    public Object put(String key, Object value) {
-        return extraValues.put(key,value);
+    public Object put(String key, Object value)
+    {
+        return extraValues.put(key, value);
     }
 
     /**
      * Get the number of parameters.
      * @return number of parameters
      */
-    public int size() {
+    public int size()
+    {
         return getSource().size() + extraValues.size();
     }
 
@@ -120,7 +135,8 @@ import velosurf.util.Logger;
      * Check for the presence of parameters.
      * @return true if empty
      */
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return getSource().isEmpty() && extraValues.isEmpty();
     }
 
@@ -129,7 +145,8 @@ import velosurf.util.Logger;
      * @param key parameter name
      * @return true if present
      */
-    public boolean containsKey(Object key) {
+    public boolean containsKey(Object key)
+    {
         return getSource().containsKey(key) || extraValues.containsKey(key);
     }
 
@@ -138,8 +155,10 @@ import velosurf.util.Logger;
      * @param value value to find
      * @return true if present
      */
-    public boolean containsValue(Object value) {
+    public boolean containsValue(Object value)
+    {
         String[] array = new String[1];
+
         array[0] = (String)value;
         return getSource().containsValue(array) || extraValues.containsValue(value);
     }
@@ -149,11 +168,15 @@ import velosurf.util.Logger;
      * @param key parameter name
      * @return value or null
      */
-    public Object remove(Object key) {
-      Object inner = null, extra = null;
-        if(getSource().containsKey(key)) inner = getSource().get(key);
+    public Object remove(Object key)
+    {
+        Object inner = null, extra = null;
+
+        if(getSource().containsKey(key))
+        {
+            inner = getSource().get(key);
+        }
         extra = extraValues.remove(key);
-        
         return inner != null ? inner : extra;
     }
 
@@ -161,14 +184,16 @@ import velosurf.util.Logger;
      * Put all key/values from a map.
      * @param map source map
      */
-    public void putAll(Map map) {
+    public void putAll(Map map)
+    {
         extraValues.putAll(map);
     }
 
     /**
      * Clear extra parameters.
      */
-    public void clear() {
+    public void clear()
+    {
         extraValues.clear();
     }
 
@@ -176,8 +201,10 @@ import velosurf.util.Logger;
      * Get the set of parameter names.
      * @return set of names
      */
-    public Set keySet() {
+    public Set keySet()
+    {
         Set ret = new HashSet();
+
         ret.addAll(getSource().keySet());
         ret.addAll(extraValues.keySet());
         return ret;
@@ -187,15 +214,21 @@ import velosurf.util.Logger;
      * Get the collection of values
      * @return collection of values
      */
-    public Collection values() {
+    public Collection values()
+    {
         String[] array;
         Collection ret = new HashSet();
         Collection coll = getSource().values();
-        for(Object value:coll) {
-            if(value.getClass().isArray()) {
-                array=(String[])value;
-                ret.add( array.length==1 ?  (Object)array[0] : array);
-            } else {
+
+        for(Object value : coll)
+        {
+            if(value.getClass().isArray())
+            {
+                array = (String[])value;
+                ret.add(array.length == 1 ? (Object)array[0] : array);
+            }
+            else
+            {
                 ret.add(value);
             }
         }
@@ -203,24 +236,34 @@ import velosurf.util.Logger;
         return ret;
     }
 
-    public Set<Entry<String,Object>> entrySet() {
+    public Set<Entry<String, Object>> entrySet()
+    {
         Map map = new HashMap();
-        Set<Entry<String,Object>> coll = getSource().entrySet();
-        for(Entry entry:coll) {
+        Set<Entry<String, Object>> coll = getSource().entrySet();
+
+        for(Entry entry : coll)
+        {
             Object value = entry.getValue();
-            if (value.getClass().isArray() && ((String[])value).length == 1) {
+
+            if(value.getClass().isArray() && ((String[])value).length == 1)
+            {
                 value = ((String[])value)[0];
             }
-            map.put(entry.getKey(),value);
+            map.put(entry.getKey(), value);
         }
-        Set<Entry<String,Object>> ret = new HashSet(map.entrySet());
+
+        Set<Entry<String, Object>> ret = new HashSet(map.entrySet());
+
         ret.addAll(extraValues.entrySet());
         return ret;
     }
 
-    public String toString() {
+    public String toString()
+    {
         StringBuilder ret = new StringBuilder("{ ");
-        for(Entry entry:entrySet()) {
+
+        for(Entry entry : entrySet())
+        {
             ret.append(String.valueOf(entry.getKey()));
             ret.append('=');
             ret.append(String.valueOf(entry.getValue()));
@@ -230,20 +273,25 @@ import velosurf.util.Logger;
         return ret.toString();
     }
 
-	public Set<String> getExtraKeys() {
-		return extraValues.keySet();
-	}
+    public Set<String> getExtraKeys()
+    {
+        return extraValues.keySet();
+    }
 
     /**
      * Debugging method: returns a query string corresponding to query parameters
-     * Warning: it also includes POST parameters (so strictly speaking 
+     * Warning: it also includes POST parameters (so strictly speaking
      *  it's not the real query string)
      * @return reconstitued query string
      */
-    public String getQueryString() {
+    public String getQueryString()
+    {
         StringBuffer result = new StringBuffer();
-        for(Map.Entry entry:entrySet()) {
-            if(result.length() > 0) {
+
+        for(Map.Entry entry : entrySet())
+        {
+            if(result.length() > 0)
+            {
                 result.append('&');
             }
             result.append(String.valueOf(entry.getKey()));
@@ -256,14 +304,19 @@ import velosurf.util.Logger;
     public Integer getInteger(String key)
     {
         Integer ret = super.getInteger(key);
+
         /* try in extraValues */
-        if(ret == null) {
+        if(ret == null)
+        {
             Object v = extraValues.get(key);
-            if (v != null)
+
+            if(v != null)
             {
-                try {
+                try
+                {
                     ret = Integer.parseInt(String.valueOf(v));
-                } catch(NumberFormatException nfe) {}
+                }
+                catch(NumberFormatException nfe) {}
             }
         }
         return ret;

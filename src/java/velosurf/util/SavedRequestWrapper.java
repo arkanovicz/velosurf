@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.util;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpServletRequestWrapper;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpSession;
 
 /**
  * <p>This class provides request parameters, headers, cookies from original requrest or saved request.</p>
@@ -29,9 +31,9 @@ import java.util.*;
  * @author Andrey Grebnev <a href="mailto:andrey.grebnev@blandware.com">&lt;andrey.grebnev@blandware.com&gt;</a>
  * @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-
-public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpServletRequestWrapper {
-
+public @SuppressWarnings("deprecation")
+class SavedRequestWrapper extends HttpServletRequestWrapper
+{
     /** the saved request. */
     private SavedRequest savedRequest = null;
 
@@ -55,23 +57,27 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
      * Constructor
      * @param request to save
      */
-    public SavedRequestWrapper(HttpServletRequest request,SavedRequest saved) {
+    public SavedRequestWrapper(HttpServletRequest request, SavedRequest saved)
+    {
         super(request);
 
         HttpSession session = request.getSession(false);
-        if (session == null)
+
+        if(session == null)
+        {
             return;
+        }
 
         String requestURI = saved.getRequestURI();
-        if (requestURI == null)
+
+        if(requestURI == null)
+        {
             return;
-
+        }
         savedRequest = saved;
-
         formats[0] = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
         formats[1] = new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US);
         formats[2] = new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US);
-
         formats[0].setTimeZone(GMT_ZONE);
         formats[1].setTimeZone(GMT_ZONE);
         formats[2].setTimeZone(GMT_ZONE);
@@ -82,7 +88,8 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
      * on the wrapped request object.
      * @return the HTTP method
      */
-    public String getMethod() {
+    public String getMethod()
+    {
         return savedRequest.getMethod();
     }
 
@@ -92,11 +99,14 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
      * @param name header name
      * @return header value or null
      */
-    public String getHeader(String name) {
+    public String getHeader(String name)
+    {
         String header = null;
         Iterator iterator = savedRequest.getHeaderValues(name);
-        while (iterator.hasNext()) {
-            header = (String) iterator.next();
+
+        while(iterator.hasNext())
+        {
+            header = (String)iterator.next();
             break;
         }
         return header;
@@ -108,13 +118,17 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
      * @param name integer header name
      * @return integer header value or -1
      */
-
-    public int getIntHeader(String name) {
+    public int getIntHeader(String name)
+    {
         String value = getHeader(name);
-        if (value == null) {
-            return (-1);
-        } else {
-            return (Integer.parseInt(value));
+
+        if(value == null)
+        {
+            return(-1);
+        }
+        else
+        {
+            return(Integer.parseInt(value));
         }
     }
 
@@ -124,14 +138,20 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
      * @param name date header name
      * @return date header value or null
      */
-    public long getDateHeader(String name) {
+    public long getDateHeader(String name)
+    {
         String value = getHeader(name);
-        if (value == null)
-            return (-1L);
+
+        if(value == null)
+        {
+            return(-1L);
+        }
 
         // Attempt to convert the date header in a variety of formats
         long result = FastHttpDateFormat.parseDate(value, formats);
-        if (result != (-1L)) {
+
+        if(result != (-1L))
+        {
             return result;
         }
         throw new IllegalArgumentException(value);
@@ -142,11 +162,10 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
      * on the wrapped request object.
      * @return an enumeration of header names
      */
-
-    public Enumeration getHeaderNames() {
+    public Enumeration getHeaderNames()
+    {
         return new Enumerator(savedRequest.getHeaderNames());
     }
-
 
     /**
      * The default behavior of this method is to return getHeaders(String name)
@@ -154,7 +173,8 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
      * @param name multivalued header
      * @return enumeration of values for this header
      */
-    public Enumeration getHeaders(String name) {
+    public Enumeration getHeaders(String name)
+    {
         return new Enumerator(savedRequest.getHeaderValues(name));
     }
 
@@ -163,9 +183,11 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
      * on the wrapped request object.
      * @return cookies array
      */
-    public Cookie[] getCookies() {
+    public Cookie[] getCookies()
+    {
         List cookies = savedRequest.getCookies();
-        return (Cookie[])cookies.toArray(new Cookie[cookies.size()]);
+
+        return(Cookie[])cookies.toArray(new Cookie[cookies.size()]);
     }
 
     /**
@@ -174,7 +196,8 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
      * @param name parameter name
      * @value array of values
      */
-    public String[] getParameterValues(String name) {
+    public String[] getParameterValues(String name)
+    {
         return savedRequest.getParameterValues(name);
     }
 
@@ -183,8 +206,8 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
      * on the wrapped request object.
      * @return enumeration of parameter names
      */
-
-    public Enumeration getParameterNames() {
+    public Enumeration getParameterNames()
+    {
         return new Enumerator(savedRequest.getParameterNames());
     }
 
@@ -193,7 +216,8 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
      * on the wrapped request object.
      * @return parameter map
      */
-    public Map getParameterMap() {
+    public Map getParameterMap()
+    {
         return savedRequest.getParameterMap();
     }
 
@@ -203,29 +227,37 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
      * @param name parameter name
      * @return  parameter value
      */
-
-    public String getParameter(String name) {
+    public String getParameter(String name)
+    {
         String[] values = savedRequest.getParameterValues(name);
-        if (values == null) {
+
+        if(values == null)
+        {
             return null;
-        } else {
+        }
+        else
+        {
             return values[0];
         }
     }
-
 
     /**
      * The default behavior of this method is to return getLocales()
      * on the wrapped request object.
      * @return enumeration of locales
      */
-
-    public Enumeration getLocales() {
+    public Enumeration getLocales()
+    {
         Iterator iterator = savedRequest.getLocales();
-        if (iterator.hasNext()) {
+
+        if(iterator.hasNext())
+        {
             return new Enumerator(iterator);
-        } else {
+        }
+        else
+        {
             ArrayList results = new ArrayList();
+
             results.add(defaultLocale);
             return new Enumerator(results.iterator());
         }
@@ -236,17 +268,22 @@ public @SuppressWarnings("deprecation") class SavedRequestWrapper extends HttpSe
      * on the wrapped request object.
      * @return locale
      */
-
-    public Locale getLocale() {
+    public Locale getLocale()
+    {
         Locale locale = null;
         Iterator iterator = savedRequest.getLocales();
-        while (iterator.hasNext()) {
-            locale = (Locale) iterator.next();
+
+        while(iterator.hasNext())
+        {
+            locale = (Locale)iterator.next();
             break;
         }
-        if (locale == null) {
+        if(locale == null)
+        {
             return defaultLocale;
-        } else {
+        }
+        else
+        {
             return locale;
         }
     }

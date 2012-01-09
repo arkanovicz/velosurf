@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.model;
 
 import java.util.List;
-
-import velosurf.util.StringLists;
 import velosurf.util.Logger;
+import velosurf.util.StringLists;
 
-/** An exported key (aka primary key used in a foreign key) attribute.
+/**
+ * An exported key (aka primary key used in a foreign key) attribute.
  *
  */
-
-public class ExportedKey extends Attribute {
-
+public class ExportedKey extends Attribute
+{
     /**
      * List of foreign keys.
      */
@@ -44,37 +45,41 @@ public class ExportedKey extends Attribute {
      * @param fkEntity foreign key entity
      * @param fkCols foreign key columns
      */
-    public ExportedKey(String name,Entity entity,String fkEntity,List<String> fkCols) {
-        super(name,entity);
+    public ExportedKey(String name, Entity entity, String fkEntity, List<String> fkCols)
+    {
+        super(name, entity);
         setResultType(Attribute.ROWSET);
         setResultEntity(fkEntity);
-        this.fkCols = fkCols; /* may still be null at this stage */
+        this.fkCols = fkCols;    /* may still be null at this stage */
     }
 
     /**
      * Foreign key columns getter.
      * @return foreign key columns list
      */
-    public List<String> getFKCols() {
-      if(fkCols == null)
-      {
-        fkCols = entity.getPKCols();
-      }
-      return fkCols;
+    public List<String> getFKCols()
+    {
+        if(fkCols == null)
+        {
+            fkCols = entity.getPKCols();
+        }
+        return fkCols;
     }
 
     /**
      * Foreign key columns setter.
      * @param fkCols foreign key columns list
      */
-    public void setFKCols(List<String> fkCols) {
+    public void setFKCols(List<String> fkCols)
+    {
         this.fkCols = fkCols;
     }
 
     /**
      * Set order
      */
-	public void setOrder(String order) {
+    public void setOrder(String order)
+    {
         this.order = order;
     }
 
@@ -82,27 +87,35 @@ public class ExportedKey extends Attribute {
      * Query getter.
      * @return the SQL query
      */
-    protected synchronized String getQuery() {
-        if(query == null) {
+    protected synchronized String getQuery()
+    {
+        if(query == null)
+        {
             Entity fkEntity = db.getEntity(resultEntity);
-            for(String param:getEntity().getPKCols()) {
+
+            for(String param : getEntity().getPKCols())
+            {
                 addParamName(param);
             }
-            query = "SELECT * FROM " + fkEntity.getTableName() + " WHERE " + StringLists.join(getFKCols()," = ? AND ") + " = ?";
-            if(order != null) {
-                query += " ORDER BY "+order;
+            query = "SELECT * FROM " + fkEntity.getTableName() + " WHERE " + StringLists.join(getFKCols(), " = ? AND ")
+                    + " = ?";
+            if(order != null)
+            {
+                query += " ORDER BY " + order;
             }
+
 //          Logger.debug(getEntity().getName()+"."+getName()+" = "+query+" [ with params "+StringLists.join(getEntity().getPKCols(),",")+" ]" );
         }
         return query;
     }
 
-    /** Debug method.
+    /**
+     * Debug method.
      *
      * @return the definition string of this attribute
      */
-    public String toString() {
-        return "exported-key"+(fkCols==null?"":" on "+StringLists.join(fkCols,","));
+    public String toString()
+    {
+        return "exported-key" + (fkCols == null ? "" : " on " + StringLists.join(fkCols, ","));
     }
-
 }

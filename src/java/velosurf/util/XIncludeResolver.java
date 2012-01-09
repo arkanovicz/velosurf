@@ -14,156 +14,209 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.util;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.net.URL;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletContext;
-
+import org.jdom.Content;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.Content;
 import org.jdom.Text;
 import org.jdom.input.SAXBuilder;
 
-/** <p>A basic JDOM XInclude resolver that will also work with a document base inside WEB-INF
+/**
+ * <p>A basic JDOM XInclude resolver that will also work with a document base inside WEB-INF
  * and with war archives.</p>
  *
  * @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-
-public class XIncludeResolver {
+public class XIncludeResolver
+{
     /** base directory */
     private String base = null;
+
     /** servlet context */
     private ServletContext context = null;
+
     /**
      * Constructor for a webapp resolver.
      * @param base base directory
      * @param ctx servlet context
      */
-    public XIncludeResolver(String base,ServletContext ctx) {
+    public XIncludeResolver(String base, ServletContext ctx)
+    {
         this.base = base;
         this.context = ctx;
     }
+
     /**
      * Constructor outside a webapp.
      * @param base base directory
      */
-    public XIncludeResolver(String base) {
+    public XIncludeResolver(String base)
+    {
         this.base = base;
     }
+
     /**
      * Resolve includes in the document.
      * @param doc document to be resolved
      * @return document with includes resolved
      * @throws Exception
      */
-    public Document resolve(Document doc) throws Exception {
+    public Document resolve(Document doc) throws Exception
+    {
         Element root = doc.getRootElement();
+
         /* special case where the root element is an XInclude element */
-        if (isXIncludeElement(root)) {
+        if(isXIncludeElement(root))
+        {
             int pos = doc.indexOf(root);
             List<Content> resolved = include(root);
+
             /* doc.detachRootElement(); */
-            doc.setContent(pos,resolved);
-        } else {
+            doc.setContent(pos, resolved);
+        }
+        else
+        {
             resolveChildren(root);
         }
         return doc;
     }
+
     /**
      * Check whether this element is an include element.
      * @param element element to check
      * @return true if this element is an include element
      */
-    private boolean isXIncludeElement(Element element) {
+    private boolean isXIncludeElement(Element element)
+    {
         return element.getName().equals("include") && element.getNamespacePrefix().equals("xi");
     }
+
     /**
      * Resolve children XML elements.
      * @param parent parent XML element
      * @throws Exception
      */
-    private void resolveChildren(Element parent) throws Exception {
+    private void resolveChildren(Element parent) throws Exception
+    {
         List<Element> children = (List<Element>)parent.getChildren();
-        for(int i=0;i<children.size();i++) {
+
+        for(int i = 0; i < children.size(); i++)
+        {
             Element child = (Element)children.get(i);
-            if (isXIncludeElement((Element)child)) {
+
+            if(isXIncludeElement((Element)child))
+            {
                 int pos = parent.indexOf(child);
                 List<Content> resolved = include((Element)child);
-                parent.setContent(pos,resolved);
-            } else {
+
+                parent.setContent(pos, resolved);
+            }
+            else
+            {
                 resolveChildren(child);
             }
         }
     }
+
     /**
      * Performs the real include.
      * @param xinclude xinclude element
      * @return included content
      * @throws Exception
      */
-    private List<Content> include(Element xinclude) throws Exception {
+    private List<Content> include(Element xinclude) throws Exception
+    {
         List<Content> result = null;
         String href = xinclude.getAttributeValue("href");
-        String base = xinclude.getAttributeValue("base",this.base);
+        String base = xinclude.getAttributeValue("base", this.base);
         boolean parse = true;
         String p = xinclude.getAttributeValue("parse");
-        if (p!=null) {
+
+        if(p != null)
+        {
             parse = "xml".equals(p);
         }
         assert(href != null && base != null);
+
         String content = null;
         int i = href.indexOf(':');
-        if(i != -1) {
+
+        if(i != -1)
+        {
             /* absolute URL... */
-            Logger.info("XInclude: including element "+href);
+            Logger.info("XInclude: including element " + href);
             content = readStream(new URL(href).openStream());
-        } else {
-            if (!href.startsWith("/")) {
-                if(base.length() == 0) {
+        }
+        else
+        {
+            if(!href.startsWith("/"))
+            {
+                if(base.length() == 0)
+                {
                     base = "./";
-                } else if (!base.endsWith("/")) {
+                }
+                else if(!base.endsWith("/"))
+                {
                     base += "/";
                 }
                 href = base + href;
             }
-            Logger.info("XInclude: including element "+href +(context==null?" (using absolute pathname)":" (using provided servlet context, pathname is relative to Webapp root)"));
+            Logger.info("XInclude: including element " + href
+                        + (context == null
+                           ? " (using absolute pathname)"
+                           : " (using provided servlet context, pathname is relative to Webapp root)"));
+
             InputStream stream = (context == null ? new FileInputStream(href) : context.getResourceAsStream(href));
-            if(stream == null) {
-                throw new Exception ("XInclude: included file "+href+" not found!");
+
+            if(stream == null)
+            {
+                throw new Exception("XInclude: included file " + href + " not found!");
             }
             content = readStream(stream);
         }
-        if (parse) {
-            content = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><root xmlns:xi=\"http://www.w3.org/2001/XInclude\">"+content+"</root>";
-            Document parsed = resolve(new SAXBuilder().build(new StringReader(content))); /* TODO yet to prevent cyclic inclusions...*/
+        if(parse)
+        {
+            content = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><root xmlns:xi=\"http://www.w3.org/2001/XInclude\">"
+                      + content + "</root>";
+
+            Document parsed = resolve(new SAXBuilder().build(new StringReader(content)));    /* TODO yet to prevent cyclic inclusions... */
+
             result = (List<Content>)parsed.getRootElement().removeContent();
-        } else {
+        }
+        else
+        {
             result = new ArrayList<Content>();
             result.add(new Text(content));
         }
         return result;
     }
+
     /**
      * Read a stream in a string.
      * @param stream stream
      * @return accumulated string
      * @throws Exception
      */
-    private String readStream(InputStream stream) throws Exception {
+    private String readStream(InputStream stream) throws Exception
+    {
         StringBuilder result = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         String line;
-        while ((line = reader.readLine()) != null) {
+
+        while((line = reader.readLine()) != null)
+        {
             result.append(line);
             result.append('\n');
         }

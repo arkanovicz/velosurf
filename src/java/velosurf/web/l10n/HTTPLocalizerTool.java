@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.web.l10n;
 
-import org.apache.velocity.tools.view.context.ViewContext;
-
+import java.lang.ref.WeakReference;
+import java.text.MessageFormat;
+import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.*;
-import java.text.MessageFormat;
-import java.lang.ref.WeakReference;
-
+import org.apache.velocity.tools.view.context.ViewContext;
 import velosurf.util.Logger;
 
-/** <p>This class rely on the "Accepted-Language" HTTP header to detect
+/**
+ * <p>This class rely on the "Accepted-Language" HTTP header to detect
  *  the appropriate locale to be used.</p>
  *
  * <p>This tool accepts a "default-locale" configuration parameter in toolbox.xml.</p>
@@ -34,30 +35,36 @@ import velosurf.util.Logger;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
- **/
-
-
-public abstract class HTTPLocalizerTool implements Localizer {
-
+ */
+public abstract class HTTPLocalizerTool implements Localizer
+{
     /**
      * Initialize this tool.
      * @param initData a view context
      */
-    public void init(Object initData) {
-        if (initData instanceof ViewContext) {
+    public void init(Object initData)
+    {
+        if(initData instanceof ViewContext)
+        {
             HttpSession session = ((ViewContext)initData).getRequest().getSession();
-            if (session != null) {
+
+            if(session != null)
+            {
                 this.session = new WeakReference<HttpSession>(session);
+
                 Locale locale = (Locale)session.getAttribute("velosurf.l10n.active-locale");
-                if (locale == null) {
+
+                if(locale == null)
+                {
                     /* means the localization filter did not intercept this query */
                     locale = getBestLocale(listFromEnum(((ViewContext)initData).getRequest().getLocales()));
-                    Logger.trace("l10n: unlocalized page - using locale "+locale);
+                    Logger.trace("l10n: unlocalized page - using locale " + locale);
                 }
                 setLocale(locale);
             }
         }
-        else {
+        else
+        {
             Logger.error("l10n: Localizer tool should be used in a session scope!");
             return;
         }
@@ -68,9 +75,12 @@ public abstract class HTTPLocalizerTool implements Localizer {
      * @param e enumeration
      * @return a list of locales
      */
-    private static List<Locale> listFromEnum(Enumeration e) {
+    private static List<Locale> listFromEnum(Enumeration e)
+    {
         List<Locale> list = new ArrayList<Locale>();
-        while(e.hasMoreElements()) {
+
+        while(e.hasMoreElements())
+        {
             list.add((Locale)e.nextElement());
         }
         return list;
@@ -81,18 +91,27 @@ public abstract class HTTPLocalizerTool implements Localizer {
      * @param locales list of input locales
      * @return best matching locale
      */
-    public Locale getBestLocale(List<Locale> locales) {
-        for(Locale locale:locales) {
-            if (hasLocale(locale)) {
+    public Locale getBestLocale(List<Locale> locales)
+    {
+        for(Locale locale : locales)
+        {
+            if(hasLocale(locale))
+            {
                 return locale;
             }
         }
+
         /* second pass without the country code */
-        for(Locale locale:locales) {
+        for(Locale locale : locales)
+        {
             String country = locale.getCountry();
-            if(country != null && country.length() > 0) {
+
+            if(country != null && country.length() > 0)
+            {
                 Locale l = new Locale(locale.getLanguage());
-                if (hasLocale(l)) {
+
+                if(hasLocale(l))
+                {
                     return l;
                 }
             }
@@ -111,15 +130,18 @@ public abstract class HTTPLocalizerTool implements Localizer {
      * Current locale setter.
      * @param locale locale
      */
-    public void setLocale(Locale locale) {
+    public void setLocale(Locale locale)
+    {
         this.locale = locale;
     }
 
-    /** Current lcoale getter.
+    /**
+     * Current lcoale getter.
      *
      * @return current locale
      */
-    public Locale getLocale() {
+    public Locale getLocale()
+    {
         checkLocaleChange();
         return locale;
     }
@@ -127,11 +149,16 @@ public abstract class HTTPLocalizerTool implements Localizer {
     /**
      *  Check that the locale has not changed in the session.
      */
-    public void checkLocaleChange() {
+    public void checkLocaleChange()
+    {
         HttpSession s = session.get();
-        if (s != null) {
+
+        if(s != null)
+        {
             Locale l = (Locale)s.getAttribute("velosurf.l10n.active-locale");
-            if (l != null && !l.equals(locale)) {
+
+            if(l != null &&!l.equals(locale))
+            {
                 setLocale(l);
             }
         }
@@ -144,16 +171,17 @@ public abstract class HTTPLocalizerTool implements Localizer {
      */
     public abstract String get(Object id);
 
-
     /**
      * Get the localized parameterized message for this key.
      * @param id message key
      * @param params message parameters
      * @return localized message (or id if not found).
      */
-    public String get(Object id,Object ... params) {
-        String message = get(id).replaceAll("'","''");
-        return MessageFormat.format(message,params);
+    public String get(Object id, Object... params)
+    {
+        String message = get(id).replaceAll("'", "''");
+
+        return MessageFormat.format(message, params);
     }
 
     /** keep a reference on the session */

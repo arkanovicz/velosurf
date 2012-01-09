@@ -14,57 +14,71 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.context;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Map;
-
+import java.util.Set;
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
 import velosurf.sql.PooledStatement;
-import velosurf.sql.SqlUtil;
-import velosurf.sql.RowHandler;
 import velosurf.sql.ReadOnlyMap;
+import velosurf.sql.RowHandler;
+import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
+
 //import velosurf.util.UserContext;
 
-/** This class is a context wrapper for ResultSets, and provides an iteration mecanism for #foreach loops, as long as getters for values of the current row.
+/**
+ * This class is a context wrapper for ResultSets, and provides an iteration mecanism for #foreach loops, as long as getters for values of the current row.
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public class RowIterator implements Iterator<Instance>, RowHandler {
-
-    /** Build a new RowIterator.
+public class RowIterator implements Iterator<Instance>, RowHandler
+{
+    /**
+     * Build a new RowIterator.
      *
      * @param pooledStatement the sql statement
      * @param resultSet the resultset
      * @param resultEntity the resulting entity (may be null)
      */
-    public RowIterator(PooledStatement pooledStatement,ResultSet resultSet,Entity resultEntity) {
+    public RowIterator(PooledStatement pooledStatement, ResultSet resultSet, Entity resultEntity)
+    {
         this.pooledStatement = pooledStatement;
         this.resultSet = resultSet;
         this.resultEntity = resultEntity;
     }
 
-    /** Returns true if the iteration has more elements.
+    /**
+     * Returns true if the iteration has more elements.
      *
      * @return <code>true</code> if the iterator has more elements.
      */
-    public boolean hasNext() {
+    public boolean hasNext()
+    {
         boolean ret = false;
-        try {
+
+        try
+        {
             /* always need to prefetch, as some JDBC drivers (like HSQLDB driver) seem buggued to this regard */
-            if(isOver) {
+            if(isOver)
+            {
                 return false;
-            } else if(prefetch) {
+            }
+            else if(prefetch)
+            {
                 return true;
-            } else {
+            }
+            else
+            {
                 try
                 {
                     pooledStatement.getConnection().enterBusyState();
@@ -74,15 +88,20 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
                 {
                     pooledStatement.getConnection().leaveBusyState();
                 }
-                if (ret) {
+                if(ret)
+                {
                     prefetch = true;
-                } else {
-                  isOver = true;
-                  pooledStatement.notifyOver();
+                }
+                else
+                {
+                    isOver = true;
+                    pooledStatement.notifyOver();
                 }
             }
             return ret;
-        } catch (SQLException e) {
+        }
+        catch(SQLException e)
+        {
             Logger.log(e);
             isOver = true;
             pooledStatement.notifyOver();
@@ -90,28 +109,40 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
         }
     }
 
-    /** Returns the next element in the iteration.
+    /**
+     * Returns the next element in the iteration.
      *
      * @return an Instance.
      */
-    public Instance next() {
-        try {
-            if(isOver || !prefetch && !resultSet.next()) {
-                if(!isOver) {
+    public Instance next()
+    {
+        try
+        {
+            if(isOver ||!prefetch &&!resultSet.next())
+            {
+                if(!isOver)
+                {
                     isOver = true;
                     pooledStatement.notifyOver();
                 }
                 return null;
             }
             prefetch = false;
-            if (resultEntity != null) {
+            if(resultEntity != null)
+            {
                 Instance row = null;
-                row = resultEntity.newInstance(new ReadOnlyMap(this),true);
+
+                row = resultEntity.newInstance(new ReadOnlyMap(this), true);
                 row.setClean();
                 return row;
             }
-            else return new Instance(new ReadOnlyMap(this));
-        } catch(SQLException sqle) {
+            else
+            {
+                return new Instance(new ReadOnlyMap(this));
+            }
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             isOver = true;
             pooledStatement.notifyOver();
@@ -120,150 +151,210 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
     }
 
     // for Iterator interface, but RO (why? -> positionned updates and deletes => TODO)
-    /** not implemented.
+
+    /**
+     * not implemented.
      */
-    public void remove() {
+    public void remove()
+    {
         Logger.warn("'remove' not implemented");
     }
 
-    /** Generic getter for values of the current row. If no column corresponds to the specified name and a resulting entity has been specified, search among this entity's attributes.
+    /**
+     * Generic getter for values of the current row. If no column corresponds to the specified name and a resulting entity has been specified, search among this entity's attributes.
      * Note that this method is the only getter of RowIterator that cares about obfuscation - other specialized getters
      * won't do any obfuscation.
      *
      * @param key the name of an existing column or attribute
      * @return an entity, an attribute reference, an instance, a string or null
      */
-    public Object get(Object key) {
+    public Object get(Object key)
+    {
         String property = (String)key;
         Object result = null;
-        try {
-            if (!dataAvailable()) return null;
-            if (resultEntity!=null) {
-                property = resultEntity.resolveName(property);
-                Attribute attribute = resultEntity.getAttribute(property);
-                if (attribute != null)
-                        switch (attribute.getType()) {
-                            case Attribute.ROWSET:
-                                result = attribute.query(new ReadOnlyMap(this));
-                                break;
-                            case Attribute.ROW:
-                                result = attribute.fetch(new ReadOnlyMap(this));
-                                break;
-                            case Attribute.SCALAR:
-                                result = attribute.evaluate(new ReadOnlyMap(this));
-                                break;
-                            default:
-                                Logger.error("Unknown attribute type for "+resultEntity.getName()+"."+property+"!");
-                        }
+
+        try
+        {
+            if(!dataAvailable())
+            {
+                return null;
             }
-            if (result == null) {
-                if (resultEntity != null && resultEntity.isObfuscated(property))
-                    result = resultEntity .obfuscate(resultSet.getObject(property));
+            if(resultEntity != null)
+            {
+                property = resultEntity.resolveName(property);
+
+                Attribute attribute = resultEntity.getAttribute(property);
+
+                if(attribute != null)
+                {
+                    switch(attribute.getType())
+                    {
+                        case Attribute.ROWSET :
+                            result = attribute.query(new ReadOnlyMap(this));
+                            break;
+                        case Attribute.ROW :
+                            result = attribute.fetch(new ReadOnlyMap(this));
+                            break;
+                        case Attribute.SCALAR :
+                            result = attribute.evaluate(new ReadOnlyMap(this));
+                            break;
+                        default :
+                            Logger.error("Unknown attribute type for " + resultEntity.getName() + "." + property + "!");
+                    }
+                }
+            }
+            if(result == null)
+            {
+                if(resultEntity != null && resultEntity.isObfuscated(property))
+                {
+                    result = resultEntity.obfuscate(resultSet.getObject(property));
+                }
                 else
+                {
                     result = resultSet.getObject(property);
+                }
             }
         }
-        catch (SQLException e) {
+        catch(SQLException e)
+        {
             Logger.log(e);
         }
-
         return result;
     }
 
-    /** Gets all the rows in a list of instances.
+    /**
+     * Gets all the rows in a list of instances.
      *
      * @return a list of all the rows
      */
-    public List<Instance> getRows() {
-        try {
+    public List<Instance> getRows()
+    {
+        try
+        {
             List<Instance> ret = new ArrayList<Instance>();
+
             pooledStatement.getConnection().enterBusyState();
-            if(resultEntity != null) {
-                while (!resultSet.isAfterLast() && resultSet.next()) {
-                    Instance i = resultEntity.newInstance(new ReadOnlyMap(this),true);
+            if(resultEntity != null)
+            {
+                while(!resultSet.isAfterLast() && resultSet.next())
+                {
+                    Instance i = resultEntity.newInstance(new ReadOnlyMap(this), true);
+
                     i.setClean();
                     ret.add(i);
                 }
-            } else {
-                while (!resultSet.isAfterLast() && resultSet.next()) {
+            }
+            else
+            {
+                while(!resultSet.isAfterLast() && resultSet.next())
+                {
                     Instance i = new Instance(new ReadOnlyMap(this));
+
                     ret.add(i);
                 }
             }
             return ret;
-        } catch(SQLException sqle) {
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             return null;
-        } finally {
+        }
+        finally
+        {
             pooledStatement.getConnection().leaveBusyState();
             pooledStatement.notifyOver();
             isOver = true;
         }
     }
 
-    public List getScalars() {
-        try {
+    public List getScalars()
+    {
+        try
+        {
             List ret = new ArrayList();
+
             pooledStatement.getConnection().enterBusyState();
-            while (!resultSet.isAfterLast() && resultSet.next()) {
+            while(!resultSet.isAfterLast() && resultSet.next())
+            {
                 ret.add(resultSet.getObject(0));
             }
             return ret;
-        } catch(SQLException sqle) {
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             return null;
-        } finally {
+        }
+        finally
+        {
             pooledStatement.getConnection().leaveBusyState();
             pooledStatement.notifyOver();
             isOver = true;
         }
     }
-
 
     Set cachedSet = null;
 
     /*  */
-    public Set<String> keySet() {
-        try {
-	    if(cachedSet == null) cachedSet = new HashSet<String>(SqlUtil.getColumnNames(resultSet));
-	    return cachedSet;
-        } catch(SQLException sqle) {
+    public Set<String> keySet()
+    {
+        try
+        {
+            if(cachedSet == null)
+            {
+                cachedSet = new HashSet<String>(SqlUtil.getColumnNames(resultSet));
+            }
+            return cachedSet;
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             return null;
         }
     }
 
     /*  */
-    public List<String> keyList() {
-        try {
-            return  SqlUtil.getColumnNames(resultSet);
-        } catch(SQLException sqle) {
+    public List<String> keyList()
+    {
+        try
+        {
+            return SqlUtil.getColumnNames(resultSet);
+        }
+        catch(SQLException sqle)
+        {
             Logger.log(sqle);
             return null;
         }
     }
 
-
-    /** Check if some data is available.
+    /**
+     * Check if some data is available.
      *
      * @exception SQLException if the internal ResultSet is not happy
      * @return <code>true</code> if some data is available (ie the internal
      *     ResultSet is not empty, and not before first row neither after last
      *     one)
      */
-    private boolean dataAvailable() throws SQLException {
+    private boolean dataAvailable() throws SQLException
+    {
         boolean ret = false;
-        if (resultSet.isBeforeFirst()) {
-            try {
+
+        if(resultSet.isBeforeFirst())
+        {
+            try
+            {
                 pooledStatement.getConnection().enterBusyState();
                 ret = resultSet.next();
                 return ret;
-            } finally {
+            }
+            finally
+            {
                 pooledStatement.getConnection().leaveBusyState();
                 if(!ret)
                 {
-                  pooledStatement.notifyOver();
-                  isOver = true;
+                    pooledStatement.notifyOver();
+                    isOver = true;
                 }
             }
         }
@@ -271,13 +362,18 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
         return ret;
     }
 
-    /** Source statement.
+    /**
+     * Source statement.
      */
     private PooledStatement pooledStatement = null;
-    /** Wrapped result set.
+
+    /**
+     * Wrapped result set.
      */
     private ResultSet resultSet = null;
-    /** Resulting entity.
+
+    /**
+     * Resulting entity.
      */
     private Entity resultEntity = null;
 
@@ -286,5 +382,4 @@ public class RowIterator implements Iterator<Instance>, RowHandler {
 
     /** whether we reached the end */
     private boolean isOver = false;
-
 }

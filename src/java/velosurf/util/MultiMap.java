@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.util;
 
 import java.util.List;
@@ -25,8 +27,8 @@ import java.util.Set;
  * @author     Mark Richters
  * @see         java.util.Map
  */
-
-public interface MultiMap {
+public interface MultiMap
+{
     // Query Operations
 
     /**
@@ -113,8 +115,8 @@ public interface MultiMap {
     /*
      * Returns a collection view of the values contained in this map.
      */
-    //Collection values();
 
+    // Collection values();
     // Comparison and hashing
 
     /**

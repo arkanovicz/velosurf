@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.validation;
 
 /**
@@ -23,6 +25,4 @@ package velosurf.validation;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-
-public class RowConstraint {
-}
+public class RowConstraint{}

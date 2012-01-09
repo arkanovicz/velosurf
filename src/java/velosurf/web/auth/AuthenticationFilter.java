@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.web.auth;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Locale;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -29,7 +30,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import velosurf.util.*;
 import velosurf.web.l10n.Localizer;
 
@@ -101,57 +101,92 @@ import velosurf.web.l10n.Localizer;
  *
  */
 
-public class AuthenticationFilter implements Filter {
+public class AuthenticationFilter implements Filter
+{
 
-    /** filter config. */
+    /**
+     * Filter config.
+     */
     private FilterConfig config = null;
 
-    /** Max inactive interval. */
+    /**
+     * Max inactive interval.
+     */
     private int maxInactive = 3600;
 
-    /** Login field. */
+    /**
+     * Login field.
+     */
     private String loginField = "login";
 
-    /** Password field. */
+    /**
+     * Password field.
+     */
     private String passwordField = "password";
 
-    /** Login page. */
+    /**
+     * Login page.
+     */
     private String loginPage = "/login.vhtml";
 
-    /** Index of the authenticated zone. */
+    /**
+     * Index of the authenticated zone.
+     */
     private String authenticatedIndexPage = "/index.vhtml";
 
-    /** Message in case of bad login. */
+    /**
+     * Message in case of bad login.
+     */
     private String badLoginMessage = null;
 
-    /** Message key in case of bad login. */
+    /**
+     * Message key in case of bad login.
+     */
     private String badLoginMsgKey = "badLogin";
 
-    /** Default bad login message. */
+    /**
+     * Default bad login message.
+     */
     private static final String defaultBadLoginMessage = "Bad login or password.";
 
-    /** Message in case of disconnection. */
+    /**
+     * Message in case of disconnection.
+     */
     private String disconnectedMessage = null;
 
-    /** Message key in case of disconnection. */
+    /**
+     * Message key in case of disconnection.
+     */
     private String disconnectedMsgKey = "disconnected";
 
-    /** Default message in case of disconnection. */
+    /**
+     * Default message in case of disconnection.
+     */
     private static final String defaultDisconnectedMessage = "You have been disconnected.";
 
-    /** Session key used to store logged user login */
+    /**
+     * Session key used to store logged user login
+     */
     private String LOGIN = "velosurf.auth.login";
 
-    /** Session key used to store logged user object */
+    /**
+     * Session key used to store logged user object
+     */
     private String USER = "velosurf.auth.user";
 
-    /** Session key used to store original pre-login request */
+    /**
+     * Session key used to store original pre-login request
+     */
     public static final String REQUEST = "velosurf.auth.saved-request";
 
-    /** Should we use the referer to login.do? */
+    /**
+     * Should we use the referer to login.do?
+     */
     private boolean useLoginReferer = false;
 
-    /** Should we use the referer to login.do? */
+    /**
+     * Should we use the referer to login.do?
+     */
     private boolean allowGuest = false;
 
     /**
@@ -159,57 +194,69 @@ public class AuthenticationFilter implements Filter {
      * @param config filter config
      * @throws ServletException
      */
-    public void init(FilterConfig config) throws ServletException {
+    public void init(FilterConfig config) throws ServletException
+    {
         this.config = config;
 
         /* logger initialization */
-        if (!Logger.isInitialized()) {
+        if (!Logger.isInitialized())
+        {
             Logger.setWriter(new ServletLogWriter(config.getServletContext()));
         }
 
         /* max-inactive */
         String param = this.config.getInitParameter("max-inactive");
-        if (param != null) {
-            try {
+        if (param != null)
+        {
+            try
+            {
                 maxInactive = Integer.parseInt(param);
-            } catch (NumberFormatException nfe) {
+            }
+            catch (NumberFormatException nfe)
+            {
                 Logger.error("AuthenticationFilter: bad format for the max-inactive parameter: "+param);
             }
         }
 
         /* login field */
         param = this.config.getInitParameter("login-field");
-        if (param != null) {
+        if (param != null)
+        {
             loginField = param;
         }
 
         /* password field */
         param = this.config.getInitParameter("password-field");
-        if (param != null) {
+        if (param != null)
+        {
             passwordField = param;
         }
 
         /* login session key */
         param = this.config.getInitParameter("login-key");
-        if (param != null) {
+        if (param != null)
+        {
             LOGIN = param;
         }
 
         /* user session key */
         param = this.config.getInitParameter("user-key");
-        if (param != null) {
+        if (param != null)
+        {
             USER = param;
         }
 
         /* login page */
         param = this.config.getInitParameter("login-page");
-        if (param != null) {
+        if (param != null)
+        {
             loginPage = param;
         }
 
         /* authenticated index page */
         param = this.config.getInitParameter("authenticated-index-page");
-        if (param != null) {
+        if (param != null)
+        {
             authenticatedIndexPage = param;
         }
 
@@ -238,7 +285,8 @@ public class AuthenticationFilter implements Filter {
      * @throws ServletException
      */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
-            throws IOException, ServletException {
+            throws IOException, ServletException
+    {
         HttpServletRequest request = (HttpServletRequest)servletRequest;
         HttpSession session = request.getSession(false);
         HttpServletResponse response = (HttpServletResponse)servletResponse;
@@ -249,27 +297,37 @@ public class AuthenticationFilter implements Filter {
 
         if (session != null
                 && session.getId().equals(request.getRequestedSessionId()) /* not needed in theory */
-                && session.getAttribute(USER) != null) {
+                && session.getAttribute(USER) != null)
+        {
             /* already logged*/
 
             /* need to refresh cached user instance in case it changed */
             refreshUserInstance(session);
             
             /* if asked to logout, well, logout! */
-            if (uri.endsWith("/logout.do")) {
+            if (uri.endsWith("/logout.do"))
+            {
 				doLogout(request,response,chain);
-            } else {
+            }
+            else
+            {
                 doProcessAuthentified(request,response,chain);
             }
-        } else {
+        }
+        else
+        {
             /* never protect the login page itself */
-            if (uri.equals(resolveLocalizedUri(request,loginPage))) {
+            if (uri.equals(resolveLocalizedUri(request,loginPage)))
+            {
                 chain.doFilter(request,response);
                 return;
             }
-            if (session == null) {
+            if (session == null)
+            {
                 session = request.getSession(true);
-            } else {
+            }
+            else
+            {
                 /* clear any previous loginMessage */
                 session.removeAttribute("loginMessage");
             }
@@ -278,48 +336,62 @@ public class AuthenticationFilter implements Filter {
             if ( uri.endsWith("/login.do")
                     && (login = request.getParameter(loginField)) != null
                     && (password = request.getParameter(passwordField)) != null
-                    && session.getId().equals(request.getRequestedSessionId())) {
+                    && session.getId().equals(request.getRequestedSessionId()))
+            {
                 // a user is trying to log in
 
-                if(allowGuest && login.equals("guest")) { // TODO parametrize "guest" -> GUEST
-        		    Logger.trace("[auth] logging in guest user");
+                if(allowGuest && login.equals("guest"))
+                { // TODO parametrize "guest" -> GUEST
+                    Logger.trace("[auth] logging in guest user");
                     doLogin(request,response,chain);
-                } else {
+                }
+                else
+                {
                     // get a reference to the authenticator tool
                     BaseAuthenticator auth = ToolFinder.findSessionTool(session,BaseAuthenticator.class);
-    
-                    if (auth == null) {
+                    if (auth == null)
+                    {
                         Logger.error("[auth] cannot find any reference to the authenticator tool in the session!");
                         /* Maybe the current user tried to validate an expired login form... well... ask him again... */
                         response.sendRedirect(resolveLocalizedUri(request,loginPage));
                         return;
                     }
                     // check answer
-                    if (auth.checkLogin(login,password)) {
+                    if (auth.checkLogin(login,password))
+                    {
                         // login ok
                         doLogin(request,response,chain);
-                    } else {
+                    }
+                    else
+                    {
                         badLogin(request,response,chain);
                     }
                 }
 
-            } else {
+            }
+            else
+            {
                 /* do not redirect to the logout */
-                if (uri.endsWith("/logout.do")) {
+                if (uri.endsWith("/logout.do"))
+                {
                     response.sendRedirect(resolveLocalizedUri(request,loginPage));
-                } else {
+                }
+                else
+                {
                     doRedirect(request,response,chain);
                 }
             }
         }
     }
 
-    protected void refreshUserInstance(HttpSession session) {
+    protected void refreshUserInstance(HttpSession session)
+    {
         session.setAttribute(USER, ToolFinder.findSessionTool(session,BaseAuthenticator.class).getUser((String)session.getAttribute(LOGIN)));
     }
 
     protected void doRedirect(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
-            throws IOException, ServletException {
+            throws IOException, ServletException
+    {
         /* save the original request */
         String uri = request.getRequestURI();
         Logger.trace("[auth] saving request towards "+uri);
@@ -331,11 +403,13 @@ public class AuthenticationFilter implements Filter {
            reuses session ids */
         boolean disconnected = false;
         String reqId = request.getRequestedSessionId();
-        if (reqId != null && (session == null || !session.getId().equals(reqId))) {
+        if (reqId != null && (session == null || !session.getId().equals(reqId)))
+        {
             disconnected = true;
         }
 
-        if(disconnected) {
+        if(disconnected)
+        {
              String message = disconnectedMessage != null ?
                  disconnectedMessage :
                  getMessage(ToolFinder.findSessionTool(session,Localizer.class),disconnectedMsgKey,defaultDisconnectedMessage);
@@ -348,13 +422,15 @@ public class AuthenticationFilter implements Filter {
     }
 
     protected void doLogin(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
-            throws IOException, ServletException {
+            throws IOException, ServletException
+    {
         String login = request.getParameter(loginField);
         Logger.info("[auth] user '"+login+"' successfully logged in.");
         HttpSession session = request.getSession();
         session.setAttribute(USER, ToolFinder.findSessionTool(session,BaseAuthenticator.class).getUser(login));
         session.setAttribute(LOGIN,login);
-        if (maxInactive > 0) {
+        if (maxInactive > 0)
+        {
             Logger.trace("[auth] setting session max inactive interval to "+maxInactive);
              session.setMaxInactiveInterval(maxInactive);
         }
@@ -365,24 +441,29 @@ public class AuthenticationFilter implements Filter {
     }
 
     protected void goodLogin(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
-            throws IOException, ServletException {
+            throws IOException, ServletException
+    {
         HttpSession session = request.getSession();
 
         // trying to use the "redirect=" parameter
         String redirect = request.getParameter("redirect");
         Logger.trace("[auth] redirect = "+redirect);
-        if(redirect != null) {
+        if(redirect != null)
+        {
           Logger.trace("[auth] redirecting newly logged user to 'redirect' param: "+redirect);
           response.sendRedirect(redirect);
           return;
         }
 
         SavedRequest savedRequest = (SavedRequest)session.getAttribute(REQUEST);
-        if (savedRequest == null || savedRequest.getRequestURI().endsWith("/login.do")) {
+        if (savedRequest == null || savedRequest.getRequestURI().endsWith("/login.do"))
+        {
             // try to redirect to the referrer url
-            if(useLoginReferer) {
+            if(useLoginReferer)
+            {
                 String referer = request.getHeader("Referer");
-                if(referer != null) { // TODO: some referer URLs should be avoided (login.do, logout.do...)
+                if(referer != null)
+                { // TODO: some referer URLs should be avoided (login.do, logout.do...)
                     // only keep path and query
                     URL url = new URL(referer);
                     String path = url.getPath();
@@ -399,7 +480,9 @@ public class AuthenticationFilter implements Filter {
             String authIndex = resolveLocalizedUri(request,getAuthenticatedIndexPage(session));
             Logger.trace("[auth] redirecting newly logged user to "+authIndex);
             response.sendRedirect(authIndex);
-        } else {
+        }
+        else
+        {
             session.removeAttribute(REQUEST);
             String formerUrl = savedRequest.getRequestURI();
             String query =  savedRequest.getQueryString();
@@ -411,7 +494,8 @@ public class AuthenticationFilter implements Filter {
     }
 
     protected void badLogin(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
-            throws IOException, ServletException {
+            throws IOException, ServletException
+    {
         Logger.warn("[auth] user " + request.getParameter(loginField) + " made an unsuccessfull login attempt.");
         HttpSession session = request.getSession();
         String message = badLoginMessage != null ?
@@ -425,26 +509,34 @@ public class AuthenticationFilter implements Filter {
     }
 
     protected void doProcessAuthentified(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
-            throws IOException, ServletException {
+            throws IOException, ServletException
+    {
         /* if the request is still pointing on /login.html or /login.do, redirect to /auth/index.html */
         String uri = request.getRequestURI();
         HttpSession session = request.getSession();
-        if (uri.equals(resolveLocalizedUri(request,loginPage)) || uri.endsWith("/login.do")) {
+        if (uri.equals(resolveLocalizedUri(request,loginPage)) || uri.endsWith("/login.do"))
+        {
             goodLogin(request,response,chain);
-        } else {
+        }
+        else
+        {
             Logger.trace("[auth] user is authenticated.");
             SavedRequest saved = (SavedRequest)session.getAttribute(REQUEST);
-            if (saved != null && saved.getRequestURL().equals(request.getRequestURL())) {
+            if (saved != null && saved.getRequestURL().equals(request.getRequestURL()))
+            {
                 session.removeAttribute(REQUEST);
                 chain.doFilter(new SavedRequestWrapper(request,saved),response);
-            } else {
+            }
+            else
+            {
                chain.doFilter(request,response);
             }
         }
     }
 
     protected void doLogout(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
-            throws IOException, ServletException {
+            throws IOException, ServletException
+    {
         HttpSession session = request.getSession();
         Logger.trace("[auth] user logged out");
         session.removeAttribute(USER);
@@ -454,12 +546,15 @@ public class AuthenticationFilter implements Filter {
     }
 
 
-    protected String resolveLocalizedUri(HttpServletRequest request,String uri) {
-        if (uri.indexOf('@')!=-1) {
+    protected String resolveLocalizedUri(HttpServletRequest request,String uri)
+    {
+        if (uri.indexOf('@')!=-1)
+        {
             /* means the uri need the current locale */
             Locale locale = null;
             HttpSession session = request.getSession();
-            if (session != null) {
+            if (session != null)
+            {
                 locale = (Locale)session.getAttribute("velosurf.l10n.active-locale"); /* TODO: gather 'active-locale' handling in HTTPLocalizerTool */
             }
 
@@ -475,7 +570,8 @@ public class AuthenticationFilter implements Filter {
         return uri;
     }
 
-    protected String getAuthenticatedIndexPage(HttpSession session) {
+    protected String getAuthenticatedIndexPage(HttpSession session)
+    {
         return authenticatedIndexPage;
     }
 
@@ -486,9 +582,11 @@ public class AuthenticationFilter implements Filter {
      * @param defaultMessage default message
      * @return localized message or default message
      */
-    protected String getMessage(Localizer localizer,String key,String defaultMessage) {
+    protected String getMessage(Localizer localizer,String key,String defaultMessage)
+    {
         String message = null;
-        if (localizer != null) {
+        if (localizer != null)
+        {
             message = localizer.get(key);
         }
         return message == null || message.equals(key) ? defaultMessage : message;
@@ -497,6 +595,7 @@ public class AuthenticationFilter implements Filter {
     /**
      * Destroy the filter.
      */
-    public void destroy() {
+    public void destroy()
+    {
     }
 }

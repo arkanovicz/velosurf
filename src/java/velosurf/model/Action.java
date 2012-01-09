@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.model;
 
 import java.sql.SQLException;
@@ -21,33 +23,37 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import velosurf.sql.Database;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
 
-/** This class corresponds to custom update, delete and insert queries.
+/**
+ * This class corresponds to custom update, delete and insert queries.
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
 public class Action
 {
-    /** Constructor.
+    /**
+     * Constructor.
      *
      * @param name name
      * @param entity entity
      */
-    public Action(String name,Entity entity) {
+    public Action(String name, Entity entity)
+    {
         this.entity = entity;
         db = this.entity.getDB();
         this.name = name;
     }
 
-    /** Gets the parent entity
+    /**
+     * Gets the parent entity
      * @return parent entity
      */
-    public Entity getEntity() {
+    public Entity getEntity()
+    {
         return entity;
     }
 
@@ -55,7 +61,8 @@ public class Action
      * Add a parameter name.
      * @param paramName
      */
-    public void addParamName(String paramName) {
+    public void addParamName(String paramName)
+    {
         paramNames.add(paramName);
     }
 
@@ -63,90 +70,125 @@ public class Action
      * Sets the query.
      * @param query query
      */
-    public void setQuery(String query) {
+    public void setQuery(String query)
+    {
         this.query = query;
     }
 
-    /** Executes this action.
+    /**
+     * Executes this action.
      *
      * @param source the object on which apply the action
      * @exception SQLException an SQL problem occurs
      * @return number of impacted rows
      */
-    public int perform(Map<String,Object> source) throws SQLException {
+    public int perform(Map<String, Object> source) throws SQLException
+    {
         List params = buildArrayList(source);
+
         return db.prepare(query).update(params);
     }
 
-
-    /** Get the list of values for all parameters.
+    /**
+     * Get the list of values for all parameters.
      *
      * @param source the ReadOnlyMap
      * @exception SQLException thrown by the ReadOnlyMap
      * @return the list of values
      */
-    public List<Object> buildArrayList(Map<String,Object> source) throws SQLException {
+    public List<Object> buildArrayList(Map<String, Object> source) throws SQLException
+    {
         List<Object> result = new ArrayList<Object>();
-        if (source!=null)
-            for (Iterator i = paramNames.iterator();i.hasNext();) {
+
+        if(source != null)
+        {
+            for(Iterator i = paramNames.iterator(); i.hasNext(); )
+            {
                 String paramName = (String)i.next();
                 Object value = source.get(paramName);
-                if(value == null) {
+
+                if(value == null)
+                {
                     /* TODO: same problem than in Entity.extractColumnValues... we need a case-insensitive algorithm */
                     value = source.get(paramName.toUpperCase());
-                    if (value == null) {
+                    if(value == null)
+                    {
                         value = source.get(paramName.toLowerCase());
                     }
                 }
-                if (entity.isObfuscated(paramName)) value = db.deobfuscate(value);
-                if (value == null)  Logger.warn("Action "+getEntity().getName()+"."+name+": param "+paramName+" is null!");
+                if(entity.isObfuscated(paramName))
+                {
+                    value = db.deobfuscate(value);
+                }
+                if(value == null)
+                {
+                    Logger.warn("Action " + getEntity().getName() + "." + name + ": param " + paramName + " is null!");
+                }
                 result.add(value);
             }
+        }
         return result;
     }
 
-    /** Get the name of the action.
+    /**
+     * Get the name of the action.
      *
      * @return the name
      */
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    /** For debugging purposes.
+    /**
+     * For debugging purposes.
      *
      * @return definition string
      */
-    public String toString() {
+    public String toString()
+    {
         String result = "";
-        if (paramNames.size()>0) result += "("+StringLists.join(paramNames,",")+")";
-        result+=":"+query;
+
+        if(paramNames.size() > 0)
+        {
+            result += "(" + StringLists.join(paramNames, ",") + ")";
+        }
+        result += ":" + query;
         return result;
     }
 
-    /** Get the database connection.
+    /**
+     * Get the database connection.
      *
      * @return the database connection
      */
-    public Database getDB() {
+    public Database getDB()
+    {
         return db;
     }
 
-    /** The database connection.
+    /**
+     * The database connection.
      */
     protected Database db = null;
-    /** The entity this action belongs to.
+
+    /**
+     * The entity this action belongs to.
      */
     private Entity entity = null;
-    /** The name of this action.
+
+    /**
+     * The name of this action.
      */
     private String name = null;
 
-    /** Parameter names of this action.
+    /**
+     * Parameter names of this action.
      */
     protected List<String> paramNames = new ArrayList<String>();
-    /** Query.
+
+    /**
+     * Query.
      */
     private String query = null;
-
 }

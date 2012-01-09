@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.util;
 
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Date;
-
-import org.apache.velocity.runtime.resource.loader.ResourceLoader;
-import org.apache.velocity.runtime.resource.Resource;
-import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.commons.collections.ExtendedProperties;
-
+import org.apache.velocity.exception.ResourceNotFoundException;
+import org.apache.velocity.runtime.resource.Resource;
+import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 import velosurf.context.DBReference;
 import velosurf.context.EntityReference;
 import velosurf.web.VelosurfTool;
@@ -34,46 +34,53 @@ import velosurf.web.VelosurfTool;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-
-public class DBResourceLoader extends ResourceLoader {
-
+public class DBResourceLoader extends ResourceLoader
+{
     protected DBReference db = null;
     protected EntityReference table = null;
-
     protected String entity = null;
     protected String dataField = null;
     protected String timestampField = null;
 
-    public void init(ExtendedProperties configuration) {
-        entity = configuration.getString("entity","template");
-        dataField = configuration.getString("data","data");
-        timestampField = configuration.getString("lastmodified","lastmodified");
-
+    public void init(ExtendedProperties configuration)
+    {
+        entity = configuration.getString("entity", "template");
+        dataField = configuration.getString("data", "data");
+        timestampField = configuration.getString("lastmodified", "lastmodified");
         initdb();
     }
 
-    protected synchronized void initdb() {
-        if (db == null) {
+    protected synchronized void initdb()
+    {
+        if(db == null)
+        {
             db = VelosurfTool.getDefaultInstance();
-            if (db != null) {
+            if(db != null)
+            {
                 table = (EntityReference)db.get(entity);
             }
         }
     }
 
-    public InputStream getResourceStream(String id) throws ResourceNotFoundException {
-        if (db == null) {
+    public InputStream getResourceStream(String id) throws ResourceNotFoundException
+    {
+        if(db == null)
+        {
             initdb();
         }
+
         String template = (String)table.fetch(id).get(dataField);
+
         return new ReaderInputStream(new StringReader(template));
     }
 
-    public boolean isSourceModified(Resource resource) {
-        return ((Date)table.fetch(resource.getName()).get(timestampField)).getTime() > resource.getLastModified();
+    public boolean isSourceModified(Resource resource)
+    {
+        return((Date)table.fetch(resource.getName()).get(timestampField)).getTime() > resource.getLastModified();
     }
 
-    public long getLastModified(Resource resource) {
-        return ((Date)table.fetch(resource.getName()).get(timestampField)).getTime();
+    public long getLastModified(Resource resource)
+    {
+        return((Date)table.fetch(resource.getName()).get(timestampField)).getTime();
     }
 }

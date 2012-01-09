@@ -14,31 +14,32 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.validation;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
-
 import javax.servlet.Filter;
+import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import velosurf.context.DBReference;
 
-import velosurf.web.VelosurfTool;
-import velosurf.web.l10n.Localizer;
-import velosurf.util.ToolFinder;
-import velosurf.util.Logger;
-import velosurf.util.UserContext;
 //import velosurf.util.UserContext;
 import velosurf.context.EntityReference;
-import velosurf.context.DBReference;
+import velosurf.util.Logger;
+import velosurf.util.ToolFinder;
+import velosurf.util.UserContext;
+import velosurf.web.VelosurfTool;
+import velosurf.web.l10n.Localizer;
 
 /**
  * <p>This class is an optional filter that will validate query data according to the <code>velosurf.entity</code> query parameter
@@ -48,7 +49,8 @@ import velosurf.context.DBReference;
  * populate the session with the given values (escaped) so that they can be put back in the form.</p>
  *
  */
-public class ValidationFilter implements Filter {
+public class ValidationFilter implements Filter
+{
     /** filter config */
     private FilterConfig config;
 
@@ -60,7 +62,8 @@ public class ValidationFilter implements Filter {
      * @param filterConfig filter config
      * @throws ServletException
      */
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) throws ServletException
+    {
         config = filterConfig;
     }
 
@@ -72,94 +75,132 @@ public class ValidationFilter implements Filter {
      * @throws IOException
      * @throws ServletException
      */
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+            throws IOException, ServletException
+    {
         HttpServletRequest request = (HttpServletRequest)servletRequest;
         HttpServletResponse response = (HttpServletResponse)servletResponse;
         HttpSession session = null;
-        Map<String,Object> map = null;
+        Map<String, Object> map = null;
         String[] entities = null;
-
-        boolean filter =  (request.getParameter(ENTITY_KEY) != null);
-
+        boolean filter = (request.getParameter(ENTITY_KEY) != null);
         boolean accept = true;
 
-        if (filter) {
+        if(filter)
+        {
             session = request.getSession(true);
-            /* FIXME: the next call won't work when using a non-standard Velosurf config file
-               defined in toolbox.xml */
+
+            /*
+             *  FIXME: the next call won't work when using a non-standard Velosurf config file
+             *  defined in toolbox.xml
+             */
             DBReference db = VelosurfTool.getDefaultInstance(config.getServletContext());
+
             map = new HashMap();
+
             UserContext userContext = (UserContext)session.getAttribute(UserContext.USER_CONTEXT_KEY);
-            if(userContext == null) {
+
+            if(userContext == null)
+            {
                 userContext = db.getUserContext();
-                Localizer localizer = ToolFinder.findSessionTool(session,Localizer.class);
-                if (localizer != null) {
+
+                Localizer localizer = ToolFinder.findSessionTool(session, Localizer.class);
+
+                if(localizer != null)
+                {
                     userContext.setLocalizer(localizer);
-                } else {
+                }
+                else
+                {
                     userContext.setLocale(request.getLocale());
                 }
-                session.setAttribute(UserContext.USER_CONTEXT_KEY,userContext);
-            } else {
+                session.setAttribute(UserContext.USER_CONTEXT_KEY, userContext);
+            }
+            else
+            {
                 db.setUserContext(userContext);
             }
-
-            if (db != null) {
-                Map<String,Object> params = request.getParameterMap();
+            if(db != null)
+            {
+                Map<String, Object> params = request.getParameterMap();
                 Object[] array;
-                for(Map.Entry<String,Object> entry:(Set<Map.Entry<String,Object>>)params.entrySet()) {
+
+                for(Map.Entry<String, Object> entry : (Set<Map.Entry<String, Object>>)params.entrySet())
+                {
                     array = (Object[])entry.getValue();
                     map.put(entry.getKey(), array.length == 1 ? array[0] : array);
                 }
                 entities = (String[])params.get(ENTITY_KEY);
-                if (entities != null) {
-                    for(String entity:entities) {
+                if(entities != null)
+                {
+                    for(String entity : entities)
+                    {
                         EntityReference entityRef = (EntityReference)db.get(entity);
-                        if (entityRef == null) {
-                            Logger.error("validation: entity '"+entity+"' not found!");
-                            response.sendError(HttpServletResponse.SC_BAD_REQUEST,"validation: entity '"+entity+"' does not exist!");
+
+                        if(entityRef == null)
+                        {
+                            Logger.error("validation: entity '" + entity + "' not found!");
+                            response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                                               "validation: entity '" + entity + "' does not exist!");
                             return;
-                        } else {
-                            try {
+                        }
+                        else
+                        {
+                            try
+                            {
                                 accept &= entityRef.validate(map);
-                            } catch(Exception e) {
-                                Logger.error("validation: validation of entity '"+entity+"' throwed exception:");
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.error("validation: validation of entity '" + entity + "' throwed exception:");
                                 Logger.log(e);
-                                response.sendError(HttpServletResponse.SC_BAD_REQUEST,"validation: validation of entity '"+entity+"' throwed exception "+e.getMessage());                                
+                                response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                                                   "validation: validation of entity '" + entity
+                                                   + "' throwed exception " + e.getMessage());
                             }
                         }
                     }
                 }
-            } else {
+            }
+            else
+            {
                 Logger.error("validation: could not get a database connexion!");
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST,"Velosurf tool not found in session!");
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Velosurf tool not found in session!");
                 return;
             }
         }
-
-        if (filter && !accept) {
+        if(filter &&!accept)
+        {
             Logger.trace("validation: values did not pass checking");
+
             String referer = request.getHeader("Referer");
-            if (referer == null) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST,"Referer header needed!");
-            } else {
-                for(String entity:entities) {
-                    session.setAttribute(entity,map);
+
+            if(referer == null)
+            {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Referer header needed!");
+            }
+            else
+            {
+                for(String entity : entities)
+                {
+                    session.setAttribute(entity, map);
                 }
-                Logger.trace("validation: redirecting request towards "+referer);
+                Logger.trace("validation: redirecting request towards " + referer);
                 response.sendRedirect(referer);
             }
-        } else {
-            if (filter/* && acept*/) {
+        }
+        else
+        {
+            if(filter /* && acept */)
+            {
                 Logger.trace("validation: values did pass checking");
             }
-            filterChain.doFilter(servletRequest,servletResponse);
+            filterChain.doFilter(servletRequest, servletResponse);
         }
     }
 
     /**
      * Destroy the filter.
      */
-    public void destroy() {
-    }
+    public void destroy(){}
 }

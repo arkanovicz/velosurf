@@ -14,55 +14,61 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.context;
 
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
-
+import velosurf.model.Action;
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
-import velosurf.model.Action;
 import velosurf.sql.Database;
 import velosurf.util.Logger;
 import velosurf.util.UserContext;
 
-/** <p>A context wrapper for the main database connection object.</p>
+/**
+ * <p>A context wrapper for the main database connection object.</p>
  * <p>The "<code>$db</code>" context variable is assigned a new instance of this class at each velocity parsing.</p>
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
 
- // FIXME : right now, extends HashMap bkoz velocity wants a HashMap for setters
-
-public class DBReference extends HashMap<String,Object> implements HasParametrizedGetter
+// FIXME : right now, extends HashMap bkoz velocity wants a HashMap for setters
+public class DBReference extends HashMap<String, Object> implements HasParametrizedGetter
 {
-    /** Default constructor for use by derived classes.
+    /**
+     * Default constructor for use by derived classes.
      */
-    protected DBReference() {
-    }
+    protected DBReference(){}
 
-    /** Constructs a new database reference.
+    /**
+     * Constructs a new database reference.
      *
      * @param db the wrapped database connection
      */
-    public DBReference(Database db) {
+    public DBReference(Database db)
+    {
         init(db);
     }
 
-    /** Protected initialization method.
+    /**
+     * Protected initialization method.
      *
      * @param db database connection
      */
-    protected void init(Database db) {
-       this. db = db;
-        cache = new HashMap<String,Object>();
-        externalParams = new HashMap<String,Object>();
+    protected void init(Database db)
+    {
+        this.db = db;
+        cache = new HashMap<String, Object>();
+        externalParams = new HashMap<String, Object>();
     }
 
-    /** <p>Generic getter, used to access entities or root attributes by their name.</p>
+    /**
+     * <p>Generic getter, used to access entities or root attributes by their name.</p>
      * <p>For attributes, the return value depends upon the type of the attribute :</p>
      * <ul>
      * <li>if the attribute is multivalued, returns an AttributeReference.
@@ -74,167 +80,212 @@ public class DBReference extends HashMap<String,Object> implements HasParametriz
      * @return an entity, an attribute reference, an instance, a string or null
      *     if not found. See  See above.
      */
-    public Object get(Object key) {
-        String property = db.adaptCase((String) key);
+    public Object get(Object key)
+    {
+        String property = db.adaptCase((String)key);
 
-        try {
-            Object result=null;
+        try
+        {
+            Object result = null;
 
             /* 1) try the cache */
             result = cache.get(property);
-            if (result!=null) return result;
+            if(result != null)
+            {
+                return result;
+            }
 
             /* 2) try to get a root attribute */
             Attribute attribute = db.getAttribute(property);
-            if (attribute!=null) {
-                switch (attribute.getType()) {
-                    case Attribute.ROWSET:
-                        result = new AttributeReference(this,attribute);
+
+            if(attribute != null)
+            {
+                switch(attribute.getType())
+                {
+                    case Attribute.ROWSET :
+                        result = new AttributeReference(this, attribute);
                         break;
-                    case Attribute.SCALAR:
+                    case Attribute.SCALAR :
                         result = attribute.evaluate(this);
                         break;
-                    case Attribute.ROW:
+                    case Attribute.ROW :
                         result = attribute.fetch(this);
                         break;
-                    default:
-                        Logger.error("Unknown attribute type encountered: db."+property);
-                        result=null;
+                    default :
+                        Logger.error("Unknown attribute type encountered: db." + property);
+                        result = null;
                 }
-                cache.put(property,result);
+                cache.put(property, result);
                 return result;
             }
 
             /* 3) try to get a root action */
             Action action = db.getAction(property);
-            if (action != null) return Integer.valueOf(action.perform(this));
+
+            if(action != null)
+            {
+                return Integer.valueOf(action.perform(this));
+            }
 
             /* 4) try to get an entity */
             Entity entity = db.getEntity(property);
-            if (entity!=null) {
+
+            if(entity != null)
+            {
                 result = new EntityReference(entity);
-                cache.put(property,result);
+                cache.put(property, result);
                 return result;
             }
 
             /* 5) try to get an external param */
             result = externalParams.get(property);
-            if (result != null) return result;
+            if(result != null)
+            {
+                return result;
+            }
 
             /* 6) try with the user context */
             result = db.getUserContext().get(property);
-            if (result != null) return result;
+            if(result != null)
+            {
+                return result;
+            }
 
             /* Sincerely, I don't see... */
             return null;
         }
-        catch (SQLException sqle) {
+        catch(SQLException sqle)
+        {
             db.setError(sqle.getMessage());
             Logger.log(sqle);
             return null;
         }
     }
 
-    /** <p>Specific entity getter. </p>
+    /**
+     * <p>Specific entity getter. </p>
      * @param key the name of the desired entity or root attribute.
      * @return an entity, an attribute reference, an instance, a string or null
      */
     public EntityReference getEntity(String key)
     {
-      key = db.adaptCase(key);
-      Entity entity = db.getEntity(key);
-      if (entity!=null) {
-        EntityReference result = new EntityReference(entity);
-        cache.put(key,result);
-        return result;
-      }
-      return null;
+        key = db.adaptCase(key);
+
+        Entity entity = db.getEntity(key);
+
+        if(entity != null)
+        {
+            EntityReference result = new EntityReference(entity);
+
+            cache.put(key, result);
+            return result;
+        }
+        return null;
     }
 
-    /** <p>Specific getter for last error message in user context </p>
+    /**
+     * <p>Specific getter for last error message in user context </p>
      * @return last threaded error message if any or null
      */
     public String getError()
     {
-      return (String)db.getUserContext().get("error");
+        return(String)db.getUserContext().get("error");
     }
 
-    /** Default method handler, called by Velocity when it did not find the specified method.
+    /**
+     * Default method handler, called by Velocity when it did not find the specified method.
      *
      * @param key asked key
      * @param params passed parameters
      * @see HasParametrizedGetter
      */
-    public Object getWithParams(String key,Map params) {
+    public Object getWithParams(String key, Map params)
+    {
+        Object result = null;
 
-      Object result = null;
-      try
-      {
-        String property = db.adaptCase((String) key);
-        for(Map.Entry entry: (Set<Map.Entry>)params.entrySet()) {
-          externalParams.put(db.adaptCase((String)entry.getKey()),entry.getValue());
+        try
+        {
+            String property = db.adaptCase((String)key);
+
+            for(Map.Entry entry : (Set<Map.Entry>)params.entrySet())
+            {
+                externalParams.put(db.adaptCase((String)entry.getKey()), entry.getValue());
+            }
+
+            /* 1) try to get a root attribute */
+            Attribute attribute = db.getAttribute(property);
+
+            if(attribute != null)
+            {
+                switch(attribute.getType())
+                {
+                    case Attribute.ROWSET :
+                        result = new AttributeReference(this, attribute);
+                        break;
+                    case Attribute.SCALAR :
+                        result = attribute.evaluate(this);
+                        break;
+                    case Attribute.ROW :
+                        result = attribute.fetch(this);
+                        break;
+                    default :
+                        Logger.error("Unknown attribute type encountered: db." + property);
+                }
+            }
+
+            /* 2) try to get a root action */
+            Action action = db.getAction(property);
+
+            if(action != null)
+            {
+                result = Integer.valueOf(action.perform(this));    // TODO actions should return a Long !!!!
+            }
         }
-        
-        /* 1) try to get a root attribute */
-        Attribute attribute = db.getAttribute(property);
-        if (attribute!=null) {
-          switch (attribute.getType()) {
-            case Attribute.ROWSET:
-              result = new AttributeReference(this,attribute);
-              break;
-            case Attribute.SCALAR:
-              result = attribute.evaluate(this);
-              break;
-            case Attribute.ROW:
-              result = attribute.fetch(this);
-              break;
-            default:
-              Logger.error("Unknown attribute type encountered: db."+property);
-          }
+        catch(SQLException sqle)
+        {
+            db.setError(sqle.getMessage());
+            Logger.log(sqle);
+            result = null;
         }
-        
-        /* 2) try to get a root action */
-        Action action = db.getAction(property);
-        if (action != null) result = Integer.valueOf(action.perform(this)); //TODO actions should return a Long !!!!
-      }
-      catch (SQLException sqle) {
-        db.setError(sqle.getMessage());
-        Logger.log(sqle);
-        result = null;
-      }
-      return result;
+        return result;
     }
 
-    /** Generic setter used to set external params for children attributes.
+    /**
+     * Generic setter used to set external params for children attributes.
      *
      * @param key name of the external parameter
      * @param value value given to the external parameter
      * @return the previous value, if any
      */
-    public Object put(String key,Object value) {
+    public Object put(String key, Object value)
+    {
         /*
          * Clear actual values in the cache, because the value of attributes may change...
          */
-        for(Iterator i = cache.keySet().iterator();i.hasNext();) {
+        for(Iterator i = cache.keySet().iterator(); i.hasNext(); )
+        {
             Object k = i.next();
             Object v = cache.get(k);
-            if (! (v instanceof AttributeReference)
-                && ! (v instanceof EntityReference)) {
-                    i.remove();
-            }
 
+            if(!(v instanceof AttributeReference) &&!(v instanceof EntityReference))
+            {
+                i.remove();
+            }
         }
-        return externalParams.put(db.adaptCase((String) key),value);
+        return externalParams.put(db.adaptCase((String)key), value);
     }
 
-    /** Get the schema name.
+    /**
+     * Get the schema name.
      * @return the schema
      */
-    public String getSchema() {
+    public String getSchema()
+    {
         return db.getSchema();
     }
 
-    /** Obfuscate the given value.
+    /**
+     * Obfuscate the given value.
      * @param value value to obfuscate
      *
      * @return obfuscated value
@@ -244,7 +295,8 @@ public class DBReference extends HashMap<String,Object> implements HasParametriz
         return db.obfuscate(value);
     }
 
-    /** De-obfuscate the given value.
+    /**
+     * De-obfuscate the given value.
      * @param value value to de-obfuscate
      *
      * @return obfuscated value
@@ -254,17 +306,21 @@ public class DBReference extends HashMap<String,Object> implements HasParametriz
         return db.deobfuscate(value);
     }
 
-    /** User context getter
+    /**
+     * User context getter
      * @return current user context
      */
-    public UserContext getUserContext() {
+    public UserContext getUserContext()
+    {
         return db.getUserContext();
     }
 
-    /** User context setter
+    /**
+     * User context setter
      * @param userContext user context
      */
-    public void setUserContext(UserContext userContext) {
+    public void setUserContext(UserContext userContext)
+    {
         db.setUserContext(userContext);
     }
 
@@ -272,23 +328,27 @@ public class DBReference extends HashMap<String,Object> implements HasParametriz
      * String representation of this db reference.
      * For now, returns a list of defined external parameters.
      */
-    public String toString() {
-	return "[DBRef with root attributes "+db.getRootEntity().getAttributes()+" and external params"+externalParams+"]";
+    public String toString()
+    {
+        return "[DBRef with root attributes " + db.getRootEntity().getAttributes() + " and external params"
+               + externalParams + "]";
     }
 
-    /** The wrapped database connection.
+    /**
+     * The wrapped database connection.
      */
     protected Database db = null;
 
-    /** A cache used by the generic getter. Its purpose is to avoid the creation of several
+    /**
+     * A cache used by the generic getter. Its purpose is to avoid the creation of several
      * attribute references for the same multivalued attribute.
      */
-    private Map<String,Object> cache = null;
+    private Map<String, Object> cache = null;
 
-     /** The map of external query parameters used by children attributes.
-      */
-    private Map<String,Object> externalParams = null;
+    /**
+     * The map of external query parameters used by children attributes.
+     */
+    private Map<String, Object> externalParams = null;
 
-//public void displayStats() { db.displayStats(); }
-
+//  public void displayStats() { db.displayStats(); }
 }

@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.sql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-// CB TODO useOver is deprecated - update doc
+//CB TODO useOver is deprecated - update doc
 
-/** This abstract class represents a pooled object.<p>
+/**
+ * This abstract class represents a pooled object.<p>
  * It has two booleans : inUse and useOver (understand : usageOver).<p>
  * The cycle of those two booleans is the following :<p>
  * states (inUse - useOver) : (false-false) -> (true-false) -> (true-true) -> [delay] (false-false)
@@ -30,104 +33,133 @@ import java.util.List;
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
-public abstract class PooledStatement implements RowHandler {
-
-    /** build a new pooled object.
+public abstract class PooledStatement implements RowHandler
+{
+    /**
+     * build a new pooled object.
      */
-    public PooledStatement() {
+    public PooledStatement()
+    {
         tagTime = System.currentTimeMillis();
     }
 
-    /** get the time tag of this pooled object.
+    /**
+     * get the time tag of this pooled object.
      *
      * @return the time tag
      */
-    public long getTagTime() {
+    public long getTagTime()
+    {
         return tagTime;
     }
 
-    /** reset the time tag.
+    /**
+     * reset the time tag.
      */
-    public void resetTagTime() {
+    public void resetTagTime()
+    {
         tagTime = System.currentTimeMillis();
     }
 
-    /** notify this object that it is in use.
+    /**
+     * notify this object that it is in use.
      */
-    public void notifyInUse() {
+    public void notifyInUse()
+    {
         inUse = true;
         resetTagTime();
     }
 
-    /** notify this object that it is no more in use.
+    /**
+     * notify this object that it is no more in use.
      */
-    public void notifyOver() {
-        try {
-            if(resultSet != null && !resultSet.isClosed())
+    public void notifyOver()
+    {
+        try
+        {
+            if(resultSet != null &&!resultSet.isClosed())
             {
                 resultSet.close();
                 resultSet = null;
             }
-        } catch(SQLException sqle) {} // ignore
+        }
+        catch(SQLException sqle) {}    // ignore
         resultSet = null;
         inUse = false;
     }
 
-    /** check whether this pooled object is in use.
+    /**
+     * check whether this pooled object is in use.
      *
      * @return whether this object is in use
      */
-    public boolean isInUse() {
+    public boolean isInUse()
+    {
         return inUse;
     }
 
-    /** check whether this pooled object is marked as valid or invalid.
+    /**
+     * check whether this pooled object is marked as valid or invalid.
      * (used in the recovery process)
      *
      * @return whether this object is in use
      */
-    public boolean isValid() {
+    public boolean isValid()
+    {
         return valid;
     }
 
-    /** definitely mark this statement as meant to be deleted.
+    /**
+     * definitely mark this statement as meant to be deleted.
      */
-    public void setInvalid() {
+    public void setInvalid()
+    {
         valid = false;
     }
 
-    /** get the connection used by this statement.
+    /**
+     * get the connection used by this statement.
      *
      * @return the connection used by this statement
      */
     public abstract ConnectionWrapper getConnection();
 
-    /** close this pooled object.
+    /**
+     * close this pooled object.
      *
      * @exception SQLException when thrown by the database engine
      */
     public abstract void close() throws SQLException;
 
-    /** time tag.
+    /**
+     * time tag.
      */
     private long tagTime = 0;
+
     // states (inUse - useOver) : (false-false) -> (true-false) -> (true-true) -> [delay] (false-false)
 
-    /** valid statement?
+    /**
+     * valid statement?
      */
     private boolean valid = true;
 
-    /** is this object in use?
+    /**
+     * is this object in use?
      */
     private boolean inUse = false;
 
-    /** database connection.
+    /**
+     * database connection.
      */
     protected ConnectionWrapper connection = null;
-    /** result set.
+
+    /**
+     * result set.
      */
     protected ResultSet resultSet = null;
-    /** column names in natural order.
+
+    /**
+     * column names in natural order.
      */
     protected List<String> columnNames = null;
 }

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.validation;
 
 import java.sql.SQLException;
@@ -35,20 +37,25 @@ import java.util.regex.Pattern;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-public class Range extends FieldConstraint {
+public class Range extends FieldConstraint
+{
     /** minimum value. */
     private Number min = null;
+
     /** maximum value. */
     private Number max = null;
+
     /** integer value expected. */
     private boolean integer = false;
+
     /** integer value pattern matcher. */
     private static Pattern intPattern = Pattern.compile("(?:\\+|-)?\\d+");
 
     /**
      *  Constructor.
      */
-    public Range() {
+    public Range()
+    {
         setMessage("field {0}: [{1}] is not in the valid range");
     }
 
@@ -56,7 +63,8 @@ public class Range extends FieldConstraint {
      * Whether to expect an integer or not.
      * @param integer a boolean
      */
-    public void setInteger(boolean integer) {
+    public void setInteger(boolean integer)
+    {
         this.integer = integer;
     }
 
@@ -64,7 +72,8 @@ public class Range extends FieldConstraint {
      * Minimum value setter.
      * @param min minimum value
      */
-    public void setMin(Number min) {
+    public void setMin(Number min)
+    {
         this.min = min;
     }
 
@@ -72,7 +81,8 @@ public class Range extends FieldConstraint {
      * Maximum value setter.
      * @param max maximum value
      */
-    public void setMax(Number max) {
+    public void setMax(Number max)
+    {
         this.max = max;
     }
 
@@ -81,28 +91,43 @@ public class Range extends FieldConstraint {
      * @param data the data to be validated
      * @return true if data is in the expected range and type
      */
-    public boolean validate(Object data) throws SQLException {
-        if (data == null || data.toString().length() == 0) {
+    public boolean validate(Object data) throws SQLException
+    {
+        if(data == null || data.toString().length() == 0)
+        {
             return true;
         }
+
         Number number;
-        if (data instanceof Number) {
+
+        if(data instanceof Number)
+        {
             number = (Number)data;
-        } else {
-            try {
-                if(integer) {
+        }
+        else
+        {
+            try
+            {
+                if(integer)
+                {
                     number = Integer.parseInt(data.toString());
-                } else {
+                }
+                else
+                {
                     number = Double.parseDouble(data.toString());
                 }
-            } catch(NumberFormatException nfe) {
+            }
+            catch(NumberFormatException nfe)
+            {
                 return false;
             }
         }
-        if (min != null && min.doubleValue() > number.doubleValue()) {
+        if(min != null && min.doubleValue() > number.doubleValue())
+        {
             return false;
         }
-        if (max != null && max.doubleValue() < number.doubleValue()) {
+        if(max != null && max.doubleValue() < number.doubleValue())
+        {
             return false;
         }
         return true;
@@ -112,7 +137,10 @@ public class Range extends FieldConstraint {
      * return a string representation for this constraint.
      * @return string
      */
-    public String toString() {
-        return (integer?"type integer":"type number") + (min != null && max != null?", between "+min+" and "+max:min != null?", >= "+min:", <="+max);
+    public String toString()
+    {
+        return(integer ? "type integer" : "type number")
+              + (min != null && max != null
+                 ? ", between " + min + " and " + max : min != null ? ", >= " + min : ", <=" + max);
     }
 }

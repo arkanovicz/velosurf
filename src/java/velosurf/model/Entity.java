@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.model;
 
 import java.lang.reflect.Constructor;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.*;
-
 import velosurf.cache.Cache;
 import velosurf.context.Instance;
 import velosurf.context.RowIterator;
@@ -32,7 +33,6 @@ import velosurf.util.Logger;
 import velosurf.util.StringLists;
 import velosurf.util.UserContext;
 import velosurf.validation.FieldConstraint;
-
 import org.apache.commons.lang.StringEscapeUtils;
 
 /** The Entity class represents an entity in the data model.
@@ -42,28 +42,35 @@ import org.apache.commons.lang.StringEscapeUtils;
  */
 public class Entity
 {
-    /** Constructor reserved for the framework.
+    /**
+     * Constructor reserved for the framework.
      *
      * @param db database connection
      * @param name entity name
      * @param readOnly access mode (read-write or read-only)
      * @param cachingMethod caching method to be used
      */
-    public Entity(Database db,String name,boolean readOnly,int cachingMethod) {
+    public Entity(Database db,String name,boolean readOnly,int cachingMethod)
+    {
         this.db = db;
         this.name = name;
         table = name; // default mapped table has same name
         this.readOnly = readOnly;
         this.cachingMethod = cachingMethod;
-        if (this.cachingMethod != Cache.NO_CACHE) cache = new Cache(this.cachingMethod);
+        if (this.cachingMethod != Cache.NO_CACHE)
+        {
+            cache = new Cache(this.cachingMethod);
+        }
         instanceClass = Instance.class;
     }
 
-    /** Add a column at the end of the sequential list of named columns. Called during the reverse engeenering of the database.
+    /**
+     * Add a column at the end of the sequential list of named columns. Called during the reverse engeenering of the database.
      *
      * @param colName column name
      */
-    public void addColumn(String colName,int sqlType) {
+    public void addColumn(String colName,int sqlType)
+    {
         colName = db.adaptCase(colName);
         columns.add(colName);
         types.put(colName,sqlType);
@@ -75,7 +82,8 @@ public class Entity
      * @param alias alias
      * @param column column
      */
-    public void addAlias(String alias, String column) {
+    public void addAlias(String alias, String column)
+    {
         alias = db.adaptCase(alias);
         column = db.adaptCase(column);
         Logger.trace("added alias "+name+"."+alias+" -> "+name+"."+column);
@@ -87,40 +95,50 @@ public class Entity
      * @param alias alias
      * @return column name
      */
-    public String resolveName(String alias) {
+    public String resolveName(String alias)
+    {
         alias = db.adaptCase(alias);
         String name = aliases.get(alias);
         return name == null ? alias : name;
     }
 
-    /** Add a key column to the sequential list of the key columns. Called during the reverse-engeenering of the database.
+    /**
+     * Add a key column to the sequential list of the key columns. Called during the reverse-engeenering of the database.
      *
      * @param colName name of the key column
      */
-    public void addPKColumn(String colName) {
+    public void addPKColumn(String colName)
+    {
         /* remember the alias */
         keyCols.add(colName);
     }
 
-    /** Add a new attribute.
+    /**
+     * Add a new attribute.
      * @param attribute attribute
      */
-    public void addAttribute(Attribute attribute) {
+    public void addAttribute(Attribute attribute)
+    {
         String name = attribute.getName();
-        if(attributeMap.containsKey(name)) {
+        if(attributeMap.containsKey(name))
+        {
             Logger.debug("Explicit supersedes implicit for definition of attribute "+getName()+"."+name);
-        } else {
+        }
+        else
+        {
             attributeMap.put(db.adaptCase(name),attribute);
             Logger.trace("defined attribute "+this.name+"."+name+" = "+attribute);
         }
     }
 
-    /** Get a named attribute.
+    /**
+     * Get a named attribute.
      *
      * @param property attribute name
      * @return the attribute
      */
-    public Attribute getAttribute(String property) {
+    public Attribute getAttribute(String property)
+    {
         return (Attribute)attributeMap.get(db.adaptCase(property));
     }
 
@@ -128,43 +146,59 @@ public class Entity
      * Add an action.
      * @param action action
      */
-    public void addAction(Action action) {
+    public void addAction(Action action)
+    {
         String name = action.getName();
         actionMap.put(db.adaptCase(name),action);
         Logger.trace("defined action "+this.name+"."+name+" = "+action);
     }
 
-    /** get an action.
+    /**
+     * Get an action.
      *
      * @param property action name
      * @return the action
      */
-    public Action getAction(String property) {
+    public Action getAction(String property)
+    {
         return (Action)actionMap.get(db.adaptCase(property));
     }
 
-    /** Specify a custom class to use when instanciating this entity.
+    /**
+     * Specify a custom class to use when instanciating this entity.
      *
      * @param className the java class name
      */
-    public void setInstanceClass(String className) {
-        try {
+    public void setInstanceClass(String className)
+    {
+        try
+        {
             instanceClass = Class.forName(className);
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             Logger.log(e);
         }
     }
 
-    /** Specify the caching method. See {@link Cache} for allowed constants.
+    /**
+     * Specify the caching method. See {@link Cache} for allowed constants.
      *
      * @param caching Caching method
      */
-    public void setCachingMethod(int caching) {
-        if (cachingMethod != caching) {
+    public void setCachingMethod(int caching)
+    {
+        if (cachingMethod != caching)
+        {
             cachingMethod = caching;
-            if (cachingMethod == Cache.NO_CACHE) cache = null;
-            else cache = new Cache(cachingMethod);
+            if (cachingMethod == Cache.NO_CACHE)
+            {
+                cache = null;
+            }
+            else
+            {
+                cache = new Cache(cachingMethod);
+            }
         }
     }
 
@@ -173,66 +207,91 @@ public class Entity
      * @param column column name
      * @param constraint constraint
      */
-    public void addConstraint(String column,FieldConstraint constraint) {;
+    public void addConstraint(String column,FieldConstraint constraint)
+    {
         column = resolveName(column);
         Logger.trace("adding constraint on column "+Database.adaptContextCase(getName())+"."+column+": "+constraint);
         List<FieldConstraint> list = constraints.get(column);
-        if (list == null) {
+        if (list == null)
+        {
             list = new ArrayList<FieldConstraint>();
             constraints.put(column,list);
         }
         list.add(constraint);
     }
 
-    /** Used by the framework to notify this entity that its reverse enginering is over.
+    /**
+     * Used by the framework to notify this entity that its reverse enginering is over.
      */
-    public void reverseEnginered() {
-        if (obfuscate && keyCols.size()>0) {
+    public void reverseEnginered()
+    {
+        if (obfuscate && keyCols.size()>0)
+        {
             keyColObfuscated = new boolean[keyCols.size()];
             Iterator key = keyCols.iterator();
             int i=0;
             for (;key.hasNext();i++)
+            {
                 keyColObfuscated[i] = obfuscatedColumns.contains(key.next());
+            }
         }
         /* fills the cache for the full caching method */
-        if(cachingMethod == Cache.FULL_CACHE) {
-            try {
+        if(cachingMethod == Cache.FULL_CACHE)
+        {
+            try
+            {
                 query().getRows();
-            } catch(SQLException sqle) {
+            }
+            catch(SQLException sqle)
+            {
                 Logger.error("full caching for entity "+getName()+": could not fill the cache!");
                 Logger.log(sqle);
             }
         }
     }
 
-    /** Clear the cache (not used for now).
+    /**
+     * Clear the cache (not used for now).
      */
-    protected void clearCache() {
+    protected void clearCache()
+    {
         if (cache != null) cache.clear();
     }
 
-    /** Create a new realisation of this entity.
+    /**
+     * Create a new realisation of this entity.
      *
      * @return the newly created instance
      */
-    public Instance newInstance() {
+    public Instance newInstance()
+    {
         Instance result = null;
-        try {
-            if( instanceClass.equals(Instance.class)) {
+        try
+        {
+            if( instanceClass.equals(Instance.class))
+            {
                 result = new Instance(this);
-            } else if (Instance.class.isAssignableFrom(instanceClass)) {
-                try {
+            }
+            else if (Instance.class.isAssignableFrom(instanceClass))
+            {
+                try
+                {
                     result = (Instance)instanceClass.newInstance();
                     result.initialize(this);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     Constructor instanceConstructor = instanceClass.getConstructor(new Class[] {Entity.class} );
                     result = (Instance)instanceConstructor.newInstance(new Object[] { this });
                 }
-            } else {
+            }
+            else
+            {
                 result = new ExternalObjectWrapper(this,instanceClass.newInstance());
             }
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             Logger.error("could not create a new instance for entity "+getName());
             Logger.log(e);
             result = null;
@@ -240,28 +299,35 @@ public class Entity
         return result;
     }
 
-    /** Build a new instance from a Map object.
+    /**
+     * Build a new instance from a Map object.
      *
      * @param values the Map object containing the values
      * @return the newly created instance
      */
-    public Instance newInstance(Map<String,Object> values) {
+    public Instance newInstance(Map<String,Object> values)
+    {
         return newInstance(values,false);
     }
 
-    /** Build a new instance from a Map object.
+    /**
+     * Build a new instance from a Map object.
      *
      * @param values the Map object containing the values
      * @param useSQLnames map keys use SQL column names that must be translated to aliases
      * @return the newly created instance
      */
-    public Instance newInstance(Map<String,Object> values,boolean useSQLnames) {
-        try {
+    public Instance newInstance(Map<String,Object> values,boolean useSQLnames)
+    {
+        try
+        {
             Instance result = newInstance();
             extractColumnValues(values,result,useSQLnames);
-            if (cachingMethod != Cache.NO_CACHE) {
+            if (cachingMethod != Cache.NO_CACHE)
+            {
                 Object key = buildKey(result);
-                if (key != null) {
+                if (key != null)
+                {
                     cache.put(key,result);
                 }
             }
@@ -278,26 +344,31 @@ public class Entity
      * @param instance instance
      * @throws SQLException
      */
-    public void invalidateInstance(Map<String,Object> instance) throws SQLException {
-        if (cachingMethod != Cache.NO_CACHE) {
+    public void invalidateInstance(Map<String,Object> instance) throws SQLException
+    {
+        if (cachingMethod != Cache.NO_CACHE)
+        {
             Object key = buildKey(instance);
-            if(key != null) {
+            if(key != null)
+            {
                 cache.invalidate(key);
             }
         }
     }
 
-    /** Extract column values from an input Map source and store result in target.
+    /**
+     * Extract column values from an input Map source and store result in target.
      *
      * @param source Map source object
      * @param target Map target object
      * @param SQLNames the source uses SQL names
      */
-    private void extractColumnValues(Map<String,Object> source,Map<String,Object> target,boolean SQLNames) throws SQLException {
+    private void extractColumnValues(Map<String,Object> source,Map<String,Object> target,boolean SQLNames) throws SQLException
+    {
         /* TODO: cache a case-insensitive version of the columns list and iterate on source keys, with equalsIgnoreCase (or more efficient) funtion */
         /* We use keySet and not entrySet here because if the source map is a ReadOnlyMap, entrySet is not available */
-        for(String key:source.keySet()) {
-
+        for(String key:source.keySet())
+        {
             /* resove anyway */
             String col = resolveName(key);
             /* this is more or less a hack: we do filter columns
@@ -305,12 +376,14 @@ public class Entity
                is to allow additionnal fields in SQL attributes
                returning rowsets of entities. */
 
-            if(!SQLNames && !isColumn(col)) {
+            if(!SQLNames && !isColumn(col))
+            {
                 continue;
             }
 
             Object val = source.get(key);
-	    if(val != null && val.getClass().isArray()) {
+	    if(val != null && val.getClass().isArray())
+            {
 		Logger.error("array cell values not supported");
 		val = null;
 	    }
@@ -323,26 +396,33 @@ public class Entity
         }
     }
 
-    /** Build the key for the Cache from a Map.
+    /**
+     * Build the key for the Cache from a Map.
      *
      * @param values the Map containing all values (unaliased)
      * @exception SQLException the getter of the Map throws an
      *     SQLException
      * @return an array containing all key values
      */
-    private Object buildKey(Map<String,Object> values) throws SQLException {
+    private Object buildKey(Map<String,Object> values) throws SQLException
+    {
         if(keyCols.size() == 0) return null;
         Object [] key = new Object[keyCols.size()];
         int c=0;
-        for(String keycol:keyCols) {
+        for(String keycol:keyCols)
+        {
             Object v = values.get(keycol);
-            if ( v == null ) {
+            if ( v == null )
+            {
                 return null;
             }
 
             // systematically convert Integer values to Long values
             // TODO CB - a more torough conversion scheme, or a key invariant on class, is to be built (for instance a concatenation of strings)
-            if( v instanceof Integer) v = ((Integer)v).longValue();
+            if( v instanceof Integer)
+            {
+                v = ((Integer)v).longValue();
+            }
 
             key[c++] = v;
         }
@@ -350,7 +430,8 @@ public class Entity
     }
 
 
-    /** Build the key for the Cache from a List
+    /**
+     * Build the key for the Cache from a List
      *
      * @param values the Map containing all values (unaliased)
      * @exception SQLException the getter of the Map throws an
@@ -358,88 +439,114 @@ public class Entity
      * @return an array containing all key values
      */
     private Object buildKey(List<Object> values) throws SQLException {
-        if(keyCols.size() == 0) return null;
+        if(keyCols.size() == 0)
+        {
+            return null;
+        }
         Object [] key = new Object[keyCols.size()];
         int c=0;
-        for(Object v:values) {
-            if ( v == null ) {
+        for(Object v:values)
+        {
+            if ( v == null )
+            {
                 return null;
             }
 
             // systematically convert Integer values to Long values
             // TODO CB - a more torough conversion scheme, or a key invariant on class, is to be built (for instance a concatenation of strings)
-            if( v instanceof Integer) v = ((Integer)v).longValue();
+            if( v instanceof Integer)
+            {
+                v = ((Integer)v).longValue();
+            }
 
             key[c++] = v;
         }
         return key;
     }
 
-    /** Build the key for the Cache from a Number
+    /**
+     * Build the key for the Cache from a Number
      *
      * @param values the Map containing all values (unaliased)
      * @exception SQLException the getter of the Map throws an
      *     SQLException
      * @return an array containing all key values
      */
-    private Object buildKey(Number value) throws SQLException {
+    private Object buildKey(Number value) throws SQLException
+    {
             // systematically convert Integer values to Long values
             // TODO CB - a more torough conversion scheme, or a key invariant on class, is to be built (for instance a concatenation of strings)
-      if(value instanceof Integer) value = value.longValue();
+      if(value instanceof Integer)
+      {
+          value = value.longValue();
+      }
       return new Object[] { value };
     }
 
 
-    /** Getter for the name of this entity.
+    /**
+     * Getter for the name of this entity.
      *
      * @return the name of the entity
      */
-    public String getName() { 
+    public String getName()
+    {
         return name; 
     }
 
-    /** Getter for the list of key column names.
+    /**
+     * Getter for the list of key column names.
      *
      * @return the list of key column names
      */
-    public List<String> getPKCols() {
+    public List<String> getPKCols()
+    {
         return keyCols;
     }
 
-    /** Getter for the list of column names.
+    /**
+     * Getter for the list of column names.
      *
      * @return the list of column names
      */
-    public List<String> getColumns() {
+    public List<String> getColumns()
+    {
         return columns;
     }
 
-    public List<String> getUpdatableColumns() {
-        if(updatableCols == null) {
+    public List<String> getUpdatableColumns()
+    {
+        if(updatableCols == null)
+        {
             updatableCols = new ArrayList(columns);
             updatableCols.removeAll(keyCols);
         }
         return updatableCols;
     }
     
-    public boolean isColumn(String name) {
+    public boolean isColumn(String name)
+    {
         return columns.contains(name);
     }
 
-    public int getColumnIndex(String name) {
+    public int getColumnIndex(String name)
+    {
         return columns.indexOf(name);
     }
 
-    public int getUpdatableColumnIndex(String name) {
+    public int getUpdatableColumnIndex(String name)
+    {
         return updatableCols.indexOf(name);
     }
 
-    /** Check if the provided map contains all key columns
+    /**
+     * Check if the provided map contains all key columns
      *
      * @param values map of values to check
      * @return true if all key columns are present
      */
-/* not used     
+
+/* unused     
     public boolean hasKey(Map<String,Object> values) {
         if(keyCols.size() == 0) {
             return false; // could be 'true' but indicates that 'fetch' cannot be called
@@ -451,52 +558,64 @@ public class Entity
         return (cols.containsAll(keyCols));
     }
 */
-    /** Insert a new row based on values of a map.
+
+    /**
+     * Insert a new row based on values of a map.
      *
      * @param values the  Map object containing the values
      * @return success indicator
      */
-    public boolean insert(Map<String,Object> values) throws SQLException {
-        if (readOnly) {
+    public boolean insert(Map<String,Object> values) throws SQLException
+    {
+        if (readOnly)
+        {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
         }
         Instance instance = newInstance(values);
         /* if found in cache because it exists, driver will issue a SQLException TODO review this*/
         boolean success = instance.insert();
-		if (success && keyCols.size() == 1) {			
-			/* update last insert id */
-			/* TODO review usecase, this should maybe be forbidden sometimes */
+        if (success && keyCols.size() == 1)
+        {
+            /* update last insert id */
+            /* TODO review usecase, this should maybe be forbidden sometimes */
             /* FIXME for now, we catch some exceptions */
-            try {
-    			String pk = keyCols.get(0);
-	    		values.put(pk,instance.get(pk));
+            try
+            {
+                String pk = keyCols.get(0);
+                values.put(pk,instance.get(pk));
 //            catch(UnsupportedOperationException uoe)
-            } catch(Exception e) {
+            }
+            catch(Exception e)
+            {
                 Logger.warn("insert: encountered "+e.getMessage()+" while setting last inserted id value");
                 Logger.warn("insert: values are probably provided using a read-only map");
                 Logger.warn("you can probably just ignore this warning, this is a reminder for the dev community");
             }
-		}
+        }
         /* try again to put it in the cache since previous attempt may have failed
            in case there are auto-incremented columns */
-        if (success && cachingMethod != Cache.NO_CACHE) {
+        if (success && cachingMethod != Cache.NO_CACHE)
+        {
             Object key = buildKey(instance);
-            if (key != null) {
+            if (key != null)
+            {
                 cache.put(key,instance);
             }
         }
-
-		return success;
+        return success;
     }
 
-    /** Update a row based on a set of values that must contain key values.
+    /**
+     * Update a row based on a set of values that must contain key values.
      *
      * @param values the Map object containing the values
      * @return success indicator
      */
-    public boolean update(Map<String,Object> values) throws SQLException {
-        if (readOnly) {
+    public boolean update(Map<String,Object> values) throws SQLException
+    {
+        if (readOnly)
+        {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
         }
@@ -504,13 +623,16 @@ public class Entity
         return instance.update();
     }
 
-    /** Upsert a row based on a set of values (entity's primary key must be one column long - it can be omitted from provided values)
+    /**
+     * Upsert a row based on a set of values (entity's primary key must be one column long - it can be omitted from provided values)
      *
      * @param values the Map object containing the values
      * @return success indicator
      */
-    public boolean upsert(Map<String,Object> values) throws SQLException {
-        if (readOnly) {
+    public boolean upsert(Map<String,Object> values) throws SQLException
+    {
+        if (readOnly)
+        {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
         }
@@ -518,13 +640,16 @@ public class Entity
         return instance.upsert();
     }
 
-    /** Delete a row based on (key) values.
+    /**
+     * Delete a row based on (key) values.
      *
      * @param values the Map containing the values
      * @return success indicator
      */
-    public boolean delete(Map<String,Object> values) throws SQLException {
-        if (readOnly) {
+    public boolean delete(Map<String,Object> values) throws SQLException
+    {
+        if (readOnly)
+        {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
         }
@@ -532,38 +657,58 @@ public class Entity
         return instance.delete();
     }
 
-    /** Delete a row based on the unique key string value.
+    /**
+     * Delete a row based on the unique key string value.
      *
      * @param keyValue key value
      * @return success indicator
      */
-    public boolean delete(String keyValue) throws SQLException {
-        if (readOnly) {
+    public boolean delete(String keyValue) throws SQLException
+    {
+        if (readOnly)
+        {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
         }
-        if (keyCols.size()!=1) {
-            if (keyCols.size()==0) throw new SQLException("Entity.delete: Error: Entity '"+name+"' has no primary key!");
-            else throw new SQLException("Entity.delete: Error: Entity '"+name+"' has a multi-column primary key!");
+        if (keyCols.size()!=1)
+        {
+            if (keyCols.size()==0)
+            {
+                throw new SQLException("Entity.delete: Error: Entity '"+name+"' has no primary key!");
+            }
+            else
+            {
+              throw new SQLException("Entity.delete: Error: Entity '"+name+"' has a multi-column primary key!");
+            }
         }
         Instance instance = newInstance();
         instance.put(keyCols.get(0),keyValue);
         return instance.delete();
     }
 
-    /** Delete a row based on the unique key string value.
+    /**
+     * Delete a row based on the unique key string value.
      *
      * @param keyValue key value
      * @return success indicator
      */
-    public boolean delete(Number keyValue) throws SQLException {
-        if (readOnly) {
+    public boolean delete(Number keyValue) throws SQLException
+    {
+        if (readOnly)
+        {
             Logger.error("Error: Entity "+getName()+" is read-only!");
             return false;
         }
-        if (keyCols.size()!=1) {
-            if (keyCols.size()==0) throw new SQLException("Entity.delete: Error: Entity '"+name+"' has no primary key!");
-            else throw new SQLException("Entity.delete: Error: Entity '"+name+"' has a multi-column primary key!");
+        if (keyCols.size()!=1)
+        {
+            if (keyCols.size()==0)
+            {
+                throw new SQLException("Entity.delete: Error: Entity '"+name+"' has no primary key!");
+            }
+            else
+            {
+                throw new SQLException("Entity.delete: Error: Entity '"+name+"' has a multi-column primary key!");
+            }
         }
         Instance instance = newInstance();
         instance.put(keyCols.get(0),keyValue);
@@ -571,234 +716,332 @@ public class Entity
     }
 
 
-    /** Fetch an instance from key values stored in a List in natural order.
+    /**
+     * Fetch an instance from key values stored in a List in natural order.
      *
      * @param values the List containing the key values
      * @return the fetched instance
      */
-    public Instance fetch(List<Object> values) throws SQLException {
-        if (values.size() != keyCols.size()) throw new SQLException("Entity.fetch: Error: Wrong number of values for '"+name+"' primary key! Got "+values.size()+", was expecting "+keyCols.size()+" for key list: "+StringLists.join(keyCols,","));
+    public Instance fetch(List<Object> values) throws SQLException
+    {
+        if (values.size() != keyCols.size())
+        {
+            throw new SQLException("Entity.fetch: Error: Wrong number of values for '"+name+"' primary key! Got "+values.size()+", was expecting "+keyCols.size()+" for key list: "+StringLists.join(keyCols,","));
+        }
         Instance instance = null;
         // try in cache
         if (cachingMethod != Cache.NO_CACHE)
+        {
             instance = (Instance)cache.get(buildKey(values));
-        if (instance == null) {
-            if (fetchQuery == null) buildFetchQuery();
-            PooledPreparedStatement statement = db.prepare(fetchQuery);
-            if (obfuscate) {
+        }
+        if (instance == null)
+        {
+            PooledPreparedStatement statement = db.prepare(getFetchQuery());
+            if (obfuscate)
+            {
                 values = new ArrayList<Object>(values);
                 for(int col=0;col<keyColObfuscated.length;col++)
+                {
                     if(keyColObfuscated[col])
+                    {
                         values.set(col,deobfuscate(values.get(col)));
+                    }
+                }
             }
             instance = (Instance)statement.fetch(values,this);
         }
-        if(instance != null) instance.setClean();
+        if(instance != null)
+        {
+            instance.setClean();
+        }
         return instance;
     }
         
-    /** Fetch an instance from key values stored in a Map.
+    /**
+     * Fetch an instance from key values stored in a Map.
      *
      * @param values the Map containing the key values
      * @return the fetched instance
      */
-    public Instance fetch(Map<String,Object> values) throws SQLException {
-        if(keyCols.size() == 0) {
+    public Instance fetch(Map<String,Object> values) throws SQLException
+    {
+        if(keyCols.size() == 0)
+        {
             throw new SQLException("entity "+name+": cannot fetch an instance for an entity without key!");
         }
         Instance instance = null;
         /* extract key values */
         Object key[] = new Object[keyCols.size()];
         int n = 0;
-        for(Map.Entry<String,Object> entry:values.entrySet()) {
+        for(Map.Entry<String,Object> entry:values.entrySet())
+        {
             String col = resolveName(entry.getKey());
             int i = keyCols.indexOf(col);
-            if (i != -1) {
+            if (i != -1)
+            {
                 key[i] = entry.getValue();
                 n++;
             }
         }
-        if (n != keyCols.size() ) {
+        if (n != keyCols.size() )
+        {
             String missing = "";
             for(int c=0;c<key.length;c++)
+            {
                 if(key[c] == null)
-                  missing += keyCols.get(c)+" ";
+                {
+                    missing += keyCols.get(c)+" ";
+                }
+            }
             throw new SQLException("entity "+name+".fetch(): missing key values! Missing values: "+missing);
         }
-        if (cachingMethod != Cache.NO_CACHE) {
+        if (cachingMethod != Cache.NO_CACHE)
+        {
             // try in cache
             instance = (Instance)cache.get(key);
         }
-        if (instance == null) {
-            if (fetchQuery == null) buildFetchQuery();
-            PooledPreparedStatement statement = db.prepare(fetchQuery);
-            if (obfuscate) {
-                for(int c=0;c<keyCols.size();c++) {
-                    if (isObfuscated(keyCols.get(c))) {
+        if (instance == null)
+        {
+            PooledPreparedStatement statement = db.prepare(getFetchQuery());
+            if (obfuscate)
+            {
+                for(int c=0;c<keyCols.size();c++)
+                {
+                    if (isObfuscated(keyCols.get(c)))
+                    {
                         key[c] = deobfuscate(key[c]);
                     }
                 }
             }
             instance = (Instance)statement.fetch(Arrays.asList(key),this);
         }
-        if(instance != null) instance.setClean();
+        if(instance != null)
+        {
+            instance.setClean();
+        }
         return instance;
     }
 
-    /** Fetch an instance from its key value as a string.
+    /**
+     * Fetch an instance from its key value as a string.
      *
      * @param keyValue the key
      * @return the fetched instance
      */
-    public Instance fetch(String keyValue) throws SQLException {
-        if (keyCols.size()!=1) {
-            if (keyCols.size()==0) throw new SQLException("Entity.fetch: Error: Entity '"+name+"' has no primary key!");
-            else throw new SQLException("Entity.fetch: Error: Entity '"+name+"' has a multi-column primary key!");
+    public Instance fetch(String keyValue) throws SQLException
+    {
+        if (keyCols.size()!=1)
+        {
+            if (keyCols.size()==0)
+            {
+                throw new SQLException("Entity.fetch: Error: Entity '"+name+"' has no primary key!");
+            }
+            else
+            {
+                throw new SQLException("Entity.fetch: Error: Entity '"+name+"' has a multi-column primary key!");
+            }
         }
         Instance instance = null;
+
         // try in cache
         if (cachingMethod != Cache.NO_CACHE)
-            // try in cache
+        {
             instance = (Instance)cache.get(new Object[] { keyValue });
-        if (instance == null) {
-            if (fetchQuery == null) buildFetchQuery();
-            PooledPreparedStatement statement = db.prepare(fetchQuery);
-            if (obfuscate && keyColObfuscated[0]) {
+        }
+
+        if (instance == null)
+        {
+            PooledPreparedStatement statement = db.prepare(getFetchQuery());
+            if (obfuscate && keyColObfuscated[0])
+            {
                 keyValue = deobfuscate(keyValue);
             }
             List<String> params = new ArrayList<String>();
             params.add(keyValue);
             instance = (Instance)statement.fetch(params,this);
         }
-        if(instance != null) instance.setClean();
+        if(instance != null)
+        {
+            instance.setClean();
+        }
         return instance;
     }
 
-    /** Fetch an instance from its key value specified as a Number.
+    /**
+     * Fetch an instance from its key value specified as a Number.
      *
      * @param keyValue the key
      * @return the fetched instance
      */
-    public Instance fetch(Number keyValue) throws SQLException {
-        if (keyCols.size()!=1) {
-            if (keyCols.size()==0) throw new SQLException("Entity.fetch: Error: Entity '"+name+"' has no primary key!");
-            else throw new SQLException("Entity.fetch: Error: Entity '"+name+"' has a multi-column primary key!");
+    public Instance fetch(Number keyValue) throws SQLException
+    {
+        if (keyCols.size()!=1)
+        {
+            if (keyCols.size()==0)
+            {
+                throw new SQLException("Entity.fetch: Error: Entity '"+name+"' has no primary key!");
+            }
+            else
+            {
+                throw new SQLException("Entity.fetch: Error: Entity '"+name+"' has a multi-column primary key!");
+            }
         }
         Instance instance = null;
+
         // try in cache
         if (cachingMethod != Cache.NO_CACHE)
         {
-            // try in cache
           Number cacheKeyValue = keyValue instanceof Integer ? keyValue.longValue() : keyValue;
             instance = (Instance)cache.get(buildKey(keyValue));
         }
-        if (instance == null) {
-            if (fetchQuery == null) buildFetchQuery();
-            PooledPreparedStatement statement = db.prepare(fetchQuery);
+
+        if (instance == null)
+        {
+            PooledPreparedStatement statement = db.prepare(getFetchQuery());
             List<Number> params = new ArrayList<Number>();
             params.add(keyValue);
-            if(obfuscate && keyColObfuscated[0]) {
+            if(obfuscate && keyColObfuscated[0])
+            {
                 Logger.warn("fetch: column '"+columns.get(0)+"' is obfuscated, please use $db."+name+".fetch($db.obfuscate("+keyValue+"))");
                 return null;
             }
             instance = (Instance)statement.fetch(params,this);
         }
-        if(instance != null) instance.setClean();
+        if(instance != null)
+        {
+            instance.setClean();
+        }
         return instance;
     }
 
-    /** Get the SQL query string used to fetch one instance of this query.
+    /**
+     * Get the SQL query string used to fetch one instance of this query.
      *
      * @return the SLQ query
      */
-    public String getFetchQuery() {
-        if (fetchQuery == null) buildFetchQuery();
+    public String getFetchQuery()
+    {
+        if (fetchQuery == null)
+        {
+            buildFetchQuery();
+        }
         return fetchQuery;
     }
 
-    /** Build the SQL query used to fetch one instance of this query.
+    /**
+     * Build the SQL query used to fetch one instance of this query.
      */
-    private void buildFetchQuery() {
+    private void buildFetchQuery()
+    {
         List<String> whereClause = new ArrayList<String>();
-        for(String column:keyCols) {
+        for(String column:keyCols)
+        {
             whereClause.add(column+"=?");
         }
         fetchQuery = "select * from "+table+" where "+StringLists.join(whereClause," and ");
     }
 
-    /** Issue a query to iterate though all instances of this entity.
+    /**
+     * Issue a query to iterate though all instances of this entity.
      *
      * @return the resulting RowIterator
      */
-    public RowIterator query() throws SQLException {
+    public RowIterator query() throws SQLException
+    {
         return query(null,null);
     }
 
-    /** Issue a query to iterate thought instances of this entity, with a facultative refining criteria and a facultative order by clause.
+    /**
+     * Issue a query to iterate thought instances of this entity, with a facultative refining criteria and a facultative order by clause.
      *
      * @param refineCriteria a refining criteria or null to get all instances
      * @param order an 'order by' clause or null to get instances in their
      *     natural order
      * @return the resulting RowIterator
      */
-    public RowIterator query(List refineCriteria,String order) throws SQLException {
+    public RowIterator query(List refineCriteria,String order) throws SQLException
+    {
         String query = "select * from "+ table;
-        if (refineCriteria!=null) query = SqlUtil.refineQuery(query,refineCriteria);
-        if (order!=null && order.length()>0) query = SqlUtil.orderQuery(query,order);
+        if (refineCriteria!=null)
+        {
+            query = SqlUtil.refineQuery(query,refineCriteria);
+        }
+        if (order!=null && order.length()>0)
+        {
+            query = SqlUtil.orderQuery(query,order);
+        }
         return db.query(query,this);
     }
 
-    public long getCount() {
+    public long getCount()
+    {
         return getCount(null);
     }
 
-    public long getCount(List refineCriteria) {
+    public long getCount(List refineCriteria)
+    {
         String query = "select count(*) from "+ table;
-        if (refineCriteria!=null) query = SqlUtil.refineQuery(query,refineCriteria);
+        if (refineCriteria!=null)
+        {
+            query = SqlUtil.refineQuery(query,refineCriteria);
+        }
         return (Long)db.evaluate(query);
     }
 
-    /** Get the database connection.
+    /**
+     * Get the database connection.
      *
      * @return the database connection
      */
-    public Database getDB() { return db; }
+    public Database getDB()
+    {
+        return db;
+    }
 
-    /** Is this entity read-only or read-write?
+    /**
+     * Is this entity read-only or read-write?
      *
      * @return whether this entity is read-only or not
      */
-    public boolean isReadOnly() {
+    public boolean isReadOnly()
+    {
         return readOnly;
     }
 
-    /** Set this entity to be read-only or read-write.
+    /**
+     * Set this entity to be read-only or read-write.
      *
      * @param readOnly the mode to switch to : true for read-only, false for
      *     read-write
      */
-    public void setReadOnly(boolean readOnly) {
+    public void setReadOnly(boolean readOnly)
+    {
         this.readOnly = readOnly;
     }
 
-    /** set the name of the table mapped by this entity.
+    /**
+     * Set the name of the table mapped by this entity.
      *
      * @param table the table mapped by this entity
      *     read-write
      */
-    public void setTableName(String table) {
+    public void setTableName(String table)
+    {
         this.table = table;
     }
 
-    /** Get the name of the mapped table.
+    /**
+     * Get the name of the mapped table.
      *
      * @return name of the mapped table
      */
-    public String getTableName() {
+    public String getTableName()
+    {
         return table;
     }
 
-    /** Indicates a column as being obfuscated.
+    /**
+     * Indicates a column as being obfuscated.
      * @param columns list of obfuscated columns
      */
     public void setObfuscated(List<String> columns)
@@ -807,7 +1050,8 @@ public class Entity
         obfuscatedColumns = columns;
     }
 
-    /** Returns whether the given column is obfuscated.
+    /**
+     * Returns whether the given column is obfuscated.
      * @param column the name of the column
      * @return a boolean indicating whether this column is obfuscated
      */
@@ -816,7 +1060,8 @@ public class Entity
         return obfuscate && obfuscatedColumns.contains(db.adaptCase(column));
     }
 
-    /** Obfuscate given value.
+    /**
+     * Obfuscate given value.
      * @param value value to obfuscate
      *
      * @return obfuscated value
@@ -826,18 +1071,22 @@ public class Entity
         return db.obfuscate(value);
     }
 
-    /** Obfuscate this id value if needed.
+    /**
+     * Obfuscate this id value if needed.
      *  @param id id value
      *  @return filtered id value (that is, obfuscated if needed)
      */
-    public Object filterID(Long id) {
-        if (keyCols.size() == 1 && isObfuscated((String)keyCols.get(0))) return obfuscate(Long.valueOf(id));
+    public Object filterID(Long id)
+    {
+        if (keyCols.size() == 1 && isObfuscated((String)keyCols.get(0)))
+        {
+            return obfuscate(Long.valueOf(id));
+        }
         return Long.valueOf(id);
     }
 
-
-
-    /** De-obfuscate given value.
+    /**
+     * De-obfuscate given value.
      * @param value value to de-obfuscate
      *
      * @return obfuscated value
@@ -847,7 +1096,8 @@ public class Entity
         return db.deobfuscate(value);
     }
 
-    /** Indicates a column as being localized.
+    /**
+     * Indicates a column as being localized.
      * @param columns list of localized columns
      */
     public void setLocalized(List columns)
@@ -855,7 +1105,8 @@ public class Entity
         localizedColumns = columns;
     }
 
-    /** Returns whether the given column is obfuscated.
+    /**
+     * Returns whether the given column is obfuscated.
      * @param column the name of the column
      * @return a boolean indicating whether this column is obfuscated
      */
@@ -864,9 +1115,11 @@ public class Entity
         return localizedColumns != null && localizedColumns.contains(db.adaptCase(column));
     }
 
-    /** Does this entity have localized columns?
+    /**
+     * Does this entity have localized columns?
      */
-    public boolean hasLocalizedColumns() {
+    public boolean hasLocalizedColumns()
+    {
         return localizedColumns != null && localizedColumns.size() > 0;
     }
 
@@ -875,9 +1128,11 @@ public class Entity
      */
     private static final int MAX_DATA_DISPLAY_LENGTH = 40;
 
-    /** Validate a set of values.
+    /**
+     * Validate a set of values.
      */
-    public boolean validate(Map<String,Object> row) throws SQLException {
+    public boolean validate(Map<String,Object> row) throws SQLException
+    {
         boolean ret = true;
 
         UserContext userContext = db.getUserContext();
@@ -887,16 +1142,21 @@ public class Entity
            */
         userContext.clearValidationErrors();
         List<ValidationError> errors = new ArrayList<ValidationError>();
-        for(Map.Entry<String,Object> entry:row.entrySet()) {
+        for(Map.Entry<String,Object> entry:row.entrySet())
+        {
             String col = resolveName(entry.getKey());
             Object data = entry.getValue();
             List<FieldConstraint> list = constraints.get(col);
-            if(list != null) {
-                for(FieldConstraint constraint:list) {
-                    if (!constraint.validate(data, userContext.getLocale())) {
+            if(list != null)
+            {
+                for(FieldConstraint constraint:list)
+                {
+                    if (!constraint.validate(data, userContext.getLocale()))
+                    {
                         String stringData = data.toString();
                         String formatted = (data==null || stringData.length() == 0 ? "empty value" : stringData);
-                        if (formatted.length() > MAX_DATA_DISPLAY_LENGTH) {
+                        if (formatted.length() > MAX_DATA_DISPLAY_LENGTH)
+                        {
                             formatted = formatted.substring(0,MAX_DATA_DISPLAY_LENGTH)+"...";
                         }
                         formatted = StringEscapeUtils.escapeHtml(formatted);
@@ -906,12 +1166,14 @@ public class Entity
                 }
             }
         }
-        if(errors.size()>0) {
+        if(errors.size()>0)
+        {
             /* sort in columns natural order... better than nothing.
                The ideal ordering would be the order of the form fields,
                but it is unreachable. */
             Collections.sort(errors);
-            for(ValidationError error:errors) {
+            for(ValidationError error:errors)
+            {
                 Logger.trace("validation: new message: "+error.message);
                 userContext.addValidationError(error.message);
             }
@@ -919,31 +1181,51 @@ public class Entity
         return ret;
     }
 
-    public class ColumnOrderComparator implements Comparator<String> {
-        public int compare(String o1, String o2) {
+    public class ColumnOrderComparator implements Comparator<String>
+    {
+        public int compare(String o1, String o2)
+        {
             String col1 = resolveName(o1);
             String col2 = resolveName(o2);
             int i1 = columns.indexOf(col1);
             int i2 = columns.indexOf(col2);
-	    if(i1 == -1 && i2 == -1) return o1.compareTo(o2);
-	    else if (i1 == -1) return -1;
-	    else if (i2 == -1) return 1;
-            else return i1 - i2;
+	    if(i1 == -1 && i2 == -1)
+            {
+                return o1.compareTo(o2);
+            }
+	    else if (i1 == -1)
+            {
+                return -1;
+            }
+	    else if (i2 == -1)
+            {
+                return 1;
+            }
+            else
+            {
+                return i1 - i2;
+            }
         }
     }
 
-    public Comparator<String> getColumnOrderComparator() {
+    public Comparator<String> getColumnOrderComparator()
+    {
         return new ColumnOrderComparator();
     }
 
-    class ValidationError implements Comparable<ValidationError> {
-        ValidationError(String column,String message) {
+    class ValidationError implements Comparable<ValidationError>
+    {
+        ValidationError(String column,String message)
+        {
             index = columns.indexOf(column);
             this.message = message;
         }
-        public int compareTo(ValidationError cmp) {
+
+        public int compareTo(ValidationError cmp)
+        {
             return index - cmp.index;
         }
+
         String message;
         int index;
     }
@@ -955,15 +1237,19 @@ public class Entity
      * @param fkCols foreign key columns
      * @return previously defined imported key, if any
      */
-    public ImportedKey findImportedKey(Entity pkEntity,List<String> fkCols) {
-        for(Map.Entry<String,Attribute> entry:attributeMap.entrySet()) {
+    public ImportedKey findImportedKey(Entity pkEntity,List<String> fkCols)
+    {
+        for(Map.Entry<String,Attribute> entry:attributeMap.entrySet())
+        {
             Attribute attribute = entry.getValue();
-            if (!(attribute instanceof ImportedKey)) {
+            if (!(attribute instanceof ImportedKey))
+            {
                 continue;
             }
             ImportedKey imported = (ImportedKey)attribute;
             if (imported.getResultEntity().equals(pkEntity.getName())
-                && ( imported.getFKCols() == null || imported.getFKCols().equals(fkCols)) ) {
+                && ( imported.getFKCols() == null || imported.getFKCols().equals(fkCols)) )
+            {
                 return imported;
             }
         }
@@ -976,36 +1262,48 @@ public class Entity
      * @param fkCols foreign key columns
      * @return previously defined exported key, if any
      */
-    public ExportedKey findExportedKey(Entity fkEntity,List<String> fkCols) {
-        for(Map.Entry<String,Attribute> entry:attributeMap.entrySet()) {
+    public ExportedKey findExportedKey(Entity fkEntity,List<String> fkCols)
+    {
+        for(Map.Entry<String,Attribute> entry:attributeMap.entrySet())
+        {
             Attribute attribute = entry.getValue();
-            if (!(attribute instanceof ExportedKey)) {
+            if (!(attribute instanceof ExportedKey))
+            {
                 continue;
             }
             ExportedKey exported = (ExportedKey)attribute;
             if (exported.getResultEntity().equals(fkEntity.getName())
-                && ( exported.getFKCols() == null || exported.getFKCols().equals(fkCols) )) {
+                && ( exported.getFKCols() == null || exported.getFKCols().equals(fkCols) ))
+            {
                 return exported;
             }
         }
         return null;
     }
 
-    public Object filterIncomingValue(String column,Object value) {
-        if(value == null) {
+    public Object filterIncomingValue(String column,Object value)
+    {
+        if(value == null)
+        {
             return null;
         }
         /* for now, only filter boolean values */
         Integer type = types.get(column);
-        if (type == null) {
+        if (type == null)
+        {
             return value;
         }
-        if(type == Types.BOOLEAN || type == Types.BIT) {
-            if(String.class.isAssignableFrom(value.getClass())) {
+        if(type == Types.BOOLEAN || type == Types.BIT)
+        {
+            if(String.class.isAssignableFrom(value.getClass()))
+            {
                 String s = (String)value;
-                if("true".equalsIgnoreCase(s) || "on".equalsIgnoreCase(s) || "1".equalsIgnoreCase(s) || "yes".equalsIgnoreCase(s)) {
+                if("true".equalsIgnoreCase(s) || "on".equalsIgnoreCase(s) || "1".equalsIgnoreCase(s) || "yes".equalsIgnoreCase(s))
+                {
                     value = new Boolean(true);
-                } else {
+                }
+                else
+                {
                     value = new Boolean(false);
                 }
             }
@@ -1013,11 +1311,13 @@ public class Entity
         return value;
     }
 
-    public Map<String,Attribute> getAttributes() {
+    public Map<String,Attribute> getAttributes()
+    {
         return attributeMap;
     }
 
-    public Map<String,Action> getActions() {
+    public Map<String,Action> getActions()
+    {
         return actionMap;
     }
 
@@ -1026,41 +1326,63 @@ public class Entity
      * @param column column name
      * @return the sql type
      */
-    public int getColumnType(String column) {
+    public int getColumnType(String column)
+    {
         return types.get(column);
     }
 
-    /** Name.
+    /**
+     * Name.
      */
     private String name = null;
-    /** Table.
+
+    /**
+     * Table.
      */
     private String table = null;
-    /** Column names in natural order.
+
+    /**
+     * Column names in natural order.
      */
     private List<String> columns = new ArrayList<String>(); // list<String>
-    /** Column types
+
+    /**
+     * Column types
      */
     private Map<String,Integer> types = new HashMap<String,Integer>();
-    /** Key column names in natural order.
+
+    /**
+     * Key column names in natural order.
      */
     private List<String> keyCols = new ArrayList<String>();
-    /** Non-key column names in natural order
+
+    /**
+     * Non-key column names in natural order
      */
     private List<String> updatableCols = null;
-    /** Whether to obfuscate something.
+
+    /**
+     * Whether to obfuscate something.
      */
     private boolean obfuscate = false;
-    /** Names of obfuscated columns.
+
+    /**
+     * Names of obfuscated columns.
      */
     private List<String> obfuscatedColumns = null;
-    /** Obfuscation status of key columns.
+
+    /**
+     * Obfuscation status of key columns.
      */
     private boolean keyColObfuscated[] = null;
-    /** Localized columns.
+
+    /**
+     * Localized columns.
      */
     private List localizedColumns = null;
-    /** Attributes of this entity.
+
+    /**
+     * Attributes of this entity.
      */
 
     /**
@@ -1068,33 +1390,48 @@ public class Entity
      */
     private Map<String,String> aliases = new HashMap<String,String>();
 
-    /** Attribute map.
-     *
+    /**
+     * Attribute map.
      */
     private Map<String,Attribute> attributeMap = new HashMap<String,Attribute>();
-    /** action map.
+
+    /**
+     * Action map.
      */
     private Map<String,Action> actionMap = new HashMap<String,Action>();
-    /** the java class to use to realize this instance.
+
+    /**
+     * The java class to use to realize this instance.
      */
     private Class instanceClass = null;
-    /** the SQL query used to fetch one instance of this entity.
+
+    /**
+     * The SQL query used to fetch one instance of this entity.
      */
     private String fetchQuery = null;
-    /** whether this entity is read-only or not.
+
+    /**
+     * Whether this entity is read-only or not.
      */
     private boolean readOnly;
-    /** the database connection.
+
+    /**
+     * The database connection.
      */
     private Database db = null;
-    /** the caching method.
+
+    /**
+     * The caching method.
      */
     private int cachingMethod = 0;
-    /** the cache.
+
+    /**
+     * The cache.
      */
     private Cache cache = null;
     
-    /** Constraint by column name map.
+    /**
+     * Constraint by column name map.
      */
     private Map<String,List<FieldConstraint>> constraints = new HashMap<String,List<FieldConstraint>>();
 }

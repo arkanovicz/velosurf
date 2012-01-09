@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.util;
 
-/** an output stream wrapping a writer.
+/**
+ * an output stream wrapping a writer.
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 
-public class WriterOutputStream extends OutputStream {
+public class WriterOutputStream extends OutputStream
+{
     /** wrapped writer. */
     private Writer writer = null;
 
@@ -34,7 +37,8 @@ public class WriterOutputStream extends OutputStream {
      *
      * @param w the writer
      */
-    public WriterOutputStream(Writer w) {
+    public WriterOutputStream(Writer w)
+    {
         writer = w;
     }
 
@@ -43,7 +47,8 @@ public class WriterOutputStream extends OutputStream {
      * @param c byte
      * @exception IOException may be thrown
      */
-    public void write(int c) throws IOException {
+    public void write(int c) throws IOException
+    {
         writer.write(c);
     }
 }

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.sql;
 
-/** This interface represents a generic pool of objects - no real need for now.
+/**
+ * This interface represents a generic pool of objects - no real need for now.
  *
  *  @author <a href='mailto:claude.brisson@gmail.com'>Claude Brisson</a>
  *
  */
-public interface Pool {
-
-}
+public interface Pool{}

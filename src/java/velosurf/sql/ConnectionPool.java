@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.sql;
 
-import velosurf.util.Strings;
-import velosurf.util.Logger;
-
 import java.sql.*;
-import java.util.List;
-import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import velosurf.util.Logger;
+import velosurf.util.Strings;
 
 /**
  *  Connection pool.
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-
-public class ConnectionPool {
-
+public class ConnectionPool
+{
     /**
      * Constructor.
      * @param url url
@@ -44,18 +44,21 @@ public class ConnectionPool {
      * @param max max connections
      * @throws SQLException
      */
-    public ConnectionPool(String url,String user,String password,String schema,DriverInfo driver,boolean autocommit,int min,int max) throws SQLException{
+    public ConnectionPool(String url, String user, String password, String schema, DriverInfo driver,
+                          boolean autocommit, int min, int max)
+            throws SQLException
+    {
         this.user = user;
         this.password = password;
         this.url = url;
         this.schema = schema;
         this.driver = driver;
-        this.autocommit= autocommit;
+        this.autocommit = autocommit;
         connections = new ArrayList<ConnectionWrapper>();
         this.min = min;
         this.max = max;
-
-        for(int i=0;i<this.min;i++) {
+        for(int i = 0; i < this.min; i++)
+        {
             connections.add(createConnection());
         }
     }
@@ -65,46 +68,60 @@ public class ConnectionPool {
      * @return a connection
      * @throws SQLException
      */
-    public synchronized ConnectionWrapper getConnection() throws SQLException {
-        for (Iterator it = connections.iterator();it.hasNext();) {
+    public synchronized ConnectionWrapper getConnection() throws SQLException
+    {
+        for(Iterator it = connections.iterator(); it.hasNext(); )
+        {
             ConnectionWrapper c = (ConnectionWrapper)it.next();
-            if (c.isClosed()) {
+
+            if(c.isClosed())
+            {
                 it.remove();
             }
-            else if (!c.isBusy()) {
+            else if(!c.isBusy())
+            {
                 return c;
             }
         }
-        if (connections.size() == max) {
+        if(connections.size() == max)
+        {
             Logger.warn("Connection pool: max number of connections reached! ");
+
             // return a busy connection...
-            return (ConnectionWrapper)connections.get(0);
+            return(ConnectionWrapper)connections.get(0);
         }
+
         ConnectionWrapper newconn = createConnection();
+
         connections.add(newconn);
         return newconn;
     }
 
-    /** Create a connection.
+    /**
+     * Create a connection.
      *
      * @return connection
      * @throws SQLException
      */
-    private ConnectionWrapper createConnection() throws SQLException {
-
+    private ConnectionWrapper createConnection() throws SQLException
+    {
         Logger.info("Creating a new connection.");
+
         // user and password may be part of the url
-        Connection connection =
-                user == null ?
-                DriverManager.getConnection(url) :
-                DriverManager.getConnection(url,user,password);
+        Connection connection = user == null
+                                ? DriverManager.getConnection(url) : DriverManager.getConnection(url, user, password);
 
         // schema
-        if (schema != null) {
+        if(schema != null)
+        {
             String schemaQuery = driver.getSchemaQuery();
-            if (schemaQuery != null) {
-                schemaQuery = Strings.replace(schemaQuery,"$schema",schema);
+
+            if(schemaQuery != null)
+            {
+                schemaQuery = Strings.replace(schemaQuery, "$schema", schema);
+
                 Statement stmt = connection.createStatement();
+
                 stmt.executeUpdate(schemaQuery);
                 stmt.close();
             }
@@ -112,41 +129,53 @@ public class ConnectionPool {
 
         // autocommit
         connection.setAutoCommit(autocommit);
-
-        return new ConnectionWrapper(driver,connection);
+        return new ConnectionWrapper(driver, connection);
     }
 
 /*
-private String getSchema(Connection connection) throws SQLException
-{
-    Statement stmt = connection.createStatement();
-    ResultSet rs = stmt.executeQuery("select sys_context('userenv','current_schema') from dual");
-    rs.next();
-    return rs.getString(1);
-}*/
+    private String getSchema(Connection connection) throws SQLException
+    {
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery("select sys_context('userenv','current_schema') from dual");
+        rs.next();
+        return rs.getString(1);
+    }*/
 
     /**
      * clear all connections.
      */
-    public void clear() {
-        for (Iterator it = connections.iterator();it.hasNext();) {
+    public void clear()
+    {
+        for(Iterator it = connections.iterator(); it.hasNext(); )
+        {
             ConnectionWrapper c = (ConnectionWrapper)it.next();
-            try { c.close(); } catch(SQLException sqle) {}
+
+            try
+            {
+                c.close();
+            }
+            catch(SQLException sqle) {}
         }
     }
 
     /** user */
     private String user = null;
+
     /** password */
     private String password = null;
+
     /** database url */
     private String url = null;
+
     /** optional schema */
     private String schema = null;
+
     /** infos on the driver */
     private DriverInfo driver = null;
+
     /** autocommit flag */
     private boolean autocommit = true;
+
     /** list of all connections */
     private List<ConnectionWrapper> connections = null;
 
@@ -155,5 +184,4 @@ private String getSchema(Connection connection) throws SQLException
 
     /** Maximum number of connections. */
     private int max;
-
 }

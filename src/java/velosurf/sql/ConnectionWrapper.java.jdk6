@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.sql;
 
 import java.lang.reflect.Method;
 import java.sql.*;
 import java.util.Map;
 import java.util.Properties;
-
 import velosurf.util.Logger;
 
-/** Connection wrapper class. Allows the handling of a busy state
+/**
+ * Connection wrapper class. Allows the handling of a busy state
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
@@ -42,6 +44,7 @@ public class ConnectionWrapper
         this.driver = driver;
         this.connection = connection;
     }
+
     /**
      * Unwrap the connection.
      * @return the unwrapped connection
@@ -50,6 +53,7 @@ public class ConnectionWrapper
     {
         return connection;
     }
+
     /**
      * Create a statement.
      * @return created statement
@@ -58,13 +62,17 @@ public class ConnectionWrapper
     public Statement createStatement()
         throws SQLException
     {
-        try {
+        try
+        {
             enterBusyState();
             return connection.createStatement();
-        } finally {
+        }
+        finally
+        {
             leaveBusyState();
         }
     }
+
     /**
      * Prepare a statement.
      * @param s SQL query
@@ -74,10 +82,13 @@ public class ConnectionWrapper
     public synchronized PreparedStatement prepareStatement(String s)
         throws SQLException
     {
-        try {
+        try
+        {
             enterBusyState();
             return connection.prepareStatement(s);
-        } finally {
+        }
+        finally
+        {
             leaveBusyState();
         }
     }
@@ -91,10 +102,13 @@ public class ConnectionWrapper
     public synchronized CallableStatement prepareCall(String s)
         throws SQLException
     {
-        try {
+        try
+        {
             enterBusyState();
             return connection.prepareCall(s);
-        } finally {
+        }
+        finally
+        {
             leaveBusyState();
         }
     }
@@ -108,13 +122,17 @@ public class ConnectionWrapper
     public synchronized String nativeSQL(String s)
         throws SQLException
     {
-        try {
+        try
+        {
             enterBusyState();
             return connection.nativeSQL(s);
-        } finally {
+        }
+        finally
+        {
             leaveBusyState();
         }
     }
+
     /**
      * Set autocommit flag.
      * @param flag autocommit
@@ -125,7 +143,9 @@ public class ConnectionWrapper
     {
         connection.setAutoCommit(flag);
     }
-    /** Get autocommit flag.
+
+    /**
+     * Get autocommit flag.
      *
      * @return autocommit flag
      * @throws SQLException
@@ -135,35 +155,47 @@ public class ConnectionWrapper
     {
         return connection.getAutoCommit();
     }
-    /** Commit.
+
+    /**
+     * Commit.
      *
      * @throws SQLException
      */
     public synchronized void commit()
         throws SQLException
     {
-        try {
+        try
+        {
             enterBusyState();
             connection.commit();
-        } finally {
+        }
+        finally
+        {
             leaveBusyState();
         }
     }
-    /** Rollback.
+
+    /**
+     * Rollback.
      *
      * @throws SQLException
      */
     public synchronized void rollback()
         throws SQLException
     {
-        try {
+        try
+        {
             enterBusyState();
             connection.rollback();
-        } finally {
+        }
+        finally
+        {
             leaveBusyState();
         }
     }
-    /** Close.
+
+    /**
+     * Close.
      *
      * @throws SQLException
      */
@@ -175,6 +207,7 @@ public class ConnectionWrapper
         closed = true;
         connection.close();
     }
+
     /**
      * Check the closed state.
      * @return closed state
@@ -185,6 +218,7 @@ public class ConnectionWrapper
     {
         return (closed || connection.isClosed());
     }
+
     /**
      * Get meta data
      * @return database meta data
@@ -195,6 +229,7 @@ public class ConnectionWrapper
     {
         return connection.getMetaData();
     }
+
     /**
      * set read-only flag
      * @param flag read-only
@@ -205,6 +240,7 @@ public class ConnectionWrapper
     {
         connection.setReadOnly(flag);
     }
+
     /**
      * Check the read-only state.
      * @return read-only state
@@ -215,6 +251,7 @@ public class ConnectionWrapper
     {
         return connection.isReadOnly();
     }
+
     /**
      * Catalog setter.
      * @param s catalog
@@ -225,11 +262,13 @@ public class ConnectionWrapper
     {
         connection.setCatalog(s);
     }
+
     /**
      * Catalog getter.
      * @return catalog
      * @throws SQLException
      */
+
     public String getCatalog()
         throws SQLException
     {
@@ -240,11 +279,13 @@ public class ConnectionWrapper
      * @param i transaction isolation
      * @throws SQLException
      */
+
     public void setTransactionIsolation(int i)
         throws SQLException
     {
         connection.setTransactionIsolation(i);
     }
+
     /**
      * Transaction isolation getter.
      * @return transaction isolation
@@ -255,6 +296,7 @@ public class ConnectionWrapper
     {
         return connection.getTransactionIsolation();
     }
+
     /**
      * Get SQL warnings.
      * @return next SQL Warning.
@@ -265,6 +307,7 @@ public class ConnectionWrapper
     {
         return connection.getWarnings();
     }
+
     /**
      * Clear SQL warnings.
      * @throws SQLException
@@ -275,7 +318,8 @@ public class ConnectionWrapper
         connection.clearWarnings();
     }
 
-    /** Create a statement.
+    /**
+     * Create a statement.
      *
      * @param i result set type
      * @param j result set concurrency
@@ -285,14 +329,18 @@ public class ConnectionWrapper
     public synchronized Statement createStatement(int i, int j)
         throws SQLException
     {
-        try {
+        try
+        {
             enterBusyState();
             return connection.createStatement(i, j);
-        } finally {
+        }
+        finally
+        {
             leaveBusyState();
         }
 
     }
+
     /**
      * Prepare a statement.
      * @param s SQL query
@@ -304,13 +352,17 @@ public class ConnectionWrapper
     public synchronized PreparedStatement prepareStatement(String s, int i, int j)
         throws SQLException
     {
-        try {
+        try
+        {
             enterBusyState();
             return connection.prepareStatement(s, i, j);
-        } finally {
+        }
+        finally
+        {
             leaveBusyState();
         }
     }
+
     /**
      * Prepare a call.
      * @param s SQL query
@@ -322,13 +374,17 @@ public class ConnectionWrapper
     public synchronized CallableStatement prepareCall(String s, int i, int j)
         throws SQLException
     {
-        try {
+        try
+        {
             enterBusyState();
             return connection.prepareCall(s, i, j);
-        } finally {
+        }
+        finally
+        {
             leaveBusyState();
         }
     }
+
     /**
      * Get type map.
      * @return type map
@@ -339,6 +395,7 @@ public class ConnectionWrapper
     {
         return connection.getTypeMap();
     }
+
     /**
      * Set type map.
      * @param map type map
@@ -349,6 +406,7 @@ public class ConnectionWrapper
     {
         connection.setTypeMap(map);
     }
+
     /**
      * Set holdability.
      * @param i holdability
@@ -359,6 +417,7 @@ public class ConnectionWrapper
     {
         connection.setHoldability(i);
     }
+
     /**
      * Get holdability.
      * @return holdability
@@ -369,6 +428,7 @@ public class ConnectionWrapper
     {
         return connection.getHoldability();
     }
+
     /**
      * Savepoint setter.
      * @return save point
@@ -379,6 +439,7 @@ public class ConnectionWrapper
     {
         return connection.setSavepoint();
     }
+
     /**
      * Set named savepoint.
      * @param s savepoint name
@@ -390,6 +451,7 @@ public class ConnectionWrapper
     {
         return connection.setSavepoint(s);
     }
+
     /**
      * Rollback.
      * @param savepoint savepoint
@@ -400,7 +462,8 @@ public class ConnectionWrapper
     {
         connection.rollback(savepoint);
     }
-    /** Release savepoint.
+    /**
+     * Release savepoint.
      *
      * @param savepoint savepoint
      * @throws SQLException
@@ -410,6 +473,7 @@ public class ConnectionWrapper
     {
         connection.releaseSavepoint(savepoint);
     }
+
     /**
      * Create a statement.
      * @param i result set type
@@ -421,13 +485,17 @@ public class ConnectionWrapper
     public synchronized Statement createStatement(int i, int j, int k)
         throws SQLException
     {
-        try {
+        try
+        {
            enterBusyState();
             return connection.createStatement(i, j, k);
-        } finally {
+        }
+        finally 
+        {
             leaveBusyState();
         }
     }
+
     /**
      * Prepare a statement.
      * @param s SQL query
@@ -440,13 +508,17 @@ public class ConnectionWrapper
     public synchronized PreparedStatement prepareStatement(String s, int i, int j, int k)
         throws SQLException
     {
-        try {
+        try
+        {
             enterBusyState();
             return connection.prepareStatement(s, i, j, k);
-        } finally {
+        }
+        finally
+        {
             leaveBusyState();
         }
     }
+
     /**
      * Prepare a callable statement.
      * @param s SQL query
@@ -459,13 +531,17 @@ public class ConnectionWrapper
     public synchronized CallableStatement prepareCall(String s, int i, int j, int k)
         throws SQLException
     {
-        try {
+        try
+        {
             enterBusyState();
             return connection.prepareCall(s, i, j, k);
-        } finally {
+        }
+        finally
+        {
             leaveBusyState();
         }
     }
+
     /**
      * Prepare a statement.
      * @param s SQL query
@@ -476,13 +552,17 @@ public class ConnectionWrapper
     public synchronized PreparedStatement prepareStatement(String s, int i)
         throws SQLException
     {
-        try {
+        try
+        {
             enterBusyState();
             return connection.prepareStatement(s, i);
-        } finally {
+        }
+        finally
+        {
             leaveBusyState();
         }
     }
+
     /**
      * Prepare a statement.
      * @param s SQL query
@@ -493,13 +573,17 @@ public class ConnectionWrapper
     public synchronized PreparedStatement prepareStatement(String s, int ai[])
         throws SQLException
     {
-        try {
+        try
+        {
             enterBusyState();
             return connection.prepareStatement(s, ai);
-        } finally {
+        }
+        finally
+        {
             leaveBusyState();
         }
     }
+
     /**
      * Prepare a statement.
      * @param s SQL query
@@ -510,79 +594,115 @@ public class ConnectionWrapper
     public synchronized PreparedStatement prepareStatement(String s, String as[])
         throws SQLException
     {
-        try {
+        try     
+        {
             enterBusyState();
             return connection.prepareStatement(s,as);
-        } finally {
+        }
+        finally
+        {
             leaveBusyState();
         }
     }
-    /** Enter busy state.
+
+    /** 
+     * Enter busy state.
      */
-    public void enterBusyState() {
+    public void enterBusyState()
+    {
         //Logger.trace("connection #"+toString()+": entering busy state.");
         busy++;
     }
-    /** Leave busy state.
+
+    /**
+     * Leave busy state.
      */
-    public void leaveBusyState() {
+    public void leaveBusyState()
+    {
         lastUse = System.currentTimeMillis();
         busy--;
         //Logger.trace("connection #"+toString()+": leaving busy state.");
     }
-    /** Check busy state.
+
+    /**
+     * Check busy state.
      * @return busy state
      */
-    public boolean isBusy() {
+    public boolean isBusy()
+    {
         return busy>0;
     }
-    /** get last use timestamp
-      @return last use
+
+    /**
+     * Get last use timestamp
+     *
+     * @return last use
      */
-    public long getLastUse() {
+    public long getLastUse()
+    {
       return lastUse;
     }
+
     /**
      * Get last inserted ID.
+     * 
      * @param statement
      * @return last inserted id
      * @throws SQLException
      */
-    public long getLastInsertId(Statement statement) throws SQLException {
+    public long getLastInsertId(Statement statement) throws SQLException
+    {
         return driver.getLastInsertId(statement);
     }
 
-    /** Check connection.
+    /**
+     * Check connection.
      *
      * @return true if the connection is ok
      */
-    public synchronized boolean check() {
-        try {
+    public synchronized boolean check()
+    {
+        try
+        {
             String checkQuery = driver.getPingQuery();
-            if (checkQuery == null) {
+            if (checkQuery == null)
+            {
                 // at least, call isOpen
-                if (isClosed()) throw new Exception ("Connection is closed");
+                if (isClosed())
+                {
+                    throw new Exception ("Connection is closed");
+                }
             }
-            else {
-                if (checkStatement == null) checkStatement = prepareStatement(checkQuery);
+            else
+            {
+                if (checkStatement == null)
+                {
+                    checkStatement = prepareStatement(checkQuery);
+                }
                 checkStatement.executeQuery();
             }
             return true;
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             Logger.warn("Exception while checking connection!");
             Logger.info("Refreshing...");
             return false;
         }
     }
+
     /** Infos on the driver. */
     private DriverInfo driver = null;
+
     /** Wrapped connection. */
     private Connection connection = null;
+
     /** Busy state. */
     private int busy = 0;
+
     /** Last use */
     private long lastUse = System.currentTimeMillis();
+
     /** Closed state. */
     private boolean closed = false;
 
@@ -607,8 +727,10 @@ public class ConnectionWrapper
     static Method _createStruct = null;
     static Method _isWrapperFor = null;
 
-    static {
-        try {
+    static
+    {
+        try
+        {
             _createClob = getConnectionMethod("createClob",new Class[]{});
             _createBlob = getConnectionMethod("createBlob",new Class[]{});
             _createNClob = getConnectionMethod("createNClob",new Class[]{});
@@ -621,228 +743,348 @@ public class ConnectionWrapper
             _createArrayOf = getConnectionMethod("createArrayOf",new Class[]{String.class,Class.forName("[Ljava.lang.Object;")});
             _createStruct = getConnectionMethod("createStruct",new Class[]{String.class,Class.forName("[Ljava.lang.Object;")});
             _isWrapperFor = getConnectionMethod("isWrapperFor",new Class[]{Class.class});
-        } catch(Exception e) {
+        }
+        catch(Exception e)
+        {
         }
     }
 
-    static private Method getConnectionMethod(String name,Class[] parameterTypes) {
-        try {
+    static private Method getConnectionMethod(String name,Class[] parameterTypes)
+    {
+        try
+        {
             return Connection.class.getMethod(name,parameterTypes);
-        } catch(NoSuchMethodException nsme) {
+        }
+        catch(NoSuchMethodException nsme)
+        {
             return null;
         }
     }
 
-	public Clob createClob() throws SQLException {
-        if(_createClob == null) {
+    public Clob createClob() throws SQLException
+    {
+        if(_createClob == null)
+        {
             throw new SQLException("Unsupported method.");
-        } else {
-            try {
+        }
+        else
+        {
+            try
+            {
                 return (Clob)_createClob.invoke(connection, new Object[] {});
-            } catch(Exception e) {
+            }
+            catch(Exception e)
+            {
                 Throwable cause = e.getCause();
-                if (cause == null) {
+                if (cause == null)
+                {
                     cause = e;
                 }
-                if(cause instanceof SQLException) {
+                if(cause instanceof SQLException)
+                {
                     throw (SQLException)cause;
-                } else {
+                }
+                else
+                {
                     throw new SQLException(cause);
                 }
             }
         }
     }
 
-	public Blob createBlob() throws SQLException {
-        if(_createBlob == null) {
+    public Blob createBlob() throws SQLException
+    {
+        if(_createBlob == null)
+        {
             throw new SQLException("Unsupported method.");
-        } else {
-            try {
+        }
+        else
+        {
+            try
+            {
                 return (Blob)_createBlob.invoke(connection, new Object[] {});
-            } catch(Exception e) {
+            }
+            catch(Exception e)
+            {
                 Throwable cause = e.getCause();
-                if (cause == null) {
+                if (cause == null)
+                {
                     cause = e;
                 }
-                if(cause instanceof SQLException) {
+                if(cause instanceof SQLException)
+                {
                     throw (SQLException)cause;
-                } else {
+                }
+                else
+                {
                     throw new SQLException(cause);
                 }
             }
         }
     }
 
-    public NClob createNClob() throws SQLException {
-        if(_createNClob == null) {
+    public NClob createNClob() throws SQLException
+    {
+        if(_createNClob == null)
+        {
             throw new SQLException("Unsupported method.");
-        } else {
-            try {
+        }   
+        else
+        {
+            try
+            {
                 return (NClob)_createNClob.invoke(connection, new Object[] {});
-            } catch(Exception e) {
+            }
+            catch(Exception e)
+            {
                 Throwable cause = e.getCause();
-                if (cause == null) {
+                if (cause == null)
+                {
                     cause = e;
                 }
-                if(cause instanceof SQLException) {
+                if(cause instanceof SQLException)
+                {
                     throw (SQLException)cause;
-                } else {
+                }
+                else
+                {
                     throw new SQLException(cause);
                 }
             }
         }
     }
 
-	public SQLXML createSQLXML() throws SQLException {
-        if(_createSQLXML == null) {
+    public SQLXML createSQLXML() throws SQLException
+    {
+        if(_createSQLXML == null)
+        {
             throw new SQLException("Unsupported method.");
-        } else {
-            try {
+        }
+        else
+        {
+            try
+            {
                 return (SQLXML)_createSQLXML.invoke(connection, new Object[] {});
-            } catch(Exception e) {
+            }
+            catch(Exception e)
+            {
                 Throwable cause = e.getCause();
-                if (cause == null) {
+                if (cause == null)
+                {
                     cause = e;
                 }
-                if(cause instanceof SQLException) {
+                if(cause instanceof SQLException)
+                {
                     throw (SQLException)cause;
-                } else {
+                }
+                else
+                {
                     throw new SQLException(cause);
                 }
             }
         }
     }
 
-	public boolean isValid(int timeout) throws SQLException {
-        if(_isValid == null) {
+    public boolean isValid(int timeout) throws SQLException
+    {
+        if(_isValid == null)
+        {
             throw new SQLException("Unsupported method.");
-        } else {
-            try {
+        }
+        else
+        {
+            try
+            {
                 return (Boolean)_isValid.invoke(connection, new Object[] {timeout});
-            } catch(Exception e) {
+            }
+            catch(Exception e)
+            {
                 Throwable cause = e.getCause();
-                if (cause == null) {
+                if (cause == null)
+                {
                     cause = e;
                 }
-                if(cause instanceof SQLException) {
+                if(cause instanceof SQLException)
+                {
                     throw (SQLException)cause;
-                } else {
+                }
+                else
+                {
                     throw new SQLException(cause);
                 }
             }
         }
     }
 
-	public void setClientInfo(String name,String value) {
-        if(_setClientInfo == null) {
+    public void setClientInfo(String name,String value)
+    {
+        if(_setClientInfo == null)
+        {
             throw new RuntimeException("Unsupported method.");
-        } else {
-            try {
+        }
+        else
+        {
+            try
+            {
                 _setClientInfo.invoke(connection, new Object[] {name,value});
-            } catch(Exception e) {
+            }
+            catch(Exception e)
+            {
                 throw new RuntimeException(e);
             }
         }
     }
 
-	public void setClientInfo(Properties properties) {
-        if(_setClientInfo2 == null) {
+    public void setClientInfo(Properties properties)
+    {
+        if(_setClientInfo2 == null)
+        {
             throw new RuntimeException("Unsupported method.");
-        } else {
-            try {
+        }
+        else
+        {
+            try
+            {
                 _setClientInfo2.invoke(connection, new Object[] {properties});
-            } catch(Exception e) {
+            }
+            catch(Exception e)
+            {
                 throw new RuntimeException(e);
             }
         }
     }
 
-	public Properties getClientInfo() throws SQLException {
-        if(_getClientInfo == null) {
+    public Properties getClientInfo() throws SQLException
+    {
+        if(_getClientInfo == null)
+        {
             throw new SQLException("Unsupported method.");
-        } else {
-            try {
+        }
+        else
+        {
+            try
+            {
                 return (Properties)_getClientInfo.invoke(connection, new Object[] {});
-            } catch(Exception e) {
+            }
+            catch(Exception e)
+            {
                 Throwable cause = e.getCause();
-                if (cause == null) {
+                if (cause == null)
+                {
                     cause = e;
                 }
-                if(cause instanceof SQLException) {
+                if(cause instanceof SQLException)
+                {
                     throw (SQLException)cause;
-                } else {
+                }
+                else
+                {
                     throw new SQLException(cause);
                 }
             }
         }
     }
 
-	public String getClientInfo(String name) throws SQLException {
-        if(_getClientInfo2 == null) {
+    public String getClientInfo(String name) throws SQLException
+    {
+        if(_getClientInfo2 == null)
+        {
             throw new SQLException("Unsupported method.");
-        } else {
-            try {
+        }
+        else
+        {
+            try
+            {
                 return (String)_getClientInfo2.invoke(connection, new Object[] {name});
-            } catch(Exception e) {
+            }
+            catch(Exception e)
+            {
                 Throwable cause = e.getCause();
-                if (cause == null) {
+                if (cause == null)
+                {
                     cause = e;
                 }
-                if(cause instanceof SQLException) {
+                if(cause instanceof SQLException)
+                {
                     throw (SQLException)cause;
-                } else {
+                }
+                else
+                {
                     throw new SQLException(cause);
                 }
             }
         }
     }
 
-	public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
-        if(_createArrayOf == null) {
+    public Array createArrayOf(String typeName, Object[] elements) throws SQLException
+    {
+        if(_createArrayOf == null)
+        {
             throw new SQLException("Unsupported method.");
-        } else {
-            try {
+        }
+        else
+        {
+            try
+            {
                 return (Array)_createArrayOf.invoke(connection, new Object[] {typeName,elements});
-            } catch(Exception e) {
+            }
+            catch(Exception e)
+            {
                 Throwable cause = e.getCause();
-                if (cause == null) {
+                if (cause == null)
+                {
                     cause = e;
                 }
-                if(cause instanceof SQLException) {
+                if(cause instanceof SQLException)
+                {
                     throw (SQLException)cause;
-                } else {
+                }
+                else
+                {
                     throw new SQLException(cause);
                 }
             }
         }
     }
 
-	public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
-        if(_createStruct == null) {
+    public Struct createStruct(String typeName, Object[] attributes) throws SQLException
+    {
+        if(_createStruct == null)
+        {
             throw new SQLException("Unsupported method.");
-        } else {
-            try {
+        }
+        else
+        {
+            try
+            {
                 return (Struct)_createStruct.invoke(connection, new Object[] {typeName,attributes});
-            } catch(Exception e) {
+            }
+            catch(Exception e)
+            {
                 Throwable cause = e.getCause();
-                if (cause == null) {
+                if (cause == null)
+                {
                     cause = e;
                 }
-                if(cause instanceof SQLException) {
+                if(cause instanceof SQLException)
+                {
                     throw (SQLException)cause;
-                } else {
+                }
+                else
+                {
                     throw new SQLException(cause);
                 }
             }
         }
     }
 
-	public boolean isWrapperFor(Class<?> iface) throws SQLException {
+    public boolean isWrapperFor(Class<?> iface) throws SQLException
+    {
         throw new SQLException("Unsupported method.");
     }
 
-    public <T> T unwrap(Class<T> iface) throws SQLException {
+    public <T> T unwrap(Class<T> iface) throws SQLException
+    {
         throw new SQLException("Unsupported method.");
     }
-
 }

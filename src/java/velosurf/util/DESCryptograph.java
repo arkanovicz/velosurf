@@ -14,67 +14,85 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.util;
 
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import java.io.UnsupportedEncodingException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
 import java.security.Security;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
 /**
  * Implemenation of the cryptograph for the DES algorithm.
- * Inspired from some code found at http://javaalmanac.com/
+ * Inspired from some code found at http://javaalmanac.com
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public class DESCryptograph implements Cryptograph {
+public class DESCryptograph implements Cryptograph
+{
     /** encryption cypher */
     Cipher ecipher;
+
     /** decryption cypher */
     Cipher dcipher;
 
-    /** Constructor.
+    /**
+     * Constructor.
      */
-    public DESCryptograph() {
+    public DESCryptograph(){}
 
-    }
     /**
      * initialization.
      * @param random random string
      */
-    public void init(String random) {
-        try {
+    public void init(String random)
+    {
+        try
+        {
             // this is the only method that gives us reproducibility
             SecureRandom seed = SecureRandom.getInstance("SHA1PRNG");
+
             seed.setSeed(random.getBytes());
+
             KeyGenerator keygen = KeyGenerator.getInstance("DES");
+
             keygen.init(seed);
+
             SecretKey key = keygen.generateKey();
 
             ecipher = Cipher.getInstance("DES");
             dcipher = Cipher.getInstance("DES");
             ecipher.init(Cipher.ENCRYPT_MODE, key);
             dcipher.init(Cipher.DECRYPT_MODE, key);
-
-        } catch (javax.crypto.NoSuchPaddingException e) {
+        }
+        catch(javax.crypto.NoSuchPaddingException e)
+        {
             e.printStackTrace();
-        } catch (java.security.NoSuchAlgorithmException e) {
+        }
+        catch(java.security.NoSuchAlgorithmException e)
+        {
             e.printStackTrace();
-        } catch (java.security.InvalidKeyException e) {
+        }
+        catch(java.security.InvalidKeyException e)
+        {
             e.printStackTrace();
         }
     }
+
     /**
      * encrypt a string.
      * @param str string to encrypt
      * @return encrypted string
      */
-    public String encrypt(String str) {
-        try {
+    public String encrypt(String str)
+    {
+        try
+        {
             // Encode the string into bytes using utf-8
             byte[] utf8 = str.getBytes("UTF8");
 
@@ -83,24 +101,35 @@ public class DESCryptograph implements Cryptograph {
 
             // Encode bytes to base64 to get a string
             return new sun.misc.BASE64Encoder().encode(enc);
-        } catch (javax.crypto.BadPaddingException e) {
+        }
+        catch(javax.crypto.BadPaddingException e)
+        {
             e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
+        }
+        catch(IllegalBlockSizeException e)
+        {
             e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
+        }
+        catch(UnsupportedEncodingException e)
+        {
             e.printStackTrace();
-        } catch (java.io.IOException e) {
+        }
+        catch(java.io.IOException e)
+        {
             e.printStackTrace();
         }
         return null;
     }
+
     /**
      * Decrypt a string.
      * @param str string to decrypt
      * @return decrypted string
      */
-    public String decrypt(String str) {
-        try {
+    public String decrypt(String str)
+    {
+        try
+        {
             // Decode base64 to get bytes
             byte[] dec = new sun.misc.BASE64Decoder().decodeBuffer(str);
 
@@ -109,11 +138,11 @@ public class DESCryptograph implements Cryptograph {
 
             // Decode using utf-8
             return new String(utf8, "UTF8");
-        } catch (javax.crypto.BadPaddingException e) {
-        } catch (IllegalBlockSizeException e) {
-        } catch (UnsupportedEncodingException e) {
-        } catch (java.io.IOException e) {
         }
+        catch(javax.crypto.BadPaddingException e) {}
+        catch(IllegalBlockSizeException e) {}
+        catch(UnsupportedEncodingException e) {}
+        catch(java.io.IOException e) {}
         return null;
     }
 
@@ -121,40 +150,55 @@ public class DESCryptograph implements Cryptograph {
     {
         Security.addProvider(new com.sun.crypto.provider.SunJCE());
     }
+
     /**
      * test method
      * @param args not used
      */
-   public static void main(String args[])
-   {
-       DESCryptograph crypt = new DESCryptograph();
-       crypt.init("hello there!");
-       while (true) {
-           try {
-               StringBuffer rst=new StringBuffer();
-               int c;
-               while ((c=System.in.read())!=0x0A)
-               {
-                   if (c!=0x0D) rst.append((char)c);
-               }
-               String text = rst.toString();
-               System.out.println("text      -> <"+rst);
-               String enc = crypt.encrypt(text);
-               System.out.println("encrypted -> <"+enc+">");
-               enc = enc.replace('=','.');
-               enc = enc.replace('/','_');
-               enc = enc.replace('+','*');
-               System.out.println("encoded -> <"+enc+">");
-               String dec = enc;
-               dec = dec.replace('.','=');
-               dec = dec.replace('_','/');
-               dec = dec.replace('*','+');
-               System.out.println("decoded -> <"+dec+">");
-               System.out.println("decrypted -> <"+crypt.decrypt(dec)+">");
-           }
-           catch (IOException ioe) {
-               Logger.log(ioe);
-           }
-       }
-   }
+    public static void main(String args[])
+    {
+        DESCryptograph crypt = new DESCryptograph();
+
+        crypt.init("hello there!");
+        while(true)
+        {
+            try
+            {
+                StringBuffer rst = new StringBuffer();
+                int c;
+
+                while((c = System.in.read()) != 0x0A)
+                {
+                    if(c != 0x0D)
+                    {
+                        rst.append((char)c);
+                    }
+                }
+
+                String text = rst.toString();
+
+                System.out.println("text      -> <" + rst);
+
+                String enc = crypt.encrypt(text);
+
+                System.out.println("encrypted -> <" + enc + ">");
+                enc = enc.replace('=', '.');
+                enc = enc.replace('/', '_');
+                enc = enc.replace('+', '*');
+                System.out.println("encoded -> <" + enc + ">");
+
+                String dec = enc;
+
+                dec = dec.replace('.', '=');
+                dec = dec.replace('_', '/');
+                dec = dec.replace('*', '+');
+                System.out.println("decoded -> <" + dec + ">");
+                System.out.println("decrypted -> <" + crypt.decrypt(dec) + ">");
+            }
+            catch(IOException ioe)
+            {
+                Logger.log(ioe);
+            }
+        }
+    }
 }

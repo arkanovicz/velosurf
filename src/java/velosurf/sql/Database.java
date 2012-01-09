@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+
+
 package velosurf.sql;
 
 import java.io.*;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
-
 import velosurf.cache.Cache;
 import velosurf.context.RowIterator;
 import velosurf.model.Attribute;
@@ -32,22 +33,25 @@ import velosurf.util.Cryptograph;
 import velosurf.util.XIncludeResolver;
 import velosurf.util.UserContext;
 
-/** This class encapsulates  a connection to the database and contains all the stuff relative to it.
+/**
+ * This class encapsulates  a connection to the database and contains all the stuff relative to it.
  *
  *  <p>To get a new instance, client classes should call one of the getInstance static methods.</p>
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
-public class Database {
-
-    /** Builds a new connection.
-     *
+public class Database
+{
+    /**
+     * Builds a new connection.
      */
-    private Database() {
+    private Database()
+    {
     }
 
-    /** Builds a new connection.
+    /**
+     * Builds a new connection.
      *
      * @param user user name
      * @param password password
@@ -56,11 +60,13 @@ public class Database {
      * @param schema schema name to use
      * @exception SQLException thrown by the database engine
      */
-    private Database(String user,String password,String url,String driver,String schema) throws SQLException {
+    private Database(String user,String password,String url,String driver,String schema) throws SQLException
+    {
         open(user,password,url,driver,schema);
     }
 
-    /** Get a unique Database from connection params.
+    /**
+     * Get a unique Database from connection params.
      *
      * @param user user name
      * @param password password
@@ -68,11 +74,13 @@ public class Database {
      * @exception SQLException thrown by the database engine
      * @return a new connection
      */
-    public static Database getInstance(String user,String password,String url) throws SQLException {
+    public static Database getInstance(String user,String password,String url) throws SQLException
+    {
         return getInstance(user,password,url,null,null);
     }
 
-    /** Get a unique Database from connection params.
+    /**
+     * Get a unique Database from connection params.
      *
      * @param user user name
      * @param password password
@@ -81,11 +89,13 @@ public class Database {
      * @exception SQLException thrown by the database engine
      * @return a new connection
      */
-    public static Database getInstance(String user,String password,String url,String driver) throws SQLException {
+    public static Database getInstance(String user,String password,String url,String driver) throws SQLException
+    {
         return getInstance(user,password,url,driver,null);
     }
 
-    /** Get a unique Database from connection params.
+    /**
+     * Get a unique Database from connection params.
      *
      * @param user user name
      * @param password password
@@ -95,32 +105,40 @@ public class Database {
      * @exception SQLException thrown by the database engine
      * @return a new connection
      */
-    public static Database getInstance(String user,String password,String url,String driver,String schema) throws SQLException {
+    public static Database getInstance(String user,String password,String url,String driver,String schema) throws SQLException
+    {
         Integer hash = Integer.valueOf((user==null?0:user.hashCode()) ^ (password==null?0:password.hashCode()) ^ url.hashCode() ^ (driver==null?0:driver.hashCode()) ^ (schema==null?0:schema.hashCode()) );
         Database instance = (Database)connectionsByParams.get(hash);
-        if (instance == null) {
+        if (instance == null)
+        {
             instance = new Database(user,password,url,driver,schema);
             connectionsByParams.put(hash,instance);
         }
         return instance;
     }
 
-    /** Get a unique Database from config filename.
+    /**
+     * Get a unique Database from config filename.
      *
      * @param configFilename config filename
      * @exception SQLException thrown by the database engine
      * @return a new connection
      */
-    public static Database getInstance(String configFilename) throws SQLException,FileNotFoundException,IOException {
+    public static Database getInstance(String configFilename) throws SQLException,FileNotFoundException,IOException
+    {
         Integer hash = Integer.valueOf(configFilename.hashCode());
         Database instance = (Database)connectionsByConfigFile.get(hash);
-        if (instance == null) {
+        if (instance == null)
+        {
             String base = null;
             configFilename = configFilename.replace('\\','/');
             int i = configFilename.lastIndexOf('/');
-            if (i == -1) {
+            if (i == -1)
+            {
                 base = ".";
-            } else {
+            }
+            else
+            {
                 base = configFilename.substring(0,i);
             }
             instance = getInstance(new FileInputStream(configFilename),new XIncludeResolver(base));
@@ -129,21 +147,25 @@ public class Database {
         return instance;
     }
 
-    /** Get a new connection.
+    /**
+     * Get a new connection.
      * @param config config filename
      * @exception SQLException thrown by the database engine
      * @return a new connection
      */
-    public static Database getInstance(InputStream config) throws SQLException {
+    public static Database getInstance(InputStream config) throws SQLException
+    {
         return Database.getInstance(config,null);
     }
 
-    /** Get a new connection.
+    /**
+     * Get a new connection.
      * @param config config filename
      * @exception SQLException thrown by the database engine
      * @return a new connection
      */
-    public static Database getInstance(InputStream config,XIncludeResolver xincludeResolver) throws SQLException {
+    public static Database getInstance(InputStream config,XIncludeResolver xincludeResolver) throws SQLException
+    {
         Database instance = new Database();
         instance.readConfigFile(config,xincludeResolver);
         instance.initCryptograph();
@@ -152,12 +174,16 @@ public class Database {
 
         // startup action
         Action startup = instance.getRootEntity().getAction("startup");
-        if (startup != null) startup.perform(null);
+        if (startup != null)
+        {
+            startup.perform(null);
+        }
 
         return instance;
     }
 
-    /** Open the connection.
+    /**
+     * Open the connection.
      *
      * @param user user name
      * @param password password
@@ -166,18 +192,21 @@ public class Database {
      * @param schema schema name
      * @exception SQLException thrown by the database engine
      */
-    private void open(String user,String password,String url,String driver,String schema) throws SQLException {
+    private void open(String user,String password,String url,String driver,String schema) throws SQLException
+    {
 
         this.user = user;
         this.password = password;
         this.url = url;
         this.schema = schema;
         driverClass = driver;
-		initCryptograph();
+        initCryptograph();
         connect();
         getReverseEngineer().readMetaData();        
     }
-    /** Connect the database.
+
+    /**
+     * Connect the database.
      *
      * @throws SQLException
      */
@@ -196,119 +225,152 @@ public class Database {
         transactionStatementPool = new StatementPool(transactionConnectionPool,checkConnections,checkInterval);
         transactionPreparedStatementPool = new PreparedStatementPool(transactionConnectionPool,checkConnections,checkInterval);
 
-        if(rootEntity == null) {
+        if(rootEntity == null)
+        {
             Entity root = new Entity(this,"velosurf.root",false,Cache.NO_CACHE);
             addEntity(root);
         }        
     }
+
     /**
      * Set the read-only state.
      * @param readOnly read-only state
      */
-    public void setReadOnly(boolean readOnly) {
+    public void setReadOnly(boolean readOnly)
+    {
         this.readOnly = readOnly;
     }
+
     /**
      * Set the caching method.
      * @param cachingMethod caching method
      */
-    public void setCaching(int cachingMethod) {
+    public void setCaching(int cachingMethod)
+    {
         caching = cachingMethod;
     }
+
     /** Set the database user.
      *
      * @param user user name.
      */
-    public void setUser(String user) {
+    public void setUser(String user)
+    {
         this.user = user;
     }
+
     /**
      * Set the database password.
      * @param password password
      */
-    public void setPassword(String password) {
+    public void setPassword(String password)
+    {
        this.password = password;
     }
+
     /**
      * Set the database URL.
      * @param url database url
      */
-    public void setURL(String url) {
+    public void setURL(String url)
+    {
         this.url = url;
     }
+
     /**
      * Set driver class.
      * @param driverClass driver class
      */
-    public void setDriver(String driverClass) {
+    public void setDriver(String driverClass)
+    {
         this.driverClass = driverClass;
     }
+
     /**
      * Set schema name.
      * @param schema schema name
      */
-    public void setSchema(String schema) {
+    public void setSchema(String schema)
+    {
         this.schema = schema;
-        if(this.schema != null) {
+        if(this.schema != null)
+        {
             // share entities
             sharedCatalog.put(getMagicNumber(this.schema),entities);
         }
     }
+
     /**
      * Set minimum number of connections.
      * @param minConnections minimum number of connections
      */
-    public void setMinConnections(int minConnections) {
+    public void setMinConnections(int minConnections)
+    {
         this.minConnections = minConnections;
     }
+
     /**
      * Set the maximum number of connections.
      * @param maxConnections maximum number of connections
      */
-    public void setMaxConnections(int maxConnections) {
+    public void setMaxConnections(int maxConnections)
+    {
         this.maxConnections = maxConnections;
     }
+
     /**
      * Set the encryption seed.
      * @param seed encryption seed
      */
-    public void setSeed(String seed) {
+    public void setSeed(String seed)
+    {
         this.seed = seed;
     }
+
     /**
      * Set the case policy.
      * Possible values are CASE_SENSITIVE, CASE_LOWERCASE and CASE_UPPERCASE.
      * @param caseSensivity case policy
      */
-    public void setCase(int caseSensivity) {
+    public void setCase(int caseSensivity)
+    {
         this.caseSensivity = caseSensivity;
     }
+
     /**
      * Set whether or not connections are to be checked or not
      * @param checkConnections read-only check or not
      */
-    public void setCheckConnections(boolean checkConnections) {
+    public void setCheckConnections(boolean checkConnections)
+    {
         this.checkConnections = checkConnections;
     }
-  /**
+
+    /**
      * Set the minimum check interval (in milliseconds)
      * - connections are only checked when their last use 
      * is older than this interval.
      * @param checkInterval
      */
-    public void setCheckInterval(long checkInterval) {
+    public void setCheckInterval(long checkInterval)
+    {
         this.checkInterval = checkInterval;
     }
-    /** Load the appropriate driver.
-     */
-    @SuppressWarnings("deprecation") protected void loadDriver() {
 
-        if (driverLoaded) return;
+    /**
+     * oad the appropriate driver.
+     */
+    @SuppressWarnings("deprecation") protected void loadDriver()
+    {
+        if (driverLoaded)
+        {
+            return;
+        }
 
         if (Logger.getLogLevel() == Logger.TRACE_ID)
         {
             /* Initialize log */
-               DriverManager.setLogWriter(Logger.getWriter()); /* -> doesn't work with jdbc 1.0 drivers
+            DriverManager.setLogWriter(Logger.getWriter()); /* -> doesn't work with jdbc 1.0 drivers
              *   so use the deprecated form
              *  TODO: detect driver jdbc conformance
              */
@@ -323,27 +385,36 @@ Logger.debug("setting driver manager log");
 
         reverseEngineer.setDriverInfo(driverInfo);
 
-        if (driverClass!=null) {
-            try {
+        if (driverClass!=null)
+        {
+            try
+            {
 		Logger.debug("loading class "+driverClass);
                 Class.forName(driverClass);
                 driverLoaded = true;
             }
-            catch (Exception e) { Logger.log(e); }
+            catch (Exception e)
+            {
+              Logger.log(e);
+            }
         }
-        else if (driverInfo != null) {
+        else if (driverInfo != null)
+        {
             // try to load one of the known drivers
             String[] drivers = driverInfo.getDrivers();
             for (int i=0;i<drivers.length;i++)
-            try {
+            try
+            {
                 Class.forName(drivers[i]);
                 driverLoaded = true;
                 break;
             }
-            catch (Exception e) { }
+            catch (Exception e) {}
         }
     }
-    /** Init cryptograph.
+
+    /**
+     * Init cryptograph.
      *
      */
     protected void initCryptograph()
@@ -352,135 +423,166 @@ Logger.debug("setting driver manager log");
         // to initialize the cryptograph, we need a chunk of user-provided bytes
         // they must be persistent, so that urls that use encrypted params remain valid
         // => use the database url if null
-        if (seed == null) {
+        if (seed == null)
+        {
             seed = url;
         }
-        try {
+        try
+        {
             cryptograph = (Cryptograph)Class.forName("velosurf.util.DESCryptograph").getDeclaredConstructor(new Class[] {}).newInstance(new Object[] {});
             cryptograph.init(seed);
         }
-        catch(Exception e) {
+        catch(Exception e)
+        {
             Logger.error("Cannot initialize the cryptograph");
             Logger.log(e);
         }
     }
+
     /**
      * Get reverse engineer.
      * @return reverse engineer.
      */
-    public ReverseEngineer getReverseEngineer() {
+    public ReverseEngineer getReverseEngineer()
+    {
         return reverseEngineer;
     }
 
-    /** Issue a query.
+    /**
+     * Issue a query.
      *
      * @param query an SQL query
      * @return the resulting RowIterator
      */
-    public RowIterator query(String query) throws SQLException {
+    public RowIterator query(String query) throws SQLException
+    {
         return query(query,null);
     }
 
-    /** Issue a query, knowing the resulting entity.
+    /**
+     * Issue a query, knowing the resulting entity.
      *
      * @param query an SQL query
      * @param entity the resulting entity
      * @return return the resulting row iterator
      */
-    public RowIterator query(String query,Entity entity) throws SQLException {
+    public RowIterator query(String query,Entity entity) throws SQLException
+    {
         PooledSimpleStatement statement = null;
         statement=statementPool.getStatement();
         return statement.query(query,entity);
     }
 
-    /** Evaluate a query to a scalar.
+    /**
+     * Evaluate a query to a scalar.
      *
      * @param query an sql query
      * @return the resulting scalar
      */
-    public Object evaluate(String query) {
+    public Object evaluate(String query)
+    {
         PooledSimpleStatement statement = null;
-        try {
+        try
+        {
             statement=statementPool.getStatement();
             return statement.evaluate(query);
         }
-        catch (SQLException sqle) {
+        catch (SQLException sqle)
+        {
             Logger.log(sqle);
             return null;
         }
     }
 
-    /** Prepare a query.
+    /**
+     * Prepare a query.
      *
      * @param query an sql query
      * @return the pooled prepared statement corresponding to the query
      */
-    public PooledPreparedStatement prepare(String query) {
+    public PooledPreparedStatement prepare(String query)
+    {
         PooledPreparedStatement statement = null;
-        try {
+        try
+        {
             statement = preparedStatementPool.getPreparedStatement(query);
             return statement;
         }
-        catch (SQLException sqle) {
+        catch (SQLException sqle)
+        {
             Logger.log(sqle);
             return null;
         }
     }
 
-    /** Prepare a query which is part of a transaction.
+    /**
+     * Prepare a query which is part of a transaction.
      *
      * @param query an sql query
      * @return the prepared statemenet corresponding to the query
      */
-    public PooledPreparedStatement transactionPrepare(String query) {
+    public PooledPreparedStatement transactionPrepare(String query)
+    {
         PooledPreparedStatement statement = null;
-        try {
+        try
+        {
             statement = transactionPreparedStatementPool.getPreparedStatement(query);
             return statement;
         }
-        catch (SQLException sqle) {
+        catch (SQLException sqle)
+        {
             Logger.log(sqle);
             return null;
         }
     }
 
-    /** Issue an update query.
+    /**
+     * Issue an update query.
      *
      * @param query an sql query
      * @return the number of affected rows
      */
-    public int update(String query) {
-        try {
-               PooledSimpleStatement statement = statementPool.getStatement();
+    public int update(String query)
+    {
+        try
+        {
+            PooledSimpleStatement statement = statementPool.getStatement();
             return statement.update(query);
         }
-        catch (SQLException sqle) {
+        catch (SQLException sqle)
+        {
             Logger.log(sqle);
             return -1;
         }
     }
 
-    /** Issue an update query that is part of a transaction.
+    /**
+     * Issue an update query that is part of a transaction.
      *
      * @param query an sql query
      * @return the number of affected rows
      */
-    public int transactionUpdate(String query) {
-        try {
+    public int transactionUpdate(String query)
+    {
+        try
+        {
             PooledSimpleStatement statement = transactionStatementPool.getStatement();
             return statement.update(query);
         }
-        catch (SQLException sqle) {
+        catch (SQLException sqle)
+        {
             Logger.log(sqle);
             return -1;
         }
     }
 
-    /** Close the connection.
+    /**
+     * Close the connection.
      *
      * @exception SQLException thrown by the database engine
      */
-    public void close() throws SQLException {
+    public void close() throws SQLException
+    {
         connectionPool.clear();
         connectionPool = null;
         transactionConnectionPool.clear();
@@ -495,9 +597,11 @@ Logger.debug("setting driver manager log");
         transactionPreparedStatementPool = null;
     }
 
-    /** Display statistics about the statements pools.
+    /**
+     * Display statistics about the statements pools.
      */
-    public void displayStats() {
+    public void displayStats()
+    {
         System.out.println("DB statistics:");
         int [] normalStats = statementPool.getUsageStats();
         int [] preparedStats = preparedStatementPool.getUsageStats();
@@ -505,17 +609,20 @@ Logger.debug("setting driver manager log");
         System.out.println("\tprepared statements - "+preparedStats[0]+" free statements out of "+preparedStats[1]);
     }
 
-    /** Get a jdbc connection.
+    /**
+     * Get a jdbc connection.
      *
      * @return a jdbc connection wrapper (which extends java.sql.Connection)
      */
-    public ConnectionWrapper getConnection() throws SQLException {
+    public ConnectionWrapper getConnection() throws SQLException
+    {
         ConnectionWrapper c = connectionPool.getConnection();
         c.setReadOnly(readOnly);
         return c;
     }
 
-    /** Get the underlying jdbc connection used for transactions, and mark it right away as busy.
+    /**
+     * Get the underlying jdbc connection used for transactions, and mark it right away as busy.
      *
      * @return a jdbc connection wrapper (which extends java.sql.Connection)
      */
@@ -526,29 +633,39 @@ Logger.debug("setting driver manager log");
         return ret;
     }
 
-    /** Read model configuration from the given input stream.
+    /**
+     * Read model configuration from the given input stream.
      *
      * @param config input stream on the config file
      */
-    private void readConfigFile(InputStream config,XIncludeResolver xincludeResolver) {
-        try {
+    private void readConfigFile(InputStream config,XIncludeResolver xincludeResolver)
+    {
+        try
+        {
             new ConfigLoader(this,xincludeResolver).loadConfig(config);
-
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             Logger.error("could not load model!");
             Logger.log(e);
         }
     }
 
-    /** Changes to lowercase or uppercase if needed.
+    /**
+     * Changes to lowercase or uppercase if needed.
      *
      * @param identifier
      * @return changed identifier
      */
-    public String adaptCase(String identifier) {
-        if (identifier == null) return null;
+    public String adaptCase(String identifier)
+    {
+        if (identifier == null)
+        {
+            return null;
+        }
         String ret;
-        switch(caseSensivity) {
+        switch(caseSensivity)
+        {
             case CASE_SENSITIVE:
             case CASE_UNKNOWN:
                 ret = identifier;
@@ -566,37 +683,46 @@ Logger.debug("setting driver manager log");
         return ret;
     }
 
-    /** Add a new entity.
+    /**
+     * Add a new entity.
      *
      * @param entity entity to add
      */
-    public void addEntity(Entity entity) {
+    public void addEntity(Entity entity)
+    {
         String name = entity.getName();
         Entity previous = entities.put(adaptCase(name),entity);
-        if (previous != null) {
+        if (previous != null)
+        {
             Logger.warn("replacing an existing entity with a new one ("+name+")");
         }
-        if(name.equals("velosurf.root")) {
+        if(name.equals("velosurf.root"))
+        {
             /* this is the root entity */
             rootEntity = entity;
         }
     }
+
     /**
      * Get root entity.
      * @return root entity
      */
-    public Entity getRootEntity() {
+    public Entity getRootEntity()
+    {
         return rootEntity;
     }
 
-    /** Get a named entity or creeate it if it doesn't exist
+    /**
+     * Get a named entity or creeate it if it doesn't exist
      *
      * @param name name of an entity
      * @return the named entity
      */
-    public Entity getEntityCreate(String name) {
+    public Entity getEntityCreate(String name)
+    {
         Entity entity = getEntity(name);
-        if (entity == null) {
+        if (entity == null)
+        {
             Logger.trace("Created entity: "+name);
             entity = new Entity(this,name,readOnly,caching);
             entities.put(adaptCase(name),entity);
@@ -604,57 +730,74 @@ Logger.debug("setting driver manager log");
         return entity;
     }
 
-    /** Get an existing entity.
+    /**
+     * Get an existing entity.
      *
      * @param name the name of an entity
      * @return the named entity
      */
-    public Entity getEntity(String name) {
+    public Entity getEntity(String name)
+    {
         int i;
         Entity entity=(Entity)entities.get(adaptCase(name));
-        if (entity == null && name != null && (i=name.indexOf('.')) != -1) {
+        if (entity == null && name != null && (i=name.indexOf('.')) != -1)
+        {
             // imported from another schema ?
             String schema = name.substring(0,i);
             name = name.substring(i+1);
             Map external = (Map)sharedCatalog.get(getMagicNumber(schema));
-            if (external != null) entity = (Entity)external.get(name);
+            if (external != null)
+            {
+                entity = (Entity)external.get(name);
+            }
         }
         return entity;
     }
-    /** Entities map getter.
+
+    /**
+     * Entities map getter.
      *
      * @return entities map
      */
-    public Map<String,Entity> getEntities() {
+    public Map<String,Entity> getEntities()
+    {
         return entities;
     }
 
-    /** Get a root attribute.
+    /**
+     * Get a root attribute.
      *
      * @param name name of an attribute
      * @return the named attribute
      */
-    public Attribute getAttribute(String name) {
+    public Attribute getAttribute(String name)
+    {
         return rootEntity.getAttribute(adaptCase(name));
     }
 
-    /** Get a root action.
+    /**
+     * Get a root action.
      *
      * @param name name of an attribute
      * @return the named attribute
      */
-    public Action getAction(String name) {
+    public Action getAction(String name)
+    {
         return rootEntity.getAction(adaptCase(name));
     }
 
-    /** Obfuscate the given value.
+    /**
+     * Obfuscate the given value.
      * @param value value to obfuscate
      *
      * @return obfuscated value
      */
     public String obfuscate(Object value)
     {
-        if (value == null) return null;
+        if (value == null)
+        {
+            return null;
+        }
         String encoded = cryptograph.encrypt(value.toString());
 
         // we want to avoid some characters fot HTTP GET
@@ -665,14 +808,18 @@ Logger.debug("setting driver manager log");
         return encoded;
     }
 
-    /** De-obfuscate the given value.
+    /**
+     * De-obfuscate the given value.
      * @param value value to de-obfuscate
      *
      * @return obfuscated value
      */
     public String deobfuscate(Object value)
     {
-        if (value == null) return null;
+        if (value == null)
+        {
+            return null;
+        }
 
         String ret = value.toString();
 
@@ -683,7 +830,8 @@ Logger.debug("setting driver manager log");
 
         ret = cryptograph.decrypt(ret);
 
-        if (ret == null) {
+        if (ret == null)
+        {
             Logger.error("deobfuscation of value '"+value+"' failed!");
             return null;
         }
@@ -691,52 +839,70 @@ Logger.debug("setting driver manager log");
         return ret;
     }
 
-    /** Get database driver infos.
+    /**
+     * Get database driver infos.
      * @return the database vendor
      */
-    public DriverInfo getDriverInfo() {
+    public DriverInfo getDriverInfo()
+    {
         return driverInfo;
     }
 
-    /** Get database case-sensivity policy.
+    /**
+     * Get database case-sensivity policy.
      *
      * @return case-sensivity
      */
-    public int getCaseSensivity() {
+    public int getCaseSensivity()
+    {
         return caseSensivity;
     }
 
-    /** Get the integer key used to share schema entities among instances.
+    /**
+     * Get the integer key used to share schema entities among instances.
      */
-    private Integer getMagicNumber(String schema) {
+    private Integer getMagicNumber(String schema)
+    {
         // url is not checked for now because for some databases, the schema is part of the url.
         return Integer.valueOf((user/*+url*/+schema).hashCode());
     }
 
-    /** Get the schema.
+    /**
+     * Get the schema.
      * @return the schema
      */
-    public String getSchema() {
+    public String getSchema()
+    {
         return schema;
     }
 
-    /** database user.
+    /**
+     * Database user.
      */
     private String user = null;
-    /** database user's password.
+
+    /**
+     * Database user's password.
      */
     private String password = null;
-    /** database url.
+
+    /**
+     * Database url.
      */
     private String url = null;
-    /** schema.
+
+    /**
+     * Schema.
      */
     private String schema = null;
 
-    /** whether the JDBC driver has been loaded. */
+    /**
+     * Whether the JDBC driver has been loaded.
+     */
     private boolean driverLoaded = false;
 
-    /** driver class name, if provided in the config file.
+    /**
+     * Driver class name, if provided in the config file.
      */
     private String driverClass = null;
 
@@ -744,9 +910,15 @@ Logger.debug("setting driver manager log");
      * Pool of connections.
      */
     private ConnectionPool connectionPool = null;
-    /** min connections. */
+
+    /**
+     * Min connections.
+     */
     private int minConnections = 1; // applies to connectionPool (min connections is always 1 for transactionConnectionPool)
-    /** max connections. */
+
+    /**
+     * Max connections.
+     */
     private int maxConnections = 50; // applies to connectionPool and transactionConnectionPool
 
     /**
@@ -754,98 +926,142 @@ Logger.debug("setting driver manager log");
      */
     private ConnectionPool transactionConnectionPool = null;
 
-    /** pool of statements.
+    /**
+     * Pool of statements.
      */
     private StatementPool statementPool = null;
 
-    /** pool of statements for transactions.
+    /**
+     * Pool of statements for transactions.
      */
     private StatementPool transactionStatementPool = null;
 
-    /** pool of prepared statements.
+    /**
+     * Pool of prepared statements.
      */
     private PreparedStatementPool preparedStatementPool = null;
 
-    /** pool of prepared statements for transactions.
+    /**
+     * Pool of prepared statements for transactions.
      */
     private PreparedStatementPool transactionPreparedStatementPool = null;
 
-    /** default access mode.
+    /**
+     * Default access mode.
      */
     private boolean readOnly = true;
-    /** default connections checking
+
+    /**
+     * Default connections checking
      */
     private boolean checkConnections = true;
-    /** default check interval
+
+    /**
+     * Default check interval
      */
     private long checkInterval = 1000 * 60 * 10; // 10 minutes by default
-    /** default caching mode.
+
+    /**
+     * Default caching mode.
      */
     private int caching = Cache.NO_CACHE;
 
-    /** map name->entity.
+    /**
+     * Map name->entity.
      */
     private Map<String,Entity> entities = new HashMap<String,Entity>();
 
-    /** root entity that contains all root attributes and actions.
+    /**
+     * Root entity that contains all root attributes and actions.
      */
     private Entity rootEntity = null;
 
-    /** driver infos (database vendor specific).
+    /**
+     * Driver infos (database vendor specific).
      */
     private DriverInfo driverInfo = null;
 
-    /** random seed used to initialize the cryptograph.
+    /**
+     * Random seed used to initialize the cryptograph.
      */
     private String seed = null;
 
-    /** cryptograph used to encrypt/decrypt database ids.
+    /**
+     * Cryptograph used to encrypt/decrypt database ids.
      */
     private Cryptograph cryptograph = null;
 
-    /** unknown case-sensitive policy. */
+    /**
+     * 'unknown' case-sensitive policy.
+     */
     public static final int CASE_UNKNOWN = 0;
-    /** sensitive case-sensitive policy. */
+
+    /**
+     * 'sensitive' case-sensitive policy.
+     */
     public static final int CASE_SENSITIVE = 1;
-    /** uppercase case-sensitive policy. */
+
+    /**
+     * 'uppercase' case-sensitive policy.
+     */
     public static final int UPPERCASE = 2;
-    /** lowercase case-sensitive policy. */
+
+    /**
+     * 'lowercase' case-sensitive policy.
+     */
     public static final int LOWERCASE = 3;
 
-    /** case-sensivity. */
+    /**
+     * Case-sensivity.
+     */
     private int caseSensivity = CASE_UNKNOWN;
 
-    /** case-sensivity for context.
+    /**
+     * Case-sensivity for context.
      */
     private static int contextCase = CASE_SENSITIVE;
 
     /* context case implemented as a system property for now...
      *TODO: check also other model configuration realms or use model.xml
      */
-    static {
+    static
+    {
         String contextCase = System.getProperty("velosurf.case");
-        if (contextCase != null) {
-            if ("uppercase".equals(contextCase)) {
+        if (contextCase != null)
+        {
+            if ("uppercase".equals(contextCase))
+            {
                 Database.contextCase = UPPERCASE;
-            } else if ("lowercase".equals(contextCase)) {
+            }
+            else if ("lowercase".equals(contextCase))
+            {
                 Database.contextCase = LOWERCASE;
-            } else if("sensitive".equals(contextCase)) {
+            }
+            else if("sensitive".equals(contextCase))
+            {
                 Database.contextCase = CASE_SENSITIVE;
-	    } else {
+	    }
+            else
+            {
                 Logger.error("system property 'velosurf.case' should be 'lowercase', 'uppercase' or 'sensitive'");
             }
         }
     }
-    /** adapt a string to the context case.
+
+    /**
+     * Adapt a string to the context case.
      *
      * @param str string to adapt
      * @return adapted string
      */
-    public static String adaptContextCase(String str) {
-        if(str == null) {
+    public static String adaptContextCase(String str)
+    {
+        if(str == null)
+        {
             return null;
         }
-        switch(contextCase) {
+        switch(contextCase)
+        {
             case LOWERCASE:
                 return str.toLowerCase();
             case UPPERCASE:
@@ -858,20 +1074,25 @@ Logger.debug("setting driver manager log");
         }
     }
 
-    /** Set this database user context (thread local)
+    /**
+     * Set this database user context (thread local)
      *  @param userContext user context
      */
-    public void setUserContext(UserContext userContext) {
+    public void setUserContext(UserContext userContext)
+    {
         this.userContext.set(userContext);
     }
 
-    /** Get this database user context (thread local)
+    /**
+     * Get this database user context (thread local)
      *
      * @return the thread local user context
      */
-    public UserContext getUserContext() {
+    public UserContext getUserContext()
+    {
         UserContext ret = userContext.get();
-        if (ret == null) {
+        if (ret == null)
+        {
             /* create one */
             ret = new UserContext();
             userContext.set(ret);
@@ -879,36 +1100,49 @@ Logger.debug("setting driver manager log");
         return ret;
     }
 
-    public void setError(String errormsg) {
+    /**
+     * Set error message.
+     */
+    public void setError(String errormsg)
+    {
         getUserContext().setError(errormsg);
     }
 
-    /** map parameters -> instances. */
+    /**
+     * Map parameters -> instances.
+     */
     private static Map<Integer,Database> connectionsByParams = new HashMap<Integer,Database>();
 
-    /** map config files -> instances. */
+    /**
+     * Map config files -> instances.
+     */
     private static Map<Integer,Database> connectionsByConfigFile = new HashMap<Integer,Database>();
 
-    /** <p>Shared catalog, to share entities among instances.</p>
+    /**
+     * <p>Shared catalog, to share entities among instances.</p>
      *
      * <p>Key is hashcode of (name+password+url+schema), value is an entities map.</p>
      */
     private static Map<Integer,Map<String,Entity>> sharedCatalog = new HashMap<Integer,Map<String,Entity>>();
+
     /**
      * Reverse engineer.
      */
     private ReverseEngineer reverseEngineer = new ReverseEngineer(this);
 
-    /** Thread-local user context.
+    /**
+     * Thread-local user context.
      */
     private ThreadLocal<UserContext> userContext = new ThreadLocal<UserContext>();
 
-    /** Driver specific value filter
+    /**
+     * Driver specific value filter
      *
      * @param value value to be filtered
      * @return filtered value
      */
-    public Object filterParam(Object value) {
+    public Object filterParam(Object value)
+    {
         return driverInfo.filterValue(value);
     }
 }
