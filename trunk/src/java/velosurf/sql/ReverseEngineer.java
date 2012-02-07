@@ -139,14 +139,6 @@ public class ReverseEngineer
             {
                 case REVERSE_TABLES :
                 case REVERSE_FULL :
-                    break;
-                case REVERSE_PARTIAL :
-                    break;
-            }
-            switch(reverseMode)
-            {
-                case REVERSE_TABLES :
-                case REVERSE_FULL :
                     tables = meta.getTables(null, db.getSchema(), null, null);
                     while(tables.next())
                     {
@@ -187,8 +179,8 @@ public class ReverseEngineer
                     for(Entity entity : db.getEntities().values())
                     {
                         String tableName = entity.getTableName();
-
-                        readTableMetaData(meta, entity, tableName);
+                        if(!tableName.equals("velosurf.root"))
+                          readTableMetaData(meta, entity, tableName);
                     }
                     break;
                 case REVERSE_NONE :
