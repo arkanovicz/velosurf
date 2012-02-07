@@ -122,7 +122,7 @@ public class Action
                 }
                 if(value == null)
                 {
-                    Logger.warn("Action " + getEntity().getName() + "." + name + ": param " + paramName + " is null!");
+                    Logger.debug("Action " + getEntity().getName() + "." + name + ": param " + paramName + " is null!");
                 }
                 result.add(value);
             }

@@ -291,7 +291,7 @@ public class Attribute
                 }
                 if(value == null)
                 {
-                    Logger.warn("Attribute " + getEntity().getName() + "." + name + ": param " + paramName
+                    Logger.debug("Attribute " + getEntity().getName() + "." + name + ": param " + paramName
                                 + " is null!");
                 }
                 value = db.filterParam(value);
