@@ -420,7 +420,7 @@ public class Logger
     {
         stopCaptureStdout();
         stopCaptureStderr();
-        log = new PrintWriter(System.out);
+        setWriter(new PrintWriter(System.out));
         flushAsyncLog();
     }
 
@@ -431,7 +431,7 @@ public class Logger
     {
         stopCaptureStdout();
         stopCaptureStderr();
-        log = new PrintWriter(System.err);
+        setWriter(new PrintWriter(System.err));
         flushAsyncLog();
     }
 
@@ -440,7 +440,7 @@ public class Logger
      */
     static public void log2File(String file) throws FileNotFoundException, IOException
     {
-        log = new PrintWriter(new FileWriter(file, true));
+        setWriter(new PrintWriter(new FileWriter(file, true)));
         log.println();
         log.println("=================================================");
         flushAsyncLog();
