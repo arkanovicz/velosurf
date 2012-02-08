@@ -199,7 +199,7 @@ public class Velosurf extends DBReference
             throw new IOException("No Velosurf config file found. Please specify one using setConfig(pathname).");
         }
 
-        Database db = Database.getInstance(new FileInputStream(configFile), new XIncludeResolver(configFile.getParent()));
+        Database db = Database.getInstance(new FileInputStream(configFile), new XIncludeResolver(configFile.getAbsoluteFile().getParent()));
 
         super.init(db);
         initialized = true;
