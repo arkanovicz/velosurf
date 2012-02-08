@@ -51,12 +51,28 @@ public class Velosurf extends DBReference
     /**
      * Configuration file.
      */
-    private String configFile = null;
+    private File configFile = null;
 
     /**
      * Empty constructor.
      */
-    public Velosurf(){}
+    public Velosurf()
+    {
+        initLogging();
+    }
+
+    /**
+     * Constructor taking a File object as model configuration file.
+     * @param configFile model configuration file
+     * @throws IOException
+     * @throws SQLException
+     */
+    public Velosurf(String config) throws IOException, SQLException
+    {
+        initLogging();
+        configFile = new File(config);
+        init();
+    }
 
     /**
      * Constructor taking a File object as model configuration file.
@@ -66,7 +82,9 @@ public class Velosurf extends DBReference
      */
     public Velosurf(File configFile) throws IOException, SQLException
     {
-        this(new FileInputStream(configFile));
+        initLogging();
+        this.configFile = configFile;
+        init();
     }
 
     /**
@@ -74,8 +92,9 @@ public class Velosurf extends DBReference
      * @param config
      * @throws IOException
      * @throws SQLException
+     * @deprecated use others constructor
      */
-    public Velosurf(InputStream config) throws IOException, SQLException
+     public Velosurf(InputStream config) throws IOException, SQLException
     {
         initLogging();
         init(config);
@@ -87,7 +106,7 @@ public class Velosurf extends DBReference
      */
     public void setConfigFile(String config)
     {
-        configFile = config;
+        configFile = new File(config);
     }
 
     /**
@@ -105,7 +124,7 @@ public class Velosurf extends DBReference
      * Tries to find a model configuration file using some default locations.
      * @return the pathname of the model configuration file, if found - null otherwise
      */
-    private static String findConfig()
+    private void findConfig()
     {
         String pathname = null;
         File file = null;
@@ -117,7 +136,7 @@ public class Velosurf extends DBReference
             file = new File(pathname);
             if(file.exists())
             {
-                return pathname;
+                configFile = file;
             }
         }
 
@@ -128,7 +147,7 @@ public class Velosurf extends DBReference
             file = new File(pathname);
             if(file.exists())
             {
-                return pathname;
+                configFile = file;
             }
         }
 
@@ -144,10 +163,10 @@ public class Velosurf extends DBReference
             file = new File(guesses[i]);
             if(file.exists())
             {
-                return guesses[i];
+                configFile = file;
+                break;
             }
         }
-        return null;
     }
 
     /**
@@ -173,31 +192,14 @@ public class Velosurf extends DBReference
     {
         if(configFile == null)
         {
-            configFile = findConfig();
+            findConfig();
         }
         if(configFile == null)
         {
             throw new IOException("No Velosurf config file found. Please specify one using setConfig(pathname).");
         }
 
-        /* calculate the base directory, for XInclude */
-        /* Velosurf won't like '/' in windows names neither '\' in linux ones... Does Java? */
-        String base = null;
-
-        configFile.replace('\\', '/');
-
-        int i = configFile.lastIndexOf('/');
-
-        if(i == -1)
-        {
-            base = ".";
-        }
-        else
-        {
-            base = configFile.substring(0, i);
-        }
-
-        Database db = Database.getInstance(new FileInputStream(configFile), new XIncludeResolver(base));
+        Database db = Database.getInstance(new FileInputStream(configFile), new XIncludeResolver(configFile.getParent()));
 
         super.init(db);
         initialized = true;
