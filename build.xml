@@ -294,6 +294,7 @@ Please specify a target among :
   </target>
 
   <target name="-hsqldb-download">
+   <property name="download.group" value="org/hsqldb"/>
    <property name="download.jar" value="hsqldb" />
    <property name="download.version" value="${jar.hsqldb.version}" />
    <antcall target="-download-if-needed"/>
@@ -379,7 +380,8 @@ Please specify a target among :
         optimize="on"
         encoding="UTF-8"
         source="1.5"
-        target="1.5">
+        target="1.5"
+        includeantruntime="false">
 	  <patternset refid="sources"/>
       <classpath refid="classpath"/>
 <!--      <compilerarg value="-Xlint:unchecked"/> -->

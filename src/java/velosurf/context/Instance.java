@@ -65,6 +65,17 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
      */
     public Instance(Map<String,Object> values)
     {
+        this(values,null);
+    }
+
+    /**
+     * Builds a generic instance using <code>values</code>.
+     * @param values
+     * @param db
+     */
+    public Instance(Map<String,Object> values, Database db)
+    {
+        this.db = db;
         for(Object key:values.keySet())
         {
             put(Database.adaptContextCase((String)key),values.get(key));

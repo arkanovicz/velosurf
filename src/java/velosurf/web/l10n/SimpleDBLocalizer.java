@@ -119,6 +119,7 @@ public class SimpleDBLocalizer extends HTTPLocalizerTool
     {
         if(!initialized)
         {
+            super.init(initData);
             if(config != null)
             {
                 String value;

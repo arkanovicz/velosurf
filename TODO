@@ -1,3 +1,4 @@
+ - Instance.update() should fail if key field is dirty (or make key field read only?)
  - DBReference.fetch(Object) => fetch(String) to resolve ambiguities
  - user hooks on attribute names
  - new scalar attribute types: <boolean>, <int[eger]>, <long>, <float>, <double>, <string>
@@ -7,7 +8,6 @@
  - allow aliases for schema names
  - timed cache
  - avoid repetitive error messages in logger
- - bug: in partial reverse mode, the reverse enginer asks for columns of the "velosurf.root" table...
  - review the ToolFinder mechanism
  - logger: loglevel should stick to one velosurf instance
  - Instance should maybe reference a DBRef and not a DB (to control subclasses access)
@@ -21,7 +21,6 @@
  - review UserContext life cycle (threads/sessions) - is it thread-pooling resistant? => seems so.
  - strip ('mangle') tablename/field prefixes on demand (like "tab_")
  - factorize Action and Attribute!
- - when result=row, attref should return null if not found
  - do sthing about serialization / transience (cf. tomcat sessions persistance for instance)
  - optionnaly use foreign key names when reverse enginering => should be a database option
  - display build # in logs at startup

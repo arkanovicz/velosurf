@@ -470,7 +470,7 @@ Logger.debug("setting driver manager log");
     {
         PooledSimpleStatement statement = null;
         statement=statementPool.getStatement();
-        return statement.query(query,entity);
+        return statement.query(query,entity == null ? getRootEntity() : entity);
     }
 
     /**
