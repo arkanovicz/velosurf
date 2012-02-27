@@ -1,7 +1,16 @@
 ***** Changes ****
 
-v2.3 (October 2010)
+v2.3 (February 2012)
 ----
+ - new: sha1 encryption library for authentication
+ - fix: xinclude for non-webapp Velosurf tool
+ - fix: bug in reverse enginer partial mode
+ - new: added a check interval parameter for connections
+ - new: always use Long for numeric key values
+ - fix: NPE on null parameters
+ - fix: potential concurrency problem during imported and exported keys initialization
+ - new: AttributeRef.getInstanceMap() method
+ - fix: Entity column ordering was wrong
  - fix: startup action was broken
  - fix: review statements busy state handling (statements could sometimes remain in busy state)
  - new: a <database> check-connections attribute to avoid connections checking (still true by default)
