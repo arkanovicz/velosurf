@@ -1321,6 +1321,11 @@ public class Entity
         return actionMap;
     }
 
+    public boolean isRootEntity()
+    {
+        return "velosurf.root".equals(name);
+    }
+
     /**
      * Get the SQL type for the specified column 
      * @param column column name

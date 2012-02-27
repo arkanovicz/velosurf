@@ -153,13 +153,37 @@ public class WhiteboxTests
         /* testing the included attribute */
         Attribute attribute = database.getRootEntity().getAttribute("count_publishers");
         Object result = attribute.evaluate(null);
-        assertEquals("java.lang.Integer",result.getClass().getName());
+        assertEquals("java.lang.Long",result.getClass().getName());
         assertEquals(1,result);
     }
 
     public static @AfterClass void closeDatabase() throws SQLException {
         database.close();
     }
+
+  public static void main(String args[])
+  {
+    try
+    {
+      Logger.log2Stderr();
+      openDatabase();
+      WhiteboxTests t = new WhiteboxTests();
+      t.testQuery();
+      t.testQuery2();
+      t.testEvaluate();
+      t.testPrepare();
+      t.testEmptyTable();
+      t.testInsert();
+      t.testSuccessfullTransaction();
+      t.testUnsuccessfullTransaction();
+      t.testXInclude();
+      closeDatabase();
+    }
+    catch(Throwable t)
+    {
+      Logger.log(t);
+    }
+  }
 
 }
 

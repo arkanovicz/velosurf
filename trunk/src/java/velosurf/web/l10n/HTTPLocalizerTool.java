@@ -46,7 +46,7 @@ public abstract class HTTPLocalizerTool implements Localizer
     {
         if(initData instanceof ViewContext)
         {
-            HttpSession session = ((ViewContext)initData).getRequest().getSession();
+            HttpSession session = ((ViewContext)initData).getRequest().getSession(true);
 
             if(session != null)
             {
@@ -151,6 +151,7 @@ public abstract class HTTPLocalizerTool implements Localizer
      */
     public void checkLocaleChange()
     {
+        if(session == null) return;
         HttpSession s = session.get();
 
         if(s != null)

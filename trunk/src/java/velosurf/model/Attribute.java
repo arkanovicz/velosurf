@@ -187,7 +187,7 @@ public class Attribute
         {
             query = SqlUtil.orderQuery(query, order);
         }
-        return db.prepare(query).query(buildArrayList(source), db.getEntity(resultEntity));
+        return db.prepare(query).query(buildArrayList(source), resultEntity == null ? db.getRootEntity() : db.getEntity(resultEntity));
     }
 
     // TODO

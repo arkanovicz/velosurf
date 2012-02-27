@@ -128,7 +128,7 @@ public class RowIterator implements Iterator<Instance>, RowHandler
                 return null;
             }
             prefetch = false;
-            if(resultEntity != null)
+            if(resultEntity != null && !resultEntity.isRootEntity())
             {
                 Instance row = null;
 
@@ -138,7 +138,7 @@ public class RowIterator implements Iterator<Instance>, RowHandler
             }
             else
             {
-                return new Instance(new ReadOnlyMap(this));
+                return new Instance(new ReadOnlyMap(this),resultEntity == null ? null : resultEntity.getDB());
             }
         }
         catch(SQLException sqle)
@@ -179,7 +179,7 @@ public class RowIterator implements Iterator<Instance>, RowHandler
             {
                 return null;
             }
-            if(resultEntity != null)
+            if(resultEntity != null && !resultEntity.isRootEntity())
             {
                 property = resultEntity.resolveName(property);
 
@@ -234,12 +234,11 @@ public class RowIterator implements Iterator<Instance>, RowHandler
             List<Instance> ret = new ArrayList<Instance>();
 
             pooledStatement.getConnection().enterBusyState();
-            if(resultEntity != null)
+            if(resultEntity != null && !resultEntity.isRootEntity())
             {
                 while(!resultSet.isAfterLast() && resultSet.next())
                 {
                     Instance i = resultEntity.newInstance(new ReadOnlyMap(this), true);
-
                     i.setClean();
                     ret.add(i);
                 }
@@ -248,8 +247,7 @@ public class RowIterator implements Iterator<Instance>, RowHandler
             {
                 while(!resultSet.isAfterLast() && resultSet.next())
                 {
-                    Instance i = new Instance(new ReadOnlyMap(this));
-
+                    Instance i = new Instance(new ReadOnlyMap(this), resultEntity == null ? null : resultEntity.getDB());
                     ret.add(i);
                 }
             }
