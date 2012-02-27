@@ -163,6 +163,11 @@ To be able to use this second method, you need to use the VelosurfUberspector:
 # Use the VelosurfUberspector to allow parametrized getters
 runtime.introspector.uberspect = org.apache.velocity.util.introspection.UberspectImpl,org.apache.velocity.tools.view.WebappUberspector,velosurf.util.VelosurfUberspector
 </div>
+<p>Without using this customized uberspector, you can still use this method by doing:</p>
+<div class="source">Books for year 2006:
+#foreach($book in $db.getWithParams('books_per_year',{'publication_year':2006}))
+&nbsp;&nbsp;* $book.title
+#end</div>
 
 <!-- <p>Note that the name <code>publication_year</code> does not correspond to anything in the database:
 it is only a label that can be used as a prepared statement parameter. Note also that external parameters
@@ -393,6 +398,7 @@ still use those tags in <b>full</b> reverse engineering mode to customize the na
 
 <a name="localization"/>
 <h1>Localization</h1>
+<div class="warning">this feature is still experimental</div>
 <p>Velosurf provides a localization mechanism. It consists of:
 <ul><li>a <code><a href="api/velosurf/web/l10n/Localizer.html">velosurf.web.l10n.Localizer</a></code> Java interface with a getter and a setter for the active locale, and two getters to obtain
 localized messages from their ID (the second one allowing the use of parameterized messages as in <code>"Found {0} match(es) for {1}."</code>).</li>

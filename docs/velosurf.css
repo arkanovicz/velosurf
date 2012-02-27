@@ -170,6 +170,12 @@
 
   div.menusection li {  }
 
+  .warning
+  {
+      color:red;
+      font-weight:bold;
+  }
+  
   @media print {
   div#container { width: 100%;
     min-height: 0px;
@@ -202,5 +208,12 @@
     background-color: rgb(255, 255, 255);
     color: rgb(0, 0, 0);
     }
+
+  .warning
+  {
+      color:red;
+      font-weight:bold;
+  }
+  
 }
 
