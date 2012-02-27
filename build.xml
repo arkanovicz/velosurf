@@ -245,6 +245,7 @@ Please specify a target among :
   </target>
 
   <target name="-jdom-download">
+   <property name="download.group" value="org/jdom"/>
    <property name="download.jar" value="jdom" />
    <property name="download.version" value="${jar.jdom.version}" />
    <antcall target="-download-if-needed"/>

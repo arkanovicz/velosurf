@@ -84,19 +84,31 @@ into the <code>./lib/</code> directory. Or you can fetch them individually from 
 <ul>
 <li>Dependencies needed to build velosurf:
 <ul>
-<li><a href="http://repo1.maven.org/maven/commons-lang/jars/commons-lang-2.3.jar">commons-lang-2.3.jar</a></li>
-<li><a href="http://repo1.maven.org/maven/jdom/jars/jdom-1.0.jar">jdom-1.0.jar</a></li>
-<li><a href="http://repo1.maven.org/maven/servletapi/jars/servletapi-2.4.jar">servletapi-2.4.jar</a></li>
-<li><a href="http://repo1.maven.org/maven/velocity/jars/velocity-1.5.jar">velocity-1.5.jar</a></li>
-<li><a href="http://repo1.maven.org/maven/velocity-tools/jars/velocity-tools-view-1.4.jar">velocity-tools-view-1.4.jar</a></li>
-</ul></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/commons-lang/commons-lang/2.3/commons-lang-2.3.jar">commons-lang-2.3.jar</a></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/commons-net/commons-net/1.4.1/commons-net-1.4.1.jar">commons-net-1.4.1.jar</a></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/org/jdom/jdom/1.1.2/jdom-1.1.2.jar">jdom-1.1.2.jar</a></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/servletapi/servletapi/2.4/servletapi-2.4.jar">servletapi-2.4.jar</a></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/org/apache/velocity/velocity/1.7/velocity-1.7.j">velocity-1.7.jar</a></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/org/apache/velocity/velocity-tools/2.0/velocity-tools-2.0.jar">velocity-tools-2.0.jar</a></li>
+</ul>
+</li>
 <li>Dependencies needed at runtime:
 <ul>
-<li><a href="http://repo1.maven.org/maven/commons-beanutils/jars/commons-beanutils-1.7.0.jar">commons-beanutils-1.7.0.jar</a> (needed by Velocity Tools)</li>
-<li><a href="http://repo1.maven.org/maven/commons-collections/jars/commons-collections-3.2.jar">commons-collections-3.2.jar</a> (needed by Velocity)</li>
-<li><a href="http://repo1.maven.org/maven/commons-digester/jars/commons-digester-1.8.jar">commons-digester-1.8.jar</a> (needed by Velocity Tools)</li>
-<li><a href="http://repo1.maven.org/maven/crimson/jars/crimson-1.1.3.jar">crimson-1.1.3.jar</a> (needed by JDOM)</li>
-</ul></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/commons-beanutils/commons-beanutils/1.7.0/commons-beanutils-1.7.0.jar">commons-beanutils-1.7.0.jar</a> (needed by Velocity Tools)</li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/commons-collections/commons-collections/3.2/commons-collections-3.2.jar">commons-collections-3.2.jar</a> (needed by Velocity)</li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/commons-digester/commons-digester/1.8/commons-digester-1.8.jar">commons-digester-1.8.jar</a> (needed by Velocity Tools)</li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/crimson/crimson/1.1.3/crimson-1.1.3.jar">crimson-1.1.3.jar</a> (needed by JDOM)</li>
+</ul>
+</li>
+<li>Dependancies needed to run testcases:
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/org/hsqldb/hsqldb/2.2.8/hsqldb-2.2.8.jar">hsqldb-2.2.8.jar</a></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/httpunit/httpunit/1.6.1/httpunit-1.6.1.jar">httpunit-1.6.1.jar</a></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/rhino/js/1.6R5/js-1.6R5.jar">js-1.6R5.jar</a></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/junit/junit/4.3/junit-4.3.jar">junit-4.3.jar</a></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/nekohtml/nekohtml/0.9.5/nekohtml-0.9.5.jar">nekohtml-0.9.5.jar</a></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/xerces/xercesImpl/2.8.1/xercesImpl-2.8.1.jar">xercesImpl-2.8.1.jar</a></li>
+<li><a href="http://mirrors.ibiblio.org/pub/mirrors/maven2/xerces/xmlParserAPIs/2.6.2/xmlParserAPIs-2.6.2.jar">xmlParserAPIs-2.6.2.jar</a></li>
+</li>
 </ul>
 <p>Some earlier versions of the <code>commons-*</code> libraries may be supported by Velosurf. To test them,
 you can edit the version numbers in the <code>./build/build.properties</code> file and test Velosurf with '<code>ant test</code>'.</p>
