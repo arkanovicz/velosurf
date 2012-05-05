@@ -167,7 +167,6 @@ public class VelosurfTool extends DBReference
                         }
                     }
                 }
-                session.setAttribute(VelosurfTool.class.getName(), this);
             }
         }
 
