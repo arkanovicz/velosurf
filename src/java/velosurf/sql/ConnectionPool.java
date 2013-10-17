@@ -18,6 +18,7 @@
 
 package velosurf.sql;
 
+import java.io.Serializable;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,7 +31,7 @@ import velosurf.util.Strings;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-public class ConnectionPool
+public class ConnectionPool implements Serializable
 {
     /**
      * Constructor.

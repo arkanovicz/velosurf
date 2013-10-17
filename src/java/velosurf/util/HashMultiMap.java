@@ -18,6 +18,7 @@
 
 package velosurf.util;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,7 +32,7 @@ import java.util.Set;
  * @author Mark Richters
  * @see java.util.Map
  */
-public class HashMultiMap implements MultiMap
+public class HashMultiMap implements MultiMap, Serializable
 {
     /**
      * inner map.

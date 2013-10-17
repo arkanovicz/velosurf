@@ -18,6 +18,7 @@
 
 package velosurf.context;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.*;
 import velosurf.model.Action;
@@ -26,6 +27,9 @@ import velosurf.model.Entity;
 import velosurf.sql.Database;
 import velosurf.sql.PooledPreparedStatement;
 import velosurf.util.Logger;
+import velosurf.util.SlotHashMap;
+import velosurf.util.SlotMap;
+import velosurf.util.SlotTreeMap;
 import velosurf.util.StringLists;
 import velosurf.util.UserContext;
 
@@ -34,7 +38,7 @@ import velosurf.util.UserContext;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public class Instance extends TreeMap<String,Object> implements HasParametrizedGetter
+public class Instance extends SlotTreeMap implements HasParametrizedGetter
 {
 
     /**
@@ -44,7 +48,6 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
     public Instance()
     {
     }
-
 
     /**
      * Build an empty instance for the given entity.
@@ -63,7 +66,7 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
      * Builds a generic instance using <code>values</code>.
      * @param values
      */
-    public Instance(Map<String,Object> values)
+    public Instance(SlotMap values)
     {
         this(values,null);
     }
@@ -73,14 +76,14 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
      * @param values
      * @param db
      */
-    public Instance(Map<String,Object> values, Database db)
-    {
-        this.db = db;
-        for(Object key:values.keySet())
-        {
-            put(Database.adaptContextCase((String)key),values.get(key));
-        }
-    }
+      public Instance(SlotMap values, Database db)
+      {
+          this.db = db;
+          for(Serializable key:values.keySet())
+          {
+              put(Database.adaptContextCase((String)key),values.get(key));
+          }
+      }
 
      /**
       * Initialization. Meant to be overloaded if needed.
@@ -121,13 +124,13 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
      */
     public List getPrimaryKey()
     {
-        List<Map<String,Object>> result = new ArrayList<Map<String,Object>>();
+        List<SlotMap> result = new ArrayList<SlotMap>();
         if (entity!=null)
         {
             for (Iterator i=entity.getPKCols().iterator();i.hasNext();)
             {
                 String key = (String)i.next();
-                Map<String,Object> map = new HashMap<String,Object>();
+                SlotMap map = new SlotTreeMap();
                 map.put("name",key);
                 map.put("value",getInternal(key));
                 result.add(map);
@@ -144,10 +147,10 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
      * @return a String, an Instance, an AttributeReference or null if an error
      *      occurs
      */
-    public Object get(Object k)
+    public Serializable get(Object k)
     {
         String key = resolveName((String)k);
-        Object result = null;
+        Serializable result = null;
         try
         {
             result = super.get(key);
@@ -212,13 +215,32 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
      * @param params passed parameters
      * @see HasParametrizedGetter
      */
-    public Object getWithParams(String key,Map params)
+    public Serializable getWithParams(String key, SlotMap params)
     {
-        for(Map.Entry entry: (Set<Map.Entry>)params.entrySet())
+        for(Map.Entry<String,Serializable> entry: (Set<Map.Entry<String,Serializable>>)params.entrySet())
         {
-            put(db.adaptCase((String)entry.getKey()),entry.getValue());
+            put(db.adaptCase(entry.getKey()),entry.getValue());
         }
         return get(db.adaptCase(key));
+    }
+
+    /**
+     * Default method handler, called by Velocity when it did not find the specified method.
+     *
+     * @param key asked key
+     * @param params passed parameters
+     * @see HasParametrizedGetter
+     * @deprecated
+     */
+    @Deprecated
+    public Serializable getWithParams(String key, Map params)
+    {
+        SlotMap p = new SlotHashMap();
+        for(Map.Entry entry: (Set<Map.Entry>)params.entrySet())
+        {
+            p.put((String)entry.getKey(), (Serializable)entry.getValue());
+        }
+        return getWithParams(key, p);
     }
 
     /**
@@ -228,7 +250,7 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
      * @param value corresponding value
      * @return previous value, or null
      */
-    public synchronized Object put(String key, Object value)
+    public synchronized Serializable put(String key, Serializable value)
     {
         key = resolveName(key);
         int index;
@@ -261,7 +283,7 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
      * @param values corresponding values
      */
 
-    public synchronized void setColumnValues(Map<String,Object> values)
+    public synchronized void setColumnValues(SlotMap values)
     {
         if(entity == null)
         {
@@ -269,7 +291,7 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
             return;
         }
         int index;
-        for(Map.Entry<String,Object> entry:values.entrySet())
+        for(Map.Entry<String,Serializable> entry:values.entrySet())
         {
             if( entity.isColumn(entity.resolveName(entry.getKey())))
             {
@@ -279,15 +301,33 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
     }
 
     /**
+     * Global setter that will only set values the correspond to actual
+     * columns (otherwise, use putAll(Map values)).
+     *
+     * @param values corresponding values
+     * @deprecated
+     */
+    @Deprecated
+    public synchronized void setColumnValues(Map<String,Object> values)
+    {
+        SlotMap v = new SlotHashMap();
+        for(Map.Entry<String,Object> entry: (Set<Map.Entry<String,Object>>)values.entrySet())
+        {
+            v.put(entry.getKey(), (Serializable)entry.getValue());
+        }
+        setColumnValues(v);
+    }
+
+    /**
      * Internal getter. First tries on the external object then on the Map interface.
      *
      * @param key key of the property to be returned
      * @return a String, an Instance, an AttributeReference or null if not found or if an error
      *      occurs
      */
-    public Object getInternal(Object key)
+    public Serializable getInternal(Object key)
     {
-        Object ret = getExternal(key);
+        Serializable ret = getExternal(key);
         if (ret == null) ret = super.get(key);
         return ret;
     }
@@ -299,7 +339,7 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
      * @return a String, an Instance, an AttributeReference or null if not found or if an error
      *      occurs
      */
-    public Object getExternal(Object key)
+    public Serializable getExternal(Object key)
     {
         return null;
     }
@@ -407,13 +447,33 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
      * @return <code>true</code> if successfull, <code>false</code> if an error
      *      occurs (in which case $db.error can be checked).
      */
-    public synchronized boolean update(Map<String,Object> values)
+    public synchronized boolean update(SlotMap values)
     {
         if (values != null && values != this)
         {
             setColumnValues(values);
         }
         return update();
+    }
+
+    /**
+     * <p>Update the row associated with this Instance from actual values.</p>
+     * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
+     *
+     * @param values values to be used for the update
+     * @return <code>true</code> if successfull, <code>false</code> if an error
+     *      occurs (in which case $db.error can be checked).
+     * @deprecated
+     */
+    @Deprecated
+    public synchronized boolean update(Map<String,Object> values)
+    {
+        SlotMap v = new SlotHashMap();
+        for(Map.Entry<String,Object> entry: (Set<Map.Entry<String,Object>>)values.entrySet())
+        {
+            v.put(entry.getKey(), (Serializable)entry.getValue());
+        }
+        return update(v);
     }
 
     /**
@@ -589,7 +649,7 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
      *
      * @return the removed object, or null
      */
-    public Object remove(Object key)
+    public Serializable remove(Object key)
     {
         return super.remove(resolveName((String)key));
     }
@@ -621,7 +681,7 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
     {
 	StringBuffer ret = new StringBuffer("{");
 	boolean comma = false;
-	for(Map.Entry<String,Object> entry:super.entrySet())
+	for(Map.Entry<String,Serializable> entry:super.entrySet())
         {
 	    if(comma)
             {
@@ -670,13 +730,28 @@ public class Instance extends TreeMap<String,Object> implements HasParametrizedG
     /**
      * Insert or update, depending on whether or not a value for the id key is present and does exist
      */
-    public synchronized boolean upsert(Map<String,Object> values)
+    public synchronized boolean upsert(SlotMap values)
     {
 	if (values != null && values != this)
         {
 	    setColumnValues(values);
 	}
 	return upsert();
+    }
+
+    /**
+     * Insert or update, depending on whether or not a value for the id key is present and does exist
+     * @deprecated
+     */
+    @Deprecated
+    public synchronized boolean upsert(Map<String,Object> values)
+    {
+        SlotMap v = new SlotHashMap();
+        for(Map.Entry<String,Object> entry: (Set<Map.Entry<String,Object>>)values.entrySet())
+        {
+            v.put(entry.getKey(), (Serializable)entry.getValue());
+        }
+        return upsert(v);
     }
 
 }

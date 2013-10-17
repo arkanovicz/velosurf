@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.sql.SQLException;
 import org.apache.velocity.app.Velocity;
 import velosurf.context.DBReference;
@@ -219,7 +220,7 @@ public class Velosurf extends DBReference
      * @param key
      * @return property
      */
-    public Object get(Object key)
+    public Serializable get(Object key)
     {
         if(!initialized)
         {
@@ -242,7 +243,7 @@ public class Velosurf extends DBReference
      * @param value
      * @return old value
      */
-    public Object put(String key, Object value)
+    public Serializable put(String key, Serializable value)
     {
         if(!initialized)
         {
@@ -285,7 +286,7 @@ public class Velosurf extends DBReference
      * @param value value to obfuscate
      * @return obfuscated value
      */
-    public String obfuscate(Object value)
+    public String obfuscate(Serializable value)
     {
         if(!initialized)
         {
@@ -307,7 +308,7 @@ public class Velosurf extends DBReference
      * @param value value to de-obfuscate
      * @return obfuscated value
      */
-    public String deobfuscate(Object value)
+    public String deobfuscate(Serializable value)
     {
         if(!initialized)
         {

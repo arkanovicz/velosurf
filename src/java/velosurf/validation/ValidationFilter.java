@@ -19,6 +19,7 @@
 package velosurf.validation;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +37,8 @@ import velosurf.context.DBReference;
 //import velosurf.util.UserContext;
 import velosurf.context.EntityReference;
 import velosurf.util.Logger;
+import velosurf.util.SlotMap;
+import velosurf.util.SlotTreeMap;
 import velosurf.util.ToolFinder;
 import velosurf.util.UserContext;
 import velosurf.web.VelosurfTool;
@@ -81,7 +84,7 @@ public class ValidationFilter implements Filter
         HttpServletRequest request = (HttpServletRequest)servletRequest;
         HttpServletResponse response = (HttpServletResponse)servletResponse;
         HttpSession session = null;
-        Map<String, Object> map = null;
+        SlotMap map = null;
         String[] entities = null;
         boolean filter = (request.getParameter(ENTITY_KEY) != null);
         boolean accept = true;
@@ -96,7 +99,7 @@ public class ValidationFilter implements Filter
              */
             DBReference db = VelosurfTool.getDefaultInstance(config.getServletContext());
 
-            map = new HashMap();
+            map = new SlotTreeMap();
 
             UserContext userContext = (UserContext)session.getAttribute(UserContext.USER_CONTEXT_KEY);
 
@@ -122,12 +125,12 @@ public class ValidationFilter implements Filter
             }
             if(db != null)
             {
-                Map<String, Object> params = request.getParameterMap();
-                Object[] array;
+                SlotMap params = new SlotTreeMap(request.getParameterMap());
+                Serializable[] array;
 
-                for(Map.Entry<String, Object> entry : (Set<Map.Entry<String, Object>>)params.entrySet())
+                for(Map.Entry<String, Serializable> entry : (Set<Map.Entry<String, Serializable>>)params.entrySet())
                 {
-                    array = (Object[])entry.getValue();
+                    array = (Serializable[])entry.getValue();
                     map.put(entry.getKey(), array.length == 1 ? array[0] : array);
                 }
                 entities = (String[])params.get(ENTITY_KEY);

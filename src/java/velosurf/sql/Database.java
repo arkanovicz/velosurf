@@ -41,7 +41,7 @@ import velosurf.util.UserContext;
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
-public class Database
+public class Database implements Serializable
 {
     /**
      * Builds a new connection.
@@ -1128,12 +1128,12 @@ Logger.debug("setting driver manager log");
     /**
      * Reverse engineer.
      */
-    private ReverseEngineer reverseEngineer = new ReverseEngineer(this);
+    private transient ReverseEngineer reverseEngineer = new ReverseEngineer(this);
 
     /**
      * Thread-local user context.
      */
-    private ThreadLocal<UserContext> userContext = new ThreadLocal<UserContext>();
+    private transient ThreadLocal<UserContext> userContext = new ThreadLocal<UserContext>();
 
     /**
      * Driver specific value filter

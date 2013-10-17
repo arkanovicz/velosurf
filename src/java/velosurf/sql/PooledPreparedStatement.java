@@ -18,6 +18,7 @@
 
 package velosurf.sql;
 
+import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,6 +32,8 @@ import java.util.TreeMap;
 import velosurf.context.RowIterator;
 import velosurf.model.Entity;
 import velosurf.util.Logger;
+import velosurf.util.SlotMap;
+import velosurf.util.SlotTreeMap;
 import velosurf.util.StringLists;
 
 /**
@@ -66,13 +69,24 @@ public class PooledPreparedStatement extends PooledStatement implements RowHandl
     }
 
     /**
+     * check whether this pooled object is marked as valid or invalid.
+     * (used in the recovery process)
+     *
+     * @return whether this object is in use
+     */
+    public boolean isValid()
+    {
+        return super.isValid() && preparedStatement != null;
+    }
+
+    /**
      * get a unique object by id.
      *
      * @param params parameter values
      * @exception SQLException thrown bu the database engine
      * @return fetched Instance
      */
-    public synchronized Object fetch(List params) throws SQLException
+    public synchronized Serializable fetch(List params) throws SQLException
     {
         return fetch(params, null);
     }
@@ -85,9 +99,9 @@ public class PooledPreparedStatement extends PooledStatement implements RowHandl
      * @exception SQLException thrown by the database engine
      * @return the fetched Instance
      */
-    public synchronized Object fetch(List params, Entity resultEntity) throws SQLException
+    public synchronized Serializable fetch(List params, Entity resultEntity) throws SQLException
     {
-        Map<String, Object> row = null;
+        SlotMap row = null;
 
         try
         {
@@ -115,7 +129,7 @@ public class PooledPreparedStatement extends PooledStatement implements RowHandl
                 }
                 else
                 {
-                    row = new TreeMap<String, Object>();
+                  row = new SlotTreeMap();
                     if(columnNames == null)
                     {
                         columnNames = SqlUtil.getColumnNames(resultSet);
@@ -123,7 +137,7 @@ public class PooledPreparedStatement extends PooledStatement implements RowHandl
                     for(Iterator it = columnNames.iterator(); it.hasNext(); )
                     {
                         String column = (String)it.next();
-                        Object value = resultSet.getObject(column);
+                        Serializable value = (Serializable)resultSet.getObject(column);
 
                         if(value != null &&!resultSet.wasNull())
                         {
@@ -137,7 +151,7 @@ public class PooledPreparedStatement extends PooledStatement implements RowHandl
         {
             notifyOver();
         }
-        return row;
+        return (Serializable)row;
     }
 
     /**
@@ -148,7 +162,7 @@ public class PooledPreparedStatement extends PooledStatement implements RowHandl
      * @exception SQLException thrown by the database engine
      * @return the fetched Instance
      */
-    public synchronized Object fetch(Map<String, Object> params, Entity resultEntity) throws SQLException
+    public synchronized Serializable fetch(SlotMap params, Entity resultEntity) throws SQLException
     {
         List<Object> values = new ArrayList<Object>();
 
@@ -218,9 +232,9 @@ public class PooledPreparedStatement extends PooledStatement implements RowHandl
      * @exception SQLException thrown bu the database engine
      * @return scalar result
      */
-    public synchronized Object evaluate(List params) throws SQLException
+    public synchronized Serializable evaluate(List params) throws SQLException
     {
-        Object value = null;
+        Serializable value = null;
 
         try
         {
@@ -236,7 +250,7 @@ public class PooledPreparedStatement extends PooledStatement implements RowHandl
 
             if(hasNext)
             {
-                value = resultSet.getObject(1);
+              value = (Serializable)resultSet.getObject(1);
                 if(resultSet.wasNull())
                 {
                     value = null;
@@ -284,14 +298,14 @@ public class PooledPreparedStatement extends PooledStatement implements RowHandl
      * @exception SQLException thrown by the database engine
      * @return the object value returned by jdbc
      */
-    public synchronized Object get(Object key) throws SQLException
+    public synchronized Serializable get(Object key) throws SQLException
     {
-        if(!(key instanceof String))
+        if(!(key instanceof String) || resultSet == null)
         {
             return null;
         }
 
-        Object ret = resultSet.getObject((String)key);
+        Serializable ret = (Serializable)resultSet.getObject((String)key);
 
         if(entity != null && entity.isObfuscated((String)key))
         {
@@ -302,6 +316,7 @@ public class PooledPreparedStatement extends PooledStatement implements RowHandl
 
     public Set<String> keySet() throws SQLException
     {
+        if(resultSet == null) return new HashSet<String>();
         return new HashSet<String>(SqlUtil.getColumnNames(resultSet));
     }
 
@@ -364,7 +379,7 @@ public class PooledPreparedStatement extends PooledStatement implements RowHandl
     /**
      * wrapped prepared statement.
      */
-    private PreparedStatement preparedStatement = null;
+    private transient PreparedStatement preparedStatement = null;
 
     /**
      * the resulting entity.

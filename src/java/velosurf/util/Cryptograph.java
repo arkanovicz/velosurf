@@ -1,11 +1,13 @@
 package velosurf.util;
 
+import java.io.Serializable;
+
 /**
  * Cryptograph - used to encrypt and decrypt strings.
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public interface Cryptograph
+public interface Cryptograph extends Serializable
 {
     /**
      * init.

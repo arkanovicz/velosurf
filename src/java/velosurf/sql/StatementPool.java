@@ -62,11 +62,10 @@ public class StatementPool implements /* Runnable, */ Pool
             statement = it.next();
             if(statement.isValid())
             {
-                if(!statement.isInUse() &&!(connection = (ConnectionWrapper)statement.getConnection()).isBusy())
+                if(!statement.isInUse() && !(connection = (ConnectionWrapper)statement.getConnection()).isBusy())
                 {
                     // check connection
-                    if(!checkConnections || System.currentTimeMillis() - connection.getLastUse() < checkInterval
-                        || connection.check())
+                    if(!connection.isClosed() && (!checkConnections || System.currentTimeMillis() - connection.getLastUse() < checkInterval || connection.check()))
                     {
                         statement.notifyInUse();
                         return statement;
@@ -161,18 +160,21 @@ public class StatementPool implements /* Runnable, */ Pool
      *  drop all statements relative to a specific connection
      * @param connection the connection
      */
-    private void dropConnection(Connection connection)
+    private void dropConnection(ConnectionWrapper connection)
     {
         for(Iterator it = statements.iterator(); it.hasNext(); )
         {
             PooledSimpleStatement statement = (PooledSimpleStatement)it.next();
 
-            try
+            if(statement.getConnection() == connection)
             {
-                statement.close();
+                try
+                {
+                    statement.close();
+                }
+                catch(SQLException sqle) {}
+                statement.setInvalid();
             }
-            catch(SQLException sqle) {}
-            statement.setInvalid();
         }
         try
         {

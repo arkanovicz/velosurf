@@ -18,10 +18,12 @@
 
 package velosurf.context;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.*;
 import velosurf.model.Attribute;
 import velosurf.util.Logger;
+import velosurf.util.SlotMap;
 import velosurf.util.StringLists;
 
 /**
@@ -29,7 +31,7 @@ import velosurf.util.StringLists;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public class AttributeReference implements Iterable
+public class AttributeReference implements Iterable, Serializable
 {
     /**
      * Constructor.
@@ -37,7 +39,7 @@ public class AttributeReference implements Iterable
      * @param params the parameters map this attribute reference applies to
      * @param attribute the wrapped attribute
      */
-    public AttributeReference(Map<String, Object> params, Attribute attribute)
+    public AttributeReference(SlotMap params, Attribute attribute)
     {
         this.params = params;
         this.attribute = attribute;
@@ -240,7 +242,7 @@ public class AttributeReference implements Iterable
     /**
      * The map this attribute reference applies to.
      */
-    private Map<String, Object> params = null;
+    private SlotMap params = null;
 
     /**
      * The wrapped attribute.

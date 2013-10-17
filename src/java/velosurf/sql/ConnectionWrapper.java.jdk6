@@ -18,6 +18,7 @@
 
 package velosurf.sql;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.sql.*;
 import java.util.Map;
@@ -31,7 +32,7 @@ import velosurf.util.Logger;
  */
 
 public class ConnectionWrapper
-    implements Connection
+    implements Connection, Serializable
 {
 
     /**
@@ -59,7 +60,7 @@ public class ConnectionWrapper
      * @return created statement
      * @throws SQLException
      */
-    public Statement createStatement()
+    public synchronized Statement createStatement()
         throws SQLException
     {
         try
@@ -216,7 +217,7 @@ public class ConnectionWrapper
     public boolean isClosed()
         throws SQLException
     {
-        return (closed || connection.isClosed());
+        return (closed || connection == null || connection.isClosed());
     }
 
     /**
@@ -608,7 +609,7 @@ public class ConnectionWrapper
     /** 
      * Enter busy state.
      */
-    public void enterBusyState()
+    public synchronized void enterBusyState()
     {
         //Logger.trace("connection #"+toString()+": entering busy state.");
         busy++;
@@ -617,7 +618,7 @@ public class ConnectionWrapper
     /**
      * Leave busy state.
      */
-    public void leaveBusyState()
+    public synchronized void leaveBusyState()
     {
         lastUse = System.currentTimeMillis();
         busy--;
@@ -667,10 +668,10 @@ public class ConnectionWrapper
             String checkQuery = driver.getPingQuery();
             if (checkQuery == null)
             {
-                // at least, call isOpen
+                // at least, call isClosed
                 if (isClosed())
                 {
-                    throw new Exception ("Connection is closed");
+                    return false;
                 }
             }
             else
@@ -695,7 +696,7 @@ public class ConnectionWrapper
     private DriverInfo driver = null;
 
     /** Wrapped connection. */
-    private Connection connection = null;
+    private transient Connection connection = null;
 
     /** Busy state. */
     private int busy = 0;
@@ -708,7 +709,7 @@ public class ConnectionWrapper
 
     /** statement used to check connection ("select 1").
      */
-    private PreparedStatement checkStatement = null;
+    private transient PreparedStatement checkStatement = null;
 
     /*
      * stores new 1.6 methods using reflection api to ensure backward compatibility

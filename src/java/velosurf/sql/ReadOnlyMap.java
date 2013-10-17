@@ -18,11 +18,13 @@
 
 package velosurf.sql;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import velosurf.util.Logger;
+import velosurf.util.SlotMap;
 
 /**
  * A wrapper implementing the Map interface for some objets having only getters.
@@ -30,7 +32,7 @@ import velosurf.util.Logger;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public class ReadOnlyMap implements Map<String, Object>
+public class ReadOnlyMap implements SlotMap
 {
     /**
      * Constructor.
@@ -84,7 +86,7 @@ public class ReadOnlyMap implements Map<String, Object>
      * @param key value key
      * @return value
      */
-    public Object get(Object key)
+    public Serializable get(Object key)
     {
         try
         {
@@ -104,7 +106,7 @@ public class ReadOnlyMap implements Map<String, Object>
      * @param key
      * @return null
      */
-    public Object put(String query, Object key)
+    public Serializable put(String key, Serializable value)
     {
         return null;
     }
@@ -114,7 +116,7 @@ public class ReadOnlyMap implements Map<String, Object>
      * @param key
      * @return null
      */
-    public Object remove(Object key)
+    public Serializable remove(Object key)
     {
         return null;
     }
@@ -123,7 +125,7 @@ public class ReadOnlyMap implements Map<String, Object>
      * Not implemented.
      * @param map
      */
-    public void putAll(Map<? extends String, ? extends Object> map){}
+    public void putAll(Map<? extends String, ? extends Serializable> map){}
 
     /**
      * Not implemented.
@@ -152,7 +154,7 @@ public class ReadOnlyMap implements Map<String, Object>
      * Not implemented.
      * @return null
      */
-    public Collection<Object> values()
+    public Collection<Serializable> values()
     {
         return null;
     }
@@ -161,7 +163,7 @@ public class ReadOnlyMap implements Map<String, Object>
      * Not implemented.
      * @return null
      */
-    public Set<Entry<String, Object>> entrySet()
+    public Set<Entry<String, Serializable>> entrySet()
     {
         return null;
     }

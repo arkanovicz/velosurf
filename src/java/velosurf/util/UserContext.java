@@ -18,6 +18,7 @@
 
 package velosurf.util;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -150,7 +151,7 @@ public class UserContext
      * generic getter.
      *
      */
-    public Object get(String key)
+    public Serializable get(String key)
     {
         if("error".equalsIgnoreCase(key))
         {
@@ -158,7 +159,7 @@ public class UserContext
         }
         else if("validationErrors".equalsIgnoreCase(key))
         {
-            return getValidationErrors();
+          return (Serializable)getValidationErrors();
         }
         else if("locale".equalsIgnoreCase(key))
         {

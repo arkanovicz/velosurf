@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import org.apache.velocity.util.introspection.*;
 import velosurf.context.HasParametrizedGetter;
+import velosurf.util.SlotMap;
 
 /**
  * This uberspector allows getting a property while specifying extra external parameters
@@ -20,11 +21,18 @@ public class VelosurfUberspector extends AbstractChainableUberspector
     {
         VelMethod ret = super.getMethod(obj, methodName, args, i);
 
-        if(ret == null && obj instanceof HasParametrizedGetter && args.length == 1 && args[0] instanceof Map)
+        if(ret == null && obj instanceof HasParametrizedGetter && args.length == 1)
         {
-            Method method = obj.getClass().getMethod("getWithParams", String.class, Map.class);
-
-            ret = new VelParametrizedGetterMethod(methodName, method);
+            if(args[0] instanceof SlotMap)
+            {
+                Method method = obj.getClass().getMethod("getWithParams", String.class, SlotMap.class);
+                ret = new VelParametrizedGetterMethod(methodName, method);
+            }
+            else if(args[0] instanceof Map)
+            {
+                Method method = obj.getClass().getMethod("getWithParams", String.class, Map.class);
+                ret = new VelParametrizedGetterMethod(methodName, method);
+            }
         }
         return ret;
     }

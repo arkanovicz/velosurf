@@ -36,10 +36,13 @@ import javax.crypto.SecretKey;
 public class DESCryptograph implements Cryptograph
 {
     /** encryption cypher */
-    Cipher ecipher;
+    transient Cipher ecipher;
 
     /** decryption cypher */
-    Cipher dcipher;
+    transient Cipher dcipher;
+
+    /** random intializer */
+    String myRandom;
 
     /**
      * Constructor.
@@ -54,6 +57,9 @@ public class DESCryptograph implements Cryptograph
     {
         try
         {
+            // remember random value for serialization
+            myRandom = random;
+
             // this is the only method that gives us reproducibility
             SecureRandom seed = SecureRandom.getInstance("SHA1PRNG");
 
@@ -82,6 +88,12 @@ public class DESCryptograph implements Cryptograph
         {
             e.printStackTrace();
         }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
+        init(myRandom);
     }
 
     /**

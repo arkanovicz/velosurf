@@ -18,16 +18,20 @@
 
 package velosurf.context;
 
+import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import velosurf.model.Action;
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
 import velosurf.sql.Database;
 import velosurf.util.Logger;
+import velosurf.util.SlotHashMap;
+import velosurf.util.SlotMap;
+import velosurf.util.SlotTreeMap;
 import velosurf.util.UserContext;
 
 /**
@@ -37,8 +41,7 @@ import velosurf.util.UserContext;
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
 
-// FIXME : right now, extends HashMap bkoz velocity wants a HashMap for setters
-public class DBReference extends HashMap<String, Object> implements HasParametrizedGetter
+public class DBReference extends SlotTreeMap implements HasParametrizedGetter
 {
     /**
      * Default constructor for use by derived classes.
@@ -63,8 +66,8 @@ public class DBReference extends HashMap<String, Object> implements HasParametri
     protected void init(Database db)
     {
         this.db = db;
-        cache = new HashMap<String, Object>();
-        externalParams = new HashMap<String, Object>();
+        cache = new SlotTreeMap();
+        externalParams = new SlotTreeMap();
     }
 
     /**
@@ -80,13 +83,13 @@ public class DBReference extends HashMap<String, Object> implements HasParametri
      * @return an entity, an attribute reference, an instance, a string or null
      *     if not found. See  See above.
      */
-    public Object get(Object key)
+    public Serializable get(Object key)
     {
         String property = db.adaptCase((String)key);
 
         try
         {
-            Object result = null;
+            Serializable result = null;
 
             /* 1) try the cache */
             result = cache.get(property);
@@ -199,17 +202,17 @@ public class DBReference extends HashMap<String, Object> implements HasParametri
      * @param params passed parameters
      * @see HasParametrizedGetter
      */
-    public Object getWithParams(String key, Map params)
+    public Serializable getWithParams(String key, SlotMap params)
     {
-        Object result = null;
+        Serializable result = null;
 
         try
         {
-            String property = db.adaptCase((String)key);
+            String property = db.adaptCase(key);
 
-            for(Map.Entry entry : (Set<Map.Entry>)params.entrySet())
+            for(Map.Entry<String,Serializable> entry : (Set<Map.Entry<String,Serializable>>)params.entrySet())
             {
-                externalParams.put(db.adaptCase((String)entry.getKey()), entry.getValue());
+                externalParams.put(db.adaptCase(entry.getKey()), entry.getValue());
             }
 
             /* 1) try to get a root attribute */
@@ -251,13 +254,32 @@ public class DBReference extends HashMap<String, Object> implements HasParametri
     }
 
     /**
+     * Default method handler, called by Velocity when it did not find the specified method.
+     *
+     * @param key asked key
+     * @param params passed parameters
+     * @see HasParametrizedGetter
+     * @deprecated
+     */
+    @Deprecated
+    public Serializable getWithParams(String key, Map params)
+    {
+        SlotMap p = new SlotHashMap();
+        for(Map.Entry entry: (Set<Map.Entry>)params.entrySet())
+        {
+            p.put((String)entry.getKey(), (Serializable)entry.getValue());
+        }
+        return getWithParams(key, p);
+    }
+
+    /**
      * Generic setter used to set external params for children attributes.
      *
      * @param key name of the external parameter
      * @param value value given to the external parameter
      * @return the previous value, if any
      */
-    public Object put(String key, Object value)
+    public Serializable put(String key, Serializable value)
     {
         /*
          * Clear actual values in the cache, because the value of attributes may change...
@@ -265,7 +287,7 @@ public class DBReference extends HashMap<String, Object> implements HasParametri
         for(Iterator i = cache.keySet().iterator(); i.hasNext(); )
         {
             Object k = i.next();
-            Object v = cache.get(k);
+            Serializable v = cache.get(k);
 
             if(!(v instanceof AttributeReference) &&!(v instanceof EntityReference))
             {
@@ -290,7 +312,7 @@ public class DBReference extends HashMap<String, Object> implements HasParametri
      *
      * @return obfuscated value
      */
-    public String obfuscate(Object value)
+    public String obfuscate(Serializable value)
     {
         return db.obfuscate(value);
     }
@@ -301,7 +323,7 @@ public class DBReference extends HashMap<String, Object> implements HasParametri
      *
      * @return obfuscated value
      */
-    public String deobfuscate(Object value)
+    public String deobfuscate(Serializable value)
     {
         return db.deobfuscate(value);
     }
@@ -343,12 +365,12 @@ public class DBReference extends HashMap<String, Object> implements HasParametri
      * A cache used by the generic getter. Its purpose is to avoid the creation of several
      * attribute references for the same multivalued attribute.
      */
-    private Map<String, Object> cache = null;
+    private SlotMap cache = null;
 
     /**
      * The map of external query parameters used by children attributes.
      */
-    private Map<String, Object> externalParams = null;
+    private SlotMap externalParams = null;
 
 //  public void displayStats() { db.displayStats(); }
 }
