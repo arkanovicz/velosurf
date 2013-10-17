@@ -30,6 +30,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import velosurf.context.Instance;
 import velosurf.util.*;
 import velosurf.web.l10n.Localizer;
 
@@ -295,9 +296,19 @@ public class AuthenticationFilter implements Filter
 
         String login = null, password = null;
 
+        Instance logged = ( session == null ? null : (Instance)session.getAttribute(USER) );
+
+        // log out guest if a user is trying to log in
+        if(allowGuest && logged != null && "guest".equals(logged.get("login")) && uri.endsWith("/login.do"))
+        {
+          logged = null;
+          session.removeAttribute(USER);
+          session.removeAttribute(LOGIN);
+        }
+
         if (session != null
-                && session.getId().equals(request.getRequestedSessionId()) /* not needed in theory */
-                && session.getAttribute(USER) != null)
+              /*  && session.getId().equals(request.getRequestedSessionId()) // false if server has been restarted */
+            && logged != null)
         {
             /* already logged*/
 
