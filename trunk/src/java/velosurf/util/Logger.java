@@ -87,6 +87,11 @@ public class Logger
     private static boolean captureStderr;
 
     /**
+     * whether to display IP address
+     */
+    private static boolean displayIPAddress = false;
+
+    /**
      * max number of lines to log in asynchronous mode.
      */
     private static int asyncLimit = 50;
@@ -113,6 +118,14 @@ public class Logger
     public static void setDisplayTimestamps(boolean timestamps)
     {
         displayTimestamps = timestamps;
+    }
+
+    /**
+     * whether to display IP address
+     */
+    public static void setDisplayIPAddress(boolean disp)
+    {
+        displayIPAddress = disp;
     }
 
     /**
@@ -241,6 +254,14 @@ public class Logger
             case FATAL_ID :
                 prefix = " [fatal] ";
                 break;
+        }
+        if(displayIPAddress)
+        {
+            String ip = getIPAddress();
+            if(ip != null)
+            {
+                prefix += "[" + ip + "] ";
+            }
         }
         log(prefix + s);
         if(notify && level >= notifLevel && notifier != null)
@@ -556,5 +577,17 @@ public class Logger
     static public boolean getNotifierEnabled()
     {
         return notify && notifier != null;
+    }
+
+    protected static ThreadLocal<String> ipAddress = new ThreadLocal<String>();
+
+    public static void setIPAddress(String ip)
+    {
+        ipAddress.set(ip);
+    }
+
+    public static String getIPAddress()
+    {
+      return ipAddress.get();
     }
 }
