@@ -18,12 +18,14 @@
 
 package velosurf.model;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import velosurf.sql.ConnectionWrapper;
 import velosurf.sql.PooledPreparedStatement;
+import velosurf.util.SlotMap;
 import velosurf.util.StringLists;
 
 /**
@@ -71,7 +73,7 @@ public class Transaction extends Action
      * @exception SQLException thrown from the database
      * @return number of affected rows (addition of all the partial counts)
      */
-    public int perform(Map<String, Object> source) throws SQLException
+    public int perform(SlotMap source) throws SQLException
     {
         ConnectionWrapper conn = db.getTransactionConnection();
 

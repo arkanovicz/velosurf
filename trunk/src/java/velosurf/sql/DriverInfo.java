@@ -1,5 +1,6 @@
 package velosurf.sql;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,7 +23,7 @@ import velosurf.util.Logger;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-public class DriverInfo
+public class DriverInfo implements Serializable
 {
     /**
      * Get a driver info by url and driver class.

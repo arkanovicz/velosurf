@@ -18,6 +18,7 @@
 
 package velosurf.context;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ import velosurf.util.Logger;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public class RowIterator implements Iterator<Instance>, RowHandler
+public class RowIterator implements Iterator<Instance>, RowHandler, Serializable
 {
     /**
      * Build a new RowIterator.
@@ -168,10 +169,10 @@ public class RowIterator implements Iterator<Instance>, RowHandler
      * @param key the name of an existing column or attribute
      * @return an entity, an attribute reference, an instance, a string or null
      */
-    public Object get(Object key)
+    public Serializable get(Object key)
     {
         String property = (String)key;
-        Object result = null;
+        Serializable result = null;
 
         try
         {
@@ -211,7 +212,7 @@ public class RowIterator implements Iterator<Instance>, RowHandler
                 }
                 else
                 {
-                    result = resultSet.getObject(property);
+                  result = (Serializable)resultSet.getObject(property);
                 }
             }
         }

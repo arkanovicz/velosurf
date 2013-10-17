@@ -18,6 +18,7 @@
 
 package velosurf.model;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import velosurf.sql.Database;
 import velosurf.util.Logger;
+import velosurf.util.SlotMap;
 import velosurf.util.StringLists;
 
 /**
@@ -33,7 +35,7 @@ import velosurf.util.StringLists;
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
-public class Action
+public class Action implements Serializable
 {
     /**
      * Constructor.
@@ -82,7 +84,7 @@ public class Action
      * @exception SQLException an SQL problem occurs
      * @return number of impacted rows
      */
-    public int perform(Map<String, Object> source) throws SQLException
+    public int perform(SlotMap source) throws SQLException
     {
         List params = buildArrayList(source);
 
@@ -96,7 +98,7 @@ public class Action
      * @exception SQLException thrown by the ReadOnlyMap
      * @return the list of values
      */
-    public List<Object> buildArrayList(Map<String, Object> source) throws SQLException
+    public List<Object> buildArrayList(SlotMap source) throws SQLException
     {
         List<Object> result = new ArrayList<Object>();
 

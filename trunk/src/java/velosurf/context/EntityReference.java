@@ -18,13 +18,17 @@
 
 package velosurf.context;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import velosurf.model.Entity;
 import velosurf.util.Logger;
+import velosurf.util.SlotHashMap;
+import velosurf.util.SlotMap;
 import velosurf.util.UserContext;
 
 /**
@@ -32,7 +36,7 @@ import velosurf.util.UserContext;
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public class EntityReference implements Iterable
+public class EntityReference implements Iterable, Serializable
 {
     /**
      * Builds a new EntityReference.
@@ -58,7 +62,7 @@ public class EntityReference implements Iterable
      * @param values col -> value map
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
-    public boolean insert(Map<String, Object> values)
+    public boolean insert(SlotMap values)
     {
         try
         {
@@ -73,11 +77,29 @@ public class EntityReference implements Iterable
     }
 
     /**
+     * Insert a new row in this entity's table.
+     *
+     * @param values col -> value map
+     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
+     * @deprecated
+     */
+    @Deprecated
+    public boolean insert(Map<String,Object> values)
+    {
+        SlotMap v = new SlotHashMap();
+        for(Map.Entry<String,Object> entry: (Set<Map.Entry<String,Object>>)values.entrySet())
+        {
+            v.put(entry.getKey(), (Serializable)entry.getValue());
+        }
+        return insert(v);
+    }
+
+    /**
      * Returns the ID of the last inserted row (obfuscated if needed).
      *
      * @return last insert ID
      */
-    public Object getLastInsertID()
+    public Serializable getLastInsertID()
     {
         long id = entity.getDB().getUserContext().getLastInsertedID(entity);
 
@@ -92,11 +114,52 @@ public class EntityReference implements Iterable
      * @param values col -> value map
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
-    public boolean update(Map<String, Object> values)
+    public boolean update(SlotMap values)
     {
         try
         {
             return entity.update(values);
+        }
+        catch(SQLException sqle)
+        {
+            Logger.log(sqle);
+            entity.getDB().setError(sqle.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * <p>Update a row in this entity's table.</p>
+     *
+     * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
+     *
+     * @param values col -> value map
+     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
+     */
+    @Deprecated
+    public boolean update(Map<String,Object> values)
+    {
+        SlotMap v = new SlotHashMap();
+        for(Map.Entry<String,Object> entry: (Set<Map.Entry<String,Object>>)values.entrySet())
+        {
+            v.put(entry.getKey(), (Serializable)entry.getValue());
+        }
+        return update(v);
+    }
+
+    /**
+     * <p>Upsert a row in this entity's table.</p>
+     *
+     * <p>Primary key must be a single column.</p>
+     *
+     * @param values col -> value map
+     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
+     */
+    public boolean upsert(SlotMap values)
+    {
+        try
+        {
+            return entity.upsert(values);
         }
         catch(SQLException sqle)
         {
@@ -113,20 +176,18 @@ public class EntityReference implements Iterable
      *
      * @param values col -> value map
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
+     * @deprecated
      */
-    public boolean upsert(Map<String, Object> values)
-    {
-        try
+     @Deprecated
+     public boolean upsert(Map<String,Object> values)
+     {
+        SlotMap v = new SlotHashMap();
+        for(Map.Entry<String,Object> entry: (Set<Map.Entry<String,Object>>)values.entrySet())
         {
-            return entity.upsert(values);
+            v.put(entry.getKey(), (Serializable)entry.getValue());
         }
-        catch(SQLException sqle)
-        {
-            Logger.log(sqle);
-            entity.getDB().setError(sqle.getMessage());
-            return false;
-        }
-    }
+        return upsert(v);         
+     }
 
     /**
      * <p>Detele a row from this entity's table.</p>
@@ -136,8 +197,8 @@ public class EntityReference implements Iterable
      * @param values col -> value map
      * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
      */
-    public boolean delete(Map<String, Object> values)
-    {
+      public boolean delete(SlotMap values)
+      {
         try
         {
             return entity.delete(values);
@@ -148,7 +209,27 @@ public class EntityReference implements Iterable
             entity.getDB().setError(sqle.getMessage());
             return false;
         }
-    }
+     }
+
+    /**
+     * <p>Detele a row from this entity's table.</p>
+     *
+     * <p>Velosurf will ensure all key columns are specified, to avoid an accidental massive update.</p>
+     *
+     * @param values col -> value map
+     * @return <code>true</code> if successfull, <code>false</code> if an error occurs (in which case $db.error can be checked).
+     * @deprecated
+     */
+      @Deprecated
+      public boolean delete(Map<String,Object> values)
+      {
+        SlotMap v = new SlotHashMap();
+        for(Map.Entry<String,Object> entry: (Set<Map.Entry<String,Object>>)values.entrySet())
+        {
+            v.put(entry.getKey(), (Serializable)entry.getValue());
+        }
+        return delete(v);
+      }
 
     /**
      * <p>Detele a row from this entity's table, specifying the value of its unique key column.</p>
@@ -222,7 +303,7 @@ public class EntityReference implements Iterable
      * @return an Instance, or null if an error occured (in which case
      *     $db.error can be checked)
      */
-    public Instance fetch(Map<String, Object> values)
+    public Instance fetch(SlotMap values)
     {
         try
         {
@@ -236,6 +317,25 @@ public class EntityReference implements Iterable
             entity.getDB().setError(sqle.getMessage());
             return null;
         }
+    }
+
+    /**
+     * Fetch an Instance of this entity, specifying the values of its key columns in the map.
+     *
+     * @param values key=>value map
+     * @return an Instance, or null if an error occured (in which case
+     *     $db.error can be checked)
+     * @deprecated
+     */
+    @Deprecated
+    public Instance fetch(Map<String,Object> values)
+    {
+        SlotMap v = new SlotHashMap();
+        for(Map.Entry<String,Object> entry: (Set<Map.Entry<String,Object>>)values.entrySet())
+        {
+            v.put(entry.getKey(), (Serializable)entry.getValue());
+        }
+        return fetch(v);
     }
 
     /**
@@ -415,7 +515,7 @@ public class EntityReference implements Iterable
      * @param values the Map object containing the values
      * @return the newly created instance
      */
-    public Instance newInstance(Map<String, Object> values)
+    public Instance newInstance(SlotMap values)
     {
         Instance instance = entity.newInstance(values);
 
@@ -423,11 +523,29 @@ public class EntityReference implements Iterable
     }
 
     /**
+     * Build a new instance from a Map object.
+     *
+     * @param values the Map object containing the values
+     * @return the newly created instance
+     * @deprecated
+     */
+    @Deprecated
+    public Instance newInstance(Map<String,Object> values)
+    {
+        SlotMap v = new SlotHashMap();
+        for(Map.Entry<String,Object> entry: (Set<Map.Entry<String,Object>>)values.entrySet())
+        {
+            v.put(entry.getKey(), (Serializable)entry.getValue());
+        }
+        return newInstance(v);
+    }
+
+    /**
      * Validate values of this instance.
      * @param values
      * @return true if values are valid with respect to defined column constraints
      */
-    public boolean validate(Map<String, Object> values)
+    public boolean validate(SlotMap values)
     {
         try
         {

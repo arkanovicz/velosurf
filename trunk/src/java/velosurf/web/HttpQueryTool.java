@@ -18,10 +18,13 @@
 
 package velosurf.web;
 
+import java.io.Serializable;
 import java.util.*;
 import org.apache.velocity.tools.view.context.ViewContext;
 import org.apache.velocity.tools.view.tools.ParameterParser;
 import velosurf.util.Logger;
+import velosurf.util.SlotHashMap;
+import velosurf.util.SlotMap;
 
 /**
  * <p>(Deprecated - please use org.apache.velocity.tools.view.ParameterTool)</p>
@@ -35,10 +38,10 @@ import velosurf.util.Logger;
  *
  */
 public @Deprecated
-class HttpQueryTool extends ParameterParser
+class HttpQueryTool extends ParameterParser implements Serializable
 {
     /** extra values map. */
-    private Map<String, Object> extraValues = new HashMap<String, Object>();
+    private SlotMap extraValues = new SlotHashMap();
 
     /**
      * Constructor.
@@ -70,14 +73,14 @@ class HttpQueryTool extends ParameterParser
                     value = ((String[])value)[0];
                 }
 
-                Map map = (Map)extraValues.get(parentKey);
+                SlotMap map = (SlotMap)extraValues.get(parentKey);
 
                 if(map == null)
                 {
-                    map = new HashMap();
+                    map = new SlotHashMap();
                     extraValues.put(parentKey, map);
                 }
-                map.put(subKey, value);
+                map.put(subKey, (Serializable)value);
             }
         }
     }
@@ -119,7 +122,7 @@ class HttpQueryTool extends ParameterParser
      */
     public Object put(String key, Object value)
     {
-        return extraValues.put(key, value);
+      return extraValues.put(key, (Serializable)value);
     }
 
     /**
@@ -241,7 +244,7 @@ class HttpQueryTool extends ParameterParser
         Map map = new HashMap();
         Set<Entry<String, Object>> coll = getSource().entrySet();
 
-        for(Entry entry : coll)
+        for(Map.Entry<String,Object> entry : coll)
         {
             Object value = entry.getValue();
 
@@ -252,9 +255,10 @@ class HttpQueryTool extends ParameterParser
             map.put(entry.getKey(), value);
         }
 
+        map.putAll(extraValues);
+
         Set<Entry<String, Object>> ret = new HashSet(map.entrySet());
 
-        ret.addAll(extraValues.entrySet());
         return ret;
     }
 

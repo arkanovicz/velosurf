@@ -18,6 +18,7 @@
 
 package velosurf.sql;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -35,7 +36,7 @@ public interface RowHandler
      * @param key the name of the property to return
      * @return the value of the property, or null if not found
      */
-    public Object get(Object key) throws SQLException;
+    public Serializable get(Object key) throws SQLException;
 
     /**
      * Get keys set.

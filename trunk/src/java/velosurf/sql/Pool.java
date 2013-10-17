@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-
-
 package velosurf.sql;
+
+import java.io.Serializable;
 
 /**
  * This interface represents a generic pool of objects - no real need for now.
@@ -24,4 +24,6 @@ package velosurf.sql;
  *  @author <a href='mailto:claude.brisson@gmail.com'>Claude Brisson</a>
  *
  */
-public interface Pool{}
+public interface Pool extends Serializable
+{
+}

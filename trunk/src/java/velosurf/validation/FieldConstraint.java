@@ -18,6 +18,7 @@
 
 package velosurf.validation;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Locale;
 
@@ -27,7 +28,7 @@ import java.util.Locale;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-public abstract class FieldConstraint
+public abstract class FieldConstraint implements Serializable
 {
     /**
      * validate data against this constraint.

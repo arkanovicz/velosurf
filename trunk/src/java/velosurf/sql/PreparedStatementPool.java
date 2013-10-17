@@ -72,8 +72,7 @@ public class PreparedStatementPool implements /* Runnable, */ Pool
                 if(!statement.isInUse() &&!(connection = (ConnectionWrapper)statement.getConnection()).isBusy())
                 {
                     // check connection
-                    if(!checkConnections || System.currentTimeMillis() - connection.getLastUse() < checkInterval
-                        || connection.check())
+                  if(!connection.isClosed() && (!checkConnections || System.currentTimeMillis() - connection.getLastUse() < checkInterval || connection.check()))
                     {
                         statement.notifyInUse();
                         return statement;
@@ -149,7 +148,7 @@ public class PreparedStatementPool implements /* Runnable, */ Pool
      *  drop all statements relative to a specific connection
      * @param connection the connection
      */
-    private void dropConnection(Connection connection)
+    private void dropConnection(ConnectionWrapper connection)
     {
         for(Iterator it = statementsMap.keySet().iterator(); it.hasNext(); )
         {
@@ -157,12 +156,15 @@ public class PreparedStatementPool implements /* Runnable, */ Pool
             {
                 PooledPreparedStatement statement = (PooledPreparedStatement)jt.next();
 
-                try
+                if(statement.getConnection() == connection)
                 {
-                    statement.close();
+                    try
+                    {
+                        statement.close();
+                    }
+                    catch(SQLException sqle) {}
+                    statement.setInvalid();
                 }
-                catch(SQLException sqle) {}
-                statement.setInvalid();
             }
         }
         try

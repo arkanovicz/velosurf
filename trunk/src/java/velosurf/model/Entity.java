@@ -19,6 +19,7 @@
 package velosurf.model;
 
 import java.lang.reflect.Constructor;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.*;
@@ -30,6 +31,7 @@ import velosurf.sql.Database;
 import velosurf.sql.PooledPreparedStatement;
 import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
+import velosurf.util.SlotMap;
 import velosurf.util.StringLists;
 import velosurf.util.UserContext;
 import velosurf.validation.FieldConstraint;
@@ -40,7 +42,7 @@ import org.apache.commons.lang.StringEscapeUtils;
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
-public class Entity
+public class Entity implements Serializable
 {
     /**
      * Constructor reserved for the framework.
@@ -236,7 +238,7 @@ public class Entity
             }
         }
         /* fills the cache for the full caching method */
-        if(cachingMethod == Cache.FULL_CACHE)
+        if(cachingMethod == Cache.FULL_CACHE && cache != null)
         {
             try
             {
@@ -305,7 +307,7 @@ public class Entity
      * @param values the Map object containing the values
      * @return the newly created instance
      */
-    public Instance newInstance(Map<String,Object> values)
+    public Instance newInstance(SlotMap values)
     {
         return newInstance(values,false);
     }
@@ -317,13 +319,13 @@ public class Entity
      * @param useSQLnames map keys use SQL column names that must be translated to aliases
      * @return the newly created instance
      */
-    public Instance newInstance(Map<String,Object> values,boolean useSQLnames)
+    public Instance newInstance(SlotMap values,boolean useSQLnames)
     {
         try
         {
             Instance result = newInstance();
             extractColumnValues(values,result,useSQLnames);
-            if (cachingMethod != Cache.NO_CACHE)
+            if (cachingMethod != Cache.NO_CACHE && cache != null)
             {
                 Object key = buildKey(result);
                 if (key != null)
@@ -344,9 +346,9 @@ public class Entity
      * @param instance instance
      * @throws SQLException
      */
-    public void invalidateInstance(Map<String,Object> instance) throws SQLException
+    public void invalidateInstance(SlotMap instance) throws SQLException
     {
-        if (cachingMethod != Cache.NO_CACHE)
+        if (cachingMethod != Cache.NO_CACHE && cache != null)
         {
             Object key = buildKey(instance);
             if(key != null)
@@ -363,7 +365,7 @@ public class Entity
      * @param target Map target object
      * @param SQLNames the source uses SQL names
      */
-    private void extractColumnValues(Map<String,Object> source,Map<String,Object> target,boolean SQLNames) throws SQLException
+    private void extractColumnValues(SlotMap source,SlotMap target,boolean SQLNames) throws SQLException
     {
         /* TODO: cache a case-insensitive version of the columns list and iterate on source keys, with equalsIgnoreCase (or more efficient) funtion */
         /* We use keySet and not entrySet here because if the source map is a ReadOnlyMap, entrySet is not available */
@@ -381,7 +383,7 @@ public class Entity
                 continue;
             }
 
-            Object val = source.get(key);
+            Serializable val = source.get(key);
 	    if(val != null && val.getClass().isArray())
             {
 		Logger.error("array cell values not supported");
@@ -404,7 +406,7 @@ public class Entity
      *     SQLException
      * @return an array containing all key values
      */
-    private Object buildKey(Map<String,Object> values) throws SQLException
+    private Object buildKey(SlotMap values) throws SQLException
     {
         if(keyCols.size() == 0) return null;
         Object [] key = new Object[keyCols.size()];
@@ -565,7 +567,7 @@ public class Entity
      * @param values the  Map object containing the values
      * @return success indicator
      */
-    public boolean insert(Map<String,Object> values) throws SQLException
+    public boolean insert(SlotMap values) throws SQLException
     {
         if (readOnly)
         {
@@ -595,7 +597,7 @@ public class Entity
         }
         /* try again to put it in the cache since previous attempt may have failed
            in case there are auto-incremented columns */
-        if (success && cachingMethod != Cache.NO_CACHE)
+        if (success && cachingMethod != Cache.NO_CACHE && cache != null)
         {
             Object key = buildKey(instance);
             if (key != null)
@@ -612,7 +614,7 @@ public class Entity
      * @param values the Map object containing the values
      * @return success indicator
      */
-    public boolean update(Map<String,Object> values) throws SQLException
+    public boolean update(SlotMap values) throws SQLException
     {
         if (readOnly)
         {
@@ -629,7 +631,7 @@ public class Entity
      * @param values the Map object containing the values
      * @return success indicator
      */
-    public boolean upsert(Map<String,Object> values) throws SQLException
+    public boolean upsert(SlotMap values) throws SQLException
     {
         if (readOnly)
         {
@@ -646,7 +648,7 @@ public class Entity
      * @param values the Map containing the values
      * @return success indicator
      */
-    public boolean delete(Map<String,Object> values) throws SQLException
+    public boolean delete(SlotMap values) throws SQLException
     {
         if (readOnly)
         {
@@ -730,7 +732,7 @@ public class Entity
         }
         Instance instance = null;
         // try in cache
-        if (cachingMethod != Cache.NO_CACHE)
+        if (cachingMethod != Cache.NO_CACHE && cache != null)
         {
             instance = (Instance)cache.get(buildKey(values));
         }
@@ -763,7 +765,7 @@ public class Entity
      * @param values the Map containing the key values
      * @return the fetched instance
      */
-    public Instance fetch(Map<String,Object> values) throws SQLException
+    public Instance fetch(SlotMap values) throws SQLException
     {
         if(keyCols.size() == 0)
         {
@@ -773,7 +775,7 @@ public class Entity
         /* extract key values */
         Object key[] = new Object[keyCols.size()];
         int n = 0;
-        for(Map.Entry<String,Object> entry:values.entrySet())
+        for(Map.Entry<String,Serializable> entry:values.entrySet())
         {
             String col = resolveName(entry.getKey());
             int i = keyCols.indexOf(col);
@@ -795,7 +797,7 @@ public class Entity
             }
             throw new SQLException("entity "+name+".fetch(): missing key values! Missing values: "+missing);
         }
-        if (cachingMethod != Cache.NO_CACHE)
+        if (cachingMethod != Cache.NO_CACHE && cache != null)
         {
             // try in cache
             instance = (Instance)cache.get(key);
@@ -844,7 +846,7 @@ public class Entity
         Instance instance = null;
 
         // try in cache
-        if (cachingMethod != Cache.NO_CACHE)
+        if (cachingMethod != Cache.NO_CACHE && cache != null)
         {
             instance = (Instance)cache.get(new Object[] { keyValue });
         }
@@ -889,7 +891,7 @@ public class Entity
         Instance instance = null;
 
         // try in cache
-        if (cachingMethod != Cache.NO_CACHE)
+        if (cachingMethod != Cache.NO_CACHE && cache != null)
         {
           Number cacheKeyValue = keyValue instanceof Integer ? keyValue.longValue() : keyValue;
             instance = (Instance)cache.get(buildKey(keyValue));
@@ -1076,7 +1078,7 @@ public class Entity
      *  @param id id value
      *  @return filtered id value (that is, obfuscated if needed)
      */
-    public Object filterID(Long id)
+    public Serializable filterID(Long id)
     {
         if (keyCols.size() == 1 && isObfuscated((String)keyCols.get(0)))
         {
@@ -1131,7 +1133,7 @@ public class Entity
     /**
      * Validate a set of values.
      */
-    public boolean validate(Map<String,Object> row) throws SQLException
+    public boolean validate(SlotMap row) throws SQLException
     {
         boolean ret = true;
 
@@ -1142,10 +1144,10 @@ public class Entity
            */
         userContext.clearValidationErrors();
         List<ValidationError> errors = new ArrayList<ValidationError>();
-        for(Map.Entry<String,Object> entry:row.entrySet())
+        for(Map.Entry<String,Serializable> entry:row.entrySet())
         {
             String col = resolveName(entry.getKey());
-            Object data = entry.getValue();
+            Serializable data = entry.getValue();
             List<FieldConstraint> list = constraints.get(col);
             if(list != null)
             {
@@ -1181,7 +1183,7 @@ public class Entity
         return ret;
     }
 
-    public class ColumnOrderComparator implements Comparator<String>
+    public class ColumnOrderComparator implements Comparator<String>, Serializable
     {
         public int compare(String o1, String o2)
         {
@@ -1281,7 +1283,7 @@ public class Entity
         return null;
     }
 
-    public Object filterIncomingValue(String column,Object value)
+    public Serializable filterIncomingValue(String column,Serializable value)
     {
         if(value == null)
         {
@@ -1433,7 +1435,7 @@ public class Entity
     /**
      * The cache.
      */
-    private Cache cache = null;
+    private transient Cache cache = null;
     
     /**
      * Constraint by column name map.

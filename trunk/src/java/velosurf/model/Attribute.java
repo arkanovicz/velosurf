@@ -18,6 +18,7 @@
 
 package velosurf.model;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -26,6 +27,7 @@ import velosurf.context.RowIterator;
 import velosurf.sql.Database;
 import velosurf.sql.SqlUtil;
 import velosurf.util.Logger;
+import velosurf.util.SlotMap;
 import velosurf.util.StringLists;
 
 /**
@@ -34,7 +36,7 @@ import velosurf.util.StringLists;
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
-public class Attribute
+public class Attribute implements Serializable
 {
     /**
      * Constant meaning the return type is undefined.
@@ -140,7 +142,7 @@ public class Attribute
      * @exception SQLException when thrown by the database
      * @return instance fetched
      */
-    public Object fetch(Map<String, Object> source) throws SQLException
+    public Serializable fetch(SlotMap source) throws SQLException
     {
         if(type != ROW)
         {
@@ -156,7 +158,7 @@ public class Attribute
      * @exception SQLException when thrown from the database
      * @return the resulting row iterator
      */
-    public RowIterator query(Map<String, Object> source) throws SQLException
+    public RowIterator query(SlotMap source) throws SQLException
     {
         return query(source, null, null);
     }
@@ -170,7 +172,7 @@ public class Attribute
      * @exception SQLException when thrown by the database
      * @return the resulting row iterator
      */
-    public RowIterator query(Map<String, Object> source, List refineCriteria, String order) throws SQLException
+    public RowIterator query(SlotMap source, List refineCriteria, String order) throws SQLException
     {
         if(type != ROWSET)
         {
@@ -227,7 +229,7 @@ public class Attribute
      * @exception SQLException when thrown from the database
      * @return the resulting scalar
      */
-    public Object evaluate(Map<String, Object> source) throws SQLException
+    public Serializable evaluate(SlotMap source) throws SQLException
     {
         if(type != SCALAR)
         {
@@ -253,7 +255,7 @@ public class Attribute
      * @exception SQLException thrown by the database engine
      * @return the built list
      */
-    private List<Object> buildArrayList(Map<String, Object> source) throws SQLException
+    private List<Object> buildArrayList(SlotMap source) throws SQLException
     {
         List<Object> result = new ArrayList<Object>();
 

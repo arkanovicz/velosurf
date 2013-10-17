@@ -18,6 +18,7 @@
 
 package velosurf.sql;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.List;
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
-public abstract class PooledStatement implements RowHandler
+public abstract class PooledStatement implements RowHandler, Serializable
 {
     /**
      * build a new pooled object.
@@ -156,7 +157,7 @@ public abstract class PooledStatement implements RowHandler
     /**
      * result set.
      */
-    protected ResultSet resultSet = null;
+    protected transient ResultSet resultSet = null;
 
     /**
      * column names in natural order.

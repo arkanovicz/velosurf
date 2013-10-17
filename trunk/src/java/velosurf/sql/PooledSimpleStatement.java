@@ -18,6 +18,7 @@
 
 package velosurf.sql;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -29,6 +30,8 @@ import java.util.TreeMap;
 import velosurf.context.RowIterator;
 import velosurf.model.Entity;
 import velosurf.util.Logger;
+import velosurf.util.SlotMap;
+import velosurf.util.SlotTreeMap;
 
 /**
  * this class encapsulates a jdbc Statement.
@@ -48,6 +51,17 @@ public class PooledSimpleStatement extends PooledStatement
     {
         this.connection = connection;
         this.statement = statement;
+    }
+
+    /**
+     * check whether this pooled object is marked as valid or invalid.
+     * (used in the recovery process)
+     *
+     * @return whether this object is in use
+     */
+    public boolean isValid()
+    {
+        return super.isValid() && statement != null;
     }
 
     /**
@@ -98,7 +112,7 @@ public class PooledSimpleStatement extends PooledStatement
      * @exception SQLException thrown by the database engine
      * @return fetched row
      */
-    public synchronized Object fetch(String query) throws SQLException
+    public synchronized Serializable fetch(String query) throws SQLException
     {
         return fetch(query, null);
     }
@@ -111,7 +125,7 @@ public class PooledSimpleStatement extends PooledStatement
      * @exception SQLException thrown by the database engine
      * @return the fetched Instance
      */
-    public synchronized Object fetch(String query, Entity resultEntity) throws SQLException
+    public synchronized Serializable fetch(String query, Entity resultEntity) throws SQLException
     {
         try
         {
@@ -130,7 +144,7 @@ public class PooledSimpleStatement extends PooledStatement
                 connection.leaveBusyState();
             }
 
-            Map<String, Object> row = null;
+            SlotMap row = null;
 
             if(hasNext)
             {
@@ -140,20 +154,20 @@ public class PooledSimpleStatement extends PooledStatement
                 }
                 else
                 {
-                    row = new TreeMap<String, Object>();
+                    row = new SlotTreeMap();
                     if(columnNames == null)
                     {
                         columnNames = SqlUtil.getColumnNames(resultSet);
                     }
                     for(String column : columnNames)
                     {
-                        Object value = resultSet.getObject(column);
+                      Serializable value = (Serializable)resultSet.getObject(column);
 
                         row.put(Database.adaptContextCase(column), value);
                     }
                 }
             }
-            return row;
+            return (Serializable)row;
         }
         finally
         {
@@ -168,17 +182,18 @@ public class PooledSimpleStatement extends PooledStatement
      * @exception SQLException thrown by the database engine
      * @return object value
      */
-    public Object get(Object key) throws SQLException
+    public Serializable get(Object key) throws SQLException
     {
-        if(!(key instanceof String))
+        if(!(key instanceof String) || resultSet == null)
         {
             return null;
         }
-        return resultSet.getObject((String)key);
+        return (Serializable)resultSet.getObject((String)key);
     }
 
     public Set<String> keySet() throws SQLException
     {
+        if(resultSet == null) new HashSet<String>();
         return new HashSet<String>(SqlUtil.getColumnNames(resultSet));
     }
 
@@ -189,7 +204,7 @@ public class PooledSimpleStatement extends PooledStatement
      * @exception SQLException thrown by the database engine
      * @return found scalar
      */
-    public synchronized Object evaluate(String query) throws SQLException
+    public synchronized Serializable evaluate(String query) throws SQLException
     {
         Logger.trace("evaluate-" + query);
 
@@ -212,7 +227,7 @@ public class PooledSimpleStatement extends PooledStatement
             connection.leaveBusyState();
             notifyOver();
         }
-        return result;
+        return (Serializable)result;
     }
 
     /**
@@ -285,5 +300,5 @@ public class PooledSimpleStatement extends PooledStatement
     /**
      * wrapped statement.
      */
-    private Statement statement = null;
+    private transient Statement statement = null;
 }

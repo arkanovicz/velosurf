@@ -1,10 +1,14 @@
 package velosurf.context;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import velosurf.model.Entity;
 import velosurf.util.Logger;
+import velosurf.util.SlotHashMap;
+import velosurf.util.SlotMap;
 
 /**
  * <p>This wrapper allows one to specify custom mapping objects that don't inherit from Instance.</p>
@@ -43,9 +47,9 @@ public class ExternalObjectWrapper extends Instance
      * @return a String, an Instance, an AttributeReference or null if not found or if an error
      *      occurs
      */
-    public Object get(Object key)
+    public Serializable get(Object key)
     {
-        Object ret = getExternal(key);
+        Serializable ret = getExternal(key);
 
         if(ret == null)
         {
@@ -61,7 +65,7 @@ public class ExternalObjectWrapper extends Instance
      * @return a String, an Instance, an AttributeReference or null if not found or if an error
      *      occurs
      */
-    public Object getExternal(Object key)
+    public Serializable getExternal(Object key)
     {
         Method m = classInfo.getGetter((String)key);
 
@@ -69,7 +73,7 @@ public class ExternalObjectWrapper extends Instance
         {
             try
             {
-                return m.invoke(wrapped, m.getParameterTypes().length > 0 ? new Object[] { key } : new Object[] {});    // return even if result is null
+                return (Serializable)m.invoke(wrapped, m.getParameterTypes().length > 0 ? new Object[] { key } : new Object[] {});    // return even if result is null
             }
             catch(Exception e)
             {
@@ -88,7 +92,7 @@ public class ExternalObjectWrapper extends Instance
      * @param value corresponding value
      * @return previous value, or null
      */
-    public Object put(String key, Object value)
+    public Serializable put(String key, Serializable value)
     {
         Method m = classInfo.getSetter((String)key);
 
@@ -96,7 +100,7 @@ public class ExternalObjectWrapper extends Instance
         {
             try
             {
-                return m.invoke(wrapped,
+                return (Serializable)m.invoke(wrapped,
                                 m.getParameterTypes().length == 2
                                 ? new Object[] { key, value } : new Object[] { value });
             }
@@ -159,7 +163,7 @@ public class ExternalObjectWrapper extends Instance
      * @return <code>true</code> if successfull, <code>false</code> if an error
      *     occurs (in which case $db.error can be checked).
      */
-    public boolean update(Map values)
+    public boolean update(SlotMap values)
     {
         Method m = classInfo.getUpdate2();
 
@@ -192,6 +196,25 @@ public class ExternalObjectWrapper extends Instance
         {
             return super.update();
         }
+    }
+
+    /**
+     * <p>Try to update the row associated with this Instance using an update(map) method
+     * in the external object.</p>
+     *
+     * @return <code>true</code> if successfull, <code>false</code> if an error
+     *     occurs (in which case $db.error can be checked).
+     * @deprecated
+     */
+    @Deprecated
+    public boolean update(Map values)
+    {
+        SlotMap v = new SlotHashMap();
+        for(Map.Entry entry: (Set<Map.Entry>)values.entrySet())
+        {
+            v.put((String)entry.getKey(), (Serializable)entry.getValue());
+        }
+        return update(v);
     }
 
     /**

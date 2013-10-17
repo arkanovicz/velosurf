@@ -1,6 +1,9 @@
 package velosurf.context;
 
+import java.io.Serializable;
 import java.util.Map;
+
+import velosurf.util.SlotMap;
 
 /**
  * Implemented by context objects that do provide a default method handler. This is used
@@ -16,5 +19,15 @@ public interface HasParametrizedGetter
      * @param key asked key
      * @param params passed parameters
      */
-    public Object getWithParams(String key, Map params);
+    public Serializable getWithParams(String key, SlotMap params);
+
+    /**
+     * Default method handler, called by Velocity when it did not find the specified method
+     *
+     * @param key asked key
+     * @param params passed parameters
+     * @deprecated
+     */
+    @Deprecated
+    public Serializable getWithParams(String key, Map params);
 }
