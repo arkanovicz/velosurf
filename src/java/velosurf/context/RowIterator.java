@@ -276,7 +276,7 @@ public class RowIterator implements Iterator<Instance>, RowHandler, Serializable
             pooledStatement.getConnection().enterBusyState();
             while(!resultSet.isAfterLast() && resultSet.next())
             {
-                ret.add(resultSet.getObject(0));
+                ret.add(resultSet.getObject(1));
             }
             return ret;
         }
