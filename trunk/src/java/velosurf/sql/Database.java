@@ -577,6 +577,27 @@ Logger.debug("setting driver manager log");
     }
 
     /**
+     * Execute a statement
+     *
+     * @param query an sql query
+     * @return the number of affected rows
+     */
+    public int execute(String query)
+    {
+        try
+        {
+            PooledSimpleStatement statement = statementPool.getStatement();
+						return statement.execute(query);
+        }
+        catch (SQLException sqle)
+        {
+            Logger.log(sqle);
+            return 0;
+        }
+    }
+
+
+    /**
      * Close the connection.
      *
      * @exception SQLException thrown by the database engine
