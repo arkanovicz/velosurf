@@ -118,29 +118,12 @@ Please specify a target among :
     </condition>
     <fail message="Velosurf requires at least Java 1.5" unless="java.version.ok"/>
 
-    <condition property="use.java.1.5">
-      <equals arg1="${ant.java.version}" arg2="1.5"/>
-    </condition>
-    <antcall target="-prepare.java.1.5"/>
-    <condition property="use.java.1.6">
-      <equals arg1="${ant.java.version}" arg2="1.6"/>
-    </condition>
-    <antcall target="-prepare.java.1.6"/>
-    
     <!-- DOWNLOAD LIBRARIES IF NEEDED -->
     <antcall target="download" />
 <!-- not downloadable libraries are kept in build.dir/lib -->
     <copy todir="${lib.dir}">
       <fileset dir="${build.dir}/lib"/>
     </copy>
-  </target>
-
-  <target name="-prepare.java.1.5" if="use.java.1.5">
-    <copy file="${src.dir}/velosurf/sql/ConnectionWrapper.java.jdk5" tofile="${src.dir}/velosurf/sql/ConnectionWrapper.java" overwrite="true"/>
-  </target>
-
-  <target name="-prepare.java.1.6" if="use.java.1.6">
-    <copy file="${src.dir}/velosurf/sql/ConnectionWrapper.java.jdk6" tofile="${src.dir}/velosurf/sql/ConnectionWrapper.java" overwrite="true"/>
   </target>
 
   <target name="clean" description="- clean all temporary build files">
