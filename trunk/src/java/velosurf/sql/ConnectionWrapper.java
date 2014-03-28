@@ -21,6 +21,7 @@ package velosurf.sql;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.sql.*;
+import java.util.concurrent.Executor;
 import java.util.Map;
 import java.util.Properties;
 import velosurf.util.Logger;
@@ -780,7 +781,7 @@ public class ConnectionWrapper
         }
     }
 
-    public void setClientInfo(String name,String value)
+    public void setClientInfo(String name,String value) throws SQLClientInfoException
     {
         try
         {
@@ -793,7 +794,7 @@ public class ConnectionWrapper
         }
     }
 
-    public void setClientInfo(Properties properties)
+    public void setClientInfo(Properties properties) throws SQLClientInfoException
     {
         try
         {
@@ -837,7 +838,7 @@ public class ConnectionWrapper
         try
         {
             enterBusyState();
-            return connection.createArrayOf(typename, elements);
+            return connection.createArrayOf(typeName, elements);
         }
         finally
         {
@@ -850,7 +851,7 @@ public class ConnectionWrapper
         try
         {
             enterBusyState();
-            return connection.createStruct(typename, attributes);
+            return connection.createStruct(typeName, attributes);
         }
         finally
         {
@@ -885,7 +886,7 @@ public class ConnectionWrapper
         }
     }
 
-		String getSchema() throws SQLException
+		public String getSchema() throws SQLException
 		{
         try
         {
@@ -898,7 +899,7 @@ public class ConnectionWrapper
         }
 		}
 		
-		void abort(Executor executor) throws SQLException
+		public void abort(Executor executor) throws SQLException
 		{
         try
         {
@@ -911,7 +912,7 @@ public class ConnectionWrapper
         }
 		}
 		
-		void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException
+		public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException
 		{
         try
         {
@@ -924,7 +925,7 @@ public class ConnectionWrapper
         }
 		}
 		
-		int getNetworkTimeout() throws SQLException
+		public int getNetworkTimeout() throws SQLException
 		{
         try
         {
