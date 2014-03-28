@@ -256,6 +256,31 @@ public class PooledSimpleStatement extends PooledStatement
     }
 
     /**
+     * issue a query returning a number of rows
+     *
+     * @param query SQL query
+     * @exception SQLException thrown by the database engine
+     * @return number of rows
+     */
+    public synchronized int execute(String query) throws SQLException
+    {
+        try
+        {
+            Logger.trace("update-" + query);
+            connection.enterBusyState();
+
+						if(statement.execute(query)) throw new SQLException("execute() method only expect methods that returns a number of rows");
+            int ret = statement.getUpdateCount();
+						return ret == -1 ? 0 : ret;
+        }
+        finally
+        {
+            connection.leaveBusyState();
+            notifyOver();
+        }
+    }
+
+    /**
      * close this statement.
      *
      * @exception SQLException thrown by the database engine
