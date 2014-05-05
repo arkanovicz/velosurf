@@ -210,9 +210,10 @@ public class DBReference extends SlotTreeMap implements HasParametrizedGetter
         {
             String property = db.adaptCase(key);
 
+						SlotMap fixedParams = new SlotTreeMap();
             for(Map.Entry<String,Serializable> entry : (Set<Map.Entry<String,Serializable>>)params.entrySet())
             {
-                externalParams.put(db.adaptCase(entry.getKey()), entry.getValue());
+                fixedParams.put(db.adaptCase(entry.getKey()), entry.getValue());
             }
 
             /* 1) try to get a root attribute */
@@ -223,13 +224,13 @@ public class DBReference extends SlotTreeMap implements HasParametrizedGetter
                 switch(attribute.getType())
                 {
                     case Attribute.ROWSET :
-                        result = new AttributeReference(this, attribute);
+                        result = new AttributeReference(fixedParams, attribute);
                         break;
                     case Attribute.SCALAR :
-                        result = attribute.evaluate(this);
+                        result = attribute.evaluate(fixedParams);
                         break;
                     case Attribute.ROW :
-                        result = attribute.fetch(this);
+                        result = attribute.fetch(fixedParams);
                         break;
                     default :
                         Logger.error("Unknown attribute type encountered: db." + property);
@@ -241,7 +242,7 @@ public class DBReference extends SlotTreeMap implements HasParametrizedGetter
 
             if(action != null)
             {
-                result = Integer.valueOf(action.perform(this));    // TODO actions should return a Long !!!!
+                result = Integer.valueOf(action.perform(fixedParams));    // TODO actions should return a Long !!!!
             }
         }
         catch(SQLException sqle)
