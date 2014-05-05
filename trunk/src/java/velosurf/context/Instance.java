@@ -215,7 +215,7 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
      * @param params passed parameters
      * @see HasParametrizedGetter
      */
-    public Serializable getWithParams(String key, SlotMap params)
+	public Serializable getWithParams(String key, SlotMap params) // CB TODO - instance should not be modified by params!!!!!
     {
         for(Map.Entry<String,Serializable> entry: (Set<Map.Entry<String,Serializable>>)params.entrySet())
         {
