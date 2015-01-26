@@ -265,6 +265,18 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
         return super.put(key,value);
     }
 
+    public synchronized boolean isDirty()
+    {
+        if(dirtyFlags != null)
+        {
+            for(int i=0; i<dirtyFlags.size(); i++)
+            {
+						    if (dirtyFlags.get(i)) return false;
+            }
+        }
+				return true;
+    }
+
     public synchronized void setClean()
     {
         if(dirtyFlags != null)
