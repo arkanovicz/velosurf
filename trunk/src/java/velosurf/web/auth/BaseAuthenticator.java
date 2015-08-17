@@ -18,8 +18,8 @@
 
 package velosurf.web.auth;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -48,7 +48,7 @@ import velosurf.util.Logger;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-public abstract class BaseAuthenticator
+public abstract class BaseAuthenticator implements Serializable
 {
     /**
      * get the password corresponding to a login.
@@ -76,9 +76,6 @@ public abstract class BaseAuthenticator
     /** length of challenge */
     private static final int CHALLENGE_LENGTH = 256;    // bits
 
-    /** keep a reference on the session */
-    private WeakReference<HttpSession> session = null;
-
     /**
      * initialize this tool.
      * @param initData a view context
@@ -92,8 +89,6 @@ public abstract class BaseAuthenticator
         }
 
         HttpSession s = ((ViewContext)initData).getRequest().getSession(true);
-
-        session = new WeakReference<HttpSession>(s);
         s.setAttribute(BaseAuthenticator.class.getName(), this);
     }
 
@@ -107,17 +102,19 @@ public abstract class BaseAuthenticator
     }
 
     /**
-     * This method generates a new challenge each time it is called.
+     * This method generates a new challenge if needed.
      *
-     * @return a new 1024-bit challenge in base64
+     * @return a 1024-bit challenge in base64
      */
     public String getChallenge()
     {
-        BigInteger bigint = new BigInteger(CHALLENGE_LENGTH, random);
-
-        challenge = new sun.misc.BASE64Encoder().encode(bigint.toByteArray());
-        challenge = challenge.replace("\n", "");
-        Logger.trace("auth: generated new challenge: " + challenge);
+        if (challenge == null)
+			  {
+            BigInteger bigint = new BigInteger(CHALLENGE_LENGTH, random);
+            challenge = new sun.misc.BASE64Encoder().encode(bigint.toByteArray());
+            challenge = challenge.replace("\n", "");
+            Logger.trace("auth: generated new challenge: " + challenge);
+				}
         return challenge;
     }
 
@@ -147,6 +144,8 @@ public abstract class BaseAuthenticator
 
         Logger.trace("auth: received=" + answer);
         Logger.trace("auth: correct =" + correctAnswer);
+        /* reset challenge */
+        challenge = null;
         return(correctAnswer != null && correctAnswer.equals(answer));
     }
 
@@ -203,21 +202,5 @@ public abstract class BaseAuthenticator
             }
         }
         return null;
-    }
-
-    public Object getLoggedUser()
-    {
-        if(session == null)
-        {
-            return null;
-        }
-
-        HttpSession sess = session.get();
-
-        if(sess == null)
-        {
-            return null;
-        }
-        return sess.getAttribute("velosurf.auth.user");
     }
 }

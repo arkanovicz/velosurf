@@ -18,6 +18,7 @@
 
 package velosurf.web.auth;
 
+import java.io.Serializable;
 import java.util.Map;
 import javax.servlet.ServletContext;
 import org.apache.velocity.tools.view.context.ViewContext;
@@ -40,7 +41,7 @@ import velosurf.web.auth.BaseAuthenticator;
  *
  *  @author <a href="mailto:claude.brisson@gmail.com">Claude Brisson</a>
  */
-public class SimpleDBAuthenticator extends BaseAuthenticator
+public class SimpleDBAuthenticator extends BaseAuthenticator implements Serializable
 {
     /** database. */
     protected DBReference db = null;
@@ -62,9 +63,6 @@ public class SimpleDBAuthenticator extends BaseAuthenticator
 
     /** default name of the "password" field. */
     private static final String PASSWORD_FIELD_DEFAULT = "password";
-
-    /** configuration. */
-    private Map config = null;
 
     /** "user by login" root attribute name. */
     private String userByLogin = USER_BY_LOGIN_DEFAULT;
@@ -89,26 +87,6 @@ public class SimpleDBAuthenticator extends BaseAuthenticator
             if(db == null)
             {
                 initDB(((ViewContext)initData).getServletContext());
-            }
-        }
-        if(config != null)
-        {
-            String value;
-
-            value = (String)config.get(USER_BY_LOGIN_KEY);
-            if(value != null)
-            {
-                userByLogin = value;
-            }
-            value = (String)config.get(PASSWORD_FIELD_KEY);
-            if(value != null)
-            {
-                passwordField = value;
-            }
-            value = (String)config.get(LOGIN_PARAMETER_KEY);
-            if(value != null)
-            {
-                loginParameter = value;
             }
         }
     }
@@ -166,9 +144,28 @@ public class SimpleDBAuthenticator extends BaseAuthenticator
      * configure this tool.
      * @param map
      */
-    public void configure(Map map)
+    public void configure(Map config)
     {
-        super.configure(map);
-        config = map;
+        super.configure(config);
+        if(config != null)
+        {
+            String value;
+
+            value = (String)config.get(USER_BY_LOGIN_KEY);
+            if(value != null)
+            {
+                userByLogin = value;
+            }
+            value = (String)config.get(PASSWORD_FIELD_KEY);
+            if(value != null)
+            {
+                passwordField = value;
+            }
+            value = (String)config.get(LOGIN_PARAMETER_KEY);
+            if(value != null)
+            {
+                loginParameter = value;
+            }
+        }
     }
 }
