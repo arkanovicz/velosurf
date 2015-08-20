@@ -176,9 +176,9 @@ public abstract class BaseAuthenticator implements Serializable
                  */
                 Mac mac = Mac.getInstance(method);
 
-                mac.init(new SecretKeySpec(password.getBytes("ISO-8859-1"), method));
+                mac.init(new SecretKeySpec(password.getBytes("UTF-8"), method));
 
-                byte[] hash = mac.doFinal(challenge.getBytes("ISO-8859-1"));
+                byte[] hash = mac.doFinal(challenge.getBytes("UTF-8"));
                 String encoded = new BASE64Encoder().encode(hash);
 
                 /* strips the last(s) '=' */
