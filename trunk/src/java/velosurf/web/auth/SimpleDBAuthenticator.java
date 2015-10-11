@@ -25,6 +25,7 @@ import org.apache.velocity.tools.view.context.ViewContext;
 import velosurf.context.DBReference;
 import velosurf.context.Instance;
 import velosurf.util.Logger;
+import velosurf.web.ContextListener;
 import velosurf.web.VelosurfTool;
 import velosurf.web.auth.BaseAuthenticator;
 
@@ -44,7 +45,8 @@ import velosurf.web.auth.BaseAuthenticator;
 public class SimpleDBAuthenticator extends BaseAuthenticator implements Serializable
 {
     /** database. */
-    protected DBReference db = null;
+    protected String configFile = null;
+    protected transient DBReference db = null;
 
     /** key used in toolbox.xml to indicate the "user by login" root attribute. */
     private static final String USER_BY_LOGIN_KEY = "user-by-login";
@@ -73,6 +75,14 @@ public class SimpleDBAuthenticator extends BaseAuthenticator implements Serializ
     /** password field name */
     private String passwordField = PASSWORD_FIELD_DEFAULT;
 
+// CB TODO - upgrade tool to 2.0 method
+// this has only be done for 'config' parameter
+
+    /**
+     * key used in the toolbox (toolbox.xml) to set the name of the config file.
+     */
+    private static final String TOOLBOX_CONFIG_FILE_KEY = "config";
+
     /**
      * initialize this tool.
      * @param initData a view context
@@ -80,22 +90,40 @@ public class SimpleDBAuthenticator extends BaseAuthenticator implements Serializ
     public void init(Object initData)
     {
         super.init(initData);
-
+        
         // init only if there was no error in super class
         if(initData instanceof ViewContext)
         {
             if(db == null)
             {
-                initDB(((ViewContext)initData).getServletContext());
+                ServletContext ctx = ((ViewContext)initData).getServletContext();
+                configFile = VelosurfTool.findConfigFile(ctx);
+                initDB(ctx);
             }
         }
     }
 
-    protected void initDB(ServletContext ctx)
+    protected void initDB()
     {
-        db = VelosurfTool.getDefaultInstance(ctx);
+        initDB(null);
     }
 
+    protected void initDB(ServletContext ctx)
+    {
+        if (ctx == null)
+        {
+            ctx = ContextListener.getCurrentContext();
+        }
+        if (configFile != null)
+        {
+            db = VelosurfTool.getInstance(configFile, ctx);
+        }
+        else
+        {
+            db = VelosurfTool.getDefaultInstance(ctx);
+        }
+    }
+	
     /**
      * externally set the db reference
      * @param db DBReference
@@ -112,6 +140,10 @@ public class SimpleDBAuthenticator extends BaseAuthenticator implements Serializ
      */
     public String getPassword(String login)
     {
+        if (db == null)
+        {
+            initDB();
+        }
         Map user = null;
 
         synchronized(db)
@@ -133,6 +165,10 @@ public class SimpleDBAuthenticator extends BaseAuthenticator implements Serializ
      */
     public Object getUser(String login)
     {
+        if (db == null)
+        {
+            initDB();
+        }
         synchronized(db)
         {
             db.put(loginParameter, login);
@@ -166,6 +202,7 @@ public class SimpleDBAuthenticator extends BaseAuthenticator implements Serializ
             {
                 loginParameter = value;
             }
+            configFile = (String)config.get(TOOLBOX_CONFIG_FILE_KEY);
         }
     }
 }

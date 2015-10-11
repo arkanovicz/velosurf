@@ -171,7 +171,7 @@ public class Velosurf extends DBReference
     }
 
     /**
-     * Lazzy initialization.
+     * Lazy initialization.
      * @param config model configuration file input stream
      * @throws SQLException
      * @throws IOException
@@ -185,7 +185,7 @@ public class Velosurf extends DBReference
     }
 
     /**
-     * Lazzy initialization.
+     * Lazy initialization.
      * @throws SQLException
      * @throws IOException
      */

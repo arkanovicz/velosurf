@@ -77,29 +77,29 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
      * @param db
      */
       public Instance(SlotMap values, Database db)
-      {
-          this.db = db;
-          for(Serializable key:values.keySet())
-          {
-              put(Database.adaptContextCase((String)key),values.get(key));
-          }
-      }
+    {
+        this.db = db;
+        for(Serializable key:values.keySet())
+        {
+            put(Database.adaptContextCase((String)key),values.get(key));
+        }
+    }
 
-     /**
-      * Initialization. Meant to be overloaded if needed.
-      * @param entity
-      */
-     public void initialize(Entity entity)
-     {
-         this.entity = entity;
-         db = this.entity.getDB();
-         localized = this.entity.hasLocalizedColumns();
-         dirtyFlags = new ArrayList();
-         for(int i=0; i<entity.getUpdatableColumns().size();i++)
-         {
-             dirtyFlags.add(false);
-         }
-     }
+    /**
+     * Initialization. Meant to be overloaded if needed.
+     * @param entity
+     */
+    public void initialize(Entity entity)
+    {
+        this.entity = entity;
+        db = this.entity.getDB();
+        localized = this.entity.hasLocalizedColumns();
+        dirtyFlags = new ArrayList();
+        for(int i=0; i<entity.getUpdatableColumns().size();i++)
+        {
+            dirtyFlags.add(false);
+        }
+    }
 
     /**
      * Get this Instance's Entity.
@@ -215,7 +215,7 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
      * @param params passed parameters
      * @see HasParametrizedGetter
      */
-	public Serializable getWithParams(String key, SlotMap params) // CB TODO - instance should not be modified by params!!!!!
+    public Serializable getWithParams(String key, SlotMap params) // CB TODO - instance should not be modified by params!!!!!
     {
         for(Map.Entry<String,Serializable> entry: (Set<Map.Entry<String,Serializable>>)params.entrySet())
         {
@@ -271,10 +271,10 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
         {
             for(int i=0; i<dirtyFlags.size(); i++)
             {
-						    if (dirtyFlags.get(i)) return false;
+                            if (dirtyFlags.get(i)) return false;
             }
         }
-				return true;
+        return true;
     }
 
     public synchronized void setClean()
@@ -691,27 +691,27 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
      */
     public String toString()
     {
-	StringBuffer ret = new StringBuffer("{");
-	boolean comma = false;
-	for(Map.Entry<String,Serializable> entry:super.entrySet())
+        StringBuffer ret = new StringBuffer("{");
+        boolean comma = false;
+        for(Map.Entry<String,Serializable> entry:super.entrySet())
         {
-	    if(comma)
+            if(comma)
             {
-		ret.append(", ");
-	    }
+                    ret.append(", ");
+            }
             else
             {
               comma = true;
             }
-	    if(!(entry.getValue() instanceof AttributeReference))
+            if(!(entry.getValue() instanceof AttributeReference))
             {
-		ret.append(entry.getKey());
-		ret.append("=");
-		ret.append(entry.getValue());
-	    }
-	}
-	ret.append("}");
-	return ret.toString();
+                ret.append(entry.getKey());
+                ret.append("=");
+                ret.append(entry.getValue());
+            }
+        }
+        ret.append("}");
+        return ret.toString();
     }
 
     /**
@@ -721,22 +721,22 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
      */
     public synchronized boolean upsert()
     {
-	List<Map<String,Object>> primkey = getPrimaryKey();
-	if(primkey.size() != 1)
+        List<Map<String,Object>> primkey = getPrimaryKey();
+        if(primkey.size() != 1)
         {
             Logger.error("Instance.upsert: singleton primary key expected"); // TODO CB - should throw/catch for homogeneity
-	    return false;
-	}
+        return false;
+        }
         Object keyVal = primkey.get(0).get("value");
-	if(keyVal == null)
+        if(keyVal == null)
         {
-	    return insert();
-	}
+            return insert();
+        }
         else
         {
             Instance previous = getEntity().fetch(String.valueOf(keyVal)); // CB  -TODO: there should be an Entity.fetch(Object) method
             return previous == null ? insert() : update();
-	}
+        }
     }
 
     /**
@@ -744,11 +744,11 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
      */
     public synchronized boolean upsert(SlotMap values)
     {
-	if (values != null && values != this)
+        if (values != null && values != this)
         {
-	    setColumnValues(values);
-	}
-	return upsert();
+            setColumnValues(values);
+        }
+        return upsert();
     }
 
     /**
