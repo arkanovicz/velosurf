@@ -189,7 +189,7 @@ public class VelosurfTool extends DBReference
      * @param ctx servelt context
      * @return found config file or null
      */
-    static String findConfigFile(ServletContext ctx)
+    public static String findConfigFile(ServletContext ctx)
     {
         /* tries with a servlet context parameter */
         String configFile = ctx.getInitParameter(WEBAPP_CONFIG_FILE_KEY);
