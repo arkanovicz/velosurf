@@ -24,8 +24,11 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import org.apache.velocity.tools.view.context.ViewContext;
+
+import org.apache.velocity.tools.view.ViewContext;
+
 import velosurf.context.DBReference;
 import velosurf.sql.Database;
 import velosurf.util.Logger;
@@ -87,8 +90,9 @@ public class VelosurfTool extends DBReference
      * Initialize this instance using the given ViewContext.
      *
      * @param viewContext initialization data
+     * @Deprecated
      */
-    public void init(Object viewContext) throws Exception
+    @Deprecated public void init(Object viewContext) throws Exception
     {
         // getservlet context
         ViewContext viewctx = null;
@@ -109,70 +113,98 @@ public class VelosurfTool extends DBReference
                          + viewContext.getClass().getName());
             System.err.println("Error: Initialization: no valid initialization data found!");
         }
+        
+        initLogger(ctx);
+        configFile = findConfigFile(ctx);
+
+        UserContext userContext = null;
+        if(viewctx != null)
+        {
+            userContext = registerUserContext(viewctx.getRequest());
+        }
+
+        initConnection(ctx, userContext);
+    }
+
+    public void configure(Map<String,Object> props) throws SQLException
+    {
+        ServletContext ctx = (ServletContext)props.get("servletContext");
+        HttpServletRequest request = (HttpServletRequest)props.get("request");
+
+        initLogger(ctx);
+        configFile = (String)props.get(TOOLBOX_CONFIG_FILE_KEY);
+        if (configFile == null)
+        {
+            configFile = findConfigFile(ctx);
+        }
+        UserContext userContext = registerUserContext(request);
+        initConnection(ctx, userContext);
+    }
+
+    protected void initLogger(ServletContext ctx)
+    {
         if(!Logger.isInitialized() && ctx != null)
         {
             Logger.setWriter(new ServletLogWriter(ctx));
         }
+    }
 
-        // get config file
-        if(configFile == null)
-        {    // if not already given by configure()
-            configFile = findConfigFile(ctx);
-        }
-
+    protected UserContext registerUserContext(HttpServletRequest request)
+    {
         UserContext userContext = null;
-
-        /* user context */
-        if(viewctx != null)
+        HttpSession session = request.getSession(false);
+        if(session != null)
         {
-            HttpSession session = viewctx.getRequest().getSession(false);
-
-            if(session != null)
+            synchronized(session)
             {
-                synchronized(session)
+                userContext = (UserContext)session.getAttribute(UserContext.USER_CONTEXT_KEY);
+                if(userContext == null)
                 {
-                    userContext = (UserContext)session.getAttribute(UserContext.USER_CONTEXT_KEY);
-                    if(userContext == null)
+                    /* check in the database if already connected */
+                    Database db = dbMap.get(configFile);
+
+                    if(db != null)
                     {
-                        /* check in the database if already connected */
-                        Database db = dbMap.get(configFile);
-
-                        if(db != null)
+                        userContext = db.getUserContext();
+                    }
+                    else
+                    {
+                        userContext = new UserContext();
+                    }
+                    session.setAttribute(UserContext.USER_CONTEXT_KEY, userContext);
+                    if(fetchLocalizer)
+                    {
+                        Localizer localizer = ToolFinder.findSessionTool(session, Localizer.class);
+                        
+                        if(localizer != null)
                         {
-                            userContext = db.getUserContext();
+                            userContext.setLocalizer(localizer);
                         }
                         else
                         {
-                            userContext = new UserContext();
-                        }
-                        session.setAttribute(UserContext.USER_CONTEXT_KEY, userContext);
-                        if(fetchLocalizer)
-                        {
-                            Localizer localizer = ToolFinder.findSessionTool(session, Localizer.class);
-
-                            if(localizer != null)
+                            // don't search for it again
+                            fetchLocalizer = false;
+                            if (request != null)
                             {
-                                userContext.setLocalizer(localizer);
-                            }
-                            else
-                            {
-                                // don't search for it again
-                                fetchLocalizer = false;
-                                userContext.setLocale(viewctx.getRequest().getLocale());
+                                userContext.setLocale(request.getLocale());
                             }
                         }
-                        else
-                        {
-                            userContext.setLocale(viewctx.getRequest().getLocale());
-                        }
+                    }
+                    else if (request != null)
+                    {
+                        userContext.setLocale(request.getLocale());
                     }
                 }
             }
         }
+        return userContext;
+    }
 
+    protected void initConnection(ServletContext ctx, UserContext userContext) throws SQLException
+    {
         /* initialize with a new or existing connection */
         Database db = getConnection(configFile, ctx);
-
+        
         if(db == null)
         {
             throw new SQLException("Could not connect to database.");
@@ -232,12 +264,6 @@ public class VelosurfTool extends DBReference
     }
 
     /**
-     * initialization from a servlet context
-     *
-     */
-    protected void initialize(ServletContext ctx){}
-
-    /**
      * key used in the deployment descriptor (web.xml) to set the name of the config file.
      */
     private static final String WEBAPP_CONFIG_FILE_KEY = "velosurf.config";
@@ -276,20 +302,6 @@ public class VelosurfTool extends DBReference
      * database connections.
      */
     private static Map<String, Database> dbMap = new HashMap<String, Database>();
-
-    /**
-     * configure.
-     *
-     * @param map parameters
-     */
-    public void configure(Map<String, String> map)
-    {
-        configFile = map.get(TOOLBOX_CONFIG_FILE_KEY);
-        if(configFile == null)
-        {
-            configFile = map.get(TOOLBOX_CONFIG_FILE_KEY2);
-        }
-    }
 
     /**
      * return the existing Database for the specified config file, or null
