@@ -12,6 +12,7 @@ public class MailNotifier implements Runnable
     private String recipient;
     private LinkedList<Notification> queue = new LinkedList<Notification>();
     private boolean running = false;
+    private Thread thread = null;
 
     class Notification
     {
@@ -34,15 +35,24 @@ public class MailNotifier implements Runnable
 
     public void start()
     {
-        new Thread(this, "email notifications").start();
+        thread = new Thread(this, "email notifications");
+        thread.start();
     }
 
     public void stop()
     {
-        running = false;
-        synchronized(this)
+        if (running)
         {
-            notify();
+            running = false;
+            synchronized(this)
+            {
+                notify();
+            }
+            try
+            {
+                thread.join();
+            }
+            catch(InterruptedException ie) {}
         }
     }
 
@@ -57,7 +67,7 @@ public class MailNotifier implements Runnable
 
     public void run()
     {
-        Notification notif;
+        Notification notif = null;
         SMTPClient client = null;
 
         try
@@ -69,10 +79,22 @@ public class MailNotifier implements Runnable
                 {
                     if(queue.size() == 0)
                     {
-                        wait();
+                        try
+                        {
+                            wait();
+                        }
+                        catch(InterruptedException ie)
+                        {
+                            running = false;
+                            break;
+                        }
                     }
-                    notif = queue.removeFirst();
+                    if (queue.size() > 0)
+                    {
+                        notif = queue.removeFirst();
+                    }
                 }
+
                 if(notif == null)
                 {
                     continue;
@@ -112,6 +134,7 @@ public class MailNotifier implements Runnable
                     client.disconnect();
                 }
                 catch(Exception e) {}
+                notif = null;
             }
         }
         catch(Exception e)
