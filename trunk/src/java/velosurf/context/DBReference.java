@@ -196,6 +196,14 @@ public class DBReference extends SlotTreeMap implements HasParametrizedGetter
     }
 
     /**
+     * <p>clear error state in user context</p>
+     */
+    public void clearError()
+    {
+        db.getUserContext().setError(null);
+    }
+
+    /**
      * Default method handler, called by Velocity when it did not find the specified method.
      *
      * @param key asked key
