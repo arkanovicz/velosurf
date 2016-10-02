@@ -396,15 +396,12 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
                 if(dirtyFlags.get(c))
                 {
                     Object value = getInternal(col);
-                    if (value!=null)
+                    updateClause.add(col+"=?");
+                    if (entity.isObfuscated(col) && value != null)
                     {
-                        updateClause.add(col+"=?");
-                        if (entity.isObfuscated(col))
-                        {
-                            value = entity.deobfuscate(value);
-                        }
-                        params.add(value);
-                    } // TODO else " = null " ? May be a configuration option.
+                        value = entity.deobfuscate(value);
+                    }
+                    params.add(value);
                 }
             }
             if(updateClause.size() ==0)
@@ -735,6 +732,24 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
         else
         {
             Instance previous = getEntity().fetch(String.valueOf(keyVal)); // CB  -TODO: there should be an Entity.fetch(Object) method
+            if (previous != null)
+            {
+                List<String> cols = entity.getUpdatableColumns();
+                for (int c = 0; c < cols.size(); c++)
+                {
+                    String col = cols.get(c);
+                    if(dirtyFlags.get(c))
+                    {
+                        Object prevValue = previous.getInternal(col);
+                        Object updatedValue = getInternal(col);
+                        if (prevValue == null && updatedValue == null ||
+                            prevValue != null && updatedValue != null && prevValue.equals(updatedValue))
+                        {
+                            dirtyFlags.set(c, false);
+                        }
+                    }
+                }
+            }
             return previous == null ? insert() : update();
         }
     }

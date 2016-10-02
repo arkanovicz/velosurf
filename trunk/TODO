@@ -57,3 +57,8 @@
  - doc: no other use in session than authenticator tools - with no cache
  - doc: logged user attribute must be refreshed
 
+--- 2016
+
+- support eq, gt, ge, lt, le for comparison operators (and replace them with the proper = < > <= >=)
+- EntityReference insert/update/upsert/delete methods which take Map<String,Object> attribute should not throw but just fail if Objects are not serializable
+X upsert should clear dirtyflags if previous instance fields are not changed
