@@ -580,19 +580,14 @@ public class Entity implements Serializable
         if (success && keyCols.size() == 1)
         {
             /* update last insert id */
-            /* TODO review usecase, this should maybe be forbidden sometimes */
-            /* FIXME for now, we catch some exceptions */
             try
             {
                 String pk = keyCols.get(0);
                 values.put(pk,instance.get(pk));
-//            catch(UnsupportedOperationException uoe)
             }
             catch(Exception e)
             {
-                Logger.warn("insert: encountered "+e.getMessage()+" while setting last inserted id value");
-                Logger.warn("insert: values are probably provided using a read-only map");
-                Logger.warn("you can probably just ignore this warning, this is a reminder for the dev community");
+                Logger.warn("insert: encountered "+e.getMessage()+" while setting last inserted id value (insert was successful)");
             }
         }
         /* try again to put it in the cache since previous attempt may have failed
@@ -639,7 +634,21 @@ public class Entity implements Serializable
             return false;
         }
         Instance instance = newInstance(values);
-        return instance.upsert();
+        boolean success = instance.upsert();
+        if (success && keyCols.size() == 1)
+        {
+            /* update last insert id */
+            try
+            {
+                String pk = keyCols.get(0);
+                values.put(pk,instance.get(pk));
+            }
+            catch(Exception e)
+            {
+                Logger.warn("upsert: encountered "+e.getMessage()+" while setting last inserted id value (insert was successful)");
+            }
+        }
+	return success;
     }
 
     /**
