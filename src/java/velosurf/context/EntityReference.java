@@ -91,7 +91,27 @@ public class EntityReference implements Iterable, Serializable
         {
             v.put(entry.getKey(), (Serializable)entry.getValue());
         }
-        return insert(v);
+	boolean ret = insert(v);
+	if (ret)
+	{
+	    List<String> pk = entity.getPKCols();
+	    if (pk.size() == 1)
+	    {
+		Object keyval = v.get(pk.get(0));
+		if (keyval != null)
+		{
+		    try
+		    {
+			values.put(pk.get(0), keyval);
+		    }
+		    catch(Exception e)
+		    {
+			Logger.warn("insert: encountered "+e.getMessage()+" while setting last inserted id value (insert was successful)");
+		    }
+		}
+	    }
+	}
+	return ret;
     }
 
     /**
@@ -186,7 +206,27 @@ public class EntityReference implements Iterable, Serializable
         {
             v.put(entry.getKey(), (Serializable)entry.getValue());
         }
-        return upsert(v);         
+	boolean ret = upsert(v);
+	if (ret)
+	{
+	    List<String> pk = entity.getPKCols();
+	    if (pk.size() == 1)
+	    {
+		Object keyval = v.get(pk.get(0));
+		if (keyval != null)
+		{
+		    try
+		    {
+			values.put(pk.get(0), keyval);
+		    }
+		    catch(Exception e)
+		    {
+			Logger.warn("upsert: encountered "+e.getMessage()+" while setting last inserted id value (insert was successful)");
+		    }
+		}
+	    }
+	}
+        return ret;
      }
 
     /**

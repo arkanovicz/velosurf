@@ -122,7 +122,7 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
      *
      * @return an ArrayList of two-entries maps ('name' & 'value')
      */
-    public List getPrimaryKey()
+    public List<SlotMap> getPrimaryKey()
     {
         List<SlotMap> result = new ArrayList<SlotMap>();
         if (entity!=null)
@@ -718,7 +718,7 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
      */
     public synchronized boolean upsert()
     {
-        List<Map<String,Object>> primkey = getPrimaryKey();
+        List<SlotMap> primkey = getPrimaryKey();
         if(primkey.size() != 1)
         {
             Logger.error("Instance.upsert: singleton primary key expected"); // TODO CB - should throw/catch for homogeneity
@@ -763,7 +763,29 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
         {
             setColumnValues(values);
         }
-        return upsert();
+        boolean ret = upsert();
+	if (ret)
+	{
+	    // for the time being, it means key is a single column
+	    List<SlotMap> primkey = getPrimaryKey();
+	    if (primkey.size() == 1)
+	    {
+		SlotMap key = primkey.get(0);
+		Serializable keyVal = key.get("value");
+		if(keyVal != null)
+		{
+                    try
+                    {
+		        values.put((String)key.get("name"), keyVal);
+                    }
+                    catch(Exception e)
+                    {
+                        Logger.warn("insert: encountered "+e.getMessage()+" while setting last inserted id value (insert was successful)");
+                    }
+		}
+	    }
+	}
+	return ret;
     }
 
     /**
@@ -778,7 +800,29 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
         {
             v.put(entry.getKey(), (Serializable)entry.getValue());
         }
-        return upsert(v);
+        boolean ret = upsert(v);
+	if (ret)
+	{
+	    // for the time being, it means key is a single column
+	    List<SlotMap> primkey = getPrimaryKey();
+	    if (primkey.size() == 1)
+	    {
+		SlotMap key = primkey.get(0);
+		Object keyVal = key.get("value");
+		if(keyVal != null)
+		{
+                    try
+                    {
+                        values.put((String)key.get("name"), keyVal);
+                    }
+                    catch(Exception e)
+                    {
+                        Logger.warn("insert: encountered "+e.getMessage()+" while setting last inserted id value (insert was successful)");
+                    }
+		}
+	    }
+	}
+	return ret;
     }
 
 }
