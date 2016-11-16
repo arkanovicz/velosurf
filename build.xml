@@ -116,7 +116,7 @@ Please specify a target among :
         </or>
       </not>
     </condition>
-    <fail message="Velosurf requires at least Java 1.5" unless="java.version.ok"/>
+    <fail message="Velosurf requires at least Java 1.7" unless="java.version.ok"/>
 
     <!-- DOWNLOAD LIBRARIES IF NEEDED -->
     <antcall target="download" />
@@ -364,8 +364,8 @@ Please specify a target among :
         deprecation="on"
         optimize="on"
         encoding="UTF-8"
-        source="1.5"
-        target="1.5"
+        source="1.7"
+        target="1.7"
         includeantruntime="false">
 	  <patternset refid="sources"/>
       <classpath refid="classpath"/>
