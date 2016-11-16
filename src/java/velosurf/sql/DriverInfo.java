@@ -135,7 +135,7 @@ public class DriverInfo implements Serializable
      * @param ignorePattern ignore tables whose name matches this pattern
      */
     private DriverInfo(String name, String jdbcTag, String drivers[], String pingQuery, String caseSensivity,
-                       String schemaQuery, String IDGenerationMethod, String lastInsertIDQuery, String ignorePattern)
+                       String schemaQuery, String IDGenerationMethod, boolean pedanticColumnTypes, boolean usesGeneratedKeys, String lastInsertIDQuery, String ignorePattern)
     {
         this.name = name;
         this.jdbcTag = jdbcTag;
@@ -144,6 +144,8 @@ public class DriverInfo implements Serializable
         this.caseSensivity = caseSensivity;
         this.schemaQuery = schemaQuery;
         this.IDGenerationMethod = IDGenerationMethod;
+        this.pedanticColumnTypes = pedanticColumnTypes;
+        this.usesGeneratedKeys = usesGeneratedKeys;
         this.lastInsertIDQuery = lastInsertIDQuery;
         this.ignorePattern = (ignorePattern == null ? null : Pattern.compile(ignorePattern));
 
@@ -171,6 +173,12 @@ public class DriverInfo implements Serializable
     /** ID generation method */
     private String IDGenerationMethod;
 
+    /** whether the JDBC driver is pedantic about column types */
+    private boolean pedanticColumnTypes;
+
+    /** whether executeUpdate supports RETURN_GENERATED_KEYS */
+    private boolean usesGeneratedKeys;
+
     /** query used to retrieve the last inserted id */
     private String lastInsertIDQuery;
 
@@ -189,15 +197,17 @@ public class DriverInfo implements Serializable
      * @param caseSensivity default case sensivity policy
      * @param schemaQuery query to change schema
      * @param IDGenerationMethod preferred ID generation method
+     * @param pedanticColumnTypes whether the driver wants exact types for insert/update queries
+     * @param usesGeneratedKeys whether the driver supports the RETURN_GENERATED_KEYS flag
      * @param lastInsertIDQuery query to get last inserted ID value
      * @param ignorePrefix ignore tables whose name matches this pattern
      */
     public static void addDriver(String name, String jdbcTag, String drivers[], String pingQuery, String caseSensivity,
-                                 String schemaQuery, String IDGenerationMethod, String lastInsertIDQuery,
-                                 String ignorePrefix /* ,String IDGenerationQuery */)
+                                 String schemaQuery, String IDGenerationMethod, boolean pedanticColumnTypes,
+                                 boolean usesGeneratedKeys, String lastInsertIDQuery, String ignorePrefix)
     {
         DriverInfo infos = new DriverInfo(name, jdbcTag, drivers, pingQuery, caseSensivity, schemaQuery,
-                                          IDGenerationMethod, lastInsertIDQuery, ignorePrefix /* ,IDGenerationQuery */);
+                IDGenerationMethod, pedanticColumnTypes, usesGeneratedKeys, lastInsertIDQuery, ignorePrefix);
 
         driverByVendor.put(jdbcTag, infos);
         for(String clazz : drivers)
@@ -258,6 +268,24 @@ public class DriverInfo implements Serializable
     }
 
     /**
+     * Get whether the engine is pedantic about column types
+     * @return boolean
+     */
+    public boolean getPedanticColumnTypes()
+    {
+        return pedanticColumnTypes;
+    }
+
+    /**
+     * Get whether the engine supports the RETURN_GENERATED_KEYS JDBC flag
+     * @return boolean
+     */
+    public boolean getUsesGeneratedKeys()
+    {
+        return usesGeneratedKeys;
+    }
+
+    /**
      * Get the last inserted id.
      * @param statement source statement
      * @return last inserted id (or -1)
@@ -279,6 +307,12 @@ public class DriverInfo implements Serializable
             {
                 Logger.log("Could not find last insert id: ", e);
             }
+        }
+        else if (getUsesGeneratedKeys())
+        {
+            ResultSet rs = statement.getGeneratedKeys();
+            rs.next();
+            ret = rs.getLong(1);
         }
         else
         {
@@ -314,54 +348,51 @@ public class DriverInfo implements Serializable
     // and Google of course
     static
     {
-        addDriver("Axion", "axiondb", new String[] { "org.axiondb.jdbc.AxionDriver" }, "select 1", "TODO", "TODO",
-                  "none", null, null);
-        addDriver("Cloudscape", "cloudscape", new String[] { "COM.cloudscape.core.JDBCDriver" }, "select 1", "TODO",
-                  "TODO", "autoincrement", "VALUES IDENTITY_VAL_LOCAL()", null);
         addDriver("DB2", "db2", new String[] { "COM.ibm.db2.jdbc.app.DB2Driver", "COM.ibm.db2.jdbc.net.DB2Driver" },
-                  "select 1", "TODO", "TODO", "none", "VALUES IDENTITY_VAL_LOCAL()", null);
+                  "select 1", "TODO", "TODO", "none", false, false, "VALUES IDENTITY_VAL_LOCAL()", null);
         addDriver("Derby", "derby", new String[] { "org.apache.derby.jdbc.EmbeddedDriver" }, "values 1", "uppercase",
-                  "set schema $schema", "autoincrement", null, null);
+                  "set schema $schema", "autoincrement", false, false, null, null);
         addDriver("Easysoft", "easysoft", new String[] { "easysoft.sql.jobDriver" }, "select 1", "TODO", "TODO",
-                  "TODO", null, null);
+                  "TODO", false, false, null, null);
         addDriver("Firebird", "firebirdsql", new String[] { "org.firebirdsql.jdbc.FBDriver" }, "TODO", "TODO", "TODO",
-                  "TODO", null, null);
+                  "TODO", false, true, null, null);
         addDriver("Frontbase", "frontbase", new String[] { "jdbc.FrontBase.FBJDriver" }, "select 1", "TODO", "TODO",
-                  "TODO", null, null);
+                  "TODO", false, false, null, null);
         addDriver("HSQLDB", "hsqldb", new String[] { "org.hsqldb.jdbcDriver", "org.hsql.jdbcDriver" }, "call 1",
-                  "uppercase", "set schema $schema", "autoincrement", "CALL IDENTITY()", "SYSTEM_.*");
+                  "uppercase", "set schema $schema", "autoincrement", false, false, "CALL IDENTITY()", "SYSTEM_.*");
         addDriver("Hypersonic", "hypersonic", new String[] { "org.hsql.jdbcDriver" }, "select 1", "TODO", "TODO",
-                  "autoincrement", null, null);
+                  "autoincrement", false, false, null, null);
         addDriver("OpenBase", "openbase", new String[] { "com.openbase.jdbc.ObDriver" }, "select 1", "TODO", "TODO",
-                  "TODO", null, null);
+                  "TODO", false, false, null, null);
         addDriver("Informix", "informix", new String[] { "com.informix.jdbc.IfxDriver" }, "select 1", "TODO", "TODO",
-                  "none", null, null);
+                  "none", false, false, null, null);
         addDriver("InstantDB", "instantdb", new String[] { "org.enhydra.instantdb.jdbc.idbDriver" }, "select 1",
-                  "TODO", "TODO", "none", null, null);
+                  "TODO", "TODO", "none", false, false, null, null);
         addDriver("Interbase", "interbase", new String[] { "interbase.interclient.Driver" }, "select 1", "TODO",
-                  "TODO", "none", null, null);
+                  "TODO", "none", false, false, null, null);
         addDriver("ODBC", "odbc", new String[] { "sun.jdbc.odbc.JdbcOdbcDriver" }, "select 1", "TODO", "TODO", "TODO",
-                  null, null);
+                false, false, null, null);
         addDriver("Sql Server", "sqlserver", new String[] { "com.microsoft.jdbc.sqlserver.SQLServerDriver",
             "com.jnetdirect.jsql.JSQLDriver", "com.merant.datadirect.jdbc.sqlserver.SQLServerDriver" }, "select 1",
-            "TODO", "TODO", "autoincrement", null, null);
+            "TODO", "TODO", "autoincrement", false, true, null, null);
         addDriver("MySql", "mysql", new String[] { "com.mysql.jdbc.Driver", "org.gjt.mm.mysql.Driver" }, "select 1",
-                  "sensitive", null, "autoincrement", null, null);
+                  "sensitive", null, "autoincrement", false, false, null, null);
         addDriver("OpenBase", "", new String[] { "com.openbase.jdbc.ObDriver" }, "select 1", "TODO", "TODO", "TODO",
-                  null, null);
+                false, false, null, null);
         addDriver("Oracle", "oracle", new String[] { "oracle.jdbc.driver.OracleDriver" }, "select 1 from dual",
-                  "uppercase", "alter session set current_schema = $schema", "sequence", null, ".*\\/.*");
+                  "uppercase", "alter session set current_schema = $schema", "sequence", false, true, null, ".*\\/.*");
         addDriver("PostgreSQL", "postgresql", new String[] { "org.postgresql.Driver" }, "select 1", "lowercase", null,
-                  "autoincrement", null, null);    // also sequences, but support for autoincrement is better
+                  "autoincrement", true, true, null, null);    // also sequences, but support for autoincrement is better
         addDriver("SapDB", "sapdb", new String[] { "com.sap.dbtech.jdbc.DriverSapDB" }, "select 1 from dual",
-                  "uppercase", "TODO", "sequence", null, null);
+                  "uppercase", "TODO", "sequence", false, false, null, null);
         addDriver("Sybase", "sybase", new String[] { "com.sybase.jdbc2.jdbc.SybDriver" }, "select 1", "TODO", "TODO",
-                  "autoincrement", "SELECT @@IDENTITY", null);
+                  "autoincrement", false, false, "SELECT @@IDENTITY", null);
         addDriver("Weblogic", "weblogic", new String[] { "weblogic.jdbc.pool.Driver" }, "select 1", "TODO", "TODO",
-                  "none", null, null);
+                  "none", false, false, null, null);
 
         // unknwon driver
-        addDriver("Unknown driver", "unknown", new String[] {}, "select 1", "sensitive", null, "none", null, null);
+        addDriver("Unknown driver", "unknown", new String[] {}, "select 1", "sensitive", null, "none", false, false,
+                null, null);
     }
 
     /**

@@ -148,7 +148,7 @@ public class Attribute implements Serializable
         {
             throw new SQLException("cannot call fetch: result of attribute '" + name + "' is not a row");
         }
-        return db.prepare(getQuery()).fetch(buildArrayList(source), db.getEntity(resultEntity));
+        return db.prepare(getQuery(), false).fetch(buildArrayList(source), db.getEntity(resultEntity));
     }
 
     /**
@@ -189,7 +189,7 @@ public class Attribute implements Serializable
         {
             query = SqlUtil.orderQuery(query, order);
         }
-        return db.prepare(query).query(buildArrayList(source), resultEntity == null ? db.getRootEntity() : db.getEntity(resultEntity));
+        return db.prepare(query, false).query(buildArrayList(source), resultEntity == null ? db.getRootEntity() : db.getEntity(resultEntity));
     }
 
     // TODO
@@ -235,7 +235,7 @@ public class Attribute implements Serializable
         {
             throw new SQLException("cannot call evaluate: result of attribute '" + name + "' is not a scalar");
         }
-        return db.prepare(getQuery()).evaluate(buildArrayList(source));
+        return db.prepare(getQuery(), false).evaluate(buildArrayList(source));
     }
 
     /**

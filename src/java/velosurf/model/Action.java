@@ -88,7 +88,7 @@ public class Action implements Serializable
     {
         List params = buildArrayList(source);
 
-        return db.prepare(query).update(params);
+        return db.prepare(query, true).update(params);
     }
 
     /**

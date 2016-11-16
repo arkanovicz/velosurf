@@ -20,6 +20,7 @@ package velosurf.model;
 
 import java.lang.reflect.Constructor;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.*;
@@ -469,7 +470,7 @@ public class Entity implements Serializable
     /**
      * Build the key for the Cache from a Number
      *
-     * @param values the Map containing all values (unaliased)
+     * @param value the key value
      * @exception SQLException the getter of the Map throws an
      *     SQLException
      * @return an array containing all key values
@@ -571,7 +572,7 @@ public class Entity implements Serializable
     {
         if (readOnly)
         {
-            Logger.error("Error: Entity "+getName()+" is read-only!");
+            Logger.error("Error: Entity " + getName() + " is read-only!");
             return false;
         }
         Instance instance = newInstance(values);
@@ -661,7 +662,7 @@ public class Entity implements Serializable
     {
         if (readOnly)
         {
-            Logger.error("Error: Entity "+getName()+" is read-only!");
+            Logger.error("Error: Entity " + getName() + " is read-only!");
             return false;
         }
         Instance instance = newInstance(values);
@@ -747,7 +748,7 @@ public class Entity implements Serializable
         }
         if (instance == null)
         {
-            PooledPreparedStatement statement = db.prepare(getFetchQuery());
+            PooledPreparedStatement statement = db.prepare(getFetchQuery(), false);
             if (obfuscate)
             {
                 values = new ArrayList<Object>(values);
@@ -813,7 +814,7 @@ public class Entity implements Serializable
         }
         if (instance == null)
         {
-            PooledPreparedStatement statement = db.prepare(getFetchQuery());
+            PooledPreparedStatement statement = db.prepare(getFetchQuery(), false);
             if (obfuscate)
             {
                 for(int c=0;c<keyCols.size();c++)
@@ -862,7 +863,7 @@ public class Entity implements Serializable
 
         if (instance == null)
         {
-            PooledPreparedStatement statement = db.prepare(getFetchQuery());
+            PooledPreparedStatement statement = db.prepare(getFetchQuery(), false);
             if (obfuscate && keyColObfuscated[0])
             {
                 keyValue = deobfuscate(keyValue);
@@ -908,7 +909,7 @@ public class Entity implements Serializable
 
         if (instance == null)
         {
-            PooledPreparedStatement statement = db.prepare(getFetchQuery());
+            PooledPreparedStatement statement = db.prepare(getFetchQuery(), false);
             List<Number> params = new ArrayList<Number>();
             params.add(keyValue);
             if(obfuscate && keyColObfuscated[0])
@@ -1292,7 +1293,7 @@ public class Entity implements Serializable
         return null;
     }
 
-    public Serializable filterIncomingValue(String column,Serializable value)
+    public Serializable filterIncomingValue(String column, Serializable value) throws SQLException
     {
         if(value == null)
         {
@@ -1317,6 +1318,15 @@ public class Entity implements Serializable
                 {
                     value = new Boolean(false);
                 }
+            }
+        }
+        else if (getDB().getDriverInfo().getPedanticColumnTypes())
+        {
+            Class expected = sqlTypeToClass.get(type);
+            if (expected == null) Logger.warn("sql type " + type + " is not handled");
+            else
+            {
+                value = (Serializable)getDB().convert(value, expected);
             }
         }
         return value;
@@ -1450,4 +1460,35 @@ public class Entity implements Serializable
      * Constraint by column name map.
      */
     private Map<String,List<FieldConstraint>> constraints = new HashMap<String,List<FieldConstraint>>();
+
+    /**
+     * java.sql.Types int to class (TODO - move it to a utility class)
+     */
+    static private Map<Integer, Class> sqlTypeToClass;
+
+    /* CB TODO - a real mapping requires taking precision and scale into account! */
+    static
+    {
+        sqlTypeToClass = new HashMap<Integer, Class>();
+        sqlTypeToClass.put(Types.BIGINT, BigInteger.class);
+        sqlTypeToClass.put(Types.BOOLEAN, Boolean.class);
+        sqlTypeToClass.put(Types.CHAR, String.class);
+        sqlTypeToClass.put(Types.DATE, java.sql.Date.class);
+        sqlTypeToClass.put(Types.DECIMAL, Double.class);
+        sqlTypeToClass.put(Types.DOUBLE, Double.class);
+        sqlTypeToClass.put(Types.FLOAT, Float.class);
+        sqlTypeToClass.put(Types.INTEGER, Integer.class);
+        sqlTypeToClass.put(Types.LONGNVARCHAR, String.class);
+        sqlTypeToClass.put(Types.LONGVARCHAR, String.class);
+        sqlTypeToClass.put(Types.NCHAR, String.class);
+        sqlTypeToClass.put(Types.NUMERIC, Double.class);
+        sqlTypeToClass.put(Types.NVARCHAR, String.class);
+        sqlTypeToClass.put(Types.REAL, Float.class);
+        sqlTypeToClass.put(Types.ROWID, Long.class);
+        sqlTypeToClass.put(Types.SMALLINT, Short.class);
+        sqlTypeToClass.put(Types.TIME, java.sql.Time.class);
+        sqlTypeToClass.put(Types.TIMESTAMP, java.sql.Timestamp.class);
+        sqlTypeToClass.put(Types.TINYINT, Byte.class);
+        sqlTypeToClass.put(Types.VARCHAR, String.class);
+    }
 }

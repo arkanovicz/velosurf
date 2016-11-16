@@ -27,8 +27,10 @@ import velosurf.context.RowIterator;
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
 import velosurf.model.Action;
+import velosurf.util.ConversionHandler;
+import velosurf.util.ConversionHandlerImpl;
+import velosurf.util.Converter;
 import velosurf.util.Logger;
-import velosurf.util.LineWriterOutputStream;
 import velosurf.util.Cryptograph;
 import velosurf.util.XIncludeResolver;
 import velosurf.util.UserContext;
@@ -169,6 +171,7 @@ public class Database implements Serializable
         Database instance = new Database();
         instance.readConfigFile(config,xincludeResolver);
         instance.initCryptograph();
+        instance.initConverter();
         instance.connect();
         instance.getReverseEngineer().readMetaData();
 
@@ -201,6 +204,7 @@ public class Database implements Serializable
         this.schema = schema;
         driverClass = driver;
         initCryptograph();
+        initConverter();
         connect();
         getReverseEngineer().readMetaData();        
     }
@@ -439,6 +443,12 @@ Logger.debug("setting driver manager log");
         }
     }
 
+    protected void initConverter()
+    {
+        if (conversionHandler != null) return;
+        conversionHandler = new ConversionHandlerImpl();
+    }
+
     /**
      * Get reverse engineer.
      * @return reverse engineer.
@@ -470,7 +480,7 @@ Logger.debug("setting driver manager log");
     {
         PooledSimpleStatement statement = null;
         statement=statementPool.getStatement();
-        return statement.query(query,entity == null ? getRootEntity() : entity);
+        return statement.query(query, entity == null ? getRootEntity() : entity);
     }
 
     /**
@@ -500,12 +510,12 @@ Logger.debug("setting driver manager log");
      * @param query an sql query
      * @return the pooled prepared statement corresponding to the query
      */
-    public PooledPreparedStatement prepare(String query)
+    public PooledPreparedStatement prepare(String query, boolean update)
     {
         PooledPreparedStatement statement = null;
         try
         {
-            statement = preparedStatementPool.getPreparedStatement(query);
+            statement = preparedStatementPool.getPreparedStatement(query, update);
             return statement;
         }
         catch (SQLException sqle)
@@ -526,7 +536,7 @@ Logger.debug("setting driver manager log");
         PooledPreparedStatement statement = null;
         try
         {
-            statement = transactionPreparedStatementPool.getPreparedStatement(query);
+            statement = transactionPreparedStatementPool.getPreparedStatement(query, false);
             return statement;
         }
         catch (SQLException sqle)
@@ -626,7 +636,7 @@ Logger.debug("setting driver manager log");
         System.out.println("DB statistics:");
         int [] normalStats = statementPool.getUsageStats();
         int [] preparedStats = preparedStatementPool.getUsageStats();
-        System.out.println("\tsimple statements   - "+normalStats[0]+" free statements out of "+normalStats[1]);
+        System.out.println("\tsimple statements   - " + normalStats[0] + " free statements out of " + normalStats[1]);
         System.out.println("\tprepared statements - "+preparedStats[0]+" free statements out of "+preparedStats[1]);
     }
 
@@ -805,6 +815,16 @@ Logger.debug("setting driver manager log");
     public Action getAction(String name)
     {
         return rootEntity.getAction(adaptCase(name));
+    }
+
+    public Object convert(Object value, Class expected) throws SQLException
+    {
+        if (value == null ||
+            value.getClass() == expected ||
+            conversionHandler.isMethodInvocationConvertible(expected, value.getClass())) return value;
+        Converter converter = conversionHandler.getNeededConverter(expected, value.getClass());
+        if (converter != null) return converter.convert(value);
+        throw new SQLException("cannot convert object '" + value + "' of class " + value.getClass().getName() + " to class " + expected.getName());
     }
 
     /**
@@ -1011,6 +1031,11 @@ Logger.debug("setting driver manager log");
      * Cryptograph used to encrypt/decrypt database ids.
      */
     private Cryptograph cryptograph = null;
+
+    /**
+     * Conversion handler
+     */
+    private ConversionHandler conversionHandler = null;
 
     /**
      * 'unknown' case-sensitive policy.

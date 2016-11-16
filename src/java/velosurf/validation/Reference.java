@@ -97,7 +97,7 @@ public class Reference extends FieldConstraint
 
             query = query.replace("1", "? in (select distinct " + column + " from " + table + ")");
 
-            PooledPreparedStatement stmt = db.prepare(query);
+            PooledPreparedStatement stmt = db.prepare(query, false);
             Object ret = stmt.evaluate(param);
 
             return ret != null && ret.equals(Boolean.valueOf(true));

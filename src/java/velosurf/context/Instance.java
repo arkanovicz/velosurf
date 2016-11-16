@@ -219,7 +219,7 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
     {
         for(Map.Entry<String,Serializable> entry: (Set<Map.Entry<String,Serializable>>)params.entrySet())
         {
-            put(db.adaptCase(entry.getKey()),entry.getValue());
+            put(db.adaptCase(entry.getKey()), entry.getValue());
         }
         return get(db.adaptCase(key));
     }
@@ -256,7 +256,14 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
         int index;
         if (entity != null)
         {
-            value = entity.filterIncomingValue(key,value);
+            try
+            {
+                value = entity.filterIncomingValue(key, value);
+            }
+            catch (SQLException sqle)
+            {
+                Logger.error("Could not filter value " + value);
+            }
             if ( (index = entity.getUpdatableColumnIndex(key) ) != -1)
             {
                 dirtyFlags.set(index,true);
@@ -420,7 +427,7 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
                 params.add(value);
             }
             String query = "update "+entity.getTableName()+" set "+StringLists.join(updateClause,",")+" where "+StringLists.join(whereClause," and ");
-            PooledPreparedStatement statement = db.prepare(query);
+            PooledPreparedStatement statement = db.prepare(query, true);
             int nb = statement.update(params);
             if (nb==0)
             {
@@ -511,7 +518,7 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
                 params.add(value);
             }
             String query = "delete from "+entity.getTableName()+" where "+StringLists.join(whereClause," and ");
-            PooledPreparedStatement statement = db.prepare(query);
+            PooledPreparedStatement statement = db.prepare(query, true);
             int nb = statement.update(params);
             if (nb==0)
             {
@@ -576,7 +583,7 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
                 }
             }
             String query = "insert into "+entity.getTableName()+" ("+StringLists.join(colsClause,",")+") values ("+StringLists.join(valsClause,",")+")";
-            PooledPreparedStatement statement = db.prepare(query);
+            PooledPreparedStatement statement = db.prepare(query, true);
             statement.update(params);
             List<String> keys = entity.getPKCols();
             if (keys.size() == 1)
