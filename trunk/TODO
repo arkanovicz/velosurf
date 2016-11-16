@@ -62,3 +62,10 @@
 - support eq, gt, ge, lt, le for comparison operators (and replace them with the proper = < > <= >=)
 - EntityReference insert/update/upsert/delete methods which take Map<String,Object> attribute should not throw but just fail if Objects are not serializable
 X upsert should clear dirtyflags if previous instance fields are not changed
+
+ - syntax problem in example tools.xml on site (last </toolbox> shoud be </tools>)
+ - loglevels: [debug] for attribute/action (with listed truncated parameters), and [trace] for actual sql queries
+ - caching mechanism is foireux! Example with <row name="user_params" result="user_params"> in <entity name="user">:
+   $user.params (cache is on 'params' attribute) caching against $params caching (cache is on 'params' entity)
+   (ok if user entity is refreshed!)
+ - some engines do not convert implicitely from string to int (ex: postgresql) => store this info in DriverInfo and take the apropriate measures

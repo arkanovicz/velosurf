@@ -21,6 +21,7 @@ package velosurf.sql;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Iterator;
 import java.util.List;
 import velosurf.util.HashMultiMap;
@@ -56,7 +57,7 @@ public class PreparedStatementPool implements /* Runnable, */ Pool
      * @exception SQLException thrown by the database engine
      * @return a valid statement
      */
-    public synchronized PooledPreparedStatement getPreparedStatement(String query) throws SQLException
+    public synchronized PooledPreparedStatement getPreparedStatement(String query, boolean update) throws SQLException
     {
         Logger.trace("prepare-" + query);
 
@@ -95,7 +96,12 @@ public class PreparedStatementPool implements /* Runnable, */ Pool
         }
         connection = connectionPool.getConnection();
         statement = new PooledPreparedStatement(connection,
-            connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY));
+                update ?
+                    connection.prepareStatement(
+                            query, connection.getDriver().getUsesGeneratedKeys() ?
+                                    Statement.RETURN_GENERATED_KEYS :
+                                    Statement.NO_GENERATED_KEYS) :
+                    connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY));
         statementsMap.put(query, statement);
         statement.notifyInUse();
         return statement;

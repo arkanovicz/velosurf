@@ -56,6 +56,11 @@ public class ConnectionWrapper
         return connection;
     }
 
+    DriverInfo getDriver()
+    {
+        return driver;
+    }
+
     /**
      * Create a statement.
      * @return created statement
@@ -357,6 +362,10 @@ public class ConnectionWrapper
         try
         {
             enterBusyState();
+            if (driver.getUsesGeneratedKeys() && s.toUpperCase().startsWith("INSERT"))
+            {
+
+            }
             return connection.prepareStatement(s, i, j);
         }
         finally
