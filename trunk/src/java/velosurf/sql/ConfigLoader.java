@@ -29,11 +29,11 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import org.jdom.Comment;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.Text;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Comment;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.Text;
+import org.jdom2.input.SAXBuilder;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
 import velosurf.util.Strings;
@@ -491,7 +491,7 @@ public class ConfigLoader
                     else
                     {
                         Logger.error("Try upgrading your jdom library!");
-                        throw new SQLException("Was expecting an org.jdom.Element, found a "+content.getClass().getName()+": '"+content+"'");
+                        throw new SQLException("Was expecting an org.jdom2.Element, found a "+content.getClass().getName()+": '"+content+"'");
                     }
                 }
                 /* trim */
@@ -807,7 +807,7 @@ public class ConfigLoader
             Element aliases = element.getChild("aliases");
             if (aliases != null)
             {
-                for(org.jdom.Attribute att:(List<org.jdom.Attribute>)aliases.getAttributes())
+                for(org.jdom2.Attribute att:(List<org.jdom2.Attribute>)aliases.getAttributes())
                 {
                     String column = att.getValue();
                     String alias = att.getName();
@@ -934,7 +934,7 @@ public class ConfigLoader
             /* short-syntax, others */
             for(Iterator atts = colElement.getAttributes().iterator();atts.hasNext();)
             {
-                org.jdom.Attribute attribute = (org.jdom.Attribute)atts.next();
+                org.jdom2.Attribute attribute = (org.jdom2.Attribute)atts.next();
                 String name = attribute.getName();
                 String value = attribute.getValue();
                 if (name.equals("not-null"))

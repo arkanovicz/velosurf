@@ -172,7 +172,7 @@ Please specify a target among :
    <antcall target="-commons-collections-download"/>
    <antcall target="-commons-lang-download"/>
    <antcall target="-commons-net-download"/>
-   <antcall target="-crimson-download"/>
+   <!-- <antcall target="-crimson-download"/> -->
    <antcall target="-jdom-download"/>
    <antcall target="-servletapi-download"/>
    <antcall target="-velocity-download"/>
@@ -229,7 +229,7 @@ Please specify a target among :
 
   <target name="-jdom-download">
    <property name="download.group" value="org/jdom"/>
-   <property name="download.jar" value="jdom" />
+   <property name="download.jar" value="jdom2" />
    <property name="download.version" value="${jar.jdom.version}" />
    <antcall target="-download-if-needed"/>
   </target>
