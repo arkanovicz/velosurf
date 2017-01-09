@@ -69,3 +69,4 @@ X upsert should clear dirtyflags if previous instance fields are not changed
    $user.params (cache is on 'params' attribute) caching against $params caching (cache is on 'params' entity)
    (ok if user entity is refreshed!)
  - some engines do not convert implicitely from string to int (ex: postgresql) => store this info in DriverInfo and take the apropriate measures
+ - getWithParams attributes are cached and can be recalled *without arguments*!!!
