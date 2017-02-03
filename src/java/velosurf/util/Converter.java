@@ -19,6 +19,8 @@ package velosurf.util;
  * under the License.    
  */
 
+import java.io.Serializable;
+
 /**
  * <p>Converts a value to type T</p>
  * <p>(borrowed from Velocity 2.0)</p>
@@ -26,7 +28,7 @@ package velosurf.util;
  * @version $Id: Converter.java 1754151 2016-07-26 16:11:28Z cbrisson $
  */
 
-public interface Converter<T>
+public interface Converter<T> extends Serializable
 {
     /**
      * convert object to type T
