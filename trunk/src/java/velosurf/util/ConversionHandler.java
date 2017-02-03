@@ -30,7 +30,9 @@ package velosurf.util;
  * @since 2.0
  */
 
-public interface ConversionHandler
+import java.io.Serializable;
+
+public interface ConversionHandler extends Serializable
 {
     /**
      * Determines whether a type represented by a class object is
