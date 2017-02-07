@@ -26,19 +26,20 @@ import velosurf.model.Attribute;
 import velosurf.model.Entity;
 import velosurf.sql.Database;
 import velosurf.sql.PooledPreparedStatement;
+// import velosurf.util.ConcurrentSlotTreeMap; - CB TODO
 import velosurf.util.Logger;
+import velosurf.util.ParametrizedSourceMap;
 import velosurf.util.SlotHashMap;
 import velosurf.util.SlotMap;
 import velosurf.util.SlotTreeMap;
 import velosurf.util.StringLists;
-import velosurf.util.UserContext;
 
 /**
  * An Instance provides field values by their name.
  *
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  */
-public class Instance extends SlotTreeMap implements HasParametrizedGetter
+public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametrizedGetter
 {
 
     /**
@@ -140,17 +141,19 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
     }
 
     /**
-     * <p>Generic getter, used to access this instance properties by their name.</p>
+     * <p>Generic getter with parameter, used to access this instance properties by their name.</p>
      * <p>Asked property is first searched in the Map, then among Attributes defined for the entity.</p>
      *
      * @param k key of the property to be returned
-     * @return a String, an Instance, an AttributeReference or null if an error
-     *      occurs
+     * @param params passed parameters
+     * @return a String, an Instance, an AttributeReference or null if an error occurs
+     * @see HasParametrizedGetter
      */
-    public Serializable get(Object k)
+    public Serializable getWithParams(String key, SlotMap params)
     {
-        String key = resolveName((String)k);
+        key = resolveName(key);
         Serializable result = null;
+        SlotMap source = params == null ? this : new ParametrizedSourceMap(this, params);
         try
         {
             result = super.get(key);
@@ -164,19 +167,19 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
                         switch (attribute.getType())
                         {
                             case Attribute.ROWSET:
-                                result = new AttributeReference(this,attribute);
+                                result = new AttributeReference(source, attribute);
                                 // then cache it in the map, so that order and refinement will work later in the same context
-                                super.put(key,result);
+                                super.put(key, result);
                                 break;
                             case Attribute.ROW:
-                                result = attribute.fetch(this);
+                                result = attribute.fetch(source);
                                 if(attribute.getCaching())
                                 {
                                   super.put(key,result);
                                 }
                                 break;
                             case Attribute.SCALAR:
-                                result = attribute.evaluate(this);
+                                result = attribute.evaluate(source);
                                 if(attribute.getCaching())
                                 {
                                   super.put(key,result);
@@ -191,7 +194,7 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
                         Action action = entity.getAction(key);
                         if (action != null)
                         {
-                            result = action.perform(this);
+                            result = action.perform(source);
                         }
                     }
                 }
@@ -209,19 +212,14 @@ public class Instance extends SlotTreeMap implements HasParametrizedGetter
     }
 
     /**
-     * Default method handler, called by Velocity when it did not find the specified method.
+     * Default getter
      *
      * @param key asked key
-     * @param params passed parameters
-     * @see HasParametrizedGetter
      */
-    public Serializable getWithParams(String key, SlotMap params) // CB TODO - instance should not be modified by params!!!!!
+    public Serializable get(Object key)
     {
-        for(Map.Entry<String,Serializable> entry: (Set<Map.Entry<String,Serializable>>)params.entrySet())
-        {
-            put(db.adaptCase(entry.getKey()), entry.getValue());
-        }
-        return get(db.adaptCase(key));
+        // CB TODO - something more clever than just cast to String? Is it worth calling String.valueOf()? We don(t want null to become "null", do we?
+        return getWithParams((String)key, null);
     }
 
     /**
