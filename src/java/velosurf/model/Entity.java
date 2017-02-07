@@ -385,17 +385,13 @@ public class Entity implements Serializable
             }
 
             Serializable val = source.get(key);
-	    if(val != null && val.getClass().isArray())
+	        if(val != null && val.getClass().isArray())
             {
-		Logger.error("array cell values not supported");
-		val = null;
-	    }
-	    /*
-            if (val == null || (val.getClass().isArray())) {
-                continue;
-            }
-	    */
-            target.put(col,val);
+		        Logger.error("array cell values not supported");
+		        val = null;
+	        }
+	        // CB TODO - Instance won't support null values in the future
+            target.put(col, val);
         }
     }
 

@@ -218,7 +218,7 @@ public class DBReference extends SlotTreeMap implements HasParametrizedGetter
         {
             String property = db.adaptCase(key);
 
-						SlotMap fixedParams = new SlotTreeMap();
+            SlotMap fixedParams = new SlotTreeMap();
             for(Map.Entry<String,Serializable> entry : (Set<Map.Entry<String,Serializable>>)params.entrySet())
             {
                 fixedParams.put(db.adaptCase(entry.getKey()), entry.getValue());
