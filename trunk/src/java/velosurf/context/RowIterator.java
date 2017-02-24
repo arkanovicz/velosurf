@@ -180,39 +180,38 @@ public class RowIterator implements Iterator<Instance>, RowHandler, Serializable
             {
                 return null;
             }
-            if(resultEntity != null && !resultEntity.isRootEntity())
+            result = (Serializable)resultSet.getObject(property);
+            if (resultEntity != null)
             {
-                property = resultEntity.resolveName(property);
-
-                Attribute attribute = resultEntity.getAttribute(property);
-
-                if(attribute != null)
+                if (result == null)
                 {
-                    switch(attribute.getType())
+                    if(!resultEntity.isRootEntity())
                     {
-                        case Attribute.ROWSET :
-                            result = attribute.query(new ReadOnlyMap(this));
-                            break;
-                        case Attribute.ROW :
-                            result = attribute.fetch(new ReadOnlyMap(this));
-                            break;
-                        case Attribute.SCALAR :
-                            result = attribute.evaluate(new ReadOnlyMap(this));
-                            break;
-                        default :
-                            Logger.error("Unknown attribute type for " + resultEntity.getName() + "." + property + "!");
+                        property = resultEntity.resolveName(property);
+                        Attribute attribute = resultEntity.getAttribute(property);
+
+                        if (attribute != null)
+                        {
+                            switch (attribute.getType())
+                            {
+                                case Attribute.ROWSET:
+                                    result = attribute.query(new ReadOnlyMap(this));
+                                    break;
+                                case Attribute.ROW:
+                                    result = attribute.fetch(new ReadOnlyMap(this));
+                                    break;
+                                case Attribute.SCALAR:
+                                    result = attribute.evaluate(new ReadOnlyMap(this));
+                                    break;
+                                default:
+                                    Logger.error("Unknown attribute type for " + resultEntity.getName() + "." + property + "!");
+                            }
+                        }
                     }
                 }
-            }
-            if(result == null)
-            {
-                if(resultEntity != null && resultEntity.isObfuscated(property))
+                else if (resultEntity.isObfuscated(property))
                 {
-                    result = resultEntity.obfuscate(resultSet.getObject(property));
-                }
-                else
-                {
-                  result = (Serializable)resultSet.getObject(property);
+                    result = resultEntity.obfuscate(result);
                 }
             }
         }
