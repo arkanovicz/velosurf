@@ -76,3 +76,5 @@ X upsert should clear dirtyflags if previous instance fields are not changed
  - support XML comments inside queries
  - reenginering should be configurable per schema
  - schemas should appear in the XML hierarchy
+ - connection errors should be reported instead of further null exceptions (=> add nullity checks)
+ 
