@@ -46,7 +46,7 @@ public class ActionServlet extends VelocityViewServlet {
             // bail if we can't find the template
             if (template == null)
             {
-                getLog().warn("VelocityViewServlet: couldn't find template to match request.");
+                Logger.warn("VelocityViewServlet: couldn't find template to match request.");
                 return;
             }
 
@@ -61,7 +61,7 @@ public class ActionServlet extends VelocityViewServlet {
         }
         catch (Exception e)
         {
-			getLog().error("ActionServlet: Exception processing the template: "+e);
+			Logger.error("ActionServlet: Exception processing the template: "+e);
 
     	    // call the error handler to let the derived class
 		    // do something useful with this failure.
