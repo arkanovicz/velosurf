@@ -72,12 +72,22 @@ public class Entity implements Serializable
      *
      * @param colName column name
      */
-    public void addColumn(String colName,int sqlType)
+    public void addColumn(String colName, int sqlType, String typeName)
     {
         colName = db.adaptCase(colName);
         columns.add(colName);
         types.put(colName,sqlType);
         /* if (colnames as aliases) */ aliases.put(colName,colName);
+
+        /* column marker for PostgreSQL enums needs to contain type name */
+        if (getDB().getDriverInfo().getJdbcTag().equals("postgresql") &&  sqlType == Types.VARCHAR && !typeName.equalsIgnoreCase("varchar"))
+        {
+            colMarkers.put(colName, "?::" + typeName);
+        }
+        else
+        {
+            colMarkers.put(colName, "?");
+        }
     }
 
     /**
@@ -1354,6 +1364,14 @@ public class Entity implements Serializable
     }
 
     /**
+     * Get column marker: either '?' or '?::<i>enum-type-name</i>' for PostgreSQL databases
+     */
+    public String getColumnMarker(String column)
+    {
+        return colMarkers.get(column);
+    }
+
+    /**
      * Name.
      */
     private String name = null;
@@ -1372,6 +1390,12 @@ public class Entity implements Serializable
      * Column types
      */
     private Map<String,Integer> types = new HashMap<String,Integer>();
+
+    /**
+     * Column markers: either '?' or '?::<i>enum-type-name</i> for PostgreSQL enums
+     */
+    private Map<String, String> colMarkers = new HashMap<String, String>();
+
 
     /**
      * Key column names in natural order.

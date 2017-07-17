@@ -401,7 +401,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
                 if(dirtyFlags.get(c))
                 {
                     Object value = getInternal(col);
-                    updateClause.add(col+"=?");
+                    updateClause.add(col+"=" + entity.getColumnMarker(col));
                     if (entity.isObfuscated(col) && value != null)
                     {
                         value = entity.deobfuscate(value);
@@ -421,7 +421,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
                 if (value == null) throw new SQLException("field '"+col+"' belongs to primary key and cannot be null!");
                 if (entity.isObfuscated(col)) value = entity.deobfuscate(value);
 //                if (entity.isLocalized(col)) value = entity.unlocalize(value); ???
-                whereClause.add(col+"=?");
+                whereClause.add(col+"=" + entity.getColumnMarker(col));
                 params.add(value);
             }
             String query = "update "+entity.getTableName()+" set "+StringLists.join(updateClause,",")+" where "+StringLists.join(whereClause," and ");
@@ -572,7 +572,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
                 if (value!=null)
                 {
                     colsClause.add(col);
-                    valsClause.add("?");
+                    valsClause.add(entity.getColumnMarker(col));
                     if (entity.isObfuscated(col))
                     {
                         value = entity.deobfuscate(value);
