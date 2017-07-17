@@ -21,13 +21,11 @@ package velosurf.web.auth;
 import java.io.Serializable;
 import java.util.Map;
 import javax.servlet.ServletContext;
-import org.apache.velocity.tools.view.context.ViewContext;
+
+import org.apache.velocity.tools.view.ViewContext;
 import velosurf.context.DBReference;
-import velosurf.context.Instance;
-import velosurf.util.Logger;
 import velosurf.web.ContextListener;
 import velosurf.web.VelosurfTool;
-import velosurf.web.auth.BaseAuthenticator;
 
 /**
  * <p>Authenticator basic implementation.</p>
@@ -178,7 +176,7 @@ public class SimpleDBAuthenticator extends BaseAuthenticator implements Serializ
 
     /**
      * configure this tool.
-     * @param map
+     * @param config
      */
     public void configure(Map config)
     {
