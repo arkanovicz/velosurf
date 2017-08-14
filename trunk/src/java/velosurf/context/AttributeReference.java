@@ -144,7 +144,7 @@ public class AttributeReference implements Iterable, Serializable
     }
 
     /**
-     * Get all the rows in a map firstcol->secondcol.
+     * Get all the rows in a map firstcol-&gt;secondcol.
      * FIXME: better in Attribute than in AttributeReference
      * @return a list of all the rows
      */
@@ -184,6 +184,41 @@ public class AttributeReference implements Iterable, Serializable
         return result;
     }
 
+    /**
+     * Get all the rows in a { singlecol } set
+     * @return a set of all the fist column values
+     */
+    public Set getSet()
+    {
+        Set result = null;
+
+        try
+        {
+            RowIterator iterator = attribute.query(params, refineCriteria, order);
+            List<String> keys = iterator.keyList();
+
+            if(keys.size() > 1)
+            {
+                Logger.warn(
+                    "attribute.map needs only two result columns, only the first two will be taken into account");
+            }
+            result = new TreeSet();
+            while(iterator.hasNext())
+            {
+                Instance i = iterator.next();
+
+                result.add(i.get(keys.get(0)));
+            }
+        }
+        catch(SQLException sqle)
+        {
+            Logger.log(sqle);
+            attribute.getDB().setError(sqle.getMessage());
+            return null;
+        }
+        return result;
+    }
+    
     /**
      * Get all the rows in a map firstcol->instance
      * FIXME: better in Attribute than in AttributeReference
