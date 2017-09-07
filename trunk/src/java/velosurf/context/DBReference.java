@@ -361,7 +361,8 @@ public class DBReference extends SlotTreeMap implements HasParametrizedGetter
      */
     public String toString()
     {
-        return "[DBRef with root attributes " + db.getRootEntity().getAttributes() + " and external params"
+        Entity root = db.getRootEntity();
+        return "[DBRef with root attributes " + (root == null ? "<uninitialized>" : root.getAttributes().toString()) + " and external params"
                + externalParams + "]";
     }
 
