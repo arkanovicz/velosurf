@@ -206,6 +206,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
         }
         catch (SQLException sqle)
         {
+            Logger.log("attribute '" + (entity == null ? "<instance>" : entity.getName()) + "." + key + "': ", sqle);
             handleSQLException(sqle);
         }
         return result;

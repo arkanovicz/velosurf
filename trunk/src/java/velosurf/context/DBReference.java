@@ -160,7 +160,7 @@ public class DBReference extends SlotTreeMap implements HasParametrizedGetter
         catch(SQLException sqle)
         {
             db.setError(sqle.getMessage());
-            Logger.log(sqle);
+            Logger.log("property '" + key + "': ", sqle);
             return null;
         }
     }
