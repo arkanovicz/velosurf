@@ -400,8 +400,11 @@ public class Entity implements Serializable
 		        Logger.error("array cell values not supported");
 		        val = null;
 	        }
-	        // CB TODO - Instance won't support null values in the future
-            target.put(col, val);
+
+            if (val != null)
+            {
+                target.put(col, val);
+            }
         }
     }
 
