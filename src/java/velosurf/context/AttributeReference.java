@@ -96,7 +96,7 @@ public class AttributeReference implements Iterable, Serializable
         }
         catch(SQLException sqle)
         {
-            Logger.log(sqle);
+            Logger.log("attribute '" + attribute.getName() + "': ", sqle);
             attribute.getDB().setError(sqle.getMessage());
             return null;
         }
@@ -117,7 +117,7 @@ public class AttributeReference implements Iterable, Serializable
         }
         catch(SQLException sqle)
         {
-            Logger.log(sqle);
+            Logger.log("attribute '" + attribute.getName() + "': ", sqle);
             attribute.getDB().setError(sqle.getMessage());
             return null;
         }
@@ -137,7 +137,7 @@ public class AttributeReference implements Iterable, Serializable
         }
         catch(SQLException sqle)
         {
-            Logger.log(sqle);
+            Logger.log("attribute '" + attribute.getName() + "': ", sqle);
             attribute.getDB().setError(sqle.getMessage());
             return null;
         }
@@ -177,7 +177,7 @@ public class AttributeReference implements Iterable, Serializable
         }
         catch(SQLException sqle)
         {
-            Logger.log(sqle);
+            Logger.log("attribute '" + attribute.getName() + "': ", sqle);
             attribute.getDB().setError(sqle.getMessage());
             return null;
         }
@@ -212,7 +212,7 @@ public class AttributeReference implements Iterable, Serializable
         }
         catch(SQLException sqle)
         {
-            Logger.log(sqle);
+            Logger.log("attribute '" + attribute.getName() + "': ", sqle);
             attribute.getDB().setError(sqle.getMessage());
             return null;
         }
@@ -243,7 +243,7 @@ public class AttributeReference implements Iterable, Serializable
         }
         catch(SQLException sqle)
         {
-            Logger.log(sqle);
+            Logger.log("attribute '" + attribute.getName() + "': ", sqle);
             attribute.getDB().setError(sqle.getMessage());
             return null;
         }

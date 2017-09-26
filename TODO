@@ -77,4 +77,4 @@ X upsert should clear dirtyflags if previous instance fields are not changed
  - reenginering should be configurable per schema
  - schemas should appear in the XML hierarchy
  - connection errors should be reported instead of further null exceptions (=> add nullity checks)
- 
+ - <set> and <map> in config file, along with <row> <scalar> and <rowset>
