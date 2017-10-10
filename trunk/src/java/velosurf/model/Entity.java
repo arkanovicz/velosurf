@@ -338,7 +338,7 @@ public class Entity implements Serializable
             extractColumnValues(values,result,useSQLnames);
             if (cachingMethod != Cache.NO_CACHE && cache != null)
             {
-                Object key = buildKey(result);
+                String key = buildKey(result);
                 if (key != null)
                 {
                     cache.put(key,result);
@@ -353,6 +353,23 @@ public class Entity implements Serializable
     }
 
     /**
+     * Cache an instance.
+     * @param instance instance
+     * @throws SQLException
+     */
+    public void cacheInstance(SlotMap instance) throws SQLException
+    {
+        if (cachingMethod != Cache.NO_CACHE && cache != null)
+        {
+            String key = buildKey(instance);
+            if(key != null)
+            {
+                cache.put(key, instance);
+            }
+        }
+    }
+
+    /**
      * Invalidate an instance in the cache.
      * @param instance instance
      * @throws SQLException
@@ -361,7 +378,7 @@ public class Entity implements Serializable
     {
         if (cachingMethod != Cache.NO_CACHE && cache != null)
         {
-            Object key = buildKey(instance);
+            String key = buildKey(instance);
             if(key != null)
             {
                 cache.invalidate(key);
@@ -414,33 +431,23 @@ public class Entity implements Serializable
      * @param values the Map containing all values (unaliased)
      * @exception SQLException the getter of the Map throws an
      *     SQLException
-     * @return an array containing all key values
+     * @return a concatenation all key values
      */
-    private Object buildKey(SlotMap values) throws SQLException
+    private String buildKey(SlotMap values) throws SQLException
     {
-        if(keyCols.size() == 0) return null;
-        Object [] key = new Object[keyCols.size()];
-        int c=0;
-        for(String keycol:keyCols)
+        if(keyCols.size() == 0)
         {
-            Object v = values.get(keycol);
-            if ( v == null )
-            {
-                return null;
-            }
-
-            // systematically convert Integer values to Long values
-            // TODO CB - a more torough conversion scheme, or a key invariant on class, is to be built (for instance a concatenation of strings)
-            if( v instanceof Integer)
-            {
-                v = ((Integer)v).longValue();
-            }
-
-            key[c++] = v;
+            return null;
         }
-        return key;
+        StringBuilder builder = new StringBuilder();
+        for (String column : keyCols)
+        {
+            Object keyval = values.get(column);
+            if (keyval == null) return null;
+            builder.append(keyval.toString());
+        }
+        return builder.toString();
     }
-
 
     /**
      * Build the key for the Cache from a List
@@ -450,13 +457,14 @@ public class Entity implements Serializable
      *     SQLException
      * @return an array containing all key values
      */
-    private Object buildKey(List<Object> values) throws SQLException {
+    private String buildKey(List<Object> values) throws SQLException
+    {
         if(keyCols.size() == 0)
         {
             return null;
         }
-        Object [] key = new Object[keyCols.size()];
-        int c=0;
+        StringBuilder builder = new StringBuilder();
+
         for(Object v:values)
         {
             if ( v == null )
@@ -464,16 +472,10 @@ public class Entity implements Serializable
                 return null;
             }
 
-            // systematically convert Integer values to Long values
-            // TODO CB - a more torough conversion scheme, or a key invariant on class, is to be built (for instance a concatenation of strings)
-            if( v instanceof Integer)
-            {
-                v = ((Integer)v).longValue();
-            }
+            builder.append(String.valueOf(v));
 
-            key[c++] = v;
         }
-        return key;
+        return builder.toString();
     }
 
     /**
@@ -484,15 +486,9 @@ public class Entity implements Serializable
      *     SQLException
      * @return an array containing all key values
      */
-    private Object buildKey(Number value) throws SQLException
+    private String buildKey(Number value) throws SQLException
     {
-            // systematically convert Integer values to Long values
-            // TODO CB - a more torough conversion scheme, or a key invariant on class, is to be built (for instance a concatenation of strings)
-      if(value instanceof Integer)
-      {
-          value = value.longValue();
-      }
-      return new Object[] { value };
+        return String.valueOf(value);
     }
 
 
@@ -604,7 +600,7 @@ public class Entity implements Serializable
            in case there are auto-incremented columns */
         if (success && cachingMethod != Cache.NO_CACHE && cache != null)
         {
-            Object key = buildKey(instance);
+            String key = buildKey(instance);
             if (key != null)
             {
                 cache.put(key,instance);
@@ -816,10 +812,11 @@ public class Entity implements Serializable
             }
             throw new SQLException("entity "+name+".fetch(): missing key values! Missing values: "+missing);
         }
+        List keyValues = Arrays.asList(key);
         if (cachingMethod != Cache.NO_CACHE && cache != null)
         {
             // try in cache
-            instance = (Instance)cache.get(key);
+            instance = (Instance)cache.get(buildKey(keyValues));
         }
         if (instance == null)
         {
@@ -834,7 +831,7 @@ public class Entity implements Serializable
                     }
                 }
             }
-            instance = (Instance)statement.fetch(Arrays.asList(key),this);
+            instance = (Instance)statement.fetch(keyValues,this);
         }
         if(instance != null)
         {
@@ -867,7 +864,7 @@ public class Entity implements Serializable
         // try in cache
         if (cachingMethod != Cache.NO_CACHE && cache != null)
         {
-            instance = (Instance)cache.get(new Object[] { keyValue });
+            instance = (Instance)cache.get(keyValue);
         }
 
         if (instance == null)
@@ -912,7 +909,6 @@ public class Entity implements Serializable
         // try in cache
         if (cachingMethod != Cache.NO_CACHE && cache != null)
         {
-          Number cacheKeyValue = keyValue instanceof Integer ? keyValue.longValue() : keyValue;
             instance = (Instance)cache.get(buildKey(keyValue));
         }
 
