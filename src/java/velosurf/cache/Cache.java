@@ -29,6 +29,7 @@ import java.util.Map;
  * <ul>
  * <li>NO_CACHE (cache='none', the default) : no caching occurs on this entity.
  * <li>SOFT_CACHE (cache='soft') : caching occurs as long as memory is ont reclaimed (see the behaviour of java soft references).
+ * <li>GROWING_CACHE (cache='growing') : caching occurs as long as instances are fetched or created.
  * <li>FULL_CACHE (cache='full') : the whole table is loaded into the cache at startup.
  * </ul>
  *
@@ -59,6 +60,11 @@ public class Cache
     public static final int FULL_CACHE = 2;
 
     /**
+     * Constant used to specify the "growing cache" mode.
+     */
+    public static final int GROWING_CACHE = 3;
+
+    /**
      * Cache constructor.
      *
      * @param cachingMethod required caching mode
@@ -75,9 +81,8 @@ public class Cache
      * @param key key field(s) of this instance
      * @param value instance
      */
-    public void put(Object key, Object value)
+    public void put(String key, Object value)
     {
-        key = (key.getClass().isArray() ? new ArrayKey((Object[])key) : key);
         value = (cachingMethod == SOFT_CACHE ? new SoftReference<Object>(value) : value);
         synchronized(innerCache)
         {
@@ -101,10 +106,8 @@ public class Cache
      * @param key key field(s) of the asked instance
      * @return Asked instance or null if not found
      */
-    public Object get(Object key)
+    public Object get(String key)
     {
-        key = (key.getClass().isArray() ? new ArrayKey((Object[])key) : key);
-
         Object ret;
 
         synchronized(innerCache)
@@ -140,7 +143,7 @@ public class Cache
      * invalidates an entry
      * (used after an insert or an update)
      */
-    public void invalidate(Object key)
+    public void invalidate(String key)
     {
         synchronized(innerCache)
         {
@@ -156,69 +159,6 @@ public class Cache
     /**
      * the inner map that stores associations.
      */
-    private Map<Object, Object> innerCache = null;
+    private Map<String, Object> innerCache = null;
 
-    /**
-     * ArrayKey is a simple wrapper that provides a field-to-field equal method between encapsulated arrays.
-     */
-    public static final class ArrayKey
-    {
-        /**
-         * Constructor.
-         * @param keys key values
-         */
-        public ArrayKey(Object[] keys)
-        {
-            this.keys = keys;
-        }
-
-        /**
-         * Checks the cell-to-cell equality of two arrays.
-         *
-         * @param source source array
-         * @return a boolean indicating the equality
-         */
-        public boolean equals(Object source)
-        {
-            if(source instanceof ArrayKey)
-            {
-                ArrayKey k = (ArrayKey)source;
-
-                if(k.keys.length == keys.length)
-                {
-                    for(int i = 0; i < keys.length; i++)
-                    {
-                        if(!keys[i].equals(k.keys[i]))
-                        {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /**
-         * Hashcode of an array, based on the hashcode of its members.
-         *
-         * @return the hashcode
-         */
-        public int hashCode()
-        {
-            int hash = 0;
-
-            for(int i = 0; i < keys.length; i++)
-            {
-                hash += keys[i].hashCode();
-            }
-            return hash;
-        }
-
-        /**
-         * The wrapped array.
-         */
-        private Object[] keys = null;
-
-    }    /* end of inner class ArrayKey */
 }

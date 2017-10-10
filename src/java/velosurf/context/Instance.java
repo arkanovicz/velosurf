@@ -416,6 +416,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
                 // return true anyway ?
                 return true;
             }
+            // CB TODO - urgent - see if PK cols are dirty to trigger invalidation, see bbelow
             for (String col:entity.getPKCols())
             {
                 Object value = getInternal(col);
@@ -436,14 +437,19 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             { // ?!?! Referential integrities on key columns should avoid this...
                 throw new SQLException("query \""+query+"\" affected more than 1 rows!");
             }
+            /*
             else
             {
-                /* invalidate cache */
+                // invalidate cache
                 if (entity != null)
                 {
                     entity.invalidateInstance(this);
                 }
             }
+            CB - TODO - urgent - modifying key columns should invalidate the cache
+            but not invalidating the cache whenever key columns aren't touched is as much important
+            and is probably the most current use case - so no invalidation for now, but it's very temporary
+            */
             setClean();
             return true;
         }
@@ -597,6 +603,10 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
                 }
             }
             setClean();
+            if (entity != null)
+            {
+                entity.cacheInstance(this);
+            }
             return true;
         }
         catch (SQLException sqle)

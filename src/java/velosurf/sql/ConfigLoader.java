@@ -230,7 +230,7 @@ public class ConfigLoader
         {
             caching = database.getAttributeValue("caching");
         }
-        if (checkSyntax("caching",caching,new String[] {"none","no","false","yes","true","soft","full"}))
+        if (checkSyntax("caching",caching,new String[] {"none","no","false","yes","true","soft","growing","full"}))
         {
             int val = parseCaching(caching);
             this.database.setCaching(val);
@@ -770,7 +770,7 @@ public class ConfigLoader
             /* caching */
             String caching = element.getAttributeValue("caching");
             element.removeAttribute("caching");
-            if (checkSyntax("caching",caching,new String[] {"none","no","yes","soft","full"}))
+            if (checkSyntax("caching",caching,new String[] {"none","no","yes","soft","growing","full"}))
             {
                 entity.setCachingMethod(parseCaching(caching));
             }
@@ -1157,6 +1157,7 @@ public class ConfigLoader
             caching == null || caching.equalsIgnoreCase("none") || caching.equalsIgnoreCase("no") || caching.equalsIgnoreCase("false") ? Cache.NO_CACHE :
             caching.equalsIgnoreCase("soft") || caching.equalsIgnoreCase("yes") || caching.equalsIgnoreCase("true") ? Cache.SOFT_CACHE :
             caching.equalsIgnoreCase("full") ? Cache.FULL_CACHE :
+            caching.equalsIgnoreCase("growing") ? Cache.GROWING_CACHE :
             Cache.NO_CACHE;
     }
 
