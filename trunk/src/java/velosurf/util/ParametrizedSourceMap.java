@@ -59,8 +59,8 @@ public class ParametrizedSourceMap implements SlotMap
 
     public Serializable get(Object key)
     {
-        Serializable ret = source.get(key);
-        return ret == null ? parameters.get(key) : ret;
+        Serializable ret = parameters.get(key);
+        return ret == null ? source.get(key) : ret;
     }
 
     public int hashCode()
