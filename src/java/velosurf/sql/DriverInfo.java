@@ -3,6 +3,7 @@ package velosurf.sql;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Calendar;
@@ -291,7 +292,7 @@ public class DriverInfo implements Serializable
      * @return last inserted id (or -1)
      * @throws SQLException
      */
-    public long getLastInsertId(Statement statement) throws SQLException
+    public Object getLastInsertId(Statement statement) throws SQLException
     {
         long ret = -1;
 
@@ -310,9 +311,26 @@ public class DriverInfo implements Serializable
         }
         else if (getUsesGeneratedKeys())
         {
-            ResultSet rs = statement.getGeneratedKeys();
-            rs.next();
-            ret = rs.getLong(1);
+			int col = 1;
+			ResultSet rs = statement.getGeneratedKeys();
+			ResultSetMetaData rsmd = rs.getMetaData();
+			int numberOfColumns = rsmd.getColumnCount();
+			rs.next();
+			if (numberOfColumns > 1)
+			{
+				Map<String,Object> res = new HashMap<String,Object>();
+				Logger.warn("Number of columns for generated keys > 1, return a map instead");
+				for (int i = 1; i <= numberOfColumns ; i++)
+				{
+					Logger.debug("Column " + rsmd.getColumnName(i) + " of type " + rsmd.getColumnClassName(i));
+					res.put(rsmd.getColumnName(i),rs.getObject(i));
+				}
+				return res;
+			}
+			else
+			{
+				ret = new Long(rs.getLong(col));
+			}
         }
         else
         {

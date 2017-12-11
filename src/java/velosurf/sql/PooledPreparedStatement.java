@@ -326,7 +326,7 @@ public class PooledPreparedStatement extends PooledStatement implements RowHandl
      * @exception SQLException thrown by the database engine
      * @return the last insert id
      */
-    public synchronized long getLastInsertID() throws SQLException
+    public synchronized Object getLastInsertID() throws SQLException
     {
         return((ConnectionWrapper)connection).getLastInsertId(preparedStatement);
     }
