@@ -657,7 +657,7 @@ public class ConnectionWrapper
      * @return last inserted id
      * @throws SQLException
      */
-    public long getLastInsertId(Statement statement) throws SQLException
+    public Object getLastInsertId(Statement statement) throws SQLException
     {
         return driver.getLastInsertId(statement);
     }

@@ -21,6 +21,7 @@ package velosurf.context;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.Map.Entry;
 import velosurf.model.Action;
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
@@ -593,14 +594,31 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             List<String> keys = entity.getPKCols();
             if (keys.size() == 1)
             {
-                /* What if the ID is not autoincremented? TODO check it. => reverse engineering of autoincrement, and set the value in the instance itself */
-                String keycol = keys.get(0);
-                long newid = statement.getLastInsertID();
-                db.getUserContext().setLastInsertedID(entity,newid);
-                if(getInternal(keycol) == null)
+              /* What if the ID is not autoincremented? TODO check it. => reverse engineering of autoincrement, and set the value in the instance itself */
+              String keycol = keys.get(0);
+              Object lastinsertid = statement.getLastInsertID();
+              long newid = -1;
+              if (lastinsertid instanceof Long)
+              {
+                newid = ((Long)lastinsertid).longValue();
+              }
+              else
+              {
+                for (Map.Entry<String, Object> entry : ((Map<String,Object>)lastinsertid).entrySet())
                 {
-                    put(keycol,entity.isObfuscated(keycol)?entity.obfuscate(newid):newid);
+                  if(entry.getKey().equals(keycol))
+                  {
+                    //TODO check if it is really a Number
+                    newid = ((Number)entry.getValue()).longValue();
+                  }
                 }
+
+              }
+              db.getUserContext().setLastInsertedID(entity,newid);
+              if(getInternal(keycol) == null)
+              {
+                put(keycol,entity.isObfuscated(keycol)?entity.obfuscate(newid):newid);
+              }
             }
             setClean();
             if (entity != null)
