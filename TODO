@@ -78,3 +78,8 @@ X upsert should clear dirtyflags if previous instance fields are not changed
  - schemas should appear in the XML hierarchy
  - connection errors should be reported instead of further null exceptions (=> add nullity checks)
  - <set> and <map> in config file, along with <row> <scalar> and <rowset>
+
+--- 2018
+
+ - no connection recovery in DReference.getWithParams
+ - default field values are not populated on Instance.insert()
