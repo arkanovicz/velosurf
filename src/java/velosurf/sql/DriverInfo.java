@@ -400,7 +400,7 @@ public class DriverInfo implements Serializable
         addDriver("Oracle", "oracle", new String[] { "oracle.jdbc.driver.OracleDriver" }, "select 1 from dual",
                   "uppercase", "alter session set current_schema = $schema", "sequence", false, true, null, ".*\\/.*");
         addDriver("PostgreSQL", "postgresql", new String[] { "org.postgresql.Driver" }, "select 1", "lowercase", null,
-                  "autoincrement", true, true, null, null);    // also sequences, but support for autoincrement is better
+                  "autoincrement", true, true, null, "pg_*");    // also sequences, but support for autoincrement is better
         addDriver("SapDB", "sapdb", new String[] { "com.sap.dbtech.jdbc.DriverSapDB" }, "select 1 from dual",
                   "uppercase", "TODO", "sequence", false, false, null, null);
         addDriver("Sybase", "sybase", new String[] { "com.sybase.jdbc2.jdbc.SybDriver" }, "select 1", "TODO", "TODO",
