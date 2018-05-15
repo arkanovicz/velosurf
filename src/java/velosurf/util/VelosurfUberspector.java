@@ -1,6 +1,7 @@
 package velosurf.util;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import org.apache.velocity.util.introspection.*;
 import velosurf.context.HasParametrizedGetter;
@@ -17,23 +18,30 @@ import velosurf.util.SlotMap;
  */
 public class VelosurfUberspector extends AbstractChainableUberspector
 {
-    public VelMethod getMethod(Object obj, String methodName, Object[] args, Info i) throws Exception
+    public VelMethod getMethod(Object obj, String methodName, Object[] args, Info i)
     {
         VelMethod ret = super.getMethod(obj, methodName, args, i);
-
-        if(ret == null && obj instanceof HasParametrizedGetter && args.length == 1)
-        {
-            if(args[0] instanceof SlotMap)
+        try
             {
-                Method method = obj.getClass().getMethod("getWithParams", String.class, SlotMap.class);
-                ret = new VelParametrizedGetterMethod(methodName, method);
+                if(ret == null && obj instanceof HasParametrizedGetter && args.length == 1)
+                    {
+                        if(args[0] instanceof SlotMap)
+                            {
+                                Method method = obj.getClass().getMethod("getWithParams", String.class, SlotMap.class);
+                                ret = new VelParametrizedGetterMethod(methodName, method);
+                            }
+                        else if(args[0] instanceof Map)
+                            {
+                                Method method = obj.getClass().getMethod("getWithParams", String.class, Map.class);
+                                ret = new VelParametrizedGetterMethod(methodName, method);
+                            }
+                    }
+        
             }
-            else if(args[0] instanceof Map)
+        catch(NoSuchMethodException e)
             {
-                Method method = obj.getClass().getMethod("getWithParams", String.class, Map.class);
-                ret = new VelParametrizedGetterMethod(methodName, method);
+                e.printStackTrace();
             }
-        }
         return ret;
     }
 
@@ -48,9 +56,22 @@ public class VelosurfUberspector extends AbstractChainableUberspector
             method = m;
         }
 
-        public Object invoke(Object obj, Object[] args) throws Exception
+        public Object invoke(Object obj, Object[] args)
         {
-            return method.invoke(obj, key, args[0]);
+            Object ret= null;
+            try
+                {
+                    ret = method.invoke(obj, key, args[0]);
+                }
+            catch(IllegalAccessException iae)
+                {
+                    iae.printStackTrace();
+                }
+            catch(InvocationTargetException ite)
+                {
+                    ite.printStackTrace();
+                }
+            return ret;            
         }
 
         public boolean isCacheable()
@@ -66,6 +87,11 @@ public class VelosurfUberspector extends AbstractChainableUberspector
         public Class getReturnType()
         {
             return method.getReturnType();
+        }
+
+        public Method getMethod()
+        {
+            return method;
         }
     }
 }
