@@ -397,13 +397,15 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             List<String> whereClause = new ArrayList<String>();
             List<Object> params = new ArrayList<Object>();
             List<String> cols = entity.getUpdatableColumns();
+            String iqs = db.getConnection().getMetaData().getIdentifierQuoteString();
+
             for (int c = 0; c < cols.size(); c++)
             {
                 String col = cols.get(c);
                 if(dirtyFlags.get(c))
                 {
                     Object value = getInternal(col);
-                    updateClause.add(col+"=" + entity.getColumnMarker(col));
+                    updateClause.add(iqs + col + iqs + "=" + entity.getColumnMarker(col));
                     if (entity.isObfuscated(col) && value != null)
                     {
                         value = entity.deobfuscate(value);
@@ -424,10 +426,10 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
                 if (value == null) throw new SQLException("field '"+col+"' belongs to primary key and cannot be null!");
                 if (entity.isObfuscated(col)) value = entity.deobfuscate(value);
 //                if (entity.isLocalized(col)) value = entity.unlocalize(value); ???
-                whereClause.add(col+"=" + entity.getColumnMarker(col));
+                whereClause.add(iqs + col + iqs + "=" + entity.getColumnMarker(col));
                 params.add(value);
             }
-            String query = "update "+entity.getTableName()+" set "+StringLists.join(updateClause,",")+" where "+StringLists.join(whereClause," and ");
+            String query = "update " + iqs + entity.getTableName() + iqs + " set "+StringLists.join(updateClause,",")+" where "+StringLists.join(whereClause," and ");
             PooledPreparedStatement statement = db.prepare(query, true);
             int nb = statement.update(params);
             if (nb==0)
@@ -515,6 +517,8 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             }
             List<String> whereClause = new ArrayList<String>();
             List<Object> params = new ArrayList<Object>();
+            String iqs = db.getConnection().getMetaData().getIdentifierQuoteString();
+
             for (String col:entity.getPKCols())
             {
                 Object value = getInternal(col);
@@ -523,7 +527,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
                 whereClause.add(col+"=?");
                 params.add(value);
             }
-            String query = "delete from "+entity.getTableName()+" where "+StringLists.join(whereClause," and ");
+            String query = "delete from " + iqs + entity.getTableName() + iqs +" where "+StringLists.join(whereClause," and ");
             PooledPreparedStatement statement = db.prepare(query, true);
             int nb = statement.update(params);
             if (nb==0)
@@ -574,12 +578,13 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             List<String> valsClause = new ArrayList<String>();
             List<Object> params = new ArrayList<Object>();
             List<String> cols = entity.getColumns();
+            String iqs = db.getConnection().getMetaData().getIdentifierQuoteString();
             for (String col:cols)
             {
                 Object value = getInternal(col);
                 if (value!=null)
                 {
-                    colsClause.add(col);
+                    colsClause.add(iqs + col + iqs);
                     valsClause.add(entity.getColumnMarker(col));
                     if (entity.isObfuscated(col))
                     {
@@ -588,7 +593,8 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
                     params.add(value);
                 }
             }
-            String query = "insert into "+entity.getTableName()+" ("+StringLists.join(colsClause,",")+") values ("+StringLists.join(valsClause,",")+")";
+
+            String query = "insert into "+ iqs +entity.getTableName()+ iqs + " ("+StringLists.join(colsClause,",")+") values ("+StringLists.join(valsClause,",")+")";
             PooledPreparedStatement statement = db.prepare(query, true);
             statement.update(params);
             List<String> keys = entity.getPKCols();
