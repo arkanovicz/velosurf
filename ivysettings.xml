@@ -3,8 +3,8 @@
   <resolvers>
 	<chain name="chain-example">
 	  <url name="marsonline">
-		<ivy pattern="https://ivy.marsonline.xyz/[organisation]/[module]/[revision]/ivy.xml"/>
-		<artifact pattern="http://ivy.marsonline.xyz/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
+		<ivy pattern="https://ivy.marsonline.org/[organisation]/[module]/[revision]/ivy.xml"/>
+		<artifact pattern="https://ivy.marsonline.org/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
 	  </url>
 	  <ibiblio name="ibiblio" m2compatible="true" />
 	</chain>
