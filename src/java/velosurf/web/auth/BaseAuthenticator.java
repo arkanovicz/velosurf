@@ -29,9 +29,8 @@ import java.util.Random;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpSession;
-import org.apache.velocity.tools.view.context.ViewContext;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+import org.apache.velocity.tools.view.ViewContext;
+import java.util.Base64;
 import velosurf.util.Logger;
 
 /**
@@ -111,7 +110,7 @@ public abstract class BaseAuthenticator implements Serializable
         if (challenge == null)
 			  {
             BigInteger bigint = new BigInteger(CHALLENGE_LENGTH, random);
-            challenge = new sun.misc.BASE64Encoder().encode(bigint.toByteArray());
+            challenge = new String(Base64.getEncoder().encode(bigint.toByteArray()));
             challenge = challenge.replace("\n", "");
             Logger.trace("auth: generated new challenge: " + challenge);
 				}
@@ -179,7 +178,7 @@ public abstract class BaseAuthenticator implements Serializable
                 mac.init(new SecretKeySpec(password.getBytes("UTF-8"), method));
 
                 byte[] hash = mac.doFinal(challenge.getBytes("UTF-8"));
-                String encoded = new BASE64Encoder().encode(hash);
+                String encoded = new String(Base64.getEncoder().encode(hash));
 
                 /* strips the last(s) '=' */
                 int i;

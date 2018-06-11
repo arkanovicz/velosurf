@@ -21,14 +21,14 @@ package velosurf.util;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Date;
-import org.apache.commons.collections.ExtendedProperties;
+import org.apache.velocity.util.ExtProperties;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.resource.Resource;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 import velosurf.context.DBReference;
 import velosurf.context.EntityReference;
 import velosurf.web.VelosurfTool;
-
+import java.io.Reader;
 /**
  * A database resource loader for use with Velosurf. Experimental.
  *
@@ -42,7 +42,7 @@ public class DBResourceLoader extends ResourceLoader
     protected String dataField = null;
     protected String timestampField = null;
 
-    public void init(ExtendedProperties configuration)
+    public void init(ExtProperties configuration)
     {
         entity = configuration.getString("entity", "template");
         dataField = configuration.getString("data", "data");
@@ -82,5 +82,11 @@ public class DBResourceLoader extends ResourceLoader
     public long getLastModified(Resource resource)
     {
         return((Date)table.fetch(resource.getName()).get(timestampField)).getTime();
+    }
+
+    public Reader getResourceReader(String source,String encoding)
+    {
+        //TODO AA return a Reader for real ...
+        return null;
     }
 }

@@ -309,7 +309,13 @@ public class PooledSimpleStatement extends PooledStatement
      */
     public long getLastInsertID() throws SQLException
     {
-        return((ConnectionWrapper)connection).getLastInsertId(statement);
+        Object lastinsertid = ((ConnectionWrapper)connection).getLastInsertId(statement);
+        long newid = -1;
+        if (lastinsertid instanceof Long)
+            {
+                newid = (Long)lastinsertid;
+            }
+        return newid;//TODO AA throw exception rather than -1 ? or return Object .
     }
 
     /**
