@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -127,6 +128,8 @@ public class ConfigLoader
         Logger.info("Config file successfully read.");
     }
 
+    private static Pattern extractDatabaseName = Pattern.compile("^jdbc:([^:]+)://([^:?/]+)/([^:?/]+).*$");
+    
     /**
      * Adapt the case to match chosen database case policy.
      * @param str string to adapt
@@ -294,6 +297,22 @@ public class ConfigLoader
         if (schema != null)
         {
             this.database.setSchema(schema);
+        }
+        else if(url.startsWith("jdbc:mysql:"))
+        {
+            /* the catalog name is also the schema name with mysql
+               so the following should be done, but it hasn't been tested
+               TODO CB - uncomment and test
+            Matcher matcher = extractDatabaseName.matcher(url);
+            if (matcher.matches())
+            {
+                String dbname = matcher.group(3);
+                if (dbname != null && dbname.length() > 0)
+                {
+                    this.database.setSchema(dbname);
+                }
+            }
+            */
         }
 
         /* load driver now so as to know default behaviours */

@@ -18,6 +18,7 @@
 
 package velosurf.sql;
 
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -118,7 +119,9 @@ public class ReverseEngineer
      */
     protected void readMetaData() throws SQLException
     {
-        DatabaseMetaData meta = db.getConnection().getMetaData();
+        Connection connection = db.getConnection();
+        String catalog = connection.getCatalog();
+        DatabaseMetaData meta = connection.getMetaData();
         ResultSet tables = null;
 
         // extra debug information about which jdbc driver we are using
@@ -139,12 +142,12 @@ public class ReverseEngineer
             {
                 case REVERSE_TABLES :
                 case REVERSE_FULL :
-                    tables = meta.getTables(null, db.getSchema(), null, null);
+                    tables = meta.getTables(catalog, db.getSchema(), null, null);
                     while(tables.next())
                     {
                         String tableName = adaptCase(tables.getString("TABLE_NAME"));
-
-                        if(driverInfo.ignoreTable(tableName) || "SYSTEM TABLE".equals(tables.getString("TABLE_TYPE")))
+                        String tableType = tables.getString("TABLE_TYPE");
+                        if("SYSTEM TABLE".equals(tableType) || "SYSTEM VIEW".equals(tableType) || driverInfo.ignoreTable(tableName))
                         {
                             continue;
                         }
@@ -165,7 +168,7 @@ public class ReverseEngineer
                             entity = db.getEntityCreate(tableName);
                             entityByTableName.put(tableName, entity.getName());
                         }
-                        readTableMetaData(meta, entity, tableName);
+                        readTableMetaData(catalog, meta, entity, tableName);
                     }
 
 /*                  not any more valid since entityByTableName does now keep mappings TODO alternative
@@ -180,7 +183,7 @@ public class ReverseEngineer
                     {
                         String tableName = entity.getTableName();
                         if(!tableName.equals("velosurf.root"))
-                          readTableMetaData(meta, entity, tableName);
+                          readTableMetaData(catalog, meta, entity, tableName);
                     }
                     break;
                 case REVERSE_NONE :
@@ -200,7 +203,7 @@ public class ReverseEngineer
         {
             try
             {
-                tables = meta.getTables(null, db.getSchema(), null, null);
+                tables = meta.getTables(catalog, db.getSchema(), null, null);
                 while(tables.next())
                 {
                     String tableName = adaptCase(tables.getString("TABLE_NAME"));
@@ -217,7 +220,7 @@ public class ReverseEngineer
                     String entityName = entityByTableName.get(tableName);
                     Entity entity = db.getEntity(entityName);
 
-                    readForeignKeys(meta, entity, tableName);
+                    readForeignKeys(catalog, meta, entity, tableName);
                 }
             }
             finally
@@ -238,7 +241,7 @@ public class ReverseEngineer
      * @param tableName table name
      * @throws SQLException
      */
-    private void readTableMetaData(DatabaseMetaData meta, Entity entity, String tableName) throws SQLException
+    private void readTableMetaData(String catalog, DatabaseMetaData meta, Entity entity, String tableName) throws SQLException
     {
         List<String> keylist = StringLists.getPopulatedArrayList(10);    // ever seen a primary key with more than 10 columns ?!
 
@@ -247,7 +250,7 @@ public class ReverseEngineer
 
         try
         {
-            cols = meta.getColumns(null, db.getSchema(), tableName, null);
+            cols = meta.getColumns(catalog, db.getSchema(), tableName, null);
             while(cols.next())
             {
                 String column = adaptCase(cols.getString("COLUMN_NAME"));
@@ -267,7 +270,7 @@ public class ReverseEngineer
 
         try
         {
-            pks = meta.getPrimaryKeys(null, db.getSchema(), tableName);
+            pks = meta.getPrimaryKeys(catalog, db.getSchema(), tableName);
 
             int keysize = 0;
 
@@ -301,7 +304,7 @@ public class ReverseEngineer
      * @param tableName table name
      * @throws SQLException
      */
-    private void readForeignKeys(DatabaseMetaData meta, Entity entity, String tableName) throws SQLException
+    private void readForeignKeys(String catalog, DatabaseMetaData meta, Entity entity, String tableName) throws SQLException
     {
         /* read imported keys */
         if(reverseMode == REVERSE_FULL)
@@ -310,7 +313,7 @@ public class ReverseEngineer
 
             try
             {
-                iks = meta.getImportedKeys(null, db.getSchema(), tableName);
+                iks = meta.getImportedKeys(catalog, db.getSchema(), tableName);
 
                 short ord;
                 String pkSchema = null, pkTable = null;
@@ -358,7 +361,7 @@ public class ReverseEngineer
 
             try
             {
-                eks = meta.getExportedKeys(null, db.getSchema(), tableName);
+                eks = meta.getExportedKeys(catalog, db.getSchema(), tableName);
 
                 short ord;
                 String fkSchema = null, fkTable = null;
