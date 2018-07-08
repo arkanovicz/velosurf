@@ -21,7 +21,6 @@ package velosurf.context;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.Map.Entry;
 import velosurf.model.Action;
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
@@ -602,28 +601,37 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             {
               /* What if the ID is not autoincremented? TODO check it. => reverse engineering of autoincrement, and set the value in the instance itself */
               String keycol = keys.get(0);
-              Object lastinsertid = statement.getLastInsertID();
-              long newid = -1;
-              if (lastinsertid instanceof Long)
+              Object lastInsertId = statement.getLastInsertID();
+              if (lastInsertId != null)
               {
-                newid = ((Long)lastinsertid).longValue();
-              }
-              else
-              {
-                for (Map.Entry<String, Object> entry : ((Map<String,Object>)lastinsertid).entrySet())
+                long newid = -1;
+                if (lastInsertId instanceof Number)
                 {
-                  if(entry.getKey().equals(keycol))
+                  newid = ((Number)lastInsertId).longValue();
+                }
+                else if (lastInsertId instanceof Map)
+                {
+                  for (Map.Entry entry : ((Map)lastInsertId).entrySet())
                   {
-                    //TODO check if it is really a Number
-                    newid = ((Number)entry.getValue()).longValue();
+                    if (keycol.equals(entry.getKey()))
+                    {
+                      lastInsertId = entry.getValue();
+                      if (lastInsertId != null && lastInsertId instanceof Number)
+                      {
+                        newid = ((Number)lastInsertId).longValue();
+                      }
+                      break;
+                    }
                   }
                 }
-
-              }
-              db.getUserContext().setLastInsertedID(entity,newid);
-              if(getInternal(keycol) == null)
-              {
-                put(keycol,entity.isObfuscated(keycol)?entity.obfuscate(newid):newid);
+                if (newid != -1)
+                {
+                  db.getUserContext().setLastInsertedID(entity,newid);
+                  if(getInternal(keycol) == null)
+                  {
+                    put(keycol,entity.isObfuscated(keycol)?entity.obfuscate(newid):newid);
+                  }
+                }
               }
             }
             setClean();

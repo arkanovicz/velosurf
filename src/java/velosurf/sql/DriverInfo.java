@@ -311,26 +311,26 @@ public class DriverInfo implements Serializable
         }
         else if (getUsesGeneratedKeys())
         {
-			int col = 1;
-			ResultSet rs = statement.getGeneratedKeys();
-			ResultSetMetaData rsmd = rs.getMetaData();
-			int numberOfColumns = rsmd.getColumnCount();
-			rs.next();
-			if (numberOfColumns > 1)
-			{
-				Map<String,Object> res = new HashMap<String,Object>();
-				Logger.warn("Number of columns for generated keys > 1, return a map instead");
-				for (int i = 1; i <= numberOfColumns ; i++)
-				{
-					Logger.debug("Column " + rsmd.getColumnName(i) + " of type " + rsmd.getColumnClassName(i));
-					res.put(rsmd.getColumnName(i),rs.getObject(i));
-				}
-				return res;
-			}
-			else
-			{
-				ret = new Long(rs.getLong(col));
-			}
+          int col = 1;
+          ResultSet rs = statement.getGeneratedKeys();
+          ResultSetMetaData rsmd = rs.getMetaData();
+          int numberOfColumns = rsmd.getColumnCount();
+          rs.next();
+          if (numberOfColumns > 1)
+          {
+            Map<String,Object> res = new HashMap<String,Object>();
+            Logger.warn("Number of columns for generated keys > 1, return a map instead");
+	    for (int i = 1; i <= numberOfColumns ; i++)
+            {
+              Logger.debug("Column " + rsmd.getColumnName(i) + " of type " + rsmd.getColumnClassName(i));
+              res.put(rsmd.getColumnName(i),rs.getObject(i));
+            }
+            return res;
+          }
+          else
+          {
+            ret = rs.getLong(col);
+          }
         }
         else
         {
