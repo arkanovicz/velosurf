@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<project name="velosurf" default="usage" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="velosurf" default="usage" basedir=".">
   
   
   
@@ -119,7 +119,7 @@ Please specify a target among :
     <fail message="Velosurf requires at least Java 1.7" unless="java.version.ok"/>
 
     <!-- DOWNLOAD LIBRARIES IF NEEDED -->
-    <antcall target="get_dependencies" />
+    <antcall target="download" />
 <!-- not downloadable libraries are kept in build.dir/lib -->
     <copy todir="${lib.dir}">
       <fileset dir="${build.dir}/lib"/>
@@ -146,8 +146,211 @@ Please specify a target among :
     <delete dir="${dist.root}/${final.name}"/>
   </target>
   
-  <target name="get_dependencies">
-	<ivy:retrieve sync="true"/>
+  <target name="-download-if-needed" unless="skip.jar.loading">
+    <condition property="jar.present">
+      <and>
+        <isfalse value="${force.jar.loading}"/>
+        <available file="${download.dir}/${download.jar}-${download.version}.jar"/>
+      </and>
+    </condition>
+    <antcall target="-http-download"/>
+  </target>
+
+  <target name="-http-download" unless="jar.present">
+    <property name="download.group" value="${download.jar}"/> <!-- if not set previously -->
+    <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"/>
+    <get src="${repo.url}/${download.group}/${download.jar}/${download.version}/${download.jar}-${download.version}.jar"
+         dest="${download.dir}/${download.jar}-${download.version}.jar"
+         usetimestamp="true"
+         verbose="false"
+         ignoreerrors="false" />
+  </target>
+
+  <target name="download" description="- download all dependancy libraries needed for building">
+   <property name="download.dir" value="${lib.dir}"/>
+   <antcall target="-commons-beanutils-download"/>
+   <antcall target="-commons-collections-download"/>
+   <antcall target="-commons-lang-download"/>
+   <antcall target="-commons-net-download"/>
+   <!-- <antcall target="-crimson-download"/> -->
+   <antcall target="-jdom-download"/>
+   <antcall target="-servletapi-download"/>
+   <antcall target="-velocity-download"/>
+   <antcall target="-velocity-tools-download"/>
+  </target>
+
+  <target name="-commons-beanutils-download">
+   <property name="download.jar" value="commons-beanutils" />
+   <property name="download.version" value="${jar.commons-beanutils.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-commons-digester-download">
+   <property name="download.jar" value="commons-digester" />
+   <property name="download.version" value="${jar.commons-digester.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-commons-lang-download">
+   <property name="download.jar" value="commons-lang" />
+   <property name="download.version" value="${jar.commons-lang.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-commons-net-download">
+   <property name="download.jar" value="commons-net" />
+   <property name="download.version" value="${jar.commons-net.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-commons-collections-download">
+   <property name="download.jar" value="commons-collections" />
+   <property name="download.version" value="${jar.commons-collections.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-commons-logging-download">
+   <property name="download.jar" value="commons-logging" />
+   <property name="download.version" value="${jar.commons-logging.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-crimson-download">
+   <property name="download.jar" value="crimson" />
+   <property name="download.version" value="${jar.crimson.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-dom4j-download">
+   <property name="download.jar" value="dom4j" />
+   <property name="download.version" value="${jar.dom4j.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-jdom-download">
+   <property name="download.group" value="org/jdom"/>
+   <property name="download.jar" value="jdom2" />
+   <property name="download.version" value="${jar.jdom.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-servletapi-download">
+   <property name="download.group" value="javax/servlet"/>
+   <property name="download.jar" value="javax.servlet-api" />
+   <property name="download.version" value="${jar.servletapi.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-velocity-download">
+   <property name="download.group" value="org/apache/velocity"/>
+   <property name="download.jar" value="velocity" />
+   <property name="download.version" value="${jar.velocity.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-velocity-tools-download">
+   <property name="download.group" value="org/apache/velocity"/>
+   <property name="download.jar" value="velocity-tools"/>
+   <property name="download.version" value="${jar.velocity-tools.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <!-- test downloads --> 
+
+  <target name="test-download" description="- download all dependancy libraries needed for testing">
+   <property name="download.dir" value="${test.lib.dir}"/>
+   <antcall target="-commons-digester-download"/>
+   <antcall target="-hsqldb-download"/>
+   <antcall target="-httpunit-download"/>
+   <antcall target="-js-download"/>
+   <antcall target="-junit-download"/>
+   <antcall target="-nekohtml-download"/>
+   <antcall target="-xerces-download"/>
+   <antcall target="-xmlparserapis-download"/>
+  </target>
+
+  <target name="-jetty-main-download">
+   <property name="download.dir" value="${test.jetty.dir}/lib"/>  
+   <antcall target="-commons-logging-download"/>
+   <antcall target="-jetty-download"/>
+   <antcall target="-jetty-util-download"/>
+   <antcall target="-servlet-api-2.5-download"/>
+   <antcall target="-start-download"/>
+  </target>
+
+  <target name="-hsqldb-download">
+   <property name="download.group" value="org/hsqldb"/>
+   <property name="download.jar" value="hsqldb" />
+   <property name="download.version" value="${jar.hsqldb.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-httpunit-download">
+   <property name="download.jar" value="httpunit" />
+   <property name="download.version" value="${jar.httpunit.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-jetty-download">
+   <property name="download.jar" value="jetty" />
+   <property name="download.version" value="${jar.jetty.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-jetty-util-download">
+   <property name="download.group" value="jetty"/>
+   <property name="download.jar" value="jetty-util" />
+   <property name="download.version" value="${jar.jetty.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-js-download">
+   <property name="download.group" value="rhino"/>
+   <property name="download.jar" value="js" />
+   <property name="download.version" value="${jar.js.version}" />
+   <antcall target="-download-if-needed"/>
+   <!-- httpunit wants a js.jar -->
+   <copy file="${download.dir}/${download.jar}-${download.version}.jar" tofile="${download.dir}/js.jar"/>
+  </target>
+
+  <target name="-nekohtml-download">
+   <property name="download.jar" value="nekohtml" />
+   <property name="download.version" value="${jar.nekohtml.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-xerces-download">
+   <property name="download.group" value="xerces" />
+   <property name="download.jar" value="xercesImpl" />
+   <property name="download.version" value="${jar.xercesimpl.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-xmlparserapis-download">
+   <property name="download.group" value="xerces" />
+   <property name="download.jar" value="xmlParserAPIs" />
+   <property name="download.version" value="${jar.xmlparserapis.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-servlet-api-2.5-download">
+   <property name="download.group" value="jetty"/>
+   <property name="download.jar" value="servlet-api" />
+   <property name="download.version" value="2.5-${jar.jetty.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-start-download">
+   <property name="download.group" value="jetty"/>
+   <property name="download.jar" value="start" />
+   <property name="download.version" value="${jar.jetty.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-junit-download">
+   <property name="download.jar" value="junit" />
+   <property name="download.version" value="${jar.junit.version}" />
+   <antcall target="-download-if-needed"/>
   </target>
 
   <target name="jar" depends="-prepare" description="- builds Velosurf jar">
@@ -472,5 +675,12 @@ Please specify a target among :
     <delete file="${basedir}/${final.name}.tar" quiet="true"/>
   </target>
 
+  <target name="dependencies" depends="download" description="- builds an archive of all dependancy libraries">
+    <delete file="${basedir}/${final.name}-dependencies.tar" quiet="true"/>
+    <delete file="${basedir}/${final.name}-dependencies.tgz" quiet="true"/>
+    <tar tarfile="${basedir}/${final.name}-dependencies.tar" basedir="${basedir}" includes="lib/*.jar" longfile="gnu"/>
+    <gzip zipfile="${basedir}/${final.name}-dependencies.tgz" src="${basedir}/${final.name}-dependencies.tar"/>
+    <delete file="${basedir}/${final.name}-dependencies.tar" quiet="true"/>
+  </target>
 
 </project>
