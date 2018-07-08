@@ -110,7 +110,7 @@ public abstract class BaseAuthenticator implements Serializable
         if (challenge == null)
 			  {
             BigInteger bigint = new BigInteger(CHALLENGE_LENGTH, random);
-            challenge = new String(Base64.getEncoder().encode(bigint.toByteArray()));
+            challenge = String.valueOf(Base64.getEncoder().encode(bigint.toByteArray()));
             challenge = challenge.replace("\n", "");
             Logger.trace("auth: generated new challenge: " + challenge);
 				}
@@ -178,7 +178,7 @@ public abstract class BaseAuthenticator implements Serializable
                 mac.init(new SecretKeySpec(password.getBytes("UTF-8"), method));
 
                 byte[] hash = mac.doFinal(challenge.getBytes("UTF-8"));
-                String encoded = new String(Base64.getEncoder().encode(hash));
+                String encoded = String.valueOf(Base64.getEncoder().encode(hash));
 
                 /* strips the last(s) '=' */
                 int i;

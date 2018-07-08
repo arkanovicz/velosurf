@@ -62,18 +62,6 @@ public class DBResourceLoader extends ResourceLoader
         }
     }
 
-    public InputStream getResourceStream(String id) throws ResourceNotFoundException
-    {
-        if(db == null)
-        {
-            initdb();
-        }
-
-        String template = (String)table.fetch(id).get(dataField);
-
-        return new ReaderInputStream(new StringReader(template));
-    }
-
     public boolean isSourceModified(Resource resource)
     {
         return((Date)table.fetch(resource.getName()).get(timestampField)).getTime() > resource.getLastModified();
@@ -86,7 +74,13 @@ public class DBResourceLoader extends ResourceLoader
 
     public Reader getResourceReader(String source,String encoding)
     {
-        //TODO AA return a Reader for real ...
-        return null;
+        if(db == null)
+        {
+            initdb();
+        }
+
+	// CB TODO - get the reader directly fro mthe DB
+        String template = (String)table.fetch(id).get(dataField);
+	return template == null ? null : new StringReader(template);
     }
 }

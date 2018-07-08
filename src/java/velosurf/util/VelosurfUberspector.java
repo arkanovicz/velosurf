@@ -22,26 +22,26 @@ public class VelosurfUberspector extends AbstractChainableUberspector
     {
         VelMethod ret = super.getMethod(obj, methodName, args, i);
         try
+        {
+	  // CB - TODO - why rely on an interface?
+          if(ret == null && obj instanceof HasParametrizedGetter && args.length == 1)
+          {
+            if(args[0] instanceof SlotMap)
             {
-                if(ret == null && obj instanceof HasParametrizedGetter && args.length == 1)
-                    {
-                        if(args[0] instanceof SlotMap)
-                            {
-                                Method method = obj.getClass().getMethod("getWithParams", String.class, SlotMap.class);
-                                ret = new VelParametrizedGetterMethod(methodName, method);
-                            }
-                        else if(args[0] instanceof Map)
-                            {
-                                Method method = obj.getClass().getMethod("getWithParams", String.class, Map.class);
-                                ret = new VelParametrizedGetterMethod(methodName, method);
-                            }
-                    }
-        
+              Method method = obj.getClass().getMethod("getWithParams", String.class, SlotMap.class);
+              ret = new VelParametrizedGetterMethod(methodName, method);
             }
+            else if(args[0] instanceof Map)
+            {
+              Method method = obj.getClass().getMethod("getWithParams", String.class, Map.class);
+              ret = new VelParametrizedGetterMethod(methodName, method);
+            }
+          }
+        }
         catch(NoSuchMethodException e)
-            {
-                e.printStackTrace();
-            }
+        {
+          Logger.trace("[webapp-uberspect] no {}.getWithParams() method", obj.getClass().getName());
+        }
         return ret;
     }
 
