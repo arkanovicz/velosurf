@@ -2,10 +2,7 @@ package velosurf.sql;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -186,6 +183,9 @@ public class DriverInfo implements Serializable
     /** ignore tables matchoing this pattern */
     private Pattern ignorePattern;
 
+  /** identifier quote character */
+   private char identifierQuoteChar = ' ';
+
 //  not yet implemented (TODO)
 //    public String IDGenerationQuery;   // ID generation query
 
@@ -286,49 +286,101 @@ public class DriverInfo implements Serializable
         return usesGeneratedKeys;
     }
 
-    /**
+  /**
+   * Get identifier start character
+   * @return character
+   */
+  public char getIdentifierQuoteChar() { return identifierQuoteChar; }
+
+  private boolean configured = false;
+
+  public void configure(DatabaseMetaData meta)
+  {
+    if (!configured)
+    {
+      synchronized (this)
+      {
+        if (!configured)
+        {
+          try
+          {
+            String quote = meta.getIdentifierQuoteString();
+            if (quote != null && quote.length() >= 1)
+            {
+              identifierQuoteChar = quote.charAt(0);
+            }
+          }
+          catch (SQLException sqle)
+          {
+            Logger.error("could not get identifier quote string");
+            Logger.log(sqle);
+          }
+        }
+      }
+    }
+  }
+
+  /**
      * Get the last inserted id.
      * @param statement source statement
      * @param column key column name
      * @return last inserted id (or -1)
      * @throws SQLException
      */
-    public long getLastInsertId(Statement statement, String column) throws SQLException
+    public long getLastInsertId(Statement statement, String keyColumn) throws SQLException
     {
-        long ret = -1;
+      long ret = -1;
 
-        if ("mysql".equalsIgnoreCase(getJdbcTag()))
-        {    /* MySql */
-            try
-            {
-                Method lastInsertId = statement.getClass().getMethod("getLastInsertID", new Class[0]);
-                ret = ((Long) lastInsertId.invoke(statement, new Object[0])).longValue();
-            }
-            catch (Throwable e)
-            {
-                Logger.log("Could not find last insert id: ", e);
-            }
-        }
-        else if (getUsesGeneratedKeys())
+      if("mysql".equalsIgnoreCase(getJdbcTag()))
+      {    /* MySql */
+        try
         {
-            ResultSet rs = statement.getGeneratedKeys();
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int numberOfColumns = rsmd.getColumnCount();
-            if (rs.next())
-            {
-                if (numberOfColumns > 1)
-                {
-                    ret = rs.getLong(column);
-                    if (rs.wasNull()) ret = -1;
-                }
-                else
-                {
-                    ret = rs.getLong(1);
-                    if (rs.wasNull()) ret = -1;
-                }
-            }
+          Method lastInsertId = statement.getClass().getMethod("getLastInsertID", new Class[0]);
+          ret = ((Long) lastInsertId.invoke(statement, new Object[0])).longValue();
         }
-        return ret;
+        catch (Throwable e)
+        {
+          Logger.log("Could not find last insert id: ", e);
+        }
+      }
+      else if (getUsesGeneratedKeys())
+      {
+        int col = 1;
+        ResultSet rs = statement.getGeneratedKeys();
+        ResultSetMetaData rsmd = rs.getMetaData();
+        int numberOfColumns = rsmd.getColumnCount();
+        ResultSet rs = statement.getGeneratedKeys();
+        ResultSetMetaData rsmd = rs.getMetaData();
+        int numberOfColumns = rsmd.getColumnCount();
+        if (rs.next())
+        {
+          if (numberOfColumns > 1)
+          {
+            ret = rs.getLong(column);
+            if (rs.wasNull()) ret = -1;
+          }
+          else
+          {
+            ret = rs.getLong(1);
+            if (rs.wasNull()) ret = -1;
+          }
+        }
+      }
+      else
+      {
+        if (lastInsertIDQuery == null)
+        {
+          Logger.error("getLastInsertID is not [yet] implemented for your dbms... Contribute!");
+        }
+        else
+        {
+          ResultSet rs = statement.getConnection().createStatement().executeQuery(lastInsertIDQuery);
+          rs.next();
+          ret = rs.getLong(1);
+          if (rs.wasNull()) ret = -1;
+        }
+      }
+      return ret;
     }
 
     /**

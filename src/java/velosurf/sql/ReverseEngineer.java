@@ -119,9 +119,10 @@ public class ReverseEngineer
      */
     protected void readMetaData() throws SQLException
     {
-        Connection connection = db.getConnection();
-        String catalog = connection.getCatalog();
+        ConnectionWrapper connection = db.getConnection();
         DatabaseMetaData meta = connection.getMetaData();
+        // give a chance to the driver to update itself with database metadata
+        connection.getDriver().configure(meta);
         ResultSet tables = null;
 
         // extra debug information about which jdbc driver we are using

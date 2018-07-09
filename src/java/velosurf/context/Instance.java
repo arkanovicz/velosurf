@@ -144,7 +144,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
      * <p>Generic getter with parameter, used to access this instance properties by their name.</p>
      * <p>Asked property is first searched in the Map, then among Attributes defined for the entity.</p>
      *
-     * @param k key of the property to be returned
+     * @param key key of the property to be returned
      * @param params passed parameters
      * @return a String, an Instance, an AttributeReference or null if an error occurs
      * @see HasParametrizedGetter
@@ -396,7 +396,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             List<String> whereClause = new ArrayList<String>();
             List<Object> params = new ArrayList<Object>();
             List<String> cols = entity.getUpdatableColumns();
-            String iqs = db.getConnection().getMetaData().getIdentifierQuoteString();
+            char iqs = db.getConnection().getDriver().getIdentifierQuoteChar();
 
             for (int c = 0; c < cols.size(); c++)
             {
@@ -516,7 +516,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             }
             List<String> whereClause = new ArrayList<String>();
             List<Object> params = new ArrayList<Object>();
-            String iqs = db.getConnection().getMetaData().getIdentifierQuoteString();
+            char iqs = db.getConnection().getDriver().getIdentifierQuoteChar();
 
             for (String col:entity.getPKCols())
             {
@@ -577,7 +577,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             List<String> valsClause = new ArrayList<String>();
             List<Object> params = new ArrayList<Object>();
             List<String> cols = entity.getColumns();
-            String iqs = db.getConnection().getMetaData().getIdentifierQuoteString();
+            char iqs = db.getConnection().getDriver().getIdentifierQuoteChar();
             for (String col:cols)
             {
                 Object value = getInternal(col);

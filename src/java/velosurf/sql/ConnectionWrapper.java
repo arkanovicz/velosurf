@@ -56,7 +56,7 @@ public class ConnectionWrapper
         return connection;
     }
 
-    DriverInfo getDriver()
+    public DriverInfo getDriver()
     {
         return driver;
     }
