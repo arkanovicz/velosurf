@@ -323,7 +323,7 @@ public class DriverInfo implements Serializable
   /**
      * Get the last inserted id.
      * @param statement source statement
-     * @param column key column name
+     * @param keyColumn key column name
      * @return last inserted id (or -1)
      * @throws SQLException
      */
@@ -349,14 +349,11 @@ public class DriverInfo implements Serializable
         ResultSet rs = statement.getGeneratedKeys();
         ResultSetMetaData rsmd = rs.getMetaData();
         int numberOfColumns = rsmd.getColumnCount();
-        ResultSet rs = statement.getGeneratedKeys();
-        ResultSetMetaData rsmd = rs.getMetaData();
-        int numberOfColumns = rsmd.getColumnCount();
         if (rs.next())
         {
           if (numberOfColumns > 1)
           {
-            ret = rs.getLong(column);
+            ret = rs.getLong(keyColumn);
             if (rs.wasNull()) ret = -1;
           }
           else

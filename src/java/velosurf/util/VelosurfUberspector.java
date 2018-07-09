@@ -40,7 +40,7 @@ public class VelosurfUberspector extends AbstractChainableUberspector
         }
         catch(NoSuchMethodException e)
         {
-          Logger.trace("[webapp-uberspect] no {}.getWithParams() method", obj.getClass().getName());
+          Logger.trace("[webapp-uberspect] no " + obj.getClass().getName() + ".getWithParams() method");
         }
         return ret;
     }

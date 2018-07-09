@@ -123,6 +123,7 @@ public class ReverseEngineer
         DatabaseMetaData meta = connection.getMetaData();
         // give a chance to the driver to update itself with database metadata
         connection.getDriver().configure(meta);
+        String catalog = connection.getCatalog();
         ResultSet tables = null;
 
         // extra debug information about which jdbc driver we are using

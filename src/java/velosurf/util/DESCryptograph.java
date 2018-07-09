@@ -117,15 +117,15 @@ public class DESCryptograph implements Cryptograph
         }
         catch(javax.crypto.BadPaddingException e)
         {
-            Logger.error("[crypto] error", e);
+            Logger.log(e);
         }
         catch(IllegalBlockSizeException e)
         {
-            Logger.error("[crypto] error", e);
+            Logger.log(e);
         }
         catch(UnsupportedEncodingException e)
         {
-            Logger.error("[crypto] error", e);
+            Logger.log(e);
         }
         return null;
     }
@@ -150,15 +150,15 @@ public class DESCryptograph implements Cryptograph
         }
         catch(javax.crypto.BadPaddingException e)
         {
-            Logger.error("[crypto] error", e);
+            Logger.log(e);
         }
         catch(IllegalBlockSizeException e)
         {
-            Logger.error("[crypto] error", e);
+            Logger.log(e);
         }
         catch(UnsupportedEncodingException e)
         {
-            Logger.error("[crypto] error", e);
+            Logger.log(e);
         }
         return null;
     }
@@ -214,7 +214,7 @@ public class DESCryptograph implements Cryptograph
             }
             catch(IOException ioe)
             {
-              Logger.error("[crypto] error", e);
+                Logger.log(ioe);
             }
         }
     }

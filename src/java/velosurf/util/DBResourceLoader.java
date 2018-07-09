@@ -72,15 +72,15 @@ public class DBResourceLoader extends ResourceLoader
         return((Date)table.fetch(resource.getName()).get(timestampField)).getTime();
     }
 
-    public Reader getResourceReader(String source,String encoding)
+    public Reader getResourceReader(String id, String encoding)
     {
         if(db == null)
         {
             initdb();
         }
 
-	// CB TODO - get the reader directly fro mthe DB
+	      // CB TODO - get the reader directly fro mthe DB
         String template = (String)table.fetch(id).get(dataField);
-	return template == null ? null : new StringReader(template);
+	      return template == null ? null : new StringReader(template);
     }
 }
