@@ -289,61 +289,43 @@ public class DriverInfo implements Serializable
     /**
      * Get the last inserted id.
      * @param statement source statement
+     * @param column key column name
      * @return last inserted id (or -1)
      * @throws SQLException
      */
-    public Object getLastInsertId(Statement statement) throws SQLException
+    public long getLastInsertId(Statement statement, String column) throws SQLException
     {
         long ret = -1;
 
-        if("mysql".equalsIgnoreCase(getJdbcTag()))
+        if ("mysql".equalsIgnoreCase(getJdbcTag()))
         {    /* MySql */
             try
             {
                 Method lastInsertId = statement.getClass().getMethod("getLastInsertID", new Class[0]);
-
-                ret = ((Long)lastInsertId.invoke(statement, new Object[0])).longValue();
+                ret = ((Long) lastInsertId.invoke(statement, new Object[0])).longValue();
             }
-            catch(Throwable e)
+            catch (Throwable e)
             {
                 Logger.log("Could not find last insert id: ", e);
             }
         }
         else if (getUsesGeneratedKeys())
         {
-          int col = 1;
-          ResultSet rs = statement.getGeneratedKeys();
-          ResultSetMetaData rsmd = rs.getMetaData();
-          int numberOfColumns = rsmd.getColumnCount();
-          rs.next();
-          if (numberOfColumns > 1)
-          {
-            Map<String,Object> res = new HashMap<String,Object>();
-            Logger.warn("Number of columns for generated keys > 1, return a map instead");
-	    for (int i = 1; i <= numberOfColumns ; i++)
+            ResultSet rs = statement.getGeneratedKeys();
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int numberOfColumns = rsmd.getColumnCount();
+            if (rs.next())
             {
-              Logger.debug("Column " + rsmd.getColumnName(i) + " of type " + rsmd.getColumnClassName(i));
-              res.put(rsmd.getColumnName(i),rs.getObject(i));
-            }
-            return res;
-          }
-          else
-          {
-            ret = rs.getLong(col);
-          }
-        }
-        else
-        {
-            if(lastInsertIDQuery == null)
-            {
-                Logger.error("getLastInsertID is not [yet] implemented for your dbms... Contribute!");
-            }
-            else
-            {
-                ResultSet rs = statement.getConnection().createStatement().executeQuery(lastInsertIDQuery);
-
-                rs.next();
-                ret = rs.getLong(1);
+                if (numberOfColumns > 1)
+                {
+                    ret = rs.getLong(column);
+                    if (rs.wasNull()) ret = -1;
+                }
+                else
+                {
+                    ret = rs.getLong(1);
+                    if (rs.wasNull()) ret = -1;
+                }
             }
         }
         return ret;

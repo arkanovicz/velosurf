@@ -601,37 +601,11 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             {
               /* What if the ID is not autoincremented? TODO check it. => reverse engineering of autoincrement, and set the value in the instance itself */
               String keycol = keys.get(0);
-              Object lastInsertId = statement.getLastInsertID();
-              if (lastInsertId != null)
+              long newid = statement.getLastInsertID(keycol);
+              db.getUserContext().setLastInsertedID(entity,newid);
+              if(getInternal(keycol) == null)
               {
-                long newid = -1;
-                if (lastInsertId instanceof Number)
-                {
-                  newid = ((Number)lastInsertId).longValue();
-                }
-                else if (lastInsertId instanceof Map)
-                {
-                  for (Map.Entry entry : ((Map)lastInsertId).entrySet())
-                  {
-                    if (keycol.equals(entry.getKey()))
-                    {
-                      lastInsertId = entry.getValue();
-                      if (lastInsertId != null && lastInsertId instanceof Number)
-                      {
-                        newid = ((Number)lastInsertId).longValue();
-                      }
-                      break;
-                    }
-                  }
-                }
-                if (newid != -1)
-                {
-                  db.getUserContext().setLastInsertedID(entity,newid);
-                  if(getInternal(keycol) == null)
-                  {
-                    put(keycol,entity.isObfuscated(keycol)?entity.obfuscate(newid):newid);
-                  }
-                }
+                put(keycol,entity.isObfuscated(keycol)?entity.obfuscate(newid):newid);
               }
             }
             setClean();

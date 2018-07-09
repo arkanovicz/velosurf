@@ -307,15 +307,9 @@ public class PooledSimpleStatement extends PooledStatement
      * @exception SQLException thrown by the database engine
      * @return last insert id
      */
-    public long getLastInsertID() throws SQLException
+    public long getLastInsertID(String keyColumn) throws SQLException
     {
-        Object lastinsertid = ((ConnectionWrapper)connection).getLastInsertId(statement);
-        long newid = -1;
-        if (lastinsertid instanceof Long)
-            {
-                newid = (Long)lastinsertid;
-            }
-        return newid;//TODO AA throw exception rather than -1 ? or return Object .
+        return ((ConnectionWrapper)connection).getLastInsertId(statement, keyColumn);
     }
 
     /**

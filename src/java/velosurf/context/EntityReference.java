@@ -122,7 +122,6 @@ public class EntityReference implements Iterable, Serializable
     public Serializable getLastInsertID()
     {
         long id = entity.getDB().getUserContext().getLastInsertedID(entity);
-
         return entity.filterID(id);
     }
 
