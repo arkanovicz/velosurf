@@ -424,7 +424,7 @@ public class DriverInfo implements Serializable
         addDriver("Sql Server", "sqlserver", new String[] { "com.microsoft.jdbc.sqlserver.SQLServerDriver",
             "com.jnetdirect.jsql.JSQLDriver", "com.merant.datadirect.jdbc.sqlserver.SQLServerDriver" }, "select 1",
             "TODO", "TODO", "autoincrement", false, true, null, null);
-        addDriver("MySql", "mysql", new String[] { "com.mysql.jdbc.Driver", "org.gjt.mm.mysql.Driver" }, "select 1",
+        addDriver("MySql", "mysql", new String[] { "com.mysql.cj.jdbc.Driver", "com.mysql.jdbc.Driver", "org.gjt.mm.mysql.Driver" }, "select 1",
                   "sensitive", null, "autoincrement", false, false, null, null);
         addDriver("OpenBase", "", new String[] { "com.openbase.jdbc.ObDriver" }, "select 1", "TODO", "TODO", "TODO",
                 false, false, null, null);
