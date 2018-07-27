@@ -383,4 +383,9 @@ public class DBReference extends SlotTreeMap implements HasParametrizedGetter
     private SlotMap externalParams = null;
 
 //  public void displayStats() { db.displayStats(); }
+
+    public Runnable getEventsQueue()
+    {
+        return db.getEventsQueue();
+    }
 }

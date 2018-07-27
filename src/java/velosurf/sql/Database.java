@@ -27,6 +27,7 @@ import velosurf.context.RowIterator;
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
 import velosurf.model.Action;
+import velosurf.model.EventsQueue;
 import velosurf.util.ConversionHandler;
 import velosurf.util.ConversionHandlerImpl;
 import velosurf.util.Converter;
@@ -1190,5 +1191,13 @@ Logger.debug("setting driver manager log");
     public Object filterParam(Object value)
     {
         return driverInfo.filterValue(value);
+    }
+
+    protected EventsQueue eventsQueue = null;
+
+    public synchronized EventsQueue getEventsQueue()
+    {
+        if (eventsQueue == null) eventsQueue = new EventsQueue();
+        return eventsQueue;
     }
 }

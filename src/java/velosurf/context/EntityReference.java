@@ -604,7 +604,7 @@ public class EntityReference implements Iterable, Serializable
      *
      * @return the list of column names
      */
-    public List getColumns()
+    public List<String> getColumns()
     {
         return entity.getColumns();
     }
@@ -636,4 +636,6 @@ public class EntityReference implements Iterable, Serializable
     {
         return "[" + getName() + " with attributes: " + entity.getAttributes().keySet() + "]";
     }
+
+    public void addListener(EntityListener listener) { entity.addListener(listener); }
 }

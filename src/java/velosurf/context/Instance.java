@@ -846,5 +846,4 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
 	}
 	return ret;
     }
-
 }

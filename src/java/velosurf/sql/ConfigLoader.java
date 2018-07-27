@@ -275,13 +275,23 @@ public class ConfigLoader
         this.database.setUser(credentials.getAttributeValue("user"));
         this.database.setPassword(credentials.getAttributeValue("password"));
 
-        String url = credentials.getAttributeValue("url");
-        if (url == null)
+        // to be able to put the URL in a CDATA section, we need it to be a child element instead of an attribute.
+        // CB TODO - it should be true for every parameter, imagine the password contains some '&' ...
+        Element urlTag = credentials.getChild("url");
+        String url = null;
+        if (urlTag == null)
         {
-            url = database.getAttributeValue("url");
+            url = credentials.getAttributeValue("url");
+            if (url == null)
+            {
+                url = database.getAttributeValue("url");
+            }
+        }
+        else
+        {
+            url = urlTag.getText();
         }
         this.database.setURL(url);
-
         String driver = credentials.getAttributeValue("driver");
         if (driver == null)
         {

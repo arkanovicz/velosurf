@@ -24,7 +24,9 @@ import java.math.BigInteger;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.*;
+
 import velosurf.cache.Cache;
+import velosurf.context.EntityListener;
 import velosurf.context.Instance;
 import velosurf.context.RowIterator;
 import velosurf.context.ExternalObjectWrapper;
@@ -43,7 +45,7 @@ import org.apache.commons.lang.StringEscapeUtils;
  *  @author <a href=mailto:claude.brisson@gmail.com>Claude Brisson</a>
  *
  */
-public class Entity implements Serializable
+public class Entity implements Serializable, EntityListener
 {
     /**
      * Constructor reserved for the framework.
@@ -1510,4 +1512,38 @@ public class Entity implements Serializable
         sqlTypeToClass.put(Types.TINYINT, Byte.class);
         sqlTypeToClass.put(Types.VARCHAR, String.class);
     }
+
+    private Set<EntityListener> listeners = null;
+    private EventsQueue eventQueue = null;
+
+    ;
+
+    public synchronized void addListener(EntityListener listener)
+    {
+        if (listeners == null) listeners = new HashSet<>();
+        listeners.add(listener);
+
+    }
+
+    public boolean hasListeners() { return listeners != null && listeners.size() > 0; }
+
+    public void dispatchEvent(EventsQueue.Event event)
+    {
+        switch (event.type)
+        {
+            case INSERT: for (EntityListener listener : listeners) listener.inserted(event.instance); break;
+            case UPDATE: for (EntityListener listener : listeners) listener.updated(event.instance, event.fields); break;
+            case DELETE: for (EntityListener listener : listeners) listener.deleted(event.instance); break;
+        }
+    }
+
+    @Override
+    public void inserted(Instance instance) { if (eventQueue != null) eventQueue.post(new EventsQueue.Event(EventsQueue.EventType.INSERT, instance)); }
+
+    @Override
+    public void deleted(Instance instance) { if (eventQueue != null) eventQueue.post(new EventsQueue.Event(EventsQueue.EventType.DELETE, instance)); }
+
+    @Override
+    public void updated(Instance instance, Set<String> fields) { if (eventQueue != null) eventQueue.post(new EventsQueue.Event(EventsQueue.EventType.INSERT, instance, fields)); }
+
 }
