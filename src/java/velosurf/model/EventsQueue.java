@@ -12,6 +12,8 @@ public class EventsQueue implements Runnable
 
   private Queue<Event> queue = null;
 
+  private static final int SLEEP_DELAY = 1000;
+
   public EventsQueue()
   {
     queue = new ConcurrentLinkedQueue<Event>();
@@ -28,12 +30,20 @@ public class EventsQueue implements Runnable
         Entity entity = EntityAccessor.getInstanceEntity(event.instance);
         entity.dispatchEvent(event);
       }
+      try
+      {
+        Thread.currentThread().sleep(SLEEP_DELAY);
+      }
+      catch (InterruptedException ie)
+      {
+        break;
+      }
     }
   }
 
   public void post(Event event) { queue.add(event); }
 
-  public static enum EventType { INSERT, UPDATE, DELETE }
+  public enum EventType { INSERT, UPDATE, DELETE }
 
   public static class Event
   {
