@@ -333,7 +333,7 @@ public class VelosurfTool extends DBReference
 
         Database db = dbMap.get(configFile);
 
-        return db == null ? null : new DBReference(db);
+        return db == null ? new DBReference(db) : db;
     }
 
     /**
