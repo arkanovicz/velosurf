@@ -358,17 +358,20 @@ public class AuthenticationFilter implements Filter
                 }
                 else
                 {
-                    // get a reference to the authenticator tool
-                    BaseAuthenticator auth = ToolFinder.findSessionTool(session,BaseAuthenticator.class);
-                    if (auth == null)
+                    // check answer
+                    boolean goodPassword = false;
+                    try
+                    {
+                        goodPassword = checkLogin(session, login, password);
+                    }
+                    catch (ServletException se)
                     {
                         Logger.error("[auth] cannot find any reference to the authenticator tool in the session!");
                         /* Maybe the current user tried to validate an expired login form... well... ask him again... */
                         response.sendRedirect(resolveLocalizedUri(request,loginPage));
                         return;
                     }
-                    // check answer
-                    if (auth.checkLogin(login,password))
+                    if (goodPassword)
                     {
                         // login ok
                         doLogin(request,response,chain);
@@ -400,6 +403,14 @@ public class AuthenticationFilter implements Filter
         session.setAttribute(USER, ToolFinder.findSessionTool(session,BaseAuthenticator.class).getUser((String)session.getAttribute(LOGIN)));
     }
 
+    protected boolean checkLogin(HttpSession session, String login, String password) throws ServletException
+    {
+        // get a reference to the authenticator tool
+        BaseAuthenticator auth = ToolFinder.findSessionTool(session,BaseAuthenticator.class);
+        if (auth == null) throw new ServletException("[auth] cannot find any reference to the authenticator tool in the session!");
+        return auth.checkLogin(login,password);
+    }
+    
     protected void doRedirect(HttpServletRequest request,HttpServletResponse response,FilterChain chain)
             throws IOException, ServletException
     {
