@@ -28,7 +28,6 @@ import java.util.Set;
 
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
-import velosurf.model.Attribute;
 import velosurf.util.Logger;
 import velosurf.util.SlotHashMap;
 import velosurf.util.SlotMap;
@@ -647,27 +646,4 @@ public class EntityReference implements Iterable, Serializable
     }
 
     public void addListener(EntityListener listener) { entity.addListener(listener); }
-
-    public int getAttributeType(String attrName)
-    {
-        Attribute attr = entity.getAttribute(attrName);
-        if (attr != null) return attr.getType();
-        else return -1;
-    }
-
-    public String getAttributeEntityName(String attrName)
-    {
-
-        Attribute attr = entity.getAttribute(attrName);
-        //check attribute is of type row
-        if (attr != null)
-            {
-                if(attr.getType() == Attribute.ROW)
-                    return attr.getResultEntity();
-                else return null;
-            }
-        else return null;
-
-    }
-    
 }
