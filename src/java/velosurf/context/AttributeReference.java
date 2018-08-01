@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.*;
 import velosurf.model.Attribute;
+import velosurf.model.Entity;
 import velosurf.util.Logger;
 import velosurf.util.SlotMap;
 import velosurf.util.StringLists;
@@ -262,6 +263,17 @@ public class AttributeReference implements Iterable, Serializable
     public void setOrder(String order)
     {
         this.order = order;
+    }
+
+    public EntityReference getEntity()
+    {
+        Entity entity = attribute.getEntity();
+        return entity == null ? null : new EntityReference(entity);
+    }
+
+    public int getResultType()
+    {
+        return attribute.getResultType();
     }
 
     /**

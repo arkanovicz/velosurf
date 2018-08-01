@@ -79,6 +79,8 @@ public class Attribute implements Serializable
         this.type = type;
     }
 
+    public int getResultType() { return type; }
+
     /**
      * Gets the parent entity
      * @return parent entity

@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import velosurf.model.Attribute;
 import velosurf.model.Entity;
 import velosurf.model.Attribute;
 import velosurf.util.Logger;
@@ -608,6 +610,12 @@ public class EntityReference implements Iterable, Serializable
     public List<String> getColumns()
     {
         return entity.getColumns();
+    }
+
+    public AttributeReference getAttribute(String name)
+    {
+        Attribute attribute = entity.getAttribute(name);
+        return attribute == null ? null : new AttributeReference(null, attribute);
     }
 
     public long getCount()
