@@ -271,6 +271,7 @@ public class AttributeReference implements Iterable, Serializable
         return entity == null ? null : new EntityReference(entity);
     }
 
+<<<<<<< HEAD
     public EntityReference getResultEntity()
     {
         EntityReference ret = null;
@@ -283,16 +284,21 @@ public class AttributeReference implements Iterable, Serializable
         return ret;
     }
 
+=======
+>>>>>>> a7c73d4db96ec1e3ce9a661613127e09078994cf
     public int getResultType()
     {
         return attribute.getResultType();
     }
 
+<<<<<<< HEAD
     public String getResultEntity()
     {
         return attribute.getResultEntity();
     }
 
+=======
+>>>>>>> a7c73d4db96ec1e3ce9a661613127e09078994cf
     /**
      * Specified refining criteria defined on this attribute reference.
      */
