@@ -271,6 +271,18 @@ public class AttributeReference implements Iterable, Serializable
         return entity == null ? null : new EntityReference(entity);
     }
 
+    public EntityReference getResultEntity()
+    {
+        EntityReference ret = null;
+        String resultEntity = attribute.getResultEntity();
+        if (resultEntity != null)
+        {
+            Entity entity = attribute.getDB().getEntity(resultEntity);
+            if (entity != null) ret = new EntityReference(entity);
+        }
+        return ret;
+    }
+
     public int getResultType()
     {
         return attribute.getResultType();
