@@ -288,6 +288,11 @@ public class AttributeReference implements Iterable, Serializable
         return attribute.getResultType();
     }
 
+    public String getResultEntity()
+    {
+        return attribute.getResultEntity();
+    }
+
     /**
      * Specified refining criteria defined on this attribute reference.
      */
