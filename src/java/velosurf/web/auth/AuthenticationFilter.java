@@ -347,7 +347,9 @@ public class AuthenticationFilter implements Filter
             if ( uri.endsWith("/login.do")
                     && (login = request.getParameter(loginField)) != null
                     && (password = request.getParameter(passwordField)) != null
-                    && session.getId().equals(request.getRequestedSessionId()))
+                    // for some containers those aren't the same values
+                    // for instance, jetty will append a suffix...
+                    /* && session.getId().equals(request.getRequestedSessionId()) */)
             {
                 // a user is trying to log in
 
