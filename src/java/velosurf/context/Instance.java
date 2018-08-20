@@ -396,6 +396,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             List<String> whereClause = new ArrayList<String>();
             List<Object> params = new ArrayList<Object>();
             List<String> cols = entity.getUpdatableColumns();
+            Set<String> updated = new HashSet<String>();
             char iqs = db.getConnection().getDriver().getIdentifierQuoteChar();
 
             for (int c = 0; c < cols.size(); c++)
@@ -403,6 +404,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
                 String col = cols.get(c);
                 if(dirtyFlags.get(c))
                 {
+                    updated.add(col);
                     Object value = getInternal(col);
                     updateClause.add(iqs + col + iqs + "=" + entity.getColumnMarker(col));
                     if (entity.isObfuscated(col) && value != null)
@@ -452,6 +454,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             but not invalidating the cache whenever key columns aren't touched is as much important
             and is probably the most current use case - so no invalidation for now, but it's very temporary
             */
+            entity.updated(this, updated);
             setClean();
             return true;
         }
@@ -543,6 +546,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
                 if (entity != null)
                 {
                     entity.invalidateInstance(this);
+                    entity.deleted(this);
                 }
             }
             return true;
@@ -612,6 +616,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             if (entity != null)
             {
                 entity.cacheInstance(this);
+                entity.inserted(this);
             }
             return true;
         }

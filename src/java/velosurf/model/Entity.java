@@ -1521,8 +1521,8 @@ public class Entity implements Serializable, EntityListener
     public synchronized void addListener(EntityListener listener)
     {
         if (listeners == null) listeners = new HashSet<>();
+        eventQueue = db.getEventsQueue();
         listeners.add(listener);
-
     }
 
     public boolean hasListeners() { return listeners != null && listeners.size() > 0; }
