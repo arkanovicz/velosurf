@@ -832,6 +832,16 @@ public class ConfigLoader
                 entity.setLocalized(localizedCols);
             }
 
+            /* parent entity */
+            String parentEntity = element.getAttributeValue("parent");
+            element.removeAttribute("parent");
+            if (parentEntity != null)
+            {
+                Entity parent = this.database.getEntity(parentEntity);
+                if (parent == null) throw new Exception("Entity " + entity.getName() + ": parent entity not found: " + parentEntity + ". Please define parent entities first.");
+                entity.setParentEntity(parent);
+            }
+
             /* aliases */
             Element aliases = element.getChild("aliases");
             if (aliases != null)

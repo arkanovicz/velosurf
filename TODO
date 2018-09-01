@@ -83,3 +83,4 @@ X upsert should clear dirtyflags if previous instance fields are not changed
 
  - no connection recovery in DReference.getWithParams
  - default field values are not populated on Instance.insert()
+ - "no naming collisions" mode?

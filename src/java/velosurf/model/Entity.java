@@ -1483,6 +1483,11 @@ public class Entity implements Serializable, EntityListener
     private Map<String,List<FieldConstraint>> constraints = new HashMap<String,List<FieldConstraint>>();
 
     /**
+     * Inherited entity, if any
+     */
+    private Entity parentEntity = null;
+
+    /**
      * java.sql.Types int to class (TODO - move it to a utility class)
      */
     static private Map<Integer, Class> sqlTypeToClass;
@@ -1545,5 +1550,15 @@ public class Entity implements Serializable, EntityListener
 
     @Override
     public void updated(Instance instance, Set<String> fields) { if (eventQueue != null) eventQueue.post(new EventsQueue.Event(EventsQueue.EventType.INSERT, instance, fields)); }
+
+    public Entity getParentEntity()
+    {
+        return parentEntity;
+    }
+
+    public void setParentEntity(Entity parentEntity)
+    {
+        this.parentEntity = parentEntity;
+    }
 
 }

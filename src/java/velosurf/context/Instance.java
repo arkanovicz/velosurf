@@ -196,6 +196,49 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
                         {
                             result = action.perform(source);
                         }
+                        else
+                        {
+                            Entity parentEntity = entity.getParentEntity();
+                            if (parentEntity != null)
+                            {
+                                Attribute parentAttribute = parentEntity.getAttribute(key);
+                            if (parentAttribute != null)
+                                {
+                                    switch (parentAttribute.getType())
+                                    {
+                                        case Attribute.ROWSET:
+                                            result = new AttributeReference(source, parentAttribute);
+                                            // then cache it in the map, so that order and refinement will work later in the same context
+                                            super.put(key, result);
+                                            break;
+                                        case Attribute.ROW:
+                                            result = parentAttribute.fetch(source);
+                                            if(parentAttribute.getCaching())
+                                            {
+                                                super.put(key,result);
+                                            }
+                                            break;
+                                        case Attribute.SCALAR:
+                                            result = parentAttribute.evaluate(source);
+                                            if(parentAttribute.getCaching())
+                                            {
+                                                super.put(key,result);
+                                            }
+                                            break;
+                                        default:
+                                            Logger.error("Unknown attribute type for "+parentEntity.getName()+"."+key+"!");
+                                    }
+                                }
+                                else
+                                {
+                                    Action parentAction = entity.getAction(key);
+                                    if (action != null)
+                                    {
+                                        result = parentAction.perform(source);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
