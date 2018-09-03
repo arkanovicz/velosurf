@@ -154,6 +154,7 @@ public class Entity implements Serializable, EntityListener
      */
     public Attribute getAttribute(String property)
     {
+        if(!attributeMap.containsKey(property) && parentEntity != null) return parentEntity.getAttribute(property);
         return (Attribute)attributeMap.get(db.adaptCase(property));
     }
 
@@ -523,6 +524,18 @@ public class Entity implements Serializable, EntityListener
     {
         return columns;
     }
+
+    public List<String> getAllColumns()
+    {
+        if(parentEntity != null)
+            {
+                List<String> res = new ArrayList(columns);
+                res.addAll(parentEntity.getColumns());
+                return res;
+            }
+        else return columns;
+    }
+    
 
     public List<String> getUpdatableColumns()
     {
@@ -1344,6 +1357,17 @@ public class Entity implements Serializable, EntityListener
         return attributeMap;
     }
 
+    public Map<String,Attribute> getAllAttributes()
+    {
+        if(parentEntity != null)
+            {
+                Map<String,Attribute> res = new HashMap(attributeMap);
+                res.putAll(parentEntity.getAttributes());
+                return res;
+            }
+        else return attributeMap;
+    }
+
     public Map<String,Action> getActions()
     {
         return actionMap;
@@ -1361,6 +1385,7 @@ public class Entity implements Serializable, EntityListener
      */
     public int getColumnType(String column)
     {
+        if(!types.containsKey(column) && parentEntity != null) return parentEntity.getColumnType(column);
         return types.get(column);
     }
 
