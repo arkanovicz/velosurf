@@ -617,6 +617,12 @@ public class EntityReference implements Iterable, Serializable
         return attribute == null ? null : new AttributeReference(null, attribute);
     }
 
+    public EntityReference getParentEntity()
+    {
+        Entity parent = entity.getParentEntity();
+        return parent == null ? null : new EntityReference(parent);
+    }
+    
     public long getCount()
     {
         return entity.getCount(refineCriteria);
