@@ -1574,7 +1574,7 @@ public class Entity implements Serializable, EntityListener
     public void deleted(Instance instance) { if (eventQueue != null) eventQueue.post(new EventsQueue.Event(EventsQueue.EventType.DELETE, instance)); }
 
     @Override
-    public void updated(Instance instance, Set<String> fields) { if (eventQueue != null) eventQueue.post(new EventsQueue.Event(EventsQueue.EventType.INSERT, instance, fields)); }
+    public void updated(Instance instance, Set<String> fields) { if (eventQueue != null) eventQueue.post(new EventsQueue.Event(EventsQueue.EventType.UPDATE, instance, fields)); }
 
     public Entity getParentEntity()
     {
