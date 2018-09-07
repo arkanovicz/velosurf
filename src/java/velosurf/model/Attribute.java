@@ -70,6 +70,11 @@ public class Attribute implements Serializable
         this.name = name;
     }
 
+    public List<String> getParamNames()
+    {
+        return paramNames;
+    }
+    
     /**
      * Sets the result type.
      * @param type

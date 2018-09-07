@@ -288,6 +288,11 @@ public class AttributeReference implements Iterable, Serializable
         return attribute.getResultType();
     }
 
+    public List<String> getParamNames()
+    {
+        return attribute.getParamNames();
+    }
+    
     /**
      * Specified refining criteria defined on this attribute reference.
      */
