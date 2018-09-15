@@ -128,8 +128,9 @@ public class Attribute implements Serializable
      * Adds a parameter name.
      * @param name name of a parameter.
      */
-    public void addParamName(String name)
+    public void addParamName(String name) throws SQLException
     {
+        if (name.equals(this.name)) throw new SQLException("Parameter name must differ from attribute name: " + name);
         paramNames.add(name);
     }
 
@@ -361,7 +362,7 @@ public class Attribute implements Serializable
         return result;
     }
 
-    protected String getQuery()
+    protected String getQuery() throws SQLException
     {
         return query == null ? db.getEntity(resultEntity).getFetchQuery() : query;
     }

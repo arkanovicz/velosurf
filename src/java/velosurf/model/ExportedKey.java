@@ -18,6 +18,7 @@
 
 package velosurf.model;
 
+import java.sql.SQLException;
 import java.util.List;
 import velosurf.util.Logger;
 import velosurf.util.StringLists;
@@ -87,7 +88,7 @@ public class ExportedKey extends Attribute
      * Query getter.
      * @return the SQL query
      */
-    protected synchronized String getQuery()
+    protected synchronized String getQuery() throws SQLException
     {
         if(query == null)
         {
