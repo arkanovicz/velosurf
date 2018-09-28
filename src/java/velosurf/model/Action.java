@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import velosurf.sql.Database;
+import velosurf.util.DynamicQueryBuilder;
 import velosurf.util.Logger;
 import velosurf.util.SlotMap;
 import velosurf.util.StringLists;
@@ -75,6 +76,13 @@ public class Action implements Serializable
     public void setQuery(String query)
     {
         this.query = query;
+        this.dynamicQuery = DynamicQueryBuilder.isDynamic(query);
+    }
+
+    protected String getQuery(SlotMap source) throws SQLException
+    {
+        if (!dynamicQuery) return query;
+        return DynamicQueryBuilder.buildQuery(query, source);
     }
 
     /**
@@ -88,7 +96,7 @@ public class Action implements Serializable
     {
         List params = buildArrayList(source);
 
-        return db.prepare(query, true).update(params);
+        return db.prepare(getQuery(source), true).update(params);
     }
 
     /**
@@ -193,4 +201,9 @@ public class Action implements Serializable
      * Query.
      */
     private String query = null;
+
+    /**
+     * whether query is dynamic
+     */
+    private boolean dynamicQuery = false;
 }

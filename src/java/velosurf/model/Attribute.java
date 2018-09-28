@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import velosurf.context.RowIterator;
 import velosurf.sql.Database;
 import velosurf.sql.SqlUtil;
+import velosurf.util.DynamicQueryBuilder;
 import velosurf.util.Logger;
 import velosurf.util.SlotMap;
 import velosurf.util.StringLists;
@@ -141,6 +142,7 @@ public class Attribute implements Serializable
     public void setQuery(String query)
     {
         this.query = query;
+        this.dynamicQuery = DynamicQueryBuilder.isDynamic(query);
     }
 
     /**
@@ -156,7 +158,7 @@ public class Attribute implements Serializable
         {
             throw new SQLException("cannot call fetch: result of attribute '" + name + "' is not a row");
         }
-        return db.prepare(getQuery(), false).fetch(buildArrayList(source), db.getEntity(resultEntity));
+        return db.prepare(getQuery(source), false).fetch(buildArrayList(source), db.getEntity(resultEntity));
     }
 
     /**
@@ -187,7 +189,7 @@ public class Attribute implements Serializable
             throw new SQLException("cannot call query: result of attribute '" + name + "' is not a rowset");
         }
 
-        String query = getQuery();
+        String query = getQuery(source);
 
         if(refineCriteria != null)
         {
@@ -243,7 +245,7 @@ public class Attribute implements Serializable
         {
             throw new SQLException("cannot call evaluate: result of attribute '" + name + "' is not a scalar");
         }
-        return db.prepare(getQuery(), false).evaluate(buildArrayList(source));
+        return db.prepare(getQuery(source), false).evaluate(buildArrayList(source));
     }
 
     /**
@@ -362,9 +364,11 @@ public class Attribute implements Serializable
         return result;
     }
 
-    protected String getQuery() throws SQLException
+    protected String getQuery(SlotMap source) throws SQLException
     {
-        return query == null ? db.getEntity(resultEntity).getFetchQuery() : query;
+        if (query == null) return db.getEntity(resultEntity).getFetchQuery();
+        if (!dynamicQuery) return query;
+        return DynamicQueryBuilder.buildQuery(query, source);
     }
 
     /**
@@ -430,6 +434,11 @@ public class Attribute implements Serializable
      * Attribute query.
      */
     protected String query = null;
+
+    /**
+     * whether query is dynamic
+     */
+    private boolean dynamicQuery = false;
 
     /**
      * Attribute type.
