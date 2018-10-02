@@ -1543,10 +1543,8 @@ public class Entity implements Serializable, EntityListener
         sqlTypeToClass.put(Types.VARCHAR, String.class);
     }
 
-    private Set<EntityListener> listeners = null;
-    private EventsQueue eventQueue = null;
-
-    ;
+    private transient Set<EntityListener> listeners = null;
+    private transient EventsQueue eventQueue = null;
 
     public synchronized void addListener(EntityListener listener)
     {
