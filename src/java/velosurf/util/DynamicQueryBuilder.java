@@ -9,12 +9,15 @@ import java.util.regex.Pattern;
 
 public class DynamicQueryBuilder
 {
-  private static Pattern balancedQuotes  = Pattern.compile("'[^']*?'|\"[^\"]*?\"");
+  // Not needed
+  // private static Pattern balancedQuotes  = Pattern.compile("'[^']*?'|\"[^\"]*?\"");
 
   static protected RenderTool renderTool = new RenderTool();
 
   public static boolean isDynamic(String query)
   {
+    // Not needed
+    /*
     StringBuilder unquoted = new StringBuilder();
     Matcher matcher = balancedQuotes.matcher(query);
     int pos = 0;
@@ -27,6 +30,8 @@ public class DynamicQueryBuilder
     unquoted.append(query.substring(pos));
     String str = unquoted.toString();
     return str.indexOf('#') != -1 || str.indexOf('$') != -1;
+    */
+    return query.indexOf('#') != -1 || query.indexOf('$') != -1;
   }
 
   public static String buildQuery(String vtl, SlotMap source)
