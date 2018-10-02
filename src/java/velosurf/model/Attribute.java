@@ -364,9 +364,14 @@ public class Attribute implements Serializable
         return result;
     }
 
-    protected String getQuery(SlotMap source) throws SQLException
+    protected synchronized String getQuery() throws SQLException
     {
-        if (query == null) return db.getEntity(resultEntity).getFetchQuery();
+        return db.getEntity(resultEntity).getFetchQuery();
+    }
+    
+    protected synchronized String getQuery(SlotMap source) throws SQLException
+    {
+        if (query == null) return getQuery();
         if (!dynamicQuery) return query;
         return DynamicQueryBuilder.buildQuery(query, source);
     }
