@@ -4,8 +4,6 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.tools.generic.RenderTool;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
