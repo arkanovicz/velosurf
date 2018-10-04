@@ -4,6 +4,8 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.tools.generic.RenderTool;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,7 +41,9 @@ public class DynamicQueryBuilder
     String query = null;
     try
     {
-      query = renderTool.eval(new VelocityContext(Collections.<String, Object>unmodifiableMap(source)), vtl);
+      // wraps the source as an unmodifiable map inside a modifiable context
+      VelocityContext context = new VelocityContext(new VelocityContext(Collections.<String, Object>unmodifiableMap(source)));
+      query = renderTool.eval(context, vtl);
     }
     catch (Exception e)
     {
