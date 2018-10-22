@@ -788,20 +788,22 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
      */
     public synchronized boolean upsert()
     {
-        List<SlotMap> primkey = getPrimaryKey();
-        if(primkey.size() != 1)
+        boolean insert = false;
+        SlotMap key = new SlotTreeMap();
+        for (String col : entity.getPKCols())
         {
-            Logger.error("Instance.upsert: singleton primary key expected"); // TODO CB - should throw/catch for homogeneity
-        return false;
+            Serializable keyVal = getInternal(col);
+            if (keyVal == null) { insert = true; break; }
+            key.put(col, keyVal);
         }
-        Object keyVal = primkey.get(0).get("value");
-        if(keyVal == null)
+
+        if(insert)
         {
             return insert();
         }
         else
         {
-            Instance previous = getEntity().fetch(String.valueOf(keyVal)); // CB  -TODO: there should be an Entity.fetch(Object) method
+            Instance previous = getEntity().fetch(key); // CB  -TODO: there should be an Entity.fetch(Object) method
             if (previous != null)
             {
                 List<String> cols = entity.getUpdatableColumns();
@@ -836,7 +838,6 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
         boolean ret = upsert();
 	if (ret)
 	{
-	    // for the time being, it means key is a single column
 	    List<SlotMap> primkey = getPrimaryKey();
 	    if (primkey.size() == 1)
 	    {
