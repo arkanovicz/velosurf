@@ -2,6 +2,7 @@ package velosurf.model;
 
 import velosurf.context.EntityAccessor;
 import velosurf.context.Instance;
+import velosurf.util.Logger;
 
 import java.util.Queue;
 import java.util.Set;
@@ -27,8 +28,21 @@ public class EventsQueue implements Runnable
       Event event;
       while ((event = queue.poll()) != null)
       {
-        Entity entity = EntityAccessor.getInstanceEntity(event.instance);
-        entity.dispatchEvent(event);
+        try
+        {
+          Entity entity = EntityAccessor.getInstanceEntity(event.instance);
+          entity.dispatchEvent(event);
+        }
+        catch (Exception e)
+        {
+          Logger.error("Exception while dispatching db event");
+          Logger.log(e);
+        }
+        if (Thread.currentThread().isInterrupted())
+        {
+          Logger.debug("db events queue has been stopped");
+          break;
+        }
       }
       try
       {
