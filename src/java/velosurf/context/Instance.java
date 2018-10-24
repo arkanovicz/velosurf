@@ -123,7 +123,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
      *
      * @return an ArrayList of two-entries maps ('name' & 'value')
      */
-    public List<SlotMap> getPrimaryKey()
+    public List<SlotMap> getPrimaryKey() // CB TODO - should be getPKFields(), along with a getFields() method
     {
         List<SlotMap> result = new ArrayList<SlotMap>();
         if (entity!=null)
@@ -140,6 +140,17 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
         return result;
     }
 
+    public boolean hasPrimaryKey()
+    {
+        for (Iterator i=entity.getPKCols().iterator();i.hasNext();)
+        {
+            String key = (String)i.next();
+            Serializable value = getInternal(key);
+            if (value == null) return false;
+        }
+        return true;
+    }
+    
     /**
      * <p>Generic getter with parameter, used to access this instance properties by their name.</p>
      * <p>Asked property is first searched in the Map, then among Attributes defined for the entity.</p>
