@@ -652,4 +652,11 @@ public class EntityReference implements Iterable, Serializable
     }
 
     public void addListener(EntityListener listener) { entity.addListener(listener); }
+
+    @Override
+    public boolean equals(Object comp)
+    {
+        if (comp == null || !(comp instanceof EntityReference)) return false;
+        return entity.equals(((EntityReference)comp).entity);
+    }
 }
