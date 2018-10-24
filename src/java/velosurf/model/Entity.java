@@ -522,7 +522,7 @@ public class Entity implements Serializable, EntityListener
      */
     public List<String> getColumns()
     {
-        return columns;
+        return Collections.unmodifiableList(columns);
     }
 
     public List<String> getAllColumns()

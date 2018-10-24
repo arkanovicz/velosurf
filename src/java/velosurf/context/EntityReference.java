@@ -608,7 +608,7 @@ public class EntityReference implements Iterable, Serializable
      */
     public List<String> getColumns()
     {
-        return entity.getColumns();
+        return new ArrayList<String>(entity.getColumns());
     }
 
     public AttributeReference getAttribute(String name)
