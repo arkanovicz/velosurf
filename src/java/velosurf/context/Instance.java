@@ -172,32 +172,36 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             {
                 if (entity!=null)
                 {
-                    Attribute attribute = entity.getAttribute(key);
-                    if (attribute != null)
+                    result = rowsetAttrCache.get(key);
+                    if (result == null)
                     {
-                        switch (attribute.getType())
+                        Attribute attribute = entity.getAttribute(key);
+                        if (attribute != null)
                         {
-                            case Attribute.ROWSET:
-                                result = new AttributeReference(source, attribute);
-                                // then cache it in the map, so that order and refinement will work later in the same context
-                                super.put(key, result);
-                                break;
-                            case Attribute.ROW:
-                                result = attribute.fetch(source);
-                                if(attribute.getCaching())
-                                {
-                                  super.put(key,result);
-                                }
-                                break;
-                            case Attribute.SCALAR:
-                                result = attribute.evaluate(source);
-                                if(attribute.getCaching())
-                                {
-                                  super.put(key,result);
-                                }
-                                break;
-                            default:
-                                Logger.error("Unknown attribute type for "+entity.getName()+"."+key+"!");
+                            switch (attribute.getType())
+                            {
+                                case Attribute.ROWSET:
+                                    result = new AttributeReference(source, attribute);
+                                    // then cache it, so that order and refinement will work later in the same context
+                                    rowsetAttrCache.put(key, (AttributeReference)result);
+                                    break;
+                                case Attribute.ROW:
+                                    result = attribute.fetch(source);
+                                    if(attribute.getCaching())
+                                    {
+                                        super.put(key,result);
+                                    }
+                                    break;
+                                case Attribute.SCALAR:
+                                    result = attribute.evaluate(source);
+                                    if(attribute.getCaching())
+                                    {
+                                        super.put(key,result);
+                                    }
+                                    break;
+                                default:
+                                    Logger.error("Unknown attribute type for "+entity.getName()+"."+key+"!");
+                            }
                         }
                     }
                     else
@@ -764,6 +768,8 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
      */
     protected List<Boolean> dirtyFlags = null;
 
+    protected Map<String, AttributeReference> rowsetAttrCache = new HashMap<String, AttributeReference>();
+    
     /**
       Inherit toString to avoid listing cached AttributeReference
      */
