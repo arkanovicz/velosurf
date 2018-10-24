@@ -142,13 +142,14 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
 
     public boolean hasPrimaryKey()
     {
-        for (Iterator i=entity.getPKCols().iterator();i.hasNext();)
+        List<String> pkCols = entity.getPKCols();
+        for (Iterator i=pkCols.iterator();i.hasNext();)
         {
             String key = (String)i.next();
             Serializable value = getInternal(key);
             if (value == null) return false;
         }
-        return true;
+        return pkCols.size() > 0;
     }
     
     /**
