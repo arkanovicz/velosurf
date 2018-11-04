@@ -18,21 +18,21 @@
 
 package velosurf.context;
 
+import java.awt.*;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.List;
+
 import velosurf.model.Action;
 import velosurf.model.Attribute;
 import velosurf.model.Entity;
+import velosurf.model.EventsQueue.EventType;
+import static velosurf.model.EventsQueue.EventType.*;
 import velosurf.sql.Database;
 import velosurf.sql.PooledPreparedStatement;
 // import velosurf.util.ConcurrentSlotTreeMap; - CB TODO
-import velosurf.util.Logger;
-import velosurf.util.ParametrizedSourceMap;
-import velosurf.util.SlotHashMap;
-import velosurf.util.SlotMap;
-import velosurf.util.SlotTreeMap;
-import velosurf.util.StringLists;
+import velosurf.util.*;
 
 /**
  * An Instance provides field values by their name.
@@ -513,7 +513,18 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             but not invalidating the cache whenever key columns aren't touched is as much important
             and is probably the most current use case - so no invalidation for now, but it's very temporary
             */
-            entity.updated(this, updated);
+            if (eventsPosponed)
+            {
+                if (postponedEvent != null)
+                {
+                    if (postponedEvent != null)
+                    {
+                        throw new SQLException("There is already a postponed event");
+                    }
+                    postponedEvent = new Pair<EventType, Set<String>>(UPDATE, updated);
+                }
+            }
+            else entity.updated(this, updated);
             setClean();
             return true;
         }
@@ -605,7 +616,15 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
                 if (entity != null)
                 {
                     entity.invalidateInstance(this);
-                    entity.deleted(this);
+                    if (eventsPosponed)
+                    {
+                        if (postponedEvent != null)
+                        {
+                            throw new SQLException("There is already a postponed event");
+                        }
+                        postponedEvent = new Pair<EventType, Set<String>>(DELETE, null);
+                    }
+                    else entity.deleted(this);
                 }
             }
             return true;
@@ -675,7 +694,15 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             if (entity != null)
             {
                 entity.cacheInstance(this);
-                entity.inserted(this);
+                if (eventsPosponed)
+                {
+                    if (postponedEvent != null)
+                    {
+                        throw new SQLException("There is already a postponed event");
+                    }
+                    postponedEvent = new Pair<EventType, Set<String>>(INSERT, null);
+                }
+                else entity.inserted(this);
             }
             return true;
         }
@@ -913,4 +940,27 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
 	}
 	return ret;
     }
+
+  boolean eventsPosponed = false;
+  Pair<EventType, Set<String>> postponedEvent = null;
+
+  public void posponeEvents()
+  {
+      eventsPosponed = true;
+  }
+
+  public void releaseEvents()
+  {
+      if (postponedEvent != null)
+      {
+          switch (postponedEvent.getFirst())
+          {
+              case INSERT: entity.inserted(this); break;
+              case DELETE: entity.deleted(this); break;
+              case UPDATE: entity.updated(this, postponedEvent.getSecond()); break;
+          }
+      }
+      postponedEvent = null;
+      eventsPosponed = false;
+  }
 }
