@@ -171,7 +171,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             result = super.get(key);
             if (result == null)
             {
-                if (entity!=null)
+                if (entity != null)
                 {
                     result = rowsetAttrCache.get(key);
                     if (result == null)
@@ -204,53 +204,54 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
                                     Logger.error("Unknown attribute type for "+entity.getName()+"."+key+"!");
                             }
                         }
-                    }
-                    else
-                    {
-                        Action action = entity.getAction(key);
-                        if (action != null)
-                        {
-                            result = action.perform(source);
-                        }
                         else
                         {
-                            Entity parentEntity = entity.getParentEntity();
-                            if (parentEntity != null)
+                            Action action = entity.getAction(key);
+                            if (action != null)
                             {
-                                Attribute parentAttribute = parentEntity.getAttribute(key);
-                            if (parentAttribute != null)
+                                result = action.perform(source);
+                            }
+                            else
+                            {
+                                // CB TODO - redundant code!!!
+                                Entity parentEntity = entity.getParentEntity();
+                                if (parentEntity != null)
                                 {
-                                    switch (parentAttribute.getType())
+                                    Attribute parentAttribute = parentEntity.getAttribute(key);
+                                    if (parentAttribute != null)
                                     {
-                                        case Attribute.ROWSET:
-                                            result = new AttributeReference(source, parentAttribute);
-                                            // then cache it in the map, so that order and refinement will work later in the same context
-                                            super.put(key, result);
-                                            break;
-                                        case Attribute.ROW:
-                                            result = parentAttribute.fetch(source);
-                                            if(parentAttribute.getCaching())
-                                            {
-                                                super.put(key,result);
-                                            }
-                                            break;
-                                        case Attribute.SCALAR:
-                                            result = parentAttribute.evaluate(source);
-                                            if(parentAttribute.getCaching())
-                                            {
-                                                super.put(key,result);
-                                            }
-                                            break;
-                                        default:
-                                            Logger.error("Unknown attribute type for "+parentEntity.getName()+"."+key+"!");
+                                        switch (parentAttribute.getType())
+                                        {
+                                            case Attribute.ROWSET:
+                                                result = new AttributeReference(source, parentAttribute);
+                                                // then cache it in the map, so that order and refinement will work later in the same context
+                                                super.put(key, result);
+                                                break;
+                                            case Attribute.ROW:
+                                                result = parentAttribute.fetch(source);
+                                                if (parentAttribute.getCaching())
+                                                {
+                                                    super.put(key, result);
+                                                }
+                                                break;
+                                            case Attribute.SCALAR:
+                                                result = parentAttribute.evaluate(source);
+                                                if (parentAttribute.getCaching())
+                                                {
+                                                    super.put(key, result);
+                                                }
+                                                break;
+                                            default:
+                                                Logger.error("Unknown attribute type for " + parentEntity.getName() + "." + key + "!");
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    Action parentAction = entity.getAction(key);
-                                    if (action != null)
+                                    else
                                     {
-                                        result = parentAction.perform(source);
+                                        Action parentAction = entity.getAction(key);
+                                        if (action != null)
+                                        {
+                                            result = parentAction.perform(source);
+                                        }
                                     }
                                 }
                             }
