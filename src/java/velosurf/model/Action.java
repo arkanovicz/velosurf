@@ -132,7 +132,9 @@ public class Action implements Serializable
                 }
                 if(value == null)
                 {
-                    Logger.debug("Action " + getEntity().getName() + "." + name + ": param " + paramName + " is null!");
+                    // TODO - check if "<param/> is [not] null" is present in the query
+                    // to choose the apropriate log level
+                    Logger.trace("Action " + getEntity().getName() + "." + name + ": param " + paramName + " is null!");
                 }
                 result.add(value);
             }

@@ -303,7 +303,9 @@ public class Attribute implements Serializable
                 }
                 if(value == null)
                 {
-                    Logger.debug("Attribute " + getEntity().getName() + "." + name + ": param " + paramName
+                    // TODO - check if "<param/> is [not] null" is present in the query
+                    // to choose the apropriate log level
+                    Logger.trace("Attribute " + getEntity().getName() + "." + name + ": param " + paramName
                                 + " is null!");
                 }
                 value = db.filterParam(value);
