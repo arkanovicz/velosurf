@@ -250,14 +250,14 @@ Please specify a target among :
   </target>
 
   <target name="-velocity-tools-generic-download">
-   <property name="download.group" value="org/apache/velocity"/>
+   <property name="download.group" value="org/apache/velocity/tools"/>
    <property name="download.jar" value="velocity-tools-generic"/>
    <property name="download.version" value="${jar.velocity-tools.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
   <target name="-velocity-tools-view-download">
-   <property name="download.group" value="org/apache/velocity"/>
+   <property name="download.group" value="org/apache/velocity/tools"/>
    <property name="download.jar" value="velocity-tools-view"/>
    <property name="download.version" value="${jar.velocity-tools.version}" />
    <antcall target="-download-if-needed"/>
