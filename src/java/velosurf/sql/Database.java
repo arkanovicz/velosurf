@@ -1193,7 +1193,7 @@ Logger.debug("setting driver manager log");
         return driverInfo.filterValue(value);
     }
 
-    protected EventsQueue eventsQueue = null;
+    protected transient EventsQueue eventsQueue = null;
 
     public synchronized EventsQueue getEventsQueue()
     {
