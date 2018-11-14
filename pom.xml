@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>velosurf</groupId>
     <artifactId>velosurf</artifactId>
-    <version>2.4.32</version>
+    <version>2.4.33</version>
     <packaging>jar</packaging>
     <name>Velosurf</name>
     <description>Velosurf ORM layer for Apache Velocity</description>

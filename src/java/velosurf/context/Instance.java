@@ -476,8 +476,7 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
             }
             if(updateClause.size() ==0)
             {
-                Logger.warn("update of instance '"+entity.getName()+"' all non-key columns are null or non-dirty - no update will be performed");
-                // return true anyway ?
+                Logger.debug("update of instance '"+entity.getName()+"' all non-key columns are null or non-dirty - no update will be performed");
                 return true;
             }
             // CB TODO - urgent - see if PK cols are dirty to trigger invalidation, see bbelow
