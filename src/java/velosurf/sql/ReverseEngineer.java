@@ -256,7 +256,8 @@ public class ReverseEngineer
             while(cols.next())
             {
                 String column = adaptCase(cols.getString("COLUMN_NAME"));
-                entity.addColumn(column, cols.getInt("DATA_TYPE"), cols.getString("TYPE_NAME"));
+                Integer size = cols.getInt("COLUMN_SIZE");
+                entity.addColumn(column, cols.getInt("DATA_TYPE"), cols.getString("TYPE_NAME"), size);
             }
         }
         finally

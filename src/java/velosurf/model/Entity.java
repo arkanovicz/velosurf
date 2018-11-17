@@ -73,12 +73,28 @@ public class Entity implements Serializable, EntityListener
      * Add a column at the end of the sequential list of named columns. Called during the reverse engeenering of the database.
      *
      * @param colName column name
+     * @param sqlType java int constant for sql type
+     * @param typeName sql type name
      */
     public void addColumn(String colName, int sqlType, String typeName)
+    {
+        addColumn(colName, sqlType, typeName, (Integer)null);
+    }
+    
+    /**
+     * Add a column at the end of the sequential list of named columns. Called during the reverse engeenering of the database.
+     *
+     * @param colName column name
+     * @param sqlType java int constant for sql type
+     * @param typeName sql type name
+     * @param size optional column size
+     */
+    public void addColumn(String colName, int sqlType, String typeName, Integer size)
     {
         colName = db.adaptCase(colName);
         columns.add(colName);
         types.put(colName,sqlType);
+        if (size != null) sizes.put(colName, size);
         /* if (colnames as aliases) */ aliases.put(colName,colName);
 
         /* column marker for PostgreSQL enums needs to contain type name */
@@ -1379,6 +1395,17 @@ public class Entity implements Serializable, EntityListener
     }
 
     /**
+     * Get the size of the specified column 
+     * @param column column name
+     * @return the column size or null of not applicable
+     */
+    public int getColumnSize(String column)
+    {
+        if(!sizes.containsKey(column) && parentEntity != null) return parentEntity.getColumnSize(column);
+        return sizes.get(column);
+    }
+
+    /**
      * Get the SQL type for the specified column 
      * @param column column name
      * @return the sql type
@@ -1416,6 +1443,11 @@ public class Entity implements Serializable, EntityListener
      * Column types
      */
     private Map<String,Integer> types = new HashMap<String,Integer>();
+
+    /**
+     * Column sizes
+     */
+    private Map<String,Integer> sizes = new HashMap<String,Integer>();
 
     /**
      * Column markers: either '?' or '?::<i>enum-type-name</i> for PostgreSQL enums
