@@ -101,7 +101,7 @@ public class PreparedStatementPool implements /* Runnable, */ Pool
                             query, connection.getDriver().getUsesGeneratedKeys() ?
                                     Statement.RETURN_GENERATED_KEYS :
                                     Statement.NO_GENERATED_KEYS) :
-                    connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY));
+                    connection.prepareStatement(query, connection.getDriver().getResultSetType(), ResultSet.CONCUR_READ_ONLY));
         statementsMap.put(query, statement);
         statement.notifyInUse();
         return statement;

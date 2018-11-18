@@ -147,6 +147,10 @@ public class DriverInfo implements Serializable
         this.lastInsertIDQuery = lastInsertIDQuery;
         this.ignorePattern = (ignorePattern == null ? null : Pattern.compile(ignorePattern));
 
+        // temporary hack to set forward only result sets for vertica, to avoid adding a new parameter in constructor
+        // TODO
+      this.resultSetType = "vertica".equals(jdbcTag) ? ResultSet.TYPE_FORWARD_ONLY : ResultSet.TYPE_SCROLL_INSENSITIVE;
+
 //      this.IDGenerationQuery = IDGenerationQuery;
     }
 
@@ -182,6 +186,9 @@ public class DriverInfo implements Serializable
 
     /** ignore tables matchoing this pattern */
     private Pattern ignorePattern;
+
+    /** result set type */
+    private int resultSetType;
 
   /** identifier quote character */
    private char identifierQuoteChar = ' ';
@@ -284,6 +291,15 @@ public class DriverInfo implements Serializable
     public boolean getUsesGeneratedKeys()
     {
         return usesGeneratedKeys;
+    }
+
+  /**
+   * Get result set type
+   * @return result set type
+   */
+  public int getResultSetType()
+    {
+      return resultSetType;
     }
 
   /**
