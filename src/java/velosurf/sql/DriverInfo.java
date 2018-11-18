@@ -439,6 +439,8 @@ public class DriverInfo implements Serializable
         addDriver("Weblogic", "weblogic", new String[] { "weblogic.jdbc.pool.Driver" }, "select 1", "TODO", "TODO",
                   "none", false, false, null, null);
 
+        addDriver("Vertica", "vertica", new String[] { "com.vertica.jdbc.Driver" }, "select 1", "uppercase", "TODO", "autoincrement", false, false,  null, null);
+
         // unknwon driver
         addDriver("Unknown driver", "unknown", new String[] {}, "select 1", "sensitive", null, "none", false, false,
                 null, null);
