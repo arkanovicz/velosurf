@@ -675,7 +675,16 @@ public class Instance extends /*Concurrent*/SlotTreeMap implements HasParametriz
                 }
             }
 
-            String query = "insert into "+ iqs +entity.getTableName()+ iqs + " ("+StringLists.join(colsClause,",")+") values ("+StringLists.join(valsClause,",")+")";
+            String query;
+            // HACK for empty values... this is another driver-specific clause to add - TODO
+            if (colsClause.isEmpty() && db.getConnection().getDriver().getJdbcTag().equals("vertica"))
+            {
+                query = "insert into " + iqs + entity.getTableName() + iqs + " default values";
+            }
+            else
+            {
+                query = "insert into " + iqs + entity.getTableName() + iqs + " (" + StringLists.join(colsClause, ",") + ") values (" + StringLists.join(valsClause, ",") + ")";
+            }
             PooledPreparedStatement statement = db.prepare(query, true);
             statement.update(params);
             List<String> keys = entity.getPKCols();
