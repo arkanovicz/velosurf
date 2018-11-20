@@ -151,6 +151,9 @@ public class DriverInfo implements Serializable
         // TODO
       this.resultSetType = "vertica".equals(jdbcTag) ? ResultSet.TYPE_FORWARD_ONLY : ResultSet.TYPE_SCROLL_INSENSITIVE;
 
+      // idem TODO
+      columnMarkers = "vertica".equals(jdbcTag) || "mysql".equals(jdbcTag);
+
 //      this.IDGenerationQuery = IDGenerationQuery;
     }
 
@@ -192,6 +195,9 @@ public class DriverInfo implements Serializable
 
   /** identifier quote character */
    private char identifierQuoteChar = ' ';
+
+  /** whether driver supports ::varchar etc... */
+  private boolean columnMarkers;
 
 //  not yet implemented (TODO)
 //    public String IDGenerationQuery;   // ID generation query
@@ -477,4 +483,10 @@ public class DriverInfo implements Serializable
         }
         return value;
     }
+
+    public boolean hasColumnMarkers()
+    {
+      return columnMarkers;
+    }
+
 }

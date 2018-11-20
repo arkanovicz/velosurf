@@ -141,6 +141,10 @@ public class Attribute implements Serializable
      */
     public void setQuery(String query)
     {
+        if (!db.getDriverInfo().hasColumnMarkers())
+        {
+            query = query.replaceAll("::[a-z]*", "");
+        }
         this.query = query;
         this.dynamicQuery = DynamicQueryBuilder.isDynamic(query);
     }
