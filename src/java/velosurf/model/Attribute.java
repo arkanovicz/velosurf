@@ -145,6 +145,10 @@ public class Attribute implements Serializable
         {
             query = query.replaceAll("::[a-z]*", "");
         }
+        else
+        {
+            query = query.replaceAll("\\? (::[a-z]*)", "?$1");
+        }
         this.query = query;
         this.dynamicQuery = DynamicQueryBuilder.isDynamic(query);
     }
