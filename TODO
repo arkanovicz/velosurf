@@ -86,3 +86,4 @@ X upsert should clear dirtyflags if previous instance fields are not changed
  - "no naming collisions" mode?
  - current Instance.getPrimaryKey() should be getPKFields(), getPrimaryKey should return an ordered list
  - AttributeReference getMap() should return a key->instance map
+ - A way to get a List<scalar> instead of List<Instance>

@@ -152,7 +152,7 @@ public class DriverInfo implements Serializable
       this.resultSetType = "vertica".equals(jdbcTag) ? ResultSet.TYPE_FORWARD_ONLY : ResultSet.TYPE_SCROLL_INSENSITIVE;
 
       // idem TODO
-      columnMarkers = "vertica".equals(jdbcTag) || "mysql".equals(jdbcTag);
+      columnMarkers = "vertica".equals(jdbcTag) || "postgresql".equals(jdbcTag);
 
 //      this.IDGenerationQuery = IDGenerationQuery;
     }
