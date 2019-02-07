@@ -24,7 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
-import org.apache.velocity.tools.view.context.ViewContext;
+import org.apache.velocity.tools.view.ViewContext;
 import velosurf.context.DBReference;
 import velosurf.context.EntityReference;
 import velosurf.context.Instance;

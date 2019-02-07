@@ -17,10 +17,12 @@ import velosurf.util.SlotMap;
  */
 public class VelosurfUberspector extends AbstractChainableUberspector
 {
-    public VelMethod getMethod(Object obj, String methodName, Object[] args, Info i) throws Exception
+    public VelMethod getMethod(Object obj, String methodName, Object[] args, Info i)
     {
         VelMethod ret = super.getMethod(obj, methodName, args, i);
-
+        try
+        {
+	  // CB - TODO - why rely on an interface?
         if(ret == null && obj instanceof HasParametrizedGetter && args.length == 1)
         {
             if(args[0] instanceof SlotMap)
@@ -33,6 +35,11 @@ public class VelosurfUberspector extends AbstractChainableUberspector
                 Method method = obj.getClass().getMethod("getWithParams", String.class, Map.class);
                 ret = new VelParametrizedGetterMethod(methodName, method);
             }
+          }
+        }
+        catch(NoSuchMethodException e)
+        {
+          Logger.trace("[webapp-uberspect] no " + obj.getClass().getName() + ".getWithParams() method");
         }
         return ret;
     }
@@ -48,9 +55,22 @@ public class VelosurfUberspector extends AbstractChainableUberspector
             method = m;
         }
 
-        public Object invoke(Object obj, Object[] args) throws Exception
+        public Object invoke(Object obj, Object[] args)
         {
-            return method.invoke(obj, key, args[0]);
+            Object ret= null;
+            try
+                {
+                    ret = method.invoke(obj, key, args[0]);
+                }
+            catch(IllegalAccessException iae)
+                {
+                    iae.printStackTrace();
+                }
+            catch(InvocationTargetException ite)
+                {
+                    ite.printStackTrace();
+                }
+            return ret;            
         }
 
         public boolean isCacheable()
@@ -66,6 +86,11 @@ public class VelosurfUberspector extends AbstractChainableUberspector
         public Class getReturnType()
         {
             return method.getReturnType();
+        }
+
+        public Method getMethod()
+        {
+            return method;
         }
     }
 }
