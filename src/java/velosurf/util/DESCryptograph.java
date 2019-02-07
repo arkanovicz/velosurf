@@ -26,6 +26,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import java.util.Base64;
 
 /**
  * Implemenation of the cryptograph for the DES algorithm.
@@ -112,23 +113,19 @@ public class DESCryptograph implements Cryptograph
             byte[] enc = ecipher.doFinal(utf8);
 
             // Encode bytes to base64 to get a string
-            return new sun.misc.BASE64Encoder().encode(enc);
+            return new String(Base64.getEncoder().encode(enc));
         }
         catch(javax.crypto.BadPaddingException e)
         {
-            e.printStackTrace();
+            Logger.log(e);
         }
         catch(IllegalBlockSizeException e)
         {
-            e.printStackTrace();
+            Logger.log(e);
         }
         catch(UnsupportedEncodingException e)
         {
-            e.printStackTrace();
-        }
-        catch(java.io.IOException e)
-        {
-            e.printStackTrace();
+            Logger.log(e);
         }
         return null;
     }
@@ -143,7 +140,7 @@ public class DESCryptograph implements Cryptograph
         try
         {
             // Decode base64 to get bytes
-            byte[] dec = new sun.misc.BASE64Decoder().decodeBuffer(str);
+            byte[] dec = Base64.getDecoder().decode(str);
 
             // Decrypt
             byte[] utf8 = dcipher.doFinal(dec);
@@ -151,10 +148,18 @@ public class DESCryptograph implements Cryptograph
             // Decode using utf-8
             return new String(utf8, "UTF8");
         }
-        catch(javax.crypto.BadPaddingException e) {}
-        catch(IllegalBlockSizeException e) {}
-        catch(UnsupportedEncodingException e) {}
-        catch(java.io.IOException e) {}
+        catch(javax.crypto.BadPaddingException e)
+        {
+            Logger.log(e);
+        }
+        catch(IllegalBlockSizeException e)
+        {
+            Logger.log(e);
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            Logger.log(e);
+        }
         return null;
     }
 
