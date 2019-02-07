@@ -1,6 +1,7 @@
 package velosurf.util;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import org.apache.velocity.util.introspection.*;
 import velosurf.context.HasParametrizedGetter;
