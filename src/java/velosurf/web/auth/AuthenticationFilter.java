@@ -280,7 +280,7 @@ public class AuthenticationFilter implements Filter
     /**
      * Check if a specific request needs login protection
      */
-    public boolean isProtected(HttpServletRequest request)
+    protected boolean isProtected(HttpServletRequest request)
     {
         String uri = request.getRequestURI();
         /* never protect the login page itself */
