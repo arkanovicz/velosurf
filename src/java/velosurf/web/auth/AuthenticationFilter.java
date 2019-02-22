@@ -278,6 +278,17 @@ public class AuthenticationFilter implements Filter
     }
 
     /**
+     * Check if a specific request needs login protection
+     */
+    public boolean isProtected(HttpServletRequest request)
+    {
+        String uri = request.getRequestURI();
+        /* never protect the login page itself */
+        if (uri.equals(resolveLocalizedUri(request,loginPage))) return false;
+        return true;
+    }
+    
+    /**
      * Filtering.
      * @param servletRequest request
      * @param servletResponse response
@@ -327,8 +338,7 @@ public class AuthenticationFilter implements Filter
         }
         else
         {
-            /* never protect the login page itself */
-            if (uri.equals(resolveLocalizedUri(request,loginPage)))
+            if (!isProtected(request))
             {
                 chain.doFilter(request,response);
                 return;

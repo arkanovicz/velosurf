@@ -91,3 +91,4 @@ X upsert should clear dirtyflags if previous instance fields are not changed
 --- 2019
 
  - $db.set(action) rather than $db.get(action)
+ - review auth: login by cookie as auth plugin, oauth2, etc...
