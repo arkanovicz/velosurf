@@ -659,4 +659,16 @@ public class EntityReference implements Iterable, Serializable
         if (comp == null || !(comp instanceof EntityReference)) return false;
         return entity.equals(((EntityReference)comp).entity);
     }
+
+    public List<String> getPKCols()
+    {
+        return entity.getPKCols();
+    }
+
+    public String getPKCol()
+    {
+        List<String> cols = entity.getPKCols();
+        if(cols != null && cols.size() == 1) return cols.get(0);
+        else return null;
+    }
 }
