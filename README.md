@@ -1,17 +1,20 @@
-This is the README file for Velosurf.
+# Velosurf Library
 
-WHAT IS IT ? 
-------------
+<div style="fontweight:bold; color:red; border:solid 1px red;">
+    The Velosurf project is deprecated.
+    <br/>
+    Please use the [Modality](https://github.com/arkanovicz/modality) project.
+</div>
 
-Velosurf is a database access layer for the Apache Velocity template engine
-(http://velocity.apache.org). It provides an automatic database mapping
+## WHAT IS IT ? 
+
+Velosurf is a database access layer for the [Apache Velocity template engine](http://velocity.apache.org). It provides an automatic database mapping
 of tables and relationships without any code generation.
 
 In the context of a Webapp, Velosurf also provides handy tools for
 authentication, localization and forms validation.
 
-WHY VELOSURF ?
---------------
+## WHY VELOSURF ?
 
 Mainly, to avoid rewriting each time specific database mapping layers in each
 project involving velocity and database entities that template writers have to
@@ -27,22 +30,19 @@ from a standard xml config for Velocity.
 
 Velosurf appears as such a tool.
 
-HOW TO USE ?
-----------------
+## HOW TO USE ?
 
 Velosurf can be used either from a standard java application, or from a
 VelocityTools webapp.
 
 Please refer to docs/download.html and docs/installation.html.
 
-HOW TO BUILD ?
-----------------
+## HOW TO BUILD ?
 
 First, you'll need to have Apache Ant installed.
 Then, go to the ./build/ directory and run 'ant jar'.
 
-HOW TO TEST ?
--------------
+## HOW TO TEST ?
 
 With ant installed, you can test Velosurf with the 'ant test' command.
 
