@@ -1,9 +1,13 @@
+<style type="text/css">
+    div.warning { font-weight:bold; color:red; border:solid 1px red; }
+</style>
+
 # Velosurf Library
 
-<div style="fontweight:bold; color:red; border:solid 1px red;">
+<div class="warning">
     The Velosurf project is deprecated.
     <br/>
-    Please use the [Modality](https://github.com/arkanovicz/modality) project.
+    Please use the <a href="https://github.com/arkanovicz/modality">Modality</a> project.
 </div>
 
 ## WHAT IS IT ? 
