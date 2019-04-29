@@ -2,8 +2,8 @@
 
 ```diff
 - The Velosurf project is deprecated.
-- Please use the <a href="https://github.com/arkanovicz/modality">Modality</a> [Modality](https://github.com/arkanovicz/modality) project.
 ```
+Please use the [Modality](https://github.com/arkanovicz/modality) project.
 
 ## WHAT IS IT ? 
 
