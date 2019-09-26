@@ -19,10 +19,7 @@
 package velosurf.web.auth;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Random;
@@ -30,8 +27,9 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpSession;
 import org.apache.velocity.tools.view.ViewContext;
-import java.util.Base64;
+import velosurf.util.Base64Utils;
 import velosurf.util.Logger;
+
 
 /**
  * This abstract class implements an authentication mechanism. It is meant to be declared
@@ -110,7 +108,7 @@ public abstract class BaseAuthenticator implements Serializable
         if (challenge == null)
 			  {
             BigInteger bigint = new BigInteger(CHALLENGE_LENGTH, random);
-            challenge = String.valueOf(Base64.getEncoder().encode(bigint.toByteArray()));
+            challenge = Base64Utils.base64Encode(bigint.toByteArray());
             challenge = challenge.replace("\n", "");
             Logger.trace("auth: generated new challenge: " + challenge);
 				}
@@ -178,7 +176,7 @@ public abstract class BaseAuthenticator implements Serializable
                 mac.init(new SecretKeySpec(password.getBytes("UTF-8"), method));
 
                 byte[] hash = mac.doFinal(challenge.getBytes("UTF-8"));
-                String encoded = String.valueOf(Base64.getEncoder().encode(hash));
+                String encoded = Base64Utils.base64Encode(hash);
 
                 /* strips the last(s) '=' */
                 int i;

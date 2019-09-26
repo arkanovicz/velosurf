@@ -169,6 +169,7 @@ Please specify a target among :
   <target name="download" description="- download all dependancy libraries needed for building">
    <property name="download.dir" value="${lib.dir}"/>
    <antcall target="-commons-beanutils-download"/>
+   <antcall target="-commons-codec-download"/>
    <antcall target="-commons-collections-download"/>
    <antcall target="-commons-lang-download"/>
    <antcall target="-commons-net-download"/>
@@ -183,6 +184,12 @@ Please specify a target among :
   <target name="-commons-beanutils-download">
    <property name="download.jar" value="commons-beanutils" />
    <property name="download.version" value="${jar.commons-beanutils.version}" />
+   <antcall target="-download-if-needed"/>
+  </target>
+
+  <target name="-commons-codec-download">
+   <property name="download.jar" value="commons-codec" />
+   <property name="download.version" value="${jar.commons-codec.version}" />
    <antcall target="-download-if-needed"/>
   </target>
 
